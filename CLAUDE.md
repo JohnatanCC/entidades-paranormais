@@ -19,13 +19,22 @@ e captura entidades. Este projeto começa pelo **Modo desenvolvedor → Criador 
 - Ele prefere **instruções passo a passo** para o que ele mesmo tem que fazer (rodar, testar, configurar), em vez de você operar o computador dele.
 - Ao terminar uma etapa: rode `npm run build`, teste no navegador, marque a etapa como feita em `docs/criador-de-mapas.md` e diga em poucas linhas o que testar.
 - Commits pequenos, com mensagem em português dizendo o que mudou ("Criador de mapas: paredes automáticas").
+- **Avalie toda ideia nova antes de aceitar.** É o maior projeto dele e pode virar produto: para cada ideia, diga se ela
+  conflita com alguma mecânica já decidida (agente, armas, captura, chefes), com o formato do mapa ou com o mobile.
+  Aponte o conflito e proponha a saída antes de construir. Estabilidade vem antes de recurso novo.
 
 ## Regras do conteúdo
 
 - **Não usar animações de morte** (nem do agente, nem dos fantasmas) nem as animações específicas de cenas do laboratório.
   O fantasma zerado vira poça e é capturado; o agente que cai volta no checkpoint.
-- Foque no que a **demo Intro** já provou: o agente, as duas armas e a armadilha, a captura por poça, o Espectral, o Glutão, o HUD conceito C, Lara e Nicolas.
-- Fora do projeto (eram testes do laboratório): a Mãe, o berço, o tornado, a demo "O Bando", a fatia, o círculo de velas, o orbe, o pé de cabra.
+- **A base é o laboratório v130**: `reference/laboratorio.html`, igual ao publicado em
+  https://claude.ai/artifact/BDUaLP6DmvqwsBXhkdJdYw. O link antigo (`2wZHuEXpxxiRrKP9h2J1jM`, com fatia, pé de cabra e
+  orbe) está desatualizado: não use como referência.
+- Faz parte da base: o agente, as duas armas e a armadilha, a captura por poça, o Espectral, o Glutão, o HUD conceito C,
+  Lara e Nicolas (a demo Intro) e **a Mãe com a luta do berçário** (o berço, o tornado, as quatro barras).
+- Fora do projeto (eram testes do laboratório): os outros fantasmas do laboratório (Sombra, Desconhecido, Garota, Mordomo,
+  Observador, Reflexo, Amigo), a demo da casa como fase, a demo "O Bando", a fatia, o círculo de velas, o orbe, o pé de cabra.
+  Fora agora não quer dizer fora para sempre: se o desenvolvedor trouxer de volta, atualize esta lista.
 - O visual padrão é o **filtro PS1** (pixels, 5 bits com pontilhado, tremor de vértice); "limpo" e "suave" são opções.
 
 ## Comandos
@@ -52,9 +61,30 @@ src/
   render/                  RetroRenderer (pós-processo PS1) e psx.ts (tremor de vértice)
   maps/                    types.ts (o formato v1), loader.ts (lê a pasta), save.ts, textures.ts (catálogo)
   editor/                  MapEditor (a tela) e MapView (desenha os blocos)
-reference/                 o laboratório antigo, só para consulta (não importar nada daqui)
+reference/                 o laboratório antigo, só para consulta (não importar nada daqui); ost/ = as 4 músicas dele
 docs/                      o que está decidido
 ```
+
+### A estrutura planejada do jogo (criar cada pasta só quando a etapa chegar nela)
+
+Cada coisa do jogo mora na sua pasta; nada de arquivo gigante como o laboratório. Os números (vida, dano, tempos)
+ficam num arquivo próprio de cada pasta, para ajustar sem caçar no código.
+
+```
+src/game/
+  player/                  o agente: movimento, câmera, esquiva, vida, animação
+  weapons/                 pistola, escopeta, armadilha, sobrecarga
+  enemies/<nome>/          um fantasma por pasta (espectral/, glutao/, ...): IA, ataques, modelo, números
+  capture/                 a poça e a captura
+  allies/                  Lara e Nicolas
+  hud/                     o HUD conceito C
+  input/                   ações do jogador (teclado e mouse, controle, toque): o jogo lê ações, nunca teclas
+  world/                   carrega o mapa, colisão, portas, luz
+src/chapters/cap1/         o roteiro do capítulo: qual mapa, gatilhos, cenas, chefe
+```
+
+O jogo vai para o **celular** depois: por isso a camada `input/` desde o início, e cuidado com o peso das cenas
+(chamadas de desenho). O editor de mapas é só para PC.
 
 ## A stack
 

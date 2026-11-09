@@ -24,6 +24,24 @@ Plano original e decisões: `docs/design/criador-de-mapas-plano.md`. Este arquiv
 | Lâmpadas de teto | normal, falhando, apagada |
 | Detalhes | quadros, sujeira, manchas (decalques colados na superfície) |
 | Scripts | Depois do mapa: gatilhos, cenas, nascimento de monstros. O formato já reserva `points` |
+| Capítulos | **Cada capítulo é um mapa próprio** (`maps/mansao-cap1`, `maps/mansao-cap2`...). A mansão que muda é uma troca de mapa; o mapa do capítulo seguinte nasce como cópia do anterior. Arena de chefe pode ser outro mapa, atrás de uma tela de carregamento |
+| A demo | É o **capítulo 1 inteiro**: o primeiro mapa de verdade é `mansao-cap1` |
+| Pé-direito alto | Paredes de dois andares (7 m) e sem piso no andar de cima. Assim sai a arena do berçário (24 × 32 m, paredes de ~7 m, sem teto) e o salão de pé-direito duplo |
+| Celular | O jogo vai para o celular depois; o editor fica só no PC. Por isso os mapas precisam ser leves: junção das malhas por bloco (etapa 7) |
+
+## Pontos a decidir antes das etapas que dependem deles
+
+- **Copiar um mapa** ("Salvar como"): é o que faz o capítulo 2 nascer do 1. Pequeno; cabe na etapa 2, se aprovado.
+- **Largura mínima onde tem luta.** A câmera é sobre o ombro (estilo Resident Evil 4) e a esquiva anda 2,7 m: corredor de
+  1,4 m (como no design antigo da mansão) aperta a câmera e a esquiva. Proposta: 2,5 m ou mais onde houver luta, 1,4 m só em passagem.
+- **Porta trancada com motivo** (etapa 4): o capítulo tranca áreas e fecha a sala quando a luta começa. A porta precisa de
+  um estado inicial (aberta, fechada, trancada), de uma linha curta de motivo e, se for o caso, da **chave** que abre
+  (a do berçário, no capítulo 1); o script abre e fecha pelo `id`.
+- **O que o capítulo 1 pede do mapa** (a Mãe perseguidora e os objetos ligados, ver `docs/jogo.md`):
+  - por onde ela anda: as paredes, portas e escadas do mapa precisam bastar para ela achar caminho pela casa inteira,
+    nos dois andares (a malha de caminhos sai do mapa na etapa 7, não é desenhada à mão);
+  - onde ficam os objetos ligados e a chave: pontos marcados no mapa (`points`), um ou vários candidatos por objeto;
+  - o barulho do chão (assoalho que range, tapete abafa): talvez uma propriedade da textura do piso. Decidir na etapa 3.
 
 ## O formato (versão 1)
 

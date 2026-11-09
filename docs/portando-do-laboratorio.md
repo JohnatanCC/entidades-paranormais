@@ -21,6 +21,19 @@ O laboratório é só referência: nada no projeto importa de `reference/`.
 
 Os números das linhas servem para achar o contexto no arquivo inteiro (`reference/laboratorio.html`), onde estão as funções auxiliares que os trechos usam.
 
+## As músicas (`reference/ost/`)
+
+Os únicos sons em arquivo; o resto o laboratório sintetiza na hora. A tabela `MUS` (linha ~765) diz o uso e o volume:
+
+| Arquivo | Uso | Volume |
+| --- | --- | --- |
+| `amb_casa.mp3` | ambiente da casa | 0,6 |
+| `tensao.mp3` | tensão (Espectrais por perto) | 0,55 |
+| `batalha_mae.mp3` | a luta da Mãe | 0,62 |
+| `batalha_espectral.mp3` | a luta dos Espectrais e do Glutão; o laço vai de 0,39 s a 121,2 s | 0,62 |
+
+No jogo elas vão para `public/musica/` e são chamadas por nome, como as texturas.
+
 ## O que já foi portado
 
 - Paleta e fontes → `src/styles.css`.
@@ -42,7 +55,13 @@ Os números das linhas servem para achar o contexto no arquivo inteiro (`referen
 ## O que NÃO trazer
 
 - **Animações de morte** (a queda do agente, fantasmas morrendo) e animações específicas de cenas do laboratório.
-- A Mãe, o berço, o tornado, a demo "O Bando", a demo da casa como fase, a fatia jogável.
+- Os outros fantasmas (Sombra, Desconhecido, Garota, Mordomo, Observador, Reflexo, Amigo), a demo "O Bando", a demo da casa como fase, a fatia jogável.
+
+## A Mãe (fica no projeto; ainda não tem trecho separado em `reference/lab/`)
+
+Procure no arquivo inteiro: voz e sons (linhas ~572, ~2006, ~2039), paleta (~2424), o modelo (~2764), a luta no berçário
+(~6873), a demo em terceira pessoa com a tabela `T` e a arena (~7662), o berço (~8094, ~9750), o corredor (~8183),
+o Luto e o tornado (~8343), as fases e a captura (~9623), o fluxo da luta (~10548), as luzes (~10616) e a entrada (~14098).
 - Os robôs de teste (`bot`) e os ganchos `window.__mae`: no projeto, os testes são outros.
 - Os textos de interface do laboratório (painéis de depuração, listas de demos).
 

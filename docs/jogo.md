@@ -4,6 +4,34 @@ Entidades Paranormais é um jogo de **ação com terror em terceira pessoa** (in
 Você é **Matheus Moura**, agente da **C.R.O.S.** (a organização que captura entidades). Você enfraquece os fantasmas
 a tiro e os prende com a armadilha. Visual retrô de PS1 por padrão (o filtro limpo é opcional).
 
+## A direção (9/nov/2026)
+
+- **Inspirações:** Ghosthunter (PS2) no tom e na captura; Resident Evil 4 na gameplay (câmera sobre o ombro, mirar parado ou devagar).
+- **A demo é o capítulo 1 inteiro**, jogável do começo ao chefe. A história ainda vai crescer.
+- **Capítulos:** a cada chefe derrotado a mansão muda, porque ela se alimenta dos fantasmas. Na prática, cada capítulo é um mapa.
+- **Mais tarde:** versão para celular, e talvez vender ou publicar de graça.
+- **A base é o laboratório v130** (`reference/laboratorio.html`, o mesmo de https://claude.ai/artifact/BDUaLP6DmvqwsBXhkdJdYw).
+
+## O objetivo de cada capítulo
+
+Cada fantasma fica preso à casa por **objetos ligados a ele**. O agente procura esses objetos pelo mapa e os **destrói**.
+O número de objetos e os lugares variam de fantasma para fantasma.
+
+## Capítulo 1: a Mãe
+
+- **Chefe:** a Mãe. A luta final é a do berçário (abaixo).
+- **Os 3 objetos:** a foto do filho; a pelúcia de gato que era do filho; o berço, por último: o berçário só abre com uma
+  **chave** achada antes.
+- **No mapa, ela é uma perseguidora** (como o Mister X do Resident Evil 2): anda pela casa, **escuta o barulho** que o
+  agente faz e vem atrás. Não pode ser derrotada fora da luta: com dano suficiente, fica **atordoada** por um tempo.
+  O laboratório já tem a base disso: a patrulha cantarolando, a pausa em que ela escuta e a caça (voz, respiração, grito).
+- **Salas seguras:** o agente cria uma área protegida com sal e runas, onde os fantasmas não entram. Detalhes depois.
+
+**Em aberto (decidir antes de montar o capítulo):**
+- Destruir a foto e a pelúcia muda a Mãe (menos vida, outro comportamento) ou só libera o caminho?
+- "Lugares variados": cada objeto tem um lugar fixo, ou sorteia entre alguns lugares a cada partida?
+- O que faz barulho (correr, tiro, porta, assoalho que range) e quanto ela atordoada dura.
+
 Este arquivo resume o que foi **jogado e aprovado na demo Intro do laboratório** (versão v130).
 Os números vêm de `reference/laboratorio.html`; se um número aqui e no laboratório não baterem, vale o laboratório.
 Os textos longos de design (história, mansão, intro) estão em `docs/design/` (cópias do documento de design).
@@ -62,6 +90,25 @@ Mirar: botão direito. Atirar: botão esquerdo. Correr: Shift. Interagir: E.
 
 Os Espectrais são esqueléticos, de manto. O Glutão é gordo, esquelético e deformado, com núcleo brilhante na barriga.
 
+## A Mãe (chefe, a luta do berçário)
+
+Números da tabela `T` em `buildDemo()` do laboratório (linha ~7674); a lógica das fases na linha ~9623.
+
+| | Valor |
+| --- | --- |
+| Vida | 1400, em **4 barras** (20%, 25%, 25%, 30%) |
+| Arena | 24 × 32 m, sem teto, chão coberto de Luto; o berço numa ilha seca um pouco para o fundo. Antes dela, um corredor longo e escuro com a porta do berçário no fim |
+| Dano dela | garrada 25, investida 35, carga 35, tornado 20 |
+| O berço | o objeto amaldiçoado, vida 200 |
+| Kits | começa com 1; um móvel que cai pode soltar um (20%, um por vez) |
+
+- **Fase 1:** rodeia → mergulha no Luto → aviso vermelho perto de você → investida → garradas → exausta (a janela de dano, ×1,3).
+- **Fase 2:** + a finta (afunda num lugar e sai em outro).
+- **Fase 3:** o tornado em volta do berço; as investidas saem da parede dele.
+- **Fase 4:** o tornado vira chuva e o berço fica exposto; ele protege a última barra. Berço quebrado: o Luto seca e ela passa a correr (carga).
+- Barra zerada: **atordoada 6 s**. A última zerada: **enfraquecida 12 s**, a hora da armadilha.
+- Caiu: recomeça a partir da fase em que você caiu.
+
 ## O HUD (conceito C, aprovado)
 
 - **Vida**: anel grande com o número em %, linha de ECG e o estado (bem / cuidado / perigo); o fôlego é um anel por dentro.
@@ -85,5 +132,6 @@ Detalhes completos: `docs/design/intro.md`. Código: `reference/lab/08-intro.js`
 ## Fica de fora (não trazer do laboratório)
 
 - **Animações de morte** de qualquer tipo, e as cenas específicas feitas só para o laboratório.
-- A Mãe, o berço, o tornado, a demo "O Bando", a demo da casa, a fatia jogável: eram testes.
+- Os outros fantasmas do laboratório (Sombra, Desconhecido, Garota, Mordomo, Observador, Reflexo, Amigo), a demo "O Bando",
+  a demo da casa como fase, a fatia jogável: eram testes. (A Mãe, o berço e o tornado **ficam**.)
 - Sistemas antigos de captura (círculo de velas, pé de cabra, orbe, chance de captura): substituídos pela poça + armadilha.
