@@ -54,7 +54,14 @@ export interface Opening {
   window?: WindowKind
   tex?: string
   light2d?: boolean // janela: o feixe e a mancha de luz 2D
+  // campos novos da etapa 4 (opcionais: mapa antigo sem eles continua valendo, com os padrões abaixo)
+  lado?: 'a' | 'b' // porta: para que lado da parede a folha abre; janela: o lado de dentro (onde o luar cai). Padrão: 'b'
+  estado?: DoorState // porta: como começa. Padrão: 'fechada'
+  motivo?: string // porta trancada: a linha que aparece ao tentar abrir ("Trancada por dentro")
+  chave?: string // porta trancada: o nome da chave que abre ("chave-bercario"); sem chave, só o script abre
 }
+
+export type DoorState = 'aberta' | 'fechada' | 'trancada'
 
 /** Uma escada reta: a área na grade, para onde sobe e quanto sobe (um andar = LEVEL_H). */
 export interface Stair {

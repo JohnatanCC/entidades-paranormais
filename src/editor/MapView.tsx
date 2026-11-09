@@ -4,6 +4,7 @@ import { useEffect, useMemo } from 'react'
 import { LEVEL_H, type Chunk } from '../maps/types'
 import { materialDe } from '../render/materiais'
 import { floorGeometries, wallGeometries } from './wallMesh'
+import { Aberturas } from './Aberturas'
 
 interface Props { chunks: Record<string, Chunk>; maxLevel: number }
 
@@ -17,6 +18,7 @@ export function MapView({ chunks, maxLevel }: Props) {
     <group>
       {[...paredes].map(([tex, g]) => <mesh key={'p' + tex} geometry={g} material={materialDe(tex)} castShadow receiveShadow />)}
       {[...pisos].map(([tex, g]) => <mesh key={'f' + tex} geometry={g} material={materialDe(tex)} receiveShadow />)}
+      <Aberturas chunks={lista} maxLevel={maxLevel} />
       {lista.map((c) => (
         <group key={`${c.cx}_${c.cz}`}>
           {c.stairs.filter((s) => s.level <= maxLevel).map((s) => <Escada key={s.id} {...s} />)}

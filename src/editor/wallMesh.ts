@@ -6,7 +6,7 @@
 //   - ponta solta: uma tampa fecha a ponta.
 import * as THREE from 'three'
 import { LEVEL_H, type Axis, type Chunk, type Opening, type Wall, type WallSide } from '../maps/types'
-import { TOPO } from '../render/materiais' // o corte da parede (topo e a parte de baixo das vergas)
+import { BATENTE, TOPO } from '../render/materiais' // o corte da parede (topo e vergas) e a madeira do batente
 
 export const ESPESSURA = 0.12 // a espessura da parede (m)
 const PORTA_H = 2.1, GRANDE_H = 2.8, JANELA_Y0 = 0.9, JANELA_Y1 = 2.1
@@ -32,6 +32,11 @@ function trechos(op?: Opening): [number, number][] {
   if (!op) return [[0, LEVEL_H]]
   if (op.kind === 'porta') return [[op.door === 'grande' ? GRANDE_H : PORTA_H, LEVEL_H]]
   return [[0, JANELA_Y0], [JANELA_Y1, LEVEL_H]]
+}
+
+/** O vão que a abertura tira da parede (de y0 a y1, a partir do chão do andar). */
+export function buraco(op: Opening): [number, number] {
+  return op.kind === 'porta' ? [0, op.door === 'grande' ? GRANDE_H : PORTA_H] : [JANELA_Y0, JANELA_Y1]
 }
 
 /** As geometrias das paredes até o andar maxLevel, uma por nome de textura (e TOPO para os cortes). */
@@ -69,7 +74,15 @@ export function wallGeometries(chunks: Chunk[], maxLevel: number): Map<string, T
       for (const [fa, fb, tex] of faixas) quad(buf(tex), [P(u0, d, fa), P(u1, d, fa), P(u1, d, fb), P(u0, d, fb)], nLado(sinal), [[u0, fa], [u1, fa], [u1, fb], [u0, fb]])
     }
 
-    for (const [ya, yb] of trechos(aberturas.get(k(L, ax, w.x, w.z)))) {
+    // o batente: nas pontas do vão (onde o pedaço vizinho não é da mesma abertura), a madeira por dentro da espessura
+    const op = aberturas.get(k(L, ax, w.x, w.z))
+    if (op) {
+      const [h0, h1] = buraco(op)
+      const viz = (d: number) => aberturas.get(ax === 'x' ? k(L, 'x', w.x + d, w.z) : k(L, 'z', w.x, w.z + d)) === op
+      if (!viz(-1)) quad(buf(BATENTE), [P(s, -T2, h0), P(s, T2, h0), P(s, T2, h1), P(s, -T2, h1)], nAo(1), [[0, h0], [1, h0], [1, h1], [0, h1]])
+      if (!viz(1)) quad(buf(BATENTE), [P(s + 1, -T2, h0), P(s + 1, T2, h0), P(s + 1, T2, h1), P(s + 1, -T2, h1)], nAo(-1), [[0, h0], [1, h0], [1, h1], [0, h1]])
+    }
+    for (const [ya, yb] of trechos(op)) {
       lado(w.a, -1, ya, yb)
       lado(w.b, 1, ya, yb)
       quad(buf(TOPO), [P(u0, -T2, yb), P(u1, -T2, yb), P(u1, T2, yb), P(u0, T2, yb)], [0, 1, 0], [[u0, 0], [u1, 0], [u1, 1], [u0, 1]])

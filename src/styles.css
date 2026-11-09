@@ -85,3 +85,15 @@ button { font: inherit; color: inherit; }
 .editor .painel .altura .opcoes button[aria-pressed='true'] { border-color: var(--lamp); color: var(--amber); }
 .editor .altura input { accent-color: var(--lamp); }
 .editor .altura b { color: var(--cream); font-weight: 500; }
+
+/* portas e janelas */
+.editor .tipos { display: grid; grid-template-columns: 1fr 1fr; gap: 4px; }
+.editor .painel .tipos .item { font-size: 12px; padding: 5px 6px; }
+.editor .propriedades { display: flex; flex-direction: column; gap: 6px; border: 1px solid var(--line); padding: 8px; }
+.editor .propriedades .rotulo { font-size: 11px; color: var(--muted); }
+.editor .propriedades .opcoes { display: flex; gap: 4px; flex-wrap: wrap; }
+.editor .painel .propriedades .opcoes button[aria-pressed='true'] { border-color: var(--lamp); color: var(--amber); }
+.editor .propriedades .campo { display: flex; flex-direction: column; gap: 3px; }
+.editor .propriedades input { background: var(--bg); border: 1px solid var(--line); color: var(--fg); font: inherit; font-size: 12px; padding: 4px 6px; }
+.editor .propriedades input:focus { outline: none; border-color: var(--lamp); }
+.editor .painel button.perigo:hover { border-color: var(--accent); color: var(--accent); }

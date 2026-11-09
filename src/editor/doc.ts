@@ -1,7 +1,7 @@
 // O documento que o editor muda: o cabeçalho e os blocos (pela chave "cx_cz"). Nunca é alterado no lugar: cada
 // mudança gera um documento novo que reaproveita os blocos que não mudaram. É isso que deixa o desfazer barato
 // (o histórico guarda documentos inteiros, mas eles dividem quase tudo entre si).
-import { chunkKey, chunkOf, emptyChunk, type Axis, type Chunk, type MapMeta, type Wall, type WallSide } from '../maps/types'
+import { chunkKey, chunkOf, emptyChunk, type Axis, type Chunk, type MapMeta, type Opening, type Wall, type WallSide } from '../maps/types'
 import { vazio, type MapBundle } from '../maps/storage'
 
 export interface MapDoc { meta: MapMeta; chunks: Record<string, Chunk> }
@@ -221,6 +221,71 @@ export function ladosDaSala(doc: MapDoc, de: LadoDe, limite = 2500): { lados: La
     if (p('z', x + 1, z)) lados.push({ seg: { level: L, axis: 'z', x: x + 1, z }, lado: 'a' })
   }
   return { lados, fechada: true }
+}
+
+// ---------- portas e janelas ----------
+
+/** Os pedaços de parede que uma abertura ocupa (a largura conta a partir de x, z ao longo do eixo). */
+export function pedacosDe(o: Pick<Opening, 'level' | 'axis' | 'x' | 'z' | 'width'>): Seg[] {
+  return Array.from({ length: o.width }, (_, i) => ({ level: o.level, axis: o.axis, x: o.axis === 'x' ? o.x + i : o.x, z: o.axis === 'z' ? o.z + i : o.z }))
+}
+
+export function aberturas(doc: MapDoc): Opening[] {
+  return Object.values(doc.chunks).flatMap((c) => c.openings)
+}
+
+/** A abertura que ocupa este pedaço de parede, se houver. */
+export function aberturaNo(doc: MapDoc, s: Seg): Opening | undefined {
+  const k = segKey(s)
+  return aberturas(doc).find((o) => pedacosDe(o).some((p) => segKey(p) === k))
+}
+
+/**
+ * Onde cabe uma abertura de `width` pedaços começando no pedaço clicado: primeiro para frente no eixo, depois
+ * recuando. Precisa de parede em todos os pedaços e nenhuma outra abertura no caminho. Devolve o início ou um motivo.
+ */
+export function ondeCabe(doc: MapDoc, s: Seg, width: number): { x: number; z: number } | { erro: string } {
+  const tem = new Set<string>()
+  for (const w of paredes(doc, s.level)) tem.add(segKey(w))
+  const ocupado = new Set(aberturas(doc).flatMap((o) => pedacosDe(o).map(segKey)))
+  for (let recuo = 0; recuo < width; recuo++) {
+    const x = s.axis === 'x' ? s.x - recuo : s.x, z = s.axis === 'z' ? s.z - recuo : s.z
+    const ps = pedacosDe({ level: s.level, axis: s.axis, x, z, width })
+    if (ps.every((p) => tem.has(segKey(p)) && !ocupado.has(segKey(p)))) return { x, z }
+  }
+  return { erro: width > 1 ? `Não cabe: precisa de ${width} m de parede reta livre.` : 'Já tem uma porta ou janela aqui.' }
+}
+
+/** O lado de dentro de um pedaço de parede: o lado com piso; sem piso dos dois lados (ou nos dois), o lado oposto ao que a câmera vê. */
+export function ladoDeDentro(doc: MapDoc, s: Seg, visto: Lado): Lado {
+  const piso = (x: number, z: number) => Object.values(doc.chunks).some((c) => c.floors.some((f) => f.level === s.level && f.x === x && f.z === z))
+  // o quadrado de cada lado do pedaço (a olha para −z ou −x)
+  const qa: [number, number] = s.axis === 'x' ? [s.x, s.z - 1] : [s.x - 1, s.z], qb: [number, number] = [s.x, s.z]
+  const a = piso(...qa), b = piso(...qb)
+  if (a !== b) return a ? 'a' : 'b'
+  return visto === 'a' ? 'b' : 'a'
+}
+
+const novoId = (pre: string) => `${pre}-${Math.random().toString(36).slice(2, 7)}`
+
+export function comAbertura(doc: MapDoc, o: Omit<Opening, 'id'>): { doc: MapDoc; id: string } {
+  const id = novoId(o.kind === 'janela' ? 'janela' : o.door === 'vao' ? 'vao' : 'porta')
+  const b = chunkKey(...chunkOf(o.x, o.z))
+  return { doc: mudarBlocos(doc, [b], (c) => ({ ...c, openings: [...c.openings, { ...o, id }] })), id }
+}
+
+export function semAbertura(doc: MapDoc, id: string): MapDoc {
+  const b = Object.entries(doc.chunks).find(([, c]) => c.openings.some((o) => o.id === id))?.[0]
+  if (!b) return doc
+  return mudarBlocos(doc, [b], (c) => ({ ...c, openings: c.openings.filter((o) => o.id !== id) }))
+}
+
+export function mudarAbertura(doc: MapDoc, id: string, patch: Partial<Opening>): MapDoc {
+  const b = Object.entries(doc.chunks).find(([, c]) => c.openings.some((o) => o.id === id))?.[0]
+  if (!b) return doc
+  const atual = doc.chunks[b].openings.find((o) => o.id === id)!
+  if (Object.entries(patch).every(([k, v]) => (atual as unknown as Record<string, unknown>)[k] === v)) return doc
+  return mudarBlocos(doc, [b], (c) => ({ ...c, openings: c.openings.map((o) => (o.id === id ? { ...o, ...patch } : o)) }))
 }
 
 export const comAndares = (doc: MapDoc, levels: number): MapDoc => ({ ...doc, meta: { ...doc.meta, levels } })

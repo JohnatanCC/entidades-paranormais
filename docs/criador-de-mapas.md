@@ -34,9 +34,6 @@ Plano original e decisões: `docs/design/criador-de-mapas-plano.md`. Este arquiv
 
 - **Largura mínima onde tem luta.** A câmera é sobre o ombro (estilo Resident Evil 4) e a esquiva anda 2,7 m: corredor de
   1,4 m (como no design antigo da mansão) aperta a câmera e a esquiva. Proposta: 2,5 m ou mais onde houver luta, 1,4 m só em passagem.
-- **Porta trancada com motivo** (etapa 4): o capítulo tranca áreas e fecha a sala quando a luta começa. A porta precisa de
-  um estado inicial (aberta, fechada, trancada), de uma linha curta de motivo e, se for o caso, da **chave** que abre
-  (a do berçário, no capítulo 1); o script abre e fecha pelo `id`.
 - **O que o capítulo 1 pede do mapa** (a Mãe perseguidora e os objetos ligados, ver `docs/jogo.md`):
   - por onde ela anda: as paredes, portas e escadas do mapa precisam bastar para ela achar caminho pela casa inteira,
     nos dois andares (a malha de caminhos sai do mapa na etapa 7, não é desenhada à mão);
@@ -69,8 +66,13 @@ Unidades: metros e graus; y para cima; andar 0 = térreo.
   `axis: "z"` corre de (x, z) a (x, z+1). O lado `a` olha para −z (eixo x) ou −x (eixo z); o `b` para o outro lado.
   Cada lado: `{ tex, base?: { tex, h } }` (h = altura do lambri).
 - **Piso** `{ level, x, z, top, bottom }`: o quadrado de (x, z) a (x+1, z+1).
-- **Abertura** `{ id, level, x, z, axis, width, kind: "porta"|"janela", door?, window?, tex?, light2d? }`: cobre `width` pedaços de parede a partir de (x, z).
-  Porta comum/dupla: vão até 2,1 m; grande: até 2,8 m; janela: de 0,9 a 2,1 m.
+- **Abertura** `{ id, level, x, z, axis, width, kind: "porta"|"janela", door?, window?, tex?, light2d?, lado?, estado?, motivo?, chave? }`:
+  cobre `width` pedaços de parede a partir de (x, z). Porta comum/dupla: vão até 2,1 m; grande: até 2,8 m; janela: de 0,9 a 2,1 m.
+  Larguras: comum 1, dupla 2, grande 2, vão 1 a 3, janela 1, janela grande 2.
+  `lado` (`"a"`|`"b"`, padrão `"b"`): na porta, para que lado a folha abre; na janela, o lado de dentro (onde cai o luar).
+  `estado` (porta): `"fechada"` (padrão), `"aberta"` ou `"trancada"`; a trancada tem `motivo` (a linha ao tentar abrir) e
+  `chave` (o nome da chave que abre; sem chave, só um script abre). Os scripts abrem e fecham pela `id`.
+  Esses quatro campos entraram na etapa 4 e são opcionais: mapa antigo sem eles continua valendo (por isso o `formato` não subiu).
 - **Escada** `{ id, level, x, z, w, d, dir: "norte"|"sul"|"leste"|"oeste", rise, tex }`.
 - **Objeto** `{ id, type, level, pos, rot, free?, params? }` (rot em graus; na grade só o y conta).
 - **Decalque** `{ id, type, level, pos, normal, rot, size }`.
@@ -100,7 +102,11 @@ Cada etapa vira uma versão que o desenvolvedor testa antes da próxima.
    **Pintar parede (4)** pinta o lado apontado, arrastar pinta vários, **Shift + clique pinta a sala inteira** por dentro; a barra de baixo
    (lambri) tem textura e altura próprias. O catálogo tem 34 texturas (casa, Intro e algumas novas), todas em blocos de 1 m com 32 × 32 px.
    A luz do editor é de trabalho (clara, sem sombra); a luz de verdade vem na etapa 6 (lâmpadas) e na 7 (Testar).
-4. **Portas e janelas.** Os quatro tipos de porta e os dois de janela, com a luz 2D.
+4. **Portas e janelas.** ✅ Os quatro tipos de porta e os dois de janela, com a luz 2D.
+   Ferramenta **Portas e janelas (5)**: escolha o tipo e clique numa parede (a prévia fica âmbar onde cabe, vermelha onde não).
+   O lado de dentro é adivinhado (o lado com piso; sem piso, o oposto à câmera). Clique numa porta ou janela para escolher:
+   o painel muda o estado (fechada, aberta, trancada com motivo e chave), o lado e o luar; Ctrl + clique ou Del apaga.
+   No editor a porta trancada mostra um cadeado vermelho. Ficaram de fora: porta emperrada e porta de correr (a da Intro).
 5. **Escadas.** Retas, montadas sozinhas pela área e pela altura; o buraco no piso de cima.
 6. **Objetos e detalhes.** O catálogo (móveis da mansão e da Intro), encaixe e rotação, modo livre, lâmpadas com os três modos, quadros e sujeira.
 7. **Testar e os blocos.** O botão Testar: o agente andando no mapa com colisão e luz; o carregamento por blocos perto do jogador e a junção das malhas por bloco.

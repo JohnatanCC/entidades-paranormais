@@ -7,7 +7,10 @@ import { TEXTURAS, type TexDef } from '../maps/textures'
 import { applyPsx } from './psx'
 
 export const TOPO = '#topo' // o corte da parede (topo e a parte de baixo das vergas)
-const COR_TOPO = '#2a2622'
+export const BATENTE = '#batente' // a madeira do batente e das guarnições das portas e janelas
+export const VIDRO = '#vidro' // o vidro das janelas
+// as "texturas" que são só cor (não estão no catálogo)
+const CORES: Record<string, string> = { [TOPO]: '#2a2622', [BATENTE]: '#3a2618', [VIDRO]: '#2e3f56' }
 export const PX_BLOCO = 32 // pixels por bloco de 1 m
 export const BLOCO = 1 // o lado do bloco (m)
 
@@ -65,18 +68,18 @@ export function texturaDe(nome: string): THREE.Texture | null {
     t.wrapS = t.wrapT = THREE.RepeatWrapping
     // as coordenadas de textura das malhas estão em metros: um bloco por metro (a porta, no tamanho dela)
     if (ehBloco(def)) t.repeat.set(1 / BLOCO, 1 / BLOCO)
-    else t.repeat.set(1 / def.tam[0], 1 / def.tam[1])
+    else t.repeat.set(1, 1) // a porta cobre a folha inteira (a folha tem UV de 0 a 1)
     texturas.set(nome, t)
   }
   return t
 }
 
-/** O material de um nome do catálogo (magenta se o nome não existe; TOPO é o corte escuro da parede). */
+/** O material de um nome do catálogo (magenta se o nome não existe; TOPO, BATENTE e VIDRO são só cor). */
 export function materialDe(nome: string): THREE.MeshStandardMaterial {
   let m = materiais.get(nome)
   if (!m) {
-    const map = nome === TOPO ? null : texturaDe(nome)
-    m = applyPsx(new THREE.MeshStandardMaterial({ map, color: nome === TOPO ? COR_TOPO : map ? '#ffffff' : '#ff00ff', roughness: 0.92 }))
+    const cor = CORES[nome], map = cor ? null : texturaDe(nome)
+    m = applyPsx(new THREE.MeshStandardMaterial({ map, color: cor ?? (map ? '#ffffff' : '#ff00ff'), roughness: nome === VIDRO ? 0.25 : 0.92 }))
     materiais.set(nome, m)
   }
   return m
