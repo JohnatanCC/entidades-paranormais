@@ -30,7 +30,10 @@ O número de objetos e os lugares variam de fantasma para fantasma.
 **Em aberto (decidir antes de montar o capítulo):**
 - Destruir a foto e a pelúcia muda a Mãe (menos vida, outro comportamento) ou só libera o caminho?
 - "Lugares variados": cada objeto tem um lugar fixo, ou sorteia entre alguns lugares a cada partida?
-- O que faz barulho (correr, tiro, porta, assoalho que range) e quanto ela atordoada dura.
+- Quanto tempo ela fica atordoada.
+
+**Decidido (9/nov):** o barulho que a Mãe escuta **não vem do piso**. Vem de quebrar objetos, abrir porta com força e
+atirar. Mais tarde entra **agachar / esgueirar-se** (andar sem fazer barulho).
 
 Este arquivo resume o que foi **jogado e aprovado na demo Intro do laboratório** (versão v130).
 Os números vêm de `reference/laboratorio.html`; se um número aqui e no laboratório não baterem, vale o laboratório.

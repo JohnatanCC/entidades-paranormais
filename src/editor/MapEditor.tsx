@@ -1,5 +1,6 @@
-// O criador de mapas — etapa 2: a câmera do editor, os andares, as paredes automáticas (reta e sala), apagar,
-// desfazer e refazer, e o gerenciador de mapas (novo, abrir, salvar, copiar, apagar, exportar e importar).
+// O criador de mapas — etapas 2 e 3: a câmera do editor, os andares, as paredes automáticas (reta e sala), apagar,
+// desfazer e refazer, o gerenciador de mapas (novo, abrir, salvar, copiar, apagar, exportar e importar),
+// o piso (chão e o teto de baixo) e o pincel de parede (textura e barra de baixo), com o catálogo de texturas.
 // O mapa aberto é um documento (doc.ts): as ferramentas geram um documento novo e a vista desenha a partir dele.
 import { Suspense, useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { Canvas } from '@react-three/fiber'
@@ -8,21 +9,32 @@ import type { Go } from '../App'
 import * as disco from '../maps/storage'
 import { CHUNK, LEVEL_H } from '../maps/types'
 import { RetroRenderer } from '../render/RetroRenderer'
-import { andarTemCoisa, comAndares, comParedes, docDe, pacoteDe, semParedes, type MapDoc, type Seg } from './doc'
+import { andarTemCoisa, comAndares, comParedes, comPiso, docDe, pacoteDe, pintarLados, semParedes, semPiso, type LadoDe, type MapDoc, type Seg } from './doc'
 import { useHistorico } from './historico'
 import { EditorCamera } from './EditorCamera'
 import { FerramentaParedes } from './FerramentaParedes'
+import { FerramentaPincel } from './FerramentaPincel'
+import { FerramentaPiso } from './FerramentaPiso'
+import { Paleta } from './Paleta'
 import { MapManager } from './MapManager'
 import { MapView } from './MapView'
 
-type Ferramenta = 'paredes' | 'apagar'
-const FUTURAS = ['Piso e teto', 'Portas e janelas', 'Escadas', 'Objetos', 'Luzes', 'Detalhes', 'Scripts']
+type Ferramenta = 'paredes' | 'apagar' | 'piso' | 'pincel'
+const FUTURAS = ['Portas e janelas', 'Escadas', 'Objetos', 'Luzes', 'Detalhes', 'Scripts']
 const ULTIMO = 'entidades.editor.ultimo' // o último mapa aberto (abre sozinho na próxima vez)
 const ID_OK = /^[a-z0-9][a-z0-9_-]{0,63}$/
 
 const lerUltimo = () => { try { return localStorage.getItem(ULTIMO) } catch { return null } }
 const guardarUltimo = (id: string) => { try { localStorage.setItem(ULTIMO, id) } catch { /* sem armazenamento: tudo bem */ } }
 const nomeAndar = (i: number) => (i === 0 ? 'Térreo' : `${i}º andar`)
+const AJUDA: Record<Ferramenta, string> = {
+  paredes: 'Arraste numa linha: parede reta. Arraste em diagonal: sala fechada pelas quatro paredes. Ctrl + arrastar apaga. Esc cancela.',
+  apagar: 'Arraste uma área: apaga as paredes dentro dela. Clique numa parede: apaga só aquele pedaço.',
+  piso: 'Arraste uma área (ou clique num quadrado): põe o piso com o chão e o teto de baixo escolhidos; num piso que já existe, repinta. Ctrl + arrastar apaga o piso.',
+  pincel: 'Clique numa parede: pinta o lado virado para você. Arraste: pinta tudo por onde passar. Shift + clique: pinta a sala inteira por dentro.',
+}
+const ALTURAS = [0.8, 1, 1.2, 1.5] // alturas comuns da barra de baixo (m)
+
 
 export function MapEditor({ go }: { go: Go }) {
   const hist = useHistorico<MapDoc | null>(null)
@@ -35,6 +47,8 @@ export function MapEditor({ go }: { go: Go }) {
   const [andarEscolhido, setAndar] = useState(0)
   const [filtro, setFiltro] = useState(false)
   const [aviso, setAviso] = useState('')
+  const [pincel, setPincel] = useState({ parede: 'reboco-creme', barra: 'lambri-madeira', h: 1, comBarra: true })
+  const [piso, setPiso] = useState({ chao: 'taco-madeira', teto: 'gesso' })
   const statusRef = useRef<HTMLSpanElement>(null)
   const iniciou = useRef(false)
 
@@ -171,6 +185,10 @@ export function MapEditor({ go }: { go: Go }) {
   }
 
   const onFeito = useCallback((segs: Seg[], tirar: boolean) => hist.mudar((d) => d && (tirar ? semParedes(d, segs) : comParedes(d, segs))), [hist.mudar])
+  const onPiso = useCallback((qs: [number, number][], tirar: boolean) =>
+    hist.mudar((d) => d && (tirar ? semPiso(d, andar, qs) : comPiso(d, andar, qs, piso.chao, piso.teto))), [hist.mudar, andar, piso])
+  const onPintar = useCallback((lados: LadoDe[]) => hist.mudar((d) => d && pintarLados(d, lados,
+    pincel.comBarra ? { tex: pincel.parede, base: { tex: pincel.barra, h: pincel.h } } : { tex: pincel.parede })), [hist.mudar, pincel])
   const onInfo = useCallback((t: string) => { if (statusRef.current) statusRef.current.textContent = t }, [])
 
   function sair() { if (podePerder()) go('dev') }
@@ -188,6 +206,8 @@ export function MapEditor({ go }: { go: Go }) {
     else if (e.key === 'PageDown') { e.preventDefault(); setAndar(Math.max(0, andar - 1)) }
     else if (e.key === '1') setFerramenta('paredes')
     else if (e.key === '2') setFerramenta('apagar')
+    else if (e.key === '3') setFerramenta('piso')
+    else if (e.key === '4') setFerramenta('pincel')
     else if (e.key === 'Escape' && gerenciador && doc) setGerenciador(false)
   }
   useEffect(() => {
@@ -233,11 +253,27 @@ export function MapEditor({ go }: { go: Go }) {
           <h3>Ferramentas</h3>
           <button className="item" aria-pressed={ferramenta === 'paredes'} onClick={() => setFerramenta('paredes')}>Paredes <kbd>1</kbd></button>
           <button className="item" aria-pressed={ferramenta === 'apagar'} onClick={() => setFerramenta('apagar')}>Apagar paredes <kbd>2</kbd></button>
-          <div className="nota">
-            {ferramenta === 'paredes'
-              ? 'Arraste numa linha: parede reta. Arraste em diagonal: sala fechada pelas quatro paredes. Ctrl + arrastar apaga. Esc cancela.'
-              : 'Arraste uma área: apaga as paredes dentro dela. Clique numa parede: apaga só aquele pedaço.'}
-          </div>
+          <button className="item" aria-pressed={ferramenta === 'piso'} onClick={() => setFerramenta('piso')}>Piso e teto <kbd>3</kbd></button>
+          <button className="item" aria-pressed={ferramenta === 'pincel'} onClick={() => setFerramenta('pincel')}>Pintar parede <kbd>4</kbd></button>
+          <div className="nota">{AJUDA[ferramenta]}</div>
+          {ferramenta === 'piso' && <>
+            <Paleta titulo="Chão" uso="piso" valor={piso.chao} onEscolher={(chao) => setPiso({ ...piso, chao })} />
+            <Paleta titulo="Teto do andar de baixo" uso="teto" valor={piso.teto} onEscolher={(teto) => setPiso({ ...piso, teto })} />
+            {andar === 0 && <div className="nota">No térreo o teto de baixo não aparece (não há andar embaixo).</div>}
+          </>}
+          {ferramenta === 'pincel' && <>
+            <Paleta titulo="Parede" uso="parede" valor={pincel.parede} onEscolher={(parede) => setPincel({ ...pincel, parede })} />
+            <label className="marcar"><input type="checkbox" checked={pincel.comBarra} onChange={(e) => setPincel({ ...pincel, comBarra: e.target.checked })} /> Barra embaixo (lambri)</label>
+            {pincel.comBarra && <>
+              <Paleta titulo="Barra" uso="lambri" valor={pincel.barra} onEscolher={(barra) => setPincel({ ...pincel, barra })} />
+              <div className="altura">
+                <span>Altura da barra</span>
+                <div className="opcoes">{ALTURAS.map((h) => <button key={h} aria-pressed={pincel.h === h} onClick={() => setPincel({ ...pincel, h })}>{h.toFixed(1).replace('.', ',')} m</button>)}</div>
+                <input type="range" min={0.2} max={3} step={0.1} value={pincel.h} onChange={(e) => setPincel({ ...pincel, h: Number(e.target.value) })} aria-label="Altura da barra" />
+                <b>{pincel.h.toFixed(1).replace('.', ',')} m</b>
+              </div>
+            </>}
+          </>}
           {FUTURAS.map((f) => <button key={f} className="item" disabled>{f}</button>)}
           <div className="nota">As outras ferramentas entram nas próximas etapas.</div>
           <h3>Câmera</h3>
@@ -246,12 +282,16 @@ export function MapEditor({ go }: { go: Go }) {
         {aviso && <div className="nota aviso">{aviso}</div>}
       </aside>
       <div className="vista">
-        <Canvas shadows camera={{ position: [10, 12, 10], fov: 50 }} gl={{ antialias: !filtro }}>
+        <Canvas camera={{ position: [10, 12, 10], fov: 50 }} gl={{ antialias: !filtro }}>
           <color attach="background" args={['#0b0c0f']} />
-          <ambientLight intensity={0.35} />
-          <directionalLight position={[8, 16, 6]} intensity={0.9} castShadow />
+          {/* luz de trabalho: clara e sem sombra, para ver as texturas; cada lado da parede pega um tom diferente */}
+          <hemisphereLight args={['#fff4e0', '#3a3530', 1.6]} />
+          <directionalLight position={[8, 16, 6]} intensity={1.4} />
+          <directionalLight position={[-10, 8, -4]} intensity={0.5} />
           {doc && <Suspense fallback={null}><MapView chunks={doc.chunks} maxLevel={andar} /></Suspense>}
-          {doc && <FerramentaParedes doc={doc} andar={andar} apagar={ferramenta === 'apagar'} onFeito={onFeito} onInfo={onInfo} />}
+          {doc && (ferramenta === 'paredes' || ferramenta === 'apagar') && <FerramentaParedes doc={doc} andar={andar} apagar={ferramenta === 'apagar'} onFeito={onFeito} onInfo={onInfo} />}
+          {doc && ferramenta === 'piso' && <FerramentaPiso doc={doc} andar={andar} onFeito={onPiso} onInfo={onInfo} />}
+          {doc && ferramenta === 'pincel' && <FerramentaPincel doc={doc} andar={andar} onFeito={onPintar} onInfo={onInfo} />}
           <Grid position={[0, andar * LEVEL_H + 0.005, 0]} args={[64, 64]} cellSize={1} cellThickness={0.6} cellColor="#4a4238" sectionSize={CHUNK} sectionThickness={1.2} sectionColor="#8b6a3a" fadeDistance={140} infiniteGrid />
           <EditorCamera y={andar * LEVEL_H} inicio={inicio} />
           {filtro && <RetroRenderer />}

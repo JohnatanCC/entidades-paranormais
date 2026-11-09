@@ -120,6 +120,109 @@ function cobre(o: Chunk['openings'][number], fora: Set<string>) {
   return false
 }
 
+// ---------- pisos ----------
+
+/** Os quadrados de 1 m de uma área arrastada entre dois cantos da grade (um clique = o quadrado sob o mouse). */
+export function quadrados(x0: number, z0: number, x1: number, z1: number): [number, number][] {
+  const ax = Math.min(x0, x1), bx = Math.max(x0, x1), az = Math.min(z0, z1), bz = Math.max(z0, z1), out: [number, number][] = []
+  for (let x = ax; x < bx; x++) for (let z = az; z < bz; z++) out.push([x, z])
+  return out
+}
+
+/** Põe ou repinta o piso dos quadrados: top = o chão deste andar, bottom = o teto do andar de baixo. */
+export function comPiso(doc: MapDoc, level: number, qs: [number, number][], top: string, bottom: string): MapDoc {
+  const porBloco = new Map<string, Map<string, [number, number]>>()
+  for (const [x, z] of qs) {
+    const b = chunkKey(...chunkOf(x, z))
+    if (!porBloco.has(b)) porBloco.set(b, new Map())
+    porBloco.get(b)!.set(`${x}_${z}`, [x, z])
+  }
+  // nada muda se todos os quadrados já estão com essas texturas
+  const igual = [...porBloco].every(([b, m]) => [...m.values()].every(([x, z]) => doc.chunks[b]?.floors.some((f) => f.level === level && f.x === x && f.z === z && f.top === top && f.bottom === bottom)))
+  if (!qs.length || igual) return doc
+  return mudarBlocos(doc, porBloco.keys(), (c) => {
+    const m = porBloco.get(chunkKey(c.cx, c.cz))!
+    const resto = c.floors.filter((f) => !(f.level === level && m.has(`${f.x}_${f.z}`)))
+    return { ...c, floors: [...resto, ...[...m.values()].map(([x, z]) => ({ level, x, z, top, bottom }))] }
+  })
+}
+
+export function semPiso(doc: MapDoc, level: number, qs: [number, number][]): MapDoc {
+  const fora = new Set(qs.map(([x, z]) => `${x}_${z}`)), blocos = new Set<string>()
+  for (const [k, c] of Object.entries(doc.chunks)) if (c.floors.some((f) => f.level === level && fora.has(`${f.x}_${f.z}`))) blocos.add(k)
+  if (!blocos.size) return doc
+  return mudarBlocos(doc, blocos, (c) => ({ ...c, floors: c.floors.filter((f) => !(f.level === level && fora.has(`${f.x}_${f.z}`))) }))
+}
+
+/** Quantos quadrados da área já têm piso (para a prévia dizer "apagar 12 m²"). */
+export function pisoNaArea(doc: MapDoc, level: number, qs: [number, number][]) {
+  const dentro = new Set(qs.map(([x, z]) => `${x}_${z}`))
+  let n = 0
+  for (const c of Object.values(doc.chunks)) for (const f of c.floors) if (f.level === level && dentro.has(`${f.x}_${f.z}`)) n++
+  return n
+}
+
+// ---------- pintura das paredes ----------
+
+export type Lado = 'a' | 'b'
+export interface LadoDe { seg: Seg; lado: Lado }
+export const ladoKey = (l: LadoDe) => `${segKey(l.seg)}|${l.lado}`
+
+/** Qual lado da parede o raio do mouse vê: o lado a olha para −z (eixo x) ou −x (eixo z). */
+export function ladoVisto(seg: Seg, d: [number, number, number]): Lado {
+  const atravessa = seg.axis === 'x' ? d[2] : d[0]
+  return atravessa > 0 ? 'a' : 'b' // indo para +z (ou +x), o raio bate no lado que olha para −z (−x)
+}
+
+/** Pinta lados de parede (a textura e a barra de baixo). */
+export function pintarLados(doc: MapDoc, lados: LadoDe[], side: WallSide): MapDoc {
+  const alvo = new Map(lados.map((l) => [segKey(l.seg), new Set<Lado>()]))
+  for (const l of lados) alvo.get(segKey(l.seg))!.add(l.lado)
+  const igual = (s: WallSide) => s.tex === side.tex && (s.base?.tex ?? '') === (side.base?.tex ?? '') && (s.base?.h ?? 0) === (side.base?.h ?? 0)
+  const blocos = new Set<string>()
+  for (const [k, c] of Object.entries(doc.chunks)) {
+    if (c.walls.some((w) => { const ls = alvo.get(segKey(w)); return ls && [...ls].some((l) => !igual(w[l])) })) blocos.add(k)
+  }
+  if (!blocos.size) return doc
+  const copia = (): WallSide => (side.base ? { tex: side.tex, base: { ...side.base } } : { tex: side.tex })
+  return mudarBlocos(doc, blocos, (c) => ({
+    ...c,
+    walls: c.walls.map((w) => {
+      const ls = alvo.get(segKey(w))
+      return ls ? { ...w, a: ls.has('a') ? copia() : w.a, b: ls.has('b') ? copia() : w.b } : w
+    }),
+  }))
+}
+
+/**
+ * A sala do lado clicado: anda pelos quadrados a partir dele sem atravessar parede e junta todos os lados de parede
+ * virados para dentro. Se escapar (não é uma sala fechada), devolve só o lado clicado.
+ */
+export function ladosDaSala(doc: MapDoc, de: LadoDe, limite = 2500): { lados: LadoDe[]; fechada: boolean } {
+  const L = de.seg.level, tem = new Set<string>()
+  for (const w of paredes(doc, L)) tem.add(segKey(w))
+  const p = (axis: Axis, x: number, z: number) => tem.has(segKey({ level: L, axis, x, z }))
+  const s = de.seg
+  // o quadrado do lado clicado
+  const ini: [number, number] = s.axis === 'x' ? [s.x, de.lado === 'b' ? s.z : s.z - 1] : [de.lado === 'b' ? s.x : s.x - 1, s.z]
+  const visto = new Set([`${ini[0]}_${ini[1]}`]), fila = [ini]
+  while (fila.length) {
+    if (visto.size > limite) return { lados: [de], fechada: false }
+    const [x, z] = fila.pop()!
+    const viz: [number, number, boolean][] = [[x + 1, z, p('z', x + 1, z)], [x - 1, z, p('z', x, z)], [x, z + 1, p('x', x, z + 1)], [x, z - 1, p('x', x, z)]]
+    for (const [nx, nz, bloqueado] of viz) { const k = `${nx}_${nz}`; if (!bloqueado && !visto.has(k)) { visto.add(k); fila.push([nx, nz]) } }
+  }
+  const lados: LadoDe[] = []
+  for (const k of visto) {
+    const [x, z] = k.split('_').map(Number)
+    if (p('x', x, z)) lados.push({ seg: { level: L, axis: 'x', x, z }, lado: 'b' }) // a parede ao norte (−z) do quadrado: o lado b olha para ele
+    if (p('x', x, z + 1)) lados.push({ seg: { level: L, axis: 'x', x, z: z + 1 }, lado: 'a' })
+    if (p('z', x, z)) lados.push({ seg: { level: L, axis: 'z', x, z }, lado: 'b' })
+    if (p('z', x + 1, z)) lados.push({ seg: { level: L, axis: 'z', x: x + 1, z }, lado: 'a' })
+  }
+  return { lados, fechada: true }
+}
+
 export const comAndares = (doc: MapDoc, levels: number): MapDoc => ({ ...doc, meta: { ...doc.meta, levels } })
 
 /** O andar tem alguma coisa? (só dá para tirar o último andar se ele estiver vazio) */

@@ -4,6 +4,10 @@ import type { Chunk, MapMeta } from './types'
 const metas = import.meta.glob<MapMeta>('/maps/*/map.json', { eager: true, import: 'default' })
 const chunkFiles = import.meta.glob<Chunk>('/maps/*/chunks/*.json', { import: 'default' })
 
+// No npm run dev, salvar um mapa muda os arquivos de maps/ e o Vite recarregaria tudo o que depende deste arquivo
+// (o editor inteiro, no meio da edição). O editor lê e grava pela API (storage.ts), então a mudança para aqui.
+if (import.meta.hot) import.meta.hot.accept()
+
 /** Todos os mapas da pasta maps/, pelo nome. */
 export function listMaps(): MapMeta[] {
   return Object.values(metas).sort((a, b) => a.nome.localeCompare(b.nome))

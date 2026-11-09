@@ -41,7 +41,7 @@ Plano original e decisões: `docs/design/criador-de-mapas-plano.md`. Este arquiv
   - por onde ela anda: as paredes, portas e escadas do mapa precisam bastar para ela achar caminho pela casa inteira,
     nos dois andares (a malha de caminhos sai do mapa na etapa 7, não é desenhada à mão);
   - onde ficam os objetos ligados e a chave: pontos marcados no mapa (`points`), um ou vários candidatos por objeto;
-  - o barulho do chão (assoalho que range, tapete abafa): talvez uma propriedade da textura do piso. Decidir na etapa 3.
+  - o piso **não** faz barulho (decidido em 9/nov): o barulho vem de quebrar objetos, porta aberta com força e tiros.
 
 ## O formato (versão 1)
 
@@ -76,8 +76,11 @@ Unidades: metros e graus; y para cima; andar 0 = térreo.
 - **Decalque** `{ id, type, level, pos, normal, rot, size }`.
 - **Ponto de script** `{ id, kind, level, pos, params? }`.
 
-Texturas: por nome (`src/maps/textures.ts`). Por enquanto cada nome é uma cor; as imagens entram depois em
-`public/texturas/<nome>.png` sem mudar os mapas. Textura que não existe aparece magenta.
+Texturas: por nome (`src/maps/textures.ts`). **Cada textura é um bloco de 1 m com 32 × 32 pixels**, como no Minecraft,
+no chão e na parede (decidido em 9/nov: 128 px por metro era detalhe demais para o estilo). **Por enquanto desenhadas por
+código**: o desenho do laboratório é encaixado em 1 m e reduzido para 32 px (`src/render/materiais.ts`); as que perderem
+detalhe demais serão redesenhadas à mão em 32 px. Mais tarde entram imagens PNG de 32 × 32 em `public/texturas/<nome>.png`
+com o mesmo nome, sem mudar os mapas. A porta não é bloco (é peça da etapa 4). Textura que não existe aparece magenta.
 
 Mudança no formato = subir `formato` e escrever a conversão no carregador. Nunca quebrar mapas salvos.
 
@@ -92,7 +95,11 @@ Cada etapa vira uma versão que o desenvolvedor testa antes da próxima.
    Os controles: botão direito gira, botão do meio (ou Shift + direito) move, rodinha aproxima, WASD / setas movem, Q / E giram,
    PageUp / PageDown trocam o andar; 1 = Paredes, 2 = Apagar; Ctrl + arrastar apaga; Ctrl+Z / Ctrl+Y / Ctrl+S.
    Um clique numa parede (Apagar) pega a parede sob o mouse; arrastar apaga tudo o que estiver dentro da área.
-3. **Pisos, tetos e texturas.** As duas faces do piso, a pintura de cada lado da parede com a barra de baixo, o catálogo de texturas (trazer as da mansão e da Intro do laboratório).
+3. **Pisos, tetos e texturas.** ✅ As duas faces do piso, a pintura de cada lado da parede com a barra de baixo, o catálogo de texturas (trazer as da mansão e da Intro do laboratório).
+   Ferramentas: **Piso e teto (3)** arrasta uma área (ou clica num quadrado) e põe/repinta o chão e o teto de baixo; Ctrl + arrastar apaga.
+   **Pintar parede (4)** pinta o lado apontado, arrastar pinta vários, **Shift + clique pinta a sala inteira** por dentro; a barra de baixo
+   (lambri) tem textura e altura próprias. O catálogo tem 34 texturas (casa, Intro e algumas novas), todas em blocos de 1 m com 32 × 32 px.
+   A luz do editor é de trabalho (clara, sem sombra); a luz de verdade vem na etapa 6 (lâmpadas) e na 7 (Testar).
 4. **Portas e janelas.** Os quatro tipos de porta e os dois de janela, com a luz 2D.
 5. **Escadas.** Retas, montadas sozinhas pela área e pela altura; o buraco no piso de cima.
 6. **Objetos e detalhes.** O catálogo (móveis da mansão e da Intro), encaixe e rotação, modo livre, lâmpadas com os três modos, quadros e sujeira.

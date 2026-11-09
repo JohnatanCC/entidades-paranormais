@@ -58,12 +58,13 @@ src/
   styles.css               a paleta e as telas
   screens/                 MainMenu, SettingsScreen, DevMenu
   settings/settings.ts     configurações no localStorage (useSettings / setSettings)
-  render/                  RetroRenderer (pós-processo PS1) e psx.ts (tremor de vértice)
+  render/                  RetroRenderer (pós-processo PS1), psx.ts (tremor de vértice), materiais.ts (nome da textura -> material)
   maps/                    types.ts (o formato v1), loader.ts (o jogo lê a pasta), storage.ts (o editor lê, grava,
-                           exporta e importa; o pacote MapBundle), textures.ts (catálogo)
+                           exporta e importa; o pacote MapBundle), textures.ts (o catálogo: cada nome, o desenho em canvas e o tamanho em metros)
   editor/                  MapEditor (a tela), MapManager (o gerenciador de mapas), MapView + wallMesh (desenha;
                            paredes juntadas por textura, cantos fechados), EditorCamera, FerramentaParedes,
-                           doc.ts (o documento e as operações), historico.ts (desfazer e refazer)
+                           FerramentaPiso, FerramentaPincel, Paleta, doc.ts (o documento e as operações),
+                           historico.ts (desfazer e refazer)
 reference/                 o laboratório antigo, só para consulta (não importar nada daqui); ost/ = as 4 músicas dele
 docs/                      o que está decidido
 ```

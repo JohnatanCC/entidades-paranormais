@@ -69,3 +69,19 @@ button { font: inherit; color: inherit; }
 .linha-mapa .nome { flex: 1; display: flex; flex-direction: column; gap: 2px; min-width: 0; }
 .linha-mapa .nome b { font-weight: 500; color: var(--cream); }
 .linha-mapa .nome span { color: var(--muted); font-size: 11px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+
+/* a paleta de texturas e o pincel */
+.editor .paleta { display: flex; flex-direction: column; gap: 6px; }
+.editor .paleta-topo { display: flex; justify-content: space-between; gap: 8px; font-size: 11px; color: var(--muted); }
+.editor .paleta-topo b { font-weight: 500; color: var(--cream); text-align: right; }
+.editor .amostras { display: grid; grid-template-columns: repeat(auto-fill, minmax(34px, 1fr)); gap: 4px; }
+.editor .painel .amostras button { aspect-ratio: 1; padding: 0; background-size: 100% 100%; image-rendering: pixelated; border: 2px solid var(--line); }
+.editor .painel .amostras button[aria-pressed='true'] { border-color: var(--amber); box-shadow: 0 0 0 1px var(--bg) inset; }
+.editor .marcar { display: flex; align-items: center; gap: 8px; font-size: 12px; cursor: pointer; }
+.editor .marcar input { accent-color: var(--lamp); }
+.editor .altura { display: grid; gap: 6px; font-size: 11px; color: var(--muted); }
+.editor .altura .opcoes { display: flex; gap: 4px; flex-wrap: wrap; }
+.editor .painel .altura .opcoes button { padding: 3px 7px; font-size: 12px; }
+.editor .painel .altura .opcoes button[aria-pressed='true'] { border-color: var(--lamp); color: var(--amber); }
+.editor .altura input { accent-color: var(--lamp); }
+.editor .altura b { color: var(--cream); font-weight: 500; }

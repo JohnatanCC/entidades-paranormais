@@ -2,7 +2,7 @@
 // Use applyPsx(material) nos materiais do cenário e dos personagens; o valor vem do filtro escolhido nas configurações.
 import type { Material } from 'three'
 
-export const SNAPU = { value: 110 }
+export const SNAPU = { value: 0 } // o RetroRenderer liga conforme o filtro; sem ele, sem tremor
 
 export function applyPsx<M extends Material>(mat: M): M {
   const prev = mat.onBeforeCompile

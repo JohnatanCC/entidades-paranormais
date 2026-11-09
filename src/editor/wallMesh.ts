@@ -6,9 +6,9 @@
 //   - ponta solta: uma tampa fecha a ponta.
 import * as THREE from 'three'
 import { LEVEL_H, type Axis, type Chunk, type Opening, type Wall, type WallSide } from '../maps/types'
+import { TOPO } from '../render/materiais' // o corte da parede (topo e a parte de baixo das vergas)
 
 export const ESPESSURA = 0.12 // a espessura da parede (m)
-export const TOPO = '#topo' // a "textura" do topo e da parte de baixo das vergas: o corte da parede
 const PORTA_H = 2.1, GRANDE_H = 2.8, JANELA_Y0 = 0.9, JANELA_Y1 = 2.1
 const T2 = ESPESSURA / 2
 
@@ -79,6 +79,25 @@ export function wallGeometries(chunks: Chunk[], maxLevel: number): Map<string, T
     }
   }
 
+  return geometrias(bufs)
+}
+
+/** Os pisos até o andar maxLevel, juntados por textura: a face de cima (o chão) e a de baixo (o teto do andar de baixo). */
+export function floorGeometries(chunks: Chunk[], maxLevel: number): Map<string, THREE.BufferGeometry> {
+  const bufs = new Map<string, Buf>()
+  const buf = (tex: string) => { let b = bufs.get(tex); if (!b) bufs.set(tex, (b = { p: [], n: [], uv: [], i: [] })); return b }
+  for (const c of chunks) for (const f of c.floors) {
+    if (f.level > maxLevel) continue
+    const y = f.level * LEVEL_H, x0 = f.x, x1 = f.x + 1, z0 = f.z, z1 = f.z + 1
+    const uv: [number, number][] = [[x0, z0], [x1, z0], [x1, z1], [x0, z1]]
+    quad(buf(f.top), [[x0, y, z0], [x1, y, z0], [x1, y, z1], [x0, y, z1]], [0, 1, 0], uv)
+    if (f.level > 0) quad(buf(f.bottom), [[x0, y - TETO, z0], [x1, y - TETO, z0], [x1, y - TETO, z1], [x0, y - TETO, z1]], [0, -1, 0], uv)
+  }
+  return geometrias(bufs)
+}
+const TETO = 0.02 // o teto fica um tico abaixo do chão de cima, para as duas faces não brigarem
+
+function geometrias(bufs: Map<string, Buf>) {
   const out = new Map<string, THREE.BufferGeometry>()
   for (const [tex, b] of bufs) {
     const g = new THREE.BufferGeometry()

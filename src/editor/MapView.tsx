@@ -1,41 +1,24 @@
-// Desenha o mapa no editor: as paredes juntadas numa malha por textura (wallMesh.ts, com os cantos fechados),
-// os pisos (chão em cima, teto embaixo), as escadas e as lâmpadas. Os andares acima de maxLevel não aparecem.
+// Desenha o mapa no editor: as paredes e os pisos juntados numa malha por textura (wallMesh.ts, com os cantos fechados),
+// as escadas e as lâmpadas. Os andares acima de maxLevel não aparecem. As texturas vêm do catálogo (render/materiais.ts).
 import { useEffect, useMemo } from 'react'
-import * as THREE from 'three'
 import { LEVEL_H, type Chunk } from '../maps/types'
-import { corDe } from '../maps/textures'
-import { applyPsx } from '../render/psx'
-import { TOPO, wallGeometries } from './wallMesh'
-
-const COR_TOPO = '#2a2622'
-
-const mats = new Map<string, THREE.MeshStandardMaterial>()
-function mat(cor: string) {
-  let m = mats.get(cor)
-  if (!m) { m = applyPsx(new THREE.MeshStandardMaterial({ color: cor, roughness: 0.9 })); mats.set(cor, m) }
-  return m
-}
+import { materialDe } from '../render/materiais'
+import { floorGeometries, wallGeometries } from './wallMesh'
 
 interface Props { chunks: Record<string, Chunk>; maxLevel: number }
 
 export function MapView({ chunks, maxLevel }: Props) {
   const lista = useMemo(() => Object.values(chunks), [chunks])
   const paredes = useMemo(() => wallGeometries(lista, maxLevel), [lista, maxLevel])
+  const pisos = useMemo(() => floorGeometries(lista, maxLevel), [lista, maxLevel])
   useEffect(() => () => paredes.forEach((g) => g.dispose()), [paredes])
+  useEffect(() => () => pisos.forEach((g) => g.dispose()), [pisos])
   return (
     <group>
-      {[...paredes].map(([tex, g]) => <mesh key={tex} geometry={g} material={mat(tex === TOPO ? COR_TOPO : corDe(tex))} castShadow receiveShadow />)}
+      {[...paredes].map(([tex, g]) => <mesh key={'p' + tex} geometry={g} material={materialDe(tex)} castShadow receiveShadow />)}
+      {[...pisos].map(([tex, g]) => <mesh key={'f' + tex} geometry={g} material={materialDe(tex)} receiveShadow />)}
       {lista.map((c) => (
         <group key={`${c.cx}_${c.cz}`}>
-          {c.floors.filter((f) => f.level <= maxLevel).map((f) => {
-            const y = f.level * LEVEL_H
-            return (
-              <group key={`f${f.level}_${f.x}_${f.z}`} position={[f.x + 0.5, y, f.z + 0.5]}>
-                <mesh rotation-x={-Math.PI / 2} receiveShadow material={mat(corDe(f.top))}><planeGeometry args={[1, 1]} /></mesh>
-                <mesh rotation-x={Math.PI / 2} position-y={-0.02} material={mat(corDe(f.bottom))}><planeGeometry args={[1, 1]} /></mesh>
-              </group>
-            )
-          })}
           {c.stairs.filter((s) => s.level <= maxLevel).map((s) => <Escada key={s.id} {...s} />)}
           {c.props.filter((p) => p.level <= maxLevel).map((p) => <Objeto key={p.id} type={p.type} pos={p.pos} rot={p.rot} params={p.params} />)}
         </group>
@@ -53,7 +36,7 @@ function Escada({ level, x, z, w, d, dir, rise, tex }: Chunk['stairs'][number]) 
     <group position={[x + w / 2, level * LEVEL_H, z + d / 2]} rotation-y={rot}>
       {degraus.map((i) => {
         const h = ((i + 1) * rise) / n, prof = along / n
-        return <mesh key={i} position={[0, h / 2, -along / 2 + prof * (i + 0.5)]} castShadow receiveShadow material={mat(corDe(tex))}><boxGeometry args={[largura, h, prof]} /></mesh>
+        return <mesh key={i} position={[0, h / 2, -along / 2 + prof * (i + 0.5)]} castShadow receiveShadow material={materialDe(tex)}><boxGeometry args={[largura, h, prof]} /></mesh>
       })}
     </group>
   )

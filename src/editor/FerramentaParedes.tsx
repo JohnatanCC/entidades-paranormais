@@ -2,7 +2,7 @@
 //   arrastar numa linha = parede reta · arrastar em diagonal = sala fechada pelas quatro paredes
 //   Ctrl + arrastar (ou a ferramenta Apagar) = apaga as paredes da área; um clique numa parede apaga só aquele pedaço
 // Enquanto arrasta, mostra a prévia (âmbar = põe, vermelho = tira). Esc cancela.
-import { useEffect, useMemo, useState } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 import type { ThreeEvent } from '@react-three/fiber'
 import { LEVEL_H, chunkKey, chunkOf } from '../maps/types'
 import { paredeMaisPerto, paredeNoRaio, paredesNaArea, segmentosDoArraste, type MapDoc, type Seg } from './doc'
@@ -21,12 +21,15 @@ type V3 = [number, number, number]
 interface Drag { x0: number; z0: number; x1: number; z1: number; px: number; pz: number; ro: V3; rd: V3; apagar: boolean }
 
 export function FerramentaParedes({ doc, andar, apagar, onFeito, onInfo }: Props) {
-  const [drag, setDrag] = useState<Drag | null>(null)
+  const [drag, setDragState] = useState<Drag | null>(null)
+  // os eventos leem o arraste pela ref: um clique rápido solta o botão antes da tela redesenhar com o estado novo
+  const dragRef = useRef<Drag | null>(null)
+  const setDrag = (d: Drag | null) => { dragRef.current = d; setDragState(d) }
   const [mira, setMira] = useState<[number, number] | null>(null)
   const y = andar * LEVEL_H
 
   // o que o arraste vai fazer
-  const previa = useMemo(() => {
+  const calcular = (drag: Drag | null) => {
     if (!drag) return null
     if (drag.apagar) {
       const segs = drag.x0 === drag.x1 && drag.z0 === drag.z1
@@ -37,7 +40,8 @@ export function FerramentaParedes({ doc, andar, apagar, onFeito, onInfo }: Props
     const a = segmentosDoArraste(andar, drag.x0, drag.z0, drag.x1, drag.z1)
     const texto = a.tipo === 'reta' ? `Parede reta: ${a.segs.length} m` : a.tipo === 'sala' ? `Sala: ${a.w} × ${a.d} m (${a.segs.length} m de parede)` : 'Arraste para desenhar'
     return { segs: a.segs, texto }
-  }, [drag, doc, andar])
+  }
+  const previa = useMemo(() => calcular(drag), [drag, doc, andar])
 
   useEffect(() => {
     if (previa) onInfo(previa.texto)
@@ -63,12 +67,15 @@ export function FerramentaParedes({ doc, andar, apagar, onFeito, onInfo }: Props
   function move(e: ThreeEvent<PointerEvent>) {
     const [x, z] = canto(e)
     if (!mira || mira[0] !== x || mira[1] !== z) setMira([x, z])
-    if (drag && (drag.x1 !== x || drag.z1 !== z)) setDrag({ ...drag, x1: x, z1: z })
+    const d = dragRef.current
+    if (d && (d.x1 !== x || d.z1 !== z)) setDrag({ ...d, x1: x, z1: z })
   }
   function up(e: ThreeEvent<PointerEvent>) {
-    if (e.button !== 0 || !drag) return
+    const d = dragRef.current
+    if (e.button !== 0 || !d) return
     ;(e.target as unknown as Element).releasePointerCapture(e.pointerId)
-    if (previa?.segs.length) onFeito(previa.segs, drag.apagar)
+    const [x, z] = canto(e), fim = { ...d, x1: x, z1: z }, r = calcular(fim)
+    if (r?.segs.length) onFeito(r.segs, fim.apagar)
     setDrag(null)
   }
 
