@@ -51,7 +51,7 @@ npm run typecheck  # só os tipos
 ```
 index.html                 a página (fontes VT323 e IBM Plex Mono)
 vite.config.ts             o Vite + o plugin que salva mapas (tools/mapsDevApi.ts)
-tools/mapsDevApi.ts        POST /__maps/save: grava maps/<id>/map.json e chunks/*.json (só no npm run dev)
+tools/mapsDevApi.ts        a API dos mapas (só no npm run dev): listar, ler, salvar, apagar em maps/
 maps/<id>/                 os mapas (JSON). map.json = cabeçalho; chunks/<cx>_<cz>.json = um bloco de 16 × 16 m
 src/
   main.tsx, App.tsx        as telas (menu → configurações | modo desenvolvedor → criador de mapas)
@@ -59,8 +59,11 @@ src/
   screens/                 MainMenu, SettingsScreen, DevMenu
   settings/settings.ts     configurações no localStorage (useSettings / setSettings)
   render/                  RetroRenderer (pós-processo PS1) e psx.ts (tremor de vértice)
-  maps/                    types.ts (o formato v1), loader.ts (lê a pasta), save.ts, textures.ts (catálogo)
-  editor/                  MapEditor (a tela) e MapView (desenha os blocos)
+  maps/                    types.ts (o formato v1), loader.ts (o jogo lê a pasta), storage.ts (o editor lê, grava,
+                           exporta e importa; o pacote MapBundle), textures.ts (catálogo)
+  editor/                  MapEditor (a tela), MapManager (o gerenciador de mapas), MapView + wallMesh (desenha;
+                           paredes juntadas por textura, cantos fechados), EditorCamera, FerramentaParedes,
+                           doc.ts (o documento e as operações), historico.ts (desfazer e refazer)
 reference/                 o laboratório antigo, só para consulta (não importar nada daqui); ost/ = as 4 músicas dele
 docs/                      o que está decidido
 ```

@@ -26,12 +26,12 @@ Plano original e decisões: `docs/design/criador-de-mapas-plano.md`. Este arquiv
 | Scripts | Depois do mapa: gatilhos, cenas, nascimento de monstros. O formato já reserva `points` |
 | Capítulos | **Cada capítulo é um mapa próprio** (`maps/mansao-cap1`, `maps/mansao-cap2`...). A mansão que muda é uma troca de mapa; o mapa do capítulo seguinte nasce como cópia do anterior. Arena de chefe pode ser outro mapa, atrás de uma tela de carregamento |
 | A demo | É o **capítulo 1 inteiro**: o primeiro mapa de verdade é `mansao-cap1` |
+| Gerenciar mapas | Novo, abrir, salvar, copiar a partir de outro, apagar (digitando o nome), exportar e importar. Exportar gera um `.json` único (`{ formato, meta, chunks }`, o mapa inteiro) para backup ou para mandar a alguém; importar lê esse arquivo e cria a pasta em `maps/`. Gravar, apagar e importar só no `npm run dev` |
 | Pé-direito alto | Paredes de dois andares (7 m) e sem piso no andar de cima. Assim sai a arena do berçário (24 × 32 m, paredes de ~7 m, sem teto) e o salão de pé-direito duplo |
 | Celular | O jogo vai para o celular depois; o editor fica só no PC. Por isso os mapas precisam ser leves: junção das malhas por bloco (etapa 7) |
 
 ## Pontos a decidir antes das etapas que dependem deles
 
-- **Copiar um mapa** ("Salvar como"): é o que faz o capítulo 2 nascer do 1. Pequeno; cabe na etapa 2, se aprovado.
 - **Largura mínima onde tem luta.** A câmera é sobre o ombro (estilo Resident Evil 4) e a esquiva anda 2,7 m: corredor de
   1,4 m (como no design antigo da mansão) aperta a câmera e a esquiva. Proposta: 2,5 m ou mais onde houver luta, 1,4 m só em passagem.
 - **Porta trancada com motivo** (etapa 4): o capítulo tranca áreas e fecha a sala quando a luta começa. A porta precisa de
@@ -86,7 +86,12 @@ Mudança no formato = subir `formato` e escrever a conversão no carregador. Nun
 Cada etapa vira uma versão que o desenvolvedor testa antes da próxima.
 
 1. **A base do projeto.** ✅ Estrutura, menu, configurações (filtro retrô, volume, sensibilidade), leitura da pasta de mapas, visualização dos blocos, mapa novo e salvar.
-2. **A grade e as paredes.** A câmera do editor (estilo The Sims: gira, aproxima, arrasta), os andares, as paredes automáticas (reta e sala), apagar, salvar e abrir o JSON, desfazer e refazer (Ctrl+Z / Ctrl+Y). Paredes vizinhas se juntam nos cantos.
+2. **A grade e as paredes.** ✅ A câmera do editor (estilo The Sims: gira, aproxima, arrasta), os andares, as paredes automáticas (reta e sala), apagar, desfazer e refazer (Ctrl+Z / Ctrl+Y). Paredes vizinhas se juntam nos cantos.
+   E o **gerenciador de mapas**: novo, abrir, salvar, **copiar a partir de um mapa** (o capítulo 2 nasce do 1),
+   **apagar** (confirma digitando o nome do mapa), **exportar** o mapa inteiro num `.json` único e **importar** esse arquivo.
+   Os controles: botão direito gira, botão do meio (ou Shift + direito) move, rodinha aproxima, WASD / setas movem, Q / E giram,
+   PageUp / PageDown trocam o andar; 1 = Paredes, 2 = Apagar; Ctrl + arrastar apaga; Ctrl+Z / Ctrl+Y / Ctrl+S.
+   Um clique numa parede (Apagar) pega a parede sob o mouse; arrastar apaga tudo o que estiver dentro da área.
 3. **Pisos, tetos e texturas.** As duas faces do piso, a pintura de cada lado da parede com a barra de baixo, o catálogo de texturas (trazer as da mansão e da Intro do laboratório).
 4. **Portas e janelas.** Os quatro tipos de porta e os dois de janela, com a luz 2D.
 5. **Escadas.** Retas, montadas sozinhas pela área e pela altura; o buraco no piso de cima.

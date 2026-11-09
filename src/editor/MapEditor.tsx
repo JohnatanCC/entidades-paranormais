@@ -1,87 +1,268 @@
-// O criador de mapas — etapa 1 (a base): abrir um mapa da pasta maps/, ver os blocos em 3D com a grade,
-// escolher o andar, criar um mapa novo e salvar. As ferramentas (paredes, piso, portas...) entram nas próximas etapas
-// (veja docs/criador-de-mapas.md).
-import { Suspense, useEffect, useMemo, useState } from 'react'
+// O criador de mapas — etapa 2: a câmera do editor, os andares, as paredes automáticas (reta e sala), apagar,
+// desfazer e refazer, e o gerenciador de mapas (novo, abrir, salvar, copiar, apagar, exportar e importar).
+// O mapa aberto é um documento (doc.ts): as ferramentas geram um documento novo e a vista desenha a partir dele.
+import { Suspense, useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { Canvas } from '@react-three/fiber'
-import { Grid, OrbitControls } from '@react-three/drei'
+import { Grid } from '@react-three/drei'
 import type { Go } from '../App'
-import { getMap, listMaps, loadChunk } from '../maps/loader'
-import { canSave, saveMap } from '../maps/save'
-import { CHUNK, LEVEL_H, type Chunk, type MapMeta } from '../maps/types'
-import { MapView } from './MapView'
+import * as disco from '../maps/storage'
+import { CHUNK, LEVEL_H } from '../maps/types'
 import { RetroRenderer } from '../render/RetroRenderer'
+import { andarTemCoisa, comAndares, comParedes, docDe, pacoteDe, semParedes, type MapDoc, type Seg } from './doc'
+import { useHistorico } from './historico'
+import { EditorCamera } from './EditorCamera'
+import { FerramentaParedes } from './FerramentaParedes'
+import { MapManager } from './MapManager'
+import { MapView } from './MapView'
 
-const FERRAMENTAS = ['Paredes', 'Piso e teto', 'Portas e janelas', 'Escadas', 'Objetos', 'Luzes', 'Detalhes', 'Scripts']
+type Ferramenta = 'paredes' | 'apagar'
+const FUTURAS = ['Piso e teto', 'Portas e janelas', 'Escadas', 'Objetos', 'Luzes', 'Detalhes', 'Scripts']
+const ULTIMO = 'entidades.editor.ultimo' // o último mapa aberto (abre sozinho na próxima vez)
+const ID_OK = /^[a-z0-9][a-z0-9_-]{0,63}$/
+
+const lerUltimo = () => { try { return localStorage.getItem(ULTIMO) } catch { return null } }
+const guardarUltimo = (id: string) => { try { localStorage.setItem(ULTIMO, id) } catch { /* sem armazenamento: tudo bem */ } }
+const nomeAndar = (i: number) => (i === 0 ? 'Térreo' : `${i}º andar`)
 
 export function MapEditor({ go }: { go: Go }) {
-  const mapas = listMaps()
-  const [meta, setMeta] = useState<MapMeta | undefined>(() => mapas[0])
-  const [chunks, setChunks] = useState<Chunk[]>([])
-  const [andar, setAndar] = useState(0)
+  const hist = useHistorico<MapDoc | null>(null)
+  const doc = hist.atual
+  const [salvo, setSalvo] = useState<MapDoc | null>(null) // o documento igual ao que está no disco
+  const [mapas, setMapas] = useState<disco.MapInfo[]>([])
+  const [gerenciador, setGerenciador] = useState(false)
+  const [ocupado, setOcupado] = useState(false)
+  const [ferramenta, setFerramenta] = useState<Ferramenta>('paredes')
+  const [andarEscolhido, setAndar] = useState(0)
   const [filtro, setFiltro] = useState(false)
   const [aviso, setAviso] = useState('')
+  const statusRef = useRef<HTMLSpanElement>(null)
+  const iniciou = useRef(false)
 
-  // carrega todos os blocos do mapa aberto (no editor; o jogo carrega só os de perto do jogador)
+  const sujo = !!doc && doc !== salvo
+  const nAndares = doc?.meta.levels ?? 1
+  const andar = Math.min(andarEscolhido, nAndares - 1) // o desfazer pode tirar um andar
+  const inicio = useMemo<[number, number]>(() => (doc ? [doc.meta.spawn.pos[0], doc.meta.spawn.pos[2]] : [0, 0]), [doc?.meta.id])
+
+  const recarregar = useCallback(async () => { const ms = await disco.listar(); setMapas(ms); return ms }, [])
+
+  /** Uma ação que fala com o disco: trava os botões e mostra o erro como aviso. */
+  async function tarefa(fn: () => Promise<void>) {
+    setOcupado(true)
+    try { await fn() } catch (e) { setAviso(String((e as Error).message)) } finally { setOcupado(false) }
+  }
+  const podePerder = () => !sujo || confirm(`O mapa "${doc!.meta.nome}" tem mudanças não salvas. Descartar as mudanças?`)
+
+  function abrirDoc(d: MapDoc) {
+    hist.trocar(d); setSalvo(d); setAndar(0); setGerenciador(false); guardarUltimo(d.meta.id)
+  }
+
+  /** O nome do mapa vira o nome da pasta; não pode repetir um que já existe. */
+  function idLivre(nome: string) {
+    const id = disco.slug(nome)
+    if (!id) { setAviso('Nome inválido: use letras ou números.'); return null }
+    if (mapas.some((m) => m.id === id)) { setAviso(`Já existe a pasta maps/${id}/. Escolha outro nome.`); return null }
+    return id
+  }
+
+  // abre o último mapa aberto (ou o primeiro da pasta); sem mapas, abre o gerenciador
   useEffect(() => {
-    if (!meta) { setChunks([]); return }
-    let vivo = true
-    Promise.all(meta.chunks.map((k) => loadChunk(meta.id, k))).then((cs) => { if (vivo) setChunks(cs.filter((c): c is Chunk => !!c)) })
-    return () => { vivo = false }
-  }, [meta])
+    if (iniciou.current) return
+    iniciou.current = true
+    tarefa(async () => {
+      const ms = await recarregar()
+      const id = ms.find((m) => m.id === lerUltimo())?.id ?? ms[0]?.id
+      if (id) abrirDoc(docDe(await disco.ler(id)))
+      else setGerenciador(true)
+    })
+  }, [])
 
-  const centro = useMemo<[number, number, number]>(() => meta ? [meta.spawn.pos[0], andar * LEVEL_H, meta.spawn.pos[2]] : [0, 0, 0], [meta, andar])
+  function abrir(id: string) {
+    if (doc?.meta.id === id) { setGerenciador(false); return }
+    if (!podePerder()) return
+    tarefa(async () => { const b = await disco.ler(id); abrirDoc(docDe(b)); setAviso(`Aberto: ${b.meta.nome}`) })
+  }
 
   function novo() {
     const nome = prompt('Nome do mapa novo:')?.trim()
     if (!nome) return
-    const id = nome.normalize('NFD').replace(/[̀-ͯ]/g, '').toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '').slice(0, 64)
-    if (!id || getMap(id)) { setAviso(id ? `Já existe um mapa "${id}".` : 'Nome inválido.'); return }
-    setMeta({ formato: 1, id, nome, levels: 1, levelH: LEVEL_H, chunkSize: CHUNK, spawn: { pos: [2, 0, 2], yaw: 0, level: 0 }, chunks: [] })
-    setChunks([]); setAndar(0); setAviso(`Mapa novo "${nome}": ainda não está salvo.`)
+    const id = idLivre(nome)
+    if (!id || !podePerder()) return
+    tarefa(async () => {
+      const b = disco.mapaVazio(id, nome)
+      await disco.salvar(b, { criar: true })
+      await recarregar()
+      abrirDoc(docDe(b))
+      setAviso(`Mapa novo em maps/${id}/.`)
+    })
   }
 
-  async function salvar() {
-    if (!meta) return
-    try { await saveMap(meta, chunks); setAviso(`Salvo em maps/${meta.id}/`) } catch (e) { setAviso(String((e as Error).message)) }
+  function salvar() {
+    if (!doc || !disco.podeGravar) return
+    const d = doc // o que foi salvo; o que mudar durante a gravação continua "não salvo"
+    tarefa(async () => { await disco.salvar(pacoteDe(d)); setSalvo(d); await recarregar(); setAviso(`Salvo em maps/${d.meta.id}/`) })
   }
+
+  function copiar(id: string) {
+    const orig = mapas.find((m) => m.id === id)?.nome ?? id
+    if (doc?.meta.id === id && sujo) { setAviso('Salve antes de copiar: a cópia sai do que está salvo no disco.'); return }
+    const nome = prompt(`Nome do mapa novo, copiado de "${orig}":`, `${orig} (cópia)`)?.trim()
+    if (!nome) return
+    const novoId = idLivre(nome)
+    if (!novoId || !podePerder()) return
+    tarefa(async () => {
+      const b = await disco.ler(id)
+      const c: disco.MapBundle = { ...b, meta: { ...b.meta, id: novoId, nome } }
+      await disco.salvar(c, { criar: true })
+      await recarregar()
+      abrirDoc(docDe(c))
+      setAviso(`Copiado de "${b.meta.nome}" para maps/${novoId}/. São mapas separados: mudar um não muda o outro.`)
+    })
+  }
+
+  function apagar(id: string) {
+    const nome = mapas.find((m) => m.id === id)?.nome ?? id
+    const digitado = prompt(`Apagar de vez o mapa "${nome}" (a pasta maps/${id}/)?\n\nPara confirmar, digite o nome da pasta: ${id}`)
+    if (digitado === null) return
+    if (digitado.trim() !== id) { setAviso('O nome não confere: nada foi apagado.'); return }
+    tarefa(async () => {
+      await disco.apagar(id)
+      if (doc?.meta.id === id) { hist.trocar(null); setSalvo(null) }
+      await recarregar()
+      setAviso(`Apagado: maps/${id}/. Se ele estava num commit, dá para recuperar pelo git.`)
+    })
+  }
+
+  function exportar(id: string) {
+    tarefa(async () => {
+      disco.exportar(await disco.ler(id))
+      setAviso(doc?.meta.id === id && sujo ? `Exportei a versão salva de "${doc.meta.nome}"; as mudanças não salvas ficaram de fora.` : `Exportado: ${id}.mapa.json`)
+    })
+  }
+
+  function importar(f: File) {
+    if (!podePerder()) return
+    tarefa(async () => {
+      const b = await disco.lerArquivo(f)
+      const lista = await recarregar()
+      let { id, nome } = b.meta
+      if (!ID_OK.test(id) || lista.some((m) => m.id === id)) {
+        const n = prompt(`Já existe um mapa "${id}" na pasta (ou o nome dele não serve). Nome para o mapa importado:`, `${nome} (importado)`)?.trim()
+        if (!n) { setAviso('Importação cancelada.'); return }
+        nome = n; id = disco.slug(n)
+        if (!id || lista.some((m) => m.id === id)) throw new Error(`Já existe a pasta maps/${id}/ (ou o nome é inválido). Nada foi importado.`)
+      }
+      const c: disco.MapBundle = { ...b, meta: { ...b.meta, id, nome } }
+      await disco.salvar(c, { criar: true })
+      await recarregar()
+      abrirDoc(docDe(c))
+      setAviso(`Importado "${nome}" para maps/${id}/.`)
+    })
+  }
+
+  function maisAndar() {
+    hist.mudar((d) => d && comAndares(d, d.meta.levels + 1))
+    setAndar(nAndares)
+  }
+  function menosAndar() {
+    if (!doc || nAndares <= 1) return
+    const topo = nAndares - 1
+    if (andarTemCoisa(doc, topo)) { setAviso(`O ${nomeAndar(topo).toLowerCase()} tem coisas: apague antes de tirar o andar.`); return }
+    hist.mudar((d) => d && comAndares(d, d.meta.levels - 1))
+  }
+
+  const onFeito = useCallback((segs: Seg[], tirar: boolean) => hist.mudar((d) => d && (tirar ? semParedes(d, segs) : comParedes(d, segs))), [hist.mudar])
+  const onInfo = useCallback((t: string) => { if (statusRef.current) statusRef.current.textContent = t }, [])
+
+  function sair() { if (podePerder()) go('dev') }
+
+  // os atalhos leem sempre as funções da última renderização
+  const atalhos = useRef<(e: KeyboardEvent) => void>(() => {})
+  atalhos.current = (e) => {
+    if (e.target instanceof HTMLInputElement || e.target instanceof HTMLTextAreaElement) return
+    const ctrl = e.ctrlKey || e.metaKey, k = e.key.toLowerCase()
+    if (ctrl && k === 'z' && !e.shiftKey) { e.preventDefault(); hist.desfazer() }
+    else if (ctrl && (k === 'y' || (k === 'z' && e.shiftKey))) { e.preventDefault(); hist.refazer() }
+    else if (ctrl && k === 's') { e.preventDefault(); salvar() }
+    else if (ctrl) return
+    else if (e.key === 'PageUp') { e.preventDefault(); setAndar(Math.min(nAndares - 1, andar + 1)) }
+    else if (e.key === 'PageDown') { e.preventDefault(); setAndar(Math.max(0, andar - 1)) }
+    else if (e.key === '1') setFerramenta('paredes')
+    else if (e.key === '2') setFerramenta('apagar')
+    else if (e.key === 'Escape' && gerenciador && doc) setGerenciador(false)
+  }
+  useEffect(() => {
+    const kd = (e: KeyboardEvent) => atalhos.current(e)
+    window.addEventListener('keydown', kd)
+    return () => window.removeEventListener('keydown', kd)
+  }, [])
+
+  // fechar a aba com mudanças não salvas: o navegador pergunta
+  useEffect(() => {
+    if (!sujo) return
+    const f = (e: BeforeUnloadEvent) => { e.preventDefault(); e.returnValue = '' }
+    window.addEventListener('beforeunload', f)
+    return () => window.removeEventListener('beforeunload', f)
+  }, [sujo])
 
   return (
     <div className="editor">
       <div className="barra">
-        <span className="titulo">Criador de mapas{meta ? ` — ${meta.nome}` : ''}</span>
-        <button onClick={novo}>Novo</button>
-        <button onClick={salvar} disabled={!meta || !canSave} title={canSave ? '' : 'só com npm run dev'}>Salvar</button>
+        <span className="titulo">Criador de mapas{doc ? ` — ${doc.meta.nome}` : ''}{sujo && <span className="sujo" title="mudanças não salvas"> •</span>}</span>
+        <button onClick={() => setGerenciador(true)}>Mapas…</button>
+        <button onClick={salvar} disabled={!doc || !disco.podeGravar || ocupado} title={disco.podeGravar ? 'Ctrl+S' : 'só com npm run dev'}>Salvar</button>
+        <button onClick={hist.desfazer} disabled={!hist.podeDesfazer} title="Ctrl+Z">Desfazer</button>
+        <button onClick={hist.refazer} disabled={!hist.podeRefazer} title="Ctrl+Y">Refazer</button>
         <button onClick={() => setFiltro((v) => !v)} aria-pressed={filtro}>{filtro ? 'Filtro: ligado' : 'Filtro: desligado'}</button>
-        <button onClick={() => go('dev')}>Sair</button>
+        <button onClick={sair}>Sair</button>
       </div>
       <aside className="painel">
-        <h3>Mapas na pasta</h3>
-        {mapas.length === 0 && <div className="nota">Nenhum mapa em maps/.</div>}
-        {mapas.map((m) => <button key={m.id} className="item" aria-pressed={meta?.id === m.id} onClick={() => { setMeta(m); setAndar(0); setAviso('') }}>{m.nome}</button>)}
-        {meta && <>
+        {doc ? <>
+          <h3>Mapa</h3>
+          <div className="nota"><b style={{ color: 'var(--cream)' }}>{doc.meta.nome}</b><br />maps/{doc.meta.id}/ · {sujo ? <span style={{ color: 'var(--amber)' }}>não salvo</span> : 'salvo'}</div>
           <h3>Andar</h3>
-          <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap' }}>
-            {Array.from({ length: meta.levels }, (_, i) => <button key={i} className="item" aria-pressed={andar === i} onClick={() => setAndar(i)}>{i === 0 ? 'Térreo' : `${i}º`}</button>)}
+          <div className="andares">
+            {Array.from({ length: nAndares }, (_, i) => nAndares - 1 - i).map((i) => (
+              <button key={i} className="item" aria-pressed={andar === i} onClick={() => setAndar(i)}>{nomeAndar(i)}</button>
+            ))}
           </div>
-          <div className="nota">Os andares acima do escolhido ficam escondidos.</div>
-        </>}
-        <h3>Ferramentas</h3>
-        {FERRAMENTAS.map((f) => <button key={f} className="item" disabled>{f}</button>)}
-        <div className="nota">As ferramentas entram nas próximas etapas.</div>
-        {aviso && <div className="nota" style={{ color: 'var(--amber)' }}>{aviso}</div>}
+          <div style={{ display: 'flex', gap: 6 }}>
+            <button onClick={maisAndar}>+ andar</button>
+            <button onClick={menosAndar} disabled={nAndares <= 1}>− andar</button>
+          </div>
+          <div className="nota">Os andares acima do escolhido ficam escondidos. PageUp / PageDown trocam.</div>
+          <h3>Ferramentas</h3>
+          <button className="item" aria-pressed={ferramenta === 'paredes'} onClick={() => setFerramenta('paredes')}>Paredes <kbd>1</kbd></button>
+          <button className="item" aria-pressed={ferramenta === 'apagar'} onClick={() => setFerramenta('apagar')}>Apagar paredes <kbd>2</kbd></button>
+          <div className="nota">
+            {ferramenta === 'paredes'
+              ? 'Arraste numa linha: parede reta. Arraste em diagonal: sala fechada pelas quatro paredes. Ctrl + arrastar apaga. Esc cancela.'
+              : 'Arraste uma área: apaga as paredes dentro dela. Clique numa parede: apaga só aquele pedaço.'}
+          </div>
+          {FUTURAS.map((f) => <button key={f} className="item" disabled>{f}</button>)}
+          <div className="nota">As outras ferramentas entram nas próximas etapas.</div>
+          <h3>Câmera</h3>
+          <div className="nota">Botão direito: gira · botão do meio ou Shift + direito: move · rodinha: aproxima · WASD / setas: move · Q / E: gira</div>
+        </> : <div className="nota">Nenhum mapa aberto. Abra ou crie um em <b>Mapas…</b></div>}
+        {aviso && <div className="nota aviso">{aviso}</div>}
       </aside>
       <div className="vista">
-        <Canvas shadows camera={{ position: [centro[0] + 9, centro[1] + 11, centro[2] + 12], fov: 50 }} gl={{ antialias: !filtro }}>
+        <Canvas shadows camera={{ position: [10, 12, 10], fov: 50 }} gl={{ antialias: !filtro }}>
           <color attach="background" args={['#0b0c0f']} />
           <ambientLight intensity={0.35} />
           <directionalLight position={[8, 16, 6]} intensity={0.9} castShadow />
-          <Suspense fallback={null}><MapView chunks={chunks} maxLevel={andar} /></Suspense>
-          <Grid position={[0, andar * LEVEL_H + 0.005, 0]} args={[64, 64]} cellSize={1} cellThickness={0.6} cellColor="#3a342c" sectionSize={CHUNK} sectionThickness={1.2} sectionColor="#8b6a3a" fadeDistance={60} infiniteGrid />
-          <OrbitControls target={centro} makeDefault maxPolarAngle={Math.PI / 2 - 0.05} />
+          {doc && <Suspense fallback={null}><MapView chunks={doc.chunks} maxLevel={andar} /></Suspense>}
+          {doc && <FerramentaParedes doc={doc} andar={andar} apagar={ferramenta === 'apagar'} onFeito={onFeito} onInfo={onInfo} />}
+          <Grid position={[0, andar * LEVEL_H + 0.005, 0]} args={[64, 64]} cellSize={1} cellThickness={0.6} cellColor="#4a4238" sectionSize={CHUNK} sectionThickness={1.2} sectionColor="#8b6a3a" fadeDistance={140} infiniteGrid />
+          <EditorCamera y={andar * LEVEL_H} inicio={inicio} />
           {filtro && <RetroRenderer />}
         </Canvas>
-        <div className="status">grade 1 m · bloco {CHUNK} m · andar {LEVEL_H} m · botão esquerdo gira · direito arrasta · rodinha aproxima</div>
+        <div className="status"><span ref={statusRef} /><span className="atalhos">Ctrl+Z desfaz · Ctrl+Y refaz · Ctrl+S salva</span></div>
       </div>
+      {(gerenciador || !doc) && (
+        <MapManager mapas={mapas} aberto={doc?.meta.id} ocupado={ocupado}
+          onAbrir={abrir} onCopiar={copiar} onApagar={apagar} onExportar={exportar} onNovo={novo} onImportar={importar}
+          onFechar={doc ? () => setGerenciador(false) : undefined} />
+      )}
     </div>
   )
 }
