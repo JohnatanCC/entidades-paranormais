@@ -73,7 +73,10 @@ Unidades: metros e graus; y para cima; andar 0 = térreo.
   `estado` (porta): `"fechada"` (padrão), `"aberta"` ou `"trancada"`; a trancada tem `motivo` (a linha ao tentar abrir) e
   `chave` (o nome da chave que abre; sem chave, só um script abre). Os scripts abrem e fecham pela `id`.
   Esses quatro campos entraram na etapa 4 e são opcionais: mapa antigo sem eles continua valendo (por isso o `formato` não subiu).
-- **Escada** `{ id, level, x, z, w, d, dir: "norte"|"sul"|"leste"|"oeste", rise, tex }`.
+- **Escada** `{ id, level, x, z, w, d, dir: "norte"|"sul"|"leste"|"oeste", rise, tex }`: ocupa de (x, z) a (x+w, z+d) e sobe
+  `rise` (um andar = 3,5 m) para `dir`: norte = −z, sul = +z, leste = +x, oeste = −x. Os degraus saem da conta
+  (espelho de ~18 cm: 19 degraus num andar). O piso do andar de cima some sobre a área da escada (o buraco é calculado,
+  o piso continua no mapa).
 - **Objeto** `{ id, type, level, pos, rot, free?, params? }` (rot em graus; na grade só o y conta).
 - **Decalque** `{ id, type, level, pos, normal, rot, size }`.
 - **Ponto de script** `{ id, kind, level, pos, params? }`.
@@ -107,7 +110,11 @@ Cada etapa vira uma versão que o desenvolvedor testa antes da próxima.
    O lado de dentro é adivinhado (o lado com piso; sem piso, o oposto à câmera). Clique numa porta ou janela para escolher:
    o painel muda o estado (fechada, aberta, trancada com motivo e chave), o lado e o luar; Ctrl + clique ou Del apaga.
    No editor a porta trancada mostra um cadeado vermelho. Ficaram de fora: porta emperrada e porta de correr (a da Intro).
-5. **Escadas.** Retas, montadas sozinhas pela área e pela altura; o buraco no piso de cima.
+5. **Escadas.** ✅ Retas, montadas sozinhas pela área e pela altura; o buraco no piso de cima.
+   Ferramenta **Escadas (6)**: arraste a área do pé até o topo (sobe no sentido do lado mais comprido do arraste; no mínimo
+   2 m de comprimento). A linha de status mostra os degraus e a pisada (uma escada confortável tem pisada de 25 a 32 cm:
+   ~5 a 6 m para um andar). Clique numa escada para escolher: o painel troca o sentido (girar de eixo gira em volta do
+   centro, mantendo o tamanho) e a textura dos degraus; Ctrl + clique ou Del apaga.
 6. **Objetos e detalhes.** O catálogo (móveis da mansão e da Intro), encaixe e rotação, modo livre, lâmpadas com os três modos, quadros e sujeira.
 7. **Testar e os blocos.** O botão Testar: o agente andando no mapa com colisão e luz; o carregamento por blocos perto do jogador e a junção das malhas por bloco.
 8. **A mansão nova.** O desenvolvedor monta a planta no editor; o Claude ajusta o que faltar.

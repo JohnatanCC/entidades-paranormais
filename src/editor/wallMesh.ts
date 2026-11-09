@@ -99,8 +99,11 @@ export function wallGeometries(chunks: Chunk[], maxLevel: number): Map<string, T
 export function floorGeometries(chunks: Chunk[], maxLevel: number): Map<string, THREE.BufferGeometry> {
   const bufs = new Map<string, Buf>()
   const buf = (tex: string) => { let b = bufs.get(tex); if (!b) bufs.set(tex, (b = { p: [], n: [], uv: [], i: [] })); return b }
+  // o buraco: o piso de cima some sobre a escada do andar de baixo (o dado do piso fica; quem corta é a escada)
+  const buraco = new Set<string>()
+  for (const c of chunks) for (const st of c.stairs) for (let x = st.x; x < st.x + st.w; x++) for (let z = st.z; z < st.z + st.d; z++) buraco.add(`${st.level + 1}_${x}_${z}`)
   for (const c of chunks) for (const f of c.floors) {
-    if (f.level > maxLevel) continue
+    if (f.level > maxLevel || buraco.has(`${f.level}_${f.x}_${f.z}`)) continue
     const y = f.level * LEVEL_H, x0 = f.x, x1 = f.x + 1, z0 = f.z, z1 = f.z + 1
     const uv: [number, number][] = [[x0, z0], [x1, z0], [x1, z1], [x0, z1]]
     quad(buf(f.top), [[x0, y, z0], [x1, y, z0], [x1, y, z1], [x0, y, z1]], [0, 1, 0], uv)
@@ -109,6 +112,43 @@ export function floorGeometries(chunks: Chunk[], maxLevel: number): Map<string, 
   return geometrias(bufs)
 }
 const TETO = 0.02 // o teto fica um tico abaixo do chão de cima, para as duas faces não brigarem
+
+/** Quantos degraus uma escada tem (espelho de ~18 cm). */
+export const degrausDe = (rise: number) => Math.max(2, Math.round(rise / 0.18))
+
+/**
+ * As escadas até o andar maxLevel, juntadas por textura: cada degrau é um bloco maciço do chão até o piso dele
+ * (o piso, o espelho na frente e os dois lados), mais o fundo atrás do último. A textura vai pelo mundo, como nas paredes.
+ */
+export function stairGeometries(chunks: Chunk[], maxLevel: number): Map<string, THREE.BufferGeometry> {
+  const bufs = new Map<string, Buf>()
+  const buf = (tex: string) => { let b = bufs.get(tex); if (!b) bufs.set(tex, (b = { p: [], n: [], uv: [], i: [] })); return b }
+  for (const c of chunks) for (const st of c.stairs) {
+    if (st.level > maxLevel) continue
+    const y0 = st.level * LEVEL_H, ns = st.dir === 'norte' || st.dir === 'sul'
+    const comp = ns ? st.d : st.w, larg = ns ? st.w : st.d, n = degrausDe(st.rise), t = comp / n
+    // (a ao longo da subida a partir do pé, c atravessando) -> (x, z) no mundo
+    const XZ = (a: number, c: number): [number, number] =>
+      st.dir === 'sul' ? [st.x + c, st.z + a] : st.dir === 'norte' ? [st.x + c, st.z + st.d - a] : st.dir === 'leste' ? [st.x + a, st.z + c] : [st.x + st.w - a, st.z + c]
+    const P = (a: number, c: number, y: number): V3 => { const [x, z] = XZ(a, c); return [x, y0 + y, z] }
+    const sobe: V3 = st.dir === 'sul' ? [0, 0, 1] : st.dir === 'norte' ? [0, 0, -1] : st.dir === 'leste' ? [1, 0, 0] : [-1, 0, 0]
+    const lado: V3 = ns ? [1, 0, 0] : [0, 0, 1]
+    const neg = (v: V3): V3 => [-v[0], -v[1], -v[2]]
+    const b = buf(st.tex)
+    const uvTopo = (pts: V3[]) => pts.map((q) => [q[0], q[2]] as [number, number])
+    const uvFrente = (pts: V3[]) => pts.map((q) => [ns ? q[0] : q[2], q[1] - y0] as [number, number])
+    const uvLado = (pts: V3[]) => pts.map((q) => [ns ? q[2] : q[0], q[1] - y0] as [number, number])
+    for (let i = 0; i < n; i++) {
+      const a0 = i * t, a1 = (i + 1) * t, h = ((i + 1) * st.rise) / n, h0 = (i * st.rise) / n
+      let q = [P(a0, 0, h), P(a1, 0, h), P(a1, larg, h), P(a0, larg, h)]; quad(b, q, [0, 1, 0], uvTopo(q))
+      q = [P(a0, 0, h0), P(a0, larg, h0), P(a0, larg, h), P(a0, 0, h)]; quad(b, q, neg(sobe), uvFrente(q))
+      q = [P(a0, 0, 0), P(a1, 0, 0), P(a1, 0, h), P(a0, 0, h)]; quad(b, q, neg(lado), uvLado(q))
+      q = [P(a0, larg, 0), P(a1, larg, 0), P(a1, larg, h), P(a0, larg, h)]; quad(b, q, lado, uvLado(q))
+    }
+    const q = [P(comp, 0, 0), P(comp, larg, 0), P(comp, larg, st.rise), P(comp, 0, st.rise)]; quad(b, q, sobe, uvFrente(q))
+  }
+  return geometrias(bufs)
+}
 
 function geometrias(bufs: Map<string, Buf>) {
   const out = new Map<string, THREE.BufferGeometry>()

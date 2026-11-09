@@ -63,7 +63,7 @@ src/
                            exporta e importa; o pacote MapBundle), textures.ts (o catálogo: cada nome, o desenho em canvas e o tamanho em metros)
   editor/                  MapEditor (a tela), MapManager (o gerenciador de mapas), MapView + wallMesh (desenha;
                            paredes juntadas por textura, cantos fechados), EditorCamera, FerramentaParedes,
-                           FerramentaPiso, FerramentaPincel, FerramentaAberturas + PainelAbertura,
+                           FerramentaPiso, FerramentaPincel, FerramentaAberturas + PainelAbertura, FerramentaEscadas + PainelEscada,
                            Aberturas (portas, janelas, luar), Paleta, doc.ts (o documento e as operações),
                            historico.ts (desfazer e refazer)
 reference/                 o laboratório antigo, só para consulta (não importar nada daqui); ost/ = as 4 músicas dele

@@ -1,7 +1,7 @@
 // O documento que o editor muda: o cabeçalho e os blocos (pela chave "cx_cz"). Nunca é alterado no lugar: cada
 // mudança gera um documento novo que reaproveita os blocos que não mudaram. É isso que deixa o desfazer barato
 // (o histórico guarda documentos inteiros, mas eles dividem quase tudo entre si).
-import { chunkKey, chunkOf, emptyChunk, type Axis, type Chunk, type MapMeta, type Opening, type Wall, type WallSide } from '../maps/types'
+import { chunkKey, chunkOf, emptyChunk, type Axis, type Chunk, type MapMeta, type Opening, type Stair, type Wall, type WallSide } from '../maps/types'
 import { vazio, type MapBundle } from '../maps/storage'
 
 export interface MapDoc { meta: MapMeta; chunks: Record<string, Chunk> }
@@ -286,6 +286,54 @@ export function mudarAbertura(doc: MapDoc, id: string, patch: Partial<Opening>):
   const atual = doc.chunks[b].openings.find((o) => o.id === id)!
   if (Object.entries(patch).every(([k, v]) => (atual as unknown as Record<string, unknown>)[k] === v)) return doc
   return mudarBlocos(doc, [b], (c) => ({ ...c, openings: c.openings.map((o) => (o.id === id ? { ...o, ...patch } : o)) }))
+}
+
+// ---------- escadas ----------
+
+export type Direcao = Stair['dir']
+/** Para onde cada direção sobe: norte = −z, sul = +z, leste = +x, oeste = −x. */
+export const SOBE: Record<Direcao, [number, number]> = { norte: [0, -1], sul: [0, 1], leste: [1, 0], oeste: [-1, 0] }
+
+export function escadas(doc: MapDoc): Stair[] {
+  return Object.values(doc.chunks).flatMap((c) => c.stairs)
+}
+
+/** A escada do andar que cobre o ponto (x, z), se houver. */
+export function escadaEm(doc: MapDoc, level: number, x: number, z: number): Stair | undefined {
+  return escadas(doc).find((s) => s.level === level && x >= s.x && x < s.x + s.w && z >= s.z && z < s.z + s.d)
+}
+
+/** A escada nova cabe? Não pode cruzar outra escada do mesmo andar. */
+export function escadaCabe(doc: MapDoc, s: Pick<Stair, 'level' | 'x' | 'z' | 'w' | 'd'>, ignorar?: string): string | null {
+  const bate = escadas(doc).some((o) => o.id !== ignorar && o.level === s.level && s.x < o.x + o.w && o.x < s.x + s.w && s.z < o.z + o.d && o.z < s.z + s.d)
+  return bate ? 'Já tem uma escada aqui.' : null
+}
+
+export function comEscada(doc: MapDoc, s: Omit<Stair, 'id'>): { doc: MapDoc; id: string } {
+  const id = novoId('escada'), b = chunkKey(...chunkOf(s.x, s.z))
+  return { doc: mudarBlocos(doc, [b], (c) => ({ ...c, stairs: [...c.stairs, { ...s, id }] })), id }
+}
+
+export function semEscada(doc: MapDoc, id: string): MapDoc {
+  const b = Object.entries(doc.chunks).find(([, c]) => c.stairs.some((s) => s.id === id))?.[0]
+  if (!b) return doc
+  return mudarBlocos(doc, [b], (c) => ({ ...c, stairs: c.stairs.filter((s) => s.id !== id) }))
+}
+
+/** Trocar o sentido: no mesmo eixo, só inverte; de um eixo para o outro, a escada gira 90° em volta do centro. */
+export function sentidoNovo(st: Stair, dir: Direcao): Partial<Stair> {
+  const eixo = (d: Direcao) => (d === 'norte' || d === 'sul' ? 'z' : 'x')
+  if (eixo(dir) === eixo(st.dir)) return { dir }
+  const cx = st.x + st.w / 2, cz = st.z + st.d / 2
+  return { dir, w: st.d, d: st.w, x: Math.round(cx - st.d / 2), z: Math.round(cz - st.w / 2) }
+}
+
+export function mudarEscada(doc: MapDoc, id: string, patch: Partial<Stair>): MapDoc {
+  const b = Object.entries(doc.chunks).find(([, c]) => c.stairs.some((s) => s.id === id))?.[0]
+  if (!b) return doc
+  const atual = doc.chunks[b].stairs.find((s) => s.id === id)!
+  if (Object.entries(patch).every(([k, v]) => (atual as unknown as Record<string, unknown>)[k] === v)) return doc
+  return mudarBlocos(doc, [b], (c) => ({ ...c, stairs: c.stairs.map((s) => (s.id === id ? { ...s, ...patch } : s)) }))
 }
 
 export const comAndares = (doc: MapDoc, levels: number): MapDoc => ({ ...doc, meta: { ...doc.meta, levels } })

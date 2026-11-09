@@ -9,7 +9,10 @@ import type { Go } from '../App'
 import * as disco from '../maps/storage'
 import { CHUNK, LEVEL_H } from '../maps/types'
 import { RetroRenderer } from '../render/RetroRenderer'
-import { aberturas, andarTemCoisa, comAbertura, comAndares, comParedes, comPiso, docDe, mudarAbertura, pacoteDe, pintarLados, semAbertura, semParedes, semPiso, type LadoDe, type MapDoc, type Seg } from './doc'
+import { aberturas, andarTemCoisa, comAbertura, comAndares, comEscada, comParedes, comPiso, docDe, escadaCabe, escadas, sentidoNovo, mudarAbertura, mudarEscada, pacoteDe, pintarLados, semAbertura, semEscada, semParedes, semPiso, type LadoDe, type MapDoc, type Seg } from './doc'
+import type { Stair } from '../maps/types'
+import { FerramentaEscadas } from './FerramentaEscadas'
+import { PainelEscada } from './PainelEscada'
 import type { Opening } from '../maps/types'
 import { FerramentaAberturas, TIPOS, type TipoAbertura } from './FerramentaAberturas'
 import { PainelAbertura } from './PainelAbertura'
@@ -22,8 +25,8 @@ import { Paleta } from './Paleta'
 import { MapManager } from './MapManager'
 import { MapView } from './MapView'
 
-type Ferramenta = 'paredes' | 'apagar' | 'piso' | 'pincel' | 'aberturas'
-const FUTURAS = ['Escadas', 'Objetos', 'Luzes', 'Detalhes', 'Scripts']
+type Ferramenta = 'paredes' | 'apagar' | 'piso' | 'pincel' | 'aberturas' | 'escadas'
+const FUTURAS = ['Objetos', 'Luzes', 'Detalhes', 'Scripts']
 const ULTIMO = 'entidades.editor.ultimo' // o último mapa aberto (abre sozinho na próxima vez)
 const ID_OK = /^[a-z0-9][a-z0-9_-]{0,63}$/
 
@@ -36,6 +39,7 @@ const AJUDA: Record<Ferramenta, string> = {
   piso: 'Arraste uma área (ou clique num quadrado): põe o piso com o chão e o teto de baixo escolhidos; num piso que já existe, repinta. Ctrl + arrastar apaga o piso.',
   pincel: 'Clique numa parede: pinta o lado virado para você. Arraste: pinta tudo por onde passar. Shift + clique: pinta a sala inteira por dentro.',
   aberturas: 'Escolha o tipo e clique numa parede para pôr. Clique numa porta ou janela para mudar as propriedades; Ctrl + clique (ou Del) apaga.',
+  escadas: 'Arraste a área da escada do pé até o topo: ela sobe no sentido do arraste (o lado mais comprido). Os degraus se montam pela altura do andar e o piso de cima ganha o buraco. Clique numa escada para escolher; Ctrl + clique (ou Del) apaga.',
 }
 const ALTURAS = [0.8, 1, 1.2, 1.5] // alturas comuns da barra de baixo (m)
 
@@ -55,7 +59,8 @@ export function MapEditor({ go }: { go: Go }) {
   const [piso, setPiso] = useState({ chao: 'taco-madeira', teto: 'gesso' })
   const [tipoAbertura, setTipoAbertura] = useState<TipoAbertura>('comum')
   const [larguraVao, setLarguraVao] = useState(1)
-  const [selecionada, setSelecionada] = useState<string | null>(null) // a porta ou janela escolhida
+  const [selecionada, setSelecionada] = useState<string | null>(null) // a porta, janela ou escada escolhida
+  const [texEscada, setTexEscada] = useState('tabua-corrida')
   const statusRef = useRef<HTMLSpanElement>(null)
   const iniciou = useRef(false)
 
@@ -205,6 +210,20 @@ export function MapEditor({ go }: { go: Go }) {
   }, [doc, hist.mudar])
   const onApagarAbertura = useCallback((id: string) => { hist.mudar((d) => d && semAbertura(d, id)); setSelecionada(null) }, [hist.mudar])
   const onMudarAbertura = (patch: Partial<Opening>) => { if (escolhida) hist.mudar((d) => d && mudarAbertura(d, escolhida.id, patch)) }
+  const escadaEscolhida = doc && selecionada && ferramenta === 'escadas' ? escadas(doc).find((s) => s.id === selecionada) : undefined
+  const onPorEscada = useCallback((st: Omit<Stair, 'id'>) => {
+    if (!doc) return
+    const r = comEscada(doc, st)
+    hist.mudar(() => r.doc); setSelecionada(r.id)
+  }, [doc, hist.mudar])
+  const onApagarEscada = useCallback((id: string) => { hist.mudar((d) => d && semEscada(d, id)); setSelecionada(null) }, [hist.mudar])
+  const onMudarEscada = (patch: Partial<Stair>) => {
+    if (!escadaEscolhida || !doc) return
+    const p = patch.dir ? { ...patch, ...sentidoNovo(escadaEscolhida, patch.dir) } : patch
+    const erro = escadaCabe(doc, { ...escadaEscolhida, ...p }, escadaEscolhida.id)
+    if (erro) { setAviso('Girando assim ela bate em outra escada.'); return }
+    hist.mudar((d) => d && mudarEscada(d, escadaEscolhida.id, p))
+  }
   const onInfo = useCallback((t: string) => { if (statusRef.current) statusRef.current.textContent = t }, [])
 
   function sair() { if (podePerder()) go('dev') }
@@ -225,7 +244,9 @@ export function MapEditor({ go }: { go: Go }) {
     else if (e.key === '3') setFerramenta('piso')
     else if (e.key === '4') setFerramenta('pincel')
     else if (e.key === '5') setFerramenta('aberturas')
+    else if (e.key === '6') setFerramenta('escadas')
     else if ((e.key === 'Delete' || e.key === 'Backspace') && escolhida) onApagarAbertura(escolhida.id)
+    else if ((e.key === 'Delete' || e.key === 'Backspace') && escadaEscolhida) onApagarEscada(escadaEscolhida.id)
     else if (e.key === 'Escape' && gerenciador && doc) setGerenciador(false)
     else if (e.key === 'Escape') setSelecionada(null)
   }
@@ -275,12 +296,16 @@ export function MapEditor({ go }: { go: Go }) {
           <button className="item" aria-pressed={ferramenta === 'piso'} onClick={() => setFerramenta('piso')}>Piso e teto <kbd>3</kbd></button>
           <button className="item" aria-pressed={ferramenta === 'pincel'} onClick={() => setFerramenta('pincel')}>Pintar parede <kbd>4</kbd></button>
           <button className="item" aria-pressed={ferramenta === 'aberturas'} onClick={() => setFerramenta('aberturas')}>Portas e janelas <kbd>5</kbd></button>
+          <button className="item" aria-pressed={ferramenta === 'escadas'} onClick={() => setFerramenta('escadas')}>Escadas <kbd>6</kbd></button>
           <div className="nota">{AJUDA[ferramenta]}</div>
           {ferramenta === 'piso' && <>
             <Paleta titulo="Chão" uso="piso" valor={piso.chao} onEscolher={(chao) => setPiso({ ...piso, chao })} />
             <Paleta titulo="Teto do andar de baixo" uso="teto" valor={piso.teto} onEscolher={(teto) => setPiso({ ...piso, teto })} />
             {andar === 0 && <div className="nota">No térreo o teto de baixo não aparece (não há andar embaixo).</div>}
           </>}
+          {ferramenta === 'escadas' && (escadaEscolhida
+            ? <PainelEscada s={escadaEscolhida} onMudar={onMudarEscada} onApagar={() => onApagarEscada(escadaEscolhida.id)} />
+            : <Paleta titulo="Degraus" uso="piso" valor={texEscada} onEscolher={setTexEscada} />)}
           {ferramenta === 'aberturas' && <>
             <div className="tipos">
               {(Object.keys(TIPOS) as TipoAbertura[]).map((t) => <button key={t} className="item" aria-pressed={tipoAbertura === t} onClick={() => setTipoAbertura(t)}>{TIPOS[t].nome}</button>)}
@@ -319,6 +344,8 @@ export function MapEditor({ go }: { go: Go }) {
           {doc && (ferramenta === 'paredes' || ferramenta === 'apagar') && <FerramentaParedes doc={doc} andar={andar} apagar={ferramenta === 'apagar'} onFeito={onFeito} onInfo={onInfo} />}
           {doc && ferramenta === 'piso' && <FerramentaPiso doc={doc} andar={andar} onFeito={onPiso} onInfo={onInfo} />}
           {doc && ferramenta === 'pincel' && <FerramentaPincel doc={doc} andar={andar} onFeito={onPintar} onInfo={onInfo} />}
+          {doc && ferramenta === 'escadas' && <FerramentaEscadas doc={doc} andar={andar} tex={texEscada} selecionada={escadaEscolhida?.id ?? null}
+            onPor={onPorEscada} onSelecionar={setSelecionada} onApagar={onApagarEscada} onInfo={onInfo} />}
           {doc && ferramenta === 'aberturas' && <FerramentaAberturas doc={doc} andar={andar} tipo={tipoAbertura} larguraVao={larguraVao} selecionada={escolhida?.id ?? null}
             onPor={onPorAbertura} onSelecionar={setSelecionada} onApagar={onApagarAbertura} onInfo={onInfo} />}
           <Grid position={[0, andar * LEVEL_H + 0.005, 0]} args={[64, 64]} cellSize={1} cellThickness={0.6} cellColor="#4a4238" sectionSize={CHUNK} sectionThickness={1.2} sectionColor="#8b6a3a" fadeDistance={140} infiniteGrid />
