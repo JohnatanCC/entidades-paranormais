@@ -27,9 +27,15 @@ O número de objetos e os lugares variam de fantasma para fantasma.
   O laboratório já tem a base disso: a patrulha cantarolando, a pausa em que ela escuta e a caça (voz, respiração, grito).
 - **Salas seguras:** o agente cria uma área protegida com sal e runas, onde os fantasmas não entram. Detalhes depois.
 
+- **A mansão:** a planta está em `docs/mansao-cap1.md` (aprovada em 9/nov).
+
+**Decidido (9/nov):**
+- A chave só aparece depois que a foto e a pelúcia forem destruídas (senão o jogador vai direto ao chefe).
+- Os objetos têm lugar fixo na demo; o sorteio entre alguns lugares vem depois (a rouparia já tem três armários para isso).
+- A luta do berçário é em outro mapa (`bercario-cap1`): a porta do berçário troca de mapa.
+
 **Em aberto (decidir antes de montar o capítulo):**
 - Destruir a foto e a pelúcia muda a Mãe (menos vida, outro comportamento) ou só libera o caminho?
-- "Lugares variados": cada objeto tem um lugar fixo, ou sorteia entre alguns lugares a cada partida?
 - Quanto tempo ela fica atordoada.
 
 **Decidido (9/nov):** o barulho que a Mãe escuta **não vem do piso**. Vem de quebrar objetos, abrir porta com força e

@@ -1,6 +1,6 @@
 // As ações do jogador. O jogo lê AÇÕES (mover, correr, esquivar, olhar), nunca teclas: assim o controle e o toque
 // (celular) entram depois sem mexer no agente. Por enquanto, teclado e mouse:
-//   WASD / setas = mover · Shift = correr · Espaço = esquivar · mouse (com o cursor travado) = olhar
+//   WASD / setas = mover · Shift = correr · Espaço = esquivar · E = interagir (portas) · mouse (com o cursor travado) = olhar
 //   (se o navegador não deixar travar o cursor, olhar é arrastando com o botão esquerdo)
 export class Acoes {
   private teclas = new Set<string>()
@@ -40,6 +40,8 @@ export class Acoes {
   correr() { return this.tem('ShiftLeft', 'ShiftRight') }
   /** Esquivar: true uma vez por aperto do Espaço. */
   esquivar() { const v = this.apertou.has('Space'); this.apertou.delete('Space'); return v }
+  /** Interagir (abrir e fechar porta; depois, pegar e usar): true uma vez por aperto do E. */
+  interagir() { const v = this.apertou.has('KeyE'); this.apertou.delete('KeyE'); return v }
   /** O quanto o mouse andou desde a última leitura (em pixels). */
   olhar(): [number, number] { const r: [number, number] = [this.dx, this.dy]; this.dx = this.dy = 0; return r }
   /** Limpa os apertos não lidos (no fim de cada quadro). */

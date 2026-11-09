@@ -1,6 +1,6 @@
 // O Testar do criador de mapas: o agente andando no mapa aberto, com a câmera por cima do ombro, colisão, escadas e
 // as lâmpadas acesas. Sem armas, fantasmas nem HUD (isso vem com o jogo). Fica dentro do <Canvas> do editor.
-//   clique trava o mouse · WASD anda · Shift corre · Espaço esquiva · mouse olha · Esc volta ao editor
+//   clique trava o mouse · WASD anda · Shift corre · Espaço esquiva · E abre e fecha porta · mouse olha · Esc volta ao editor
 import { useEffect, useMemo, useRef } from 'react'
 import { useFrame, useThree } from '@react-three/fiber'
 import * as THREE from 'three'
@@ -12,30 +12,40 @@ import { novoJogador, passoJogador } from './player/controle'
 import { montarAgente } from './player/modelo'
 import { CAMERA } from './player/numeros'
 import { alcanceCamera, chaoEm, montarMundo, tetoEm } from './world/colisao'
+import { animarPortas, dicaDaPorta, novasPortas, portaPerto, usarPorta, type PortasVivas } from './world/portas'
 
 interface Props {
   chunks: Record<string, Chunk>
   levels: number
   inicio: [number, number, number] // onde o agente aparece (x, y, z)
   yaw: number // para onde a câmera começa olhando
+  portas: PortasVivas // o estado vivo das portas (este componente preenche; a vista do mapa desenha a partir dele)
   onTravado: (travado: boolean) => void // o mouse travou (jogando) ou soltou
+  onDica: (texto: string | null) => void // a linha de ação na tela ("E · abrir a porta", "Trancada.")
   onSair: () => void
 }
 
 const amortece = (de: number, para: number, k: number, dt: number) => de + (para - de) * (1 - Math.exp(-k * dt))
 
-export function Testar({ chunks, levels, inicio, yaw, onTravado, onSair }: Props) {
+export function Testar({ chunks, levels, inicio, yaw, portas, onTravado, onDica, onSair }: Props) {
   const { camera, gl, scene } = useThree()
   const { sensibilidade } = useSettings()
-  const mundo = useMemo(() => montarMundo(Object.values(chunks), levels), [chunks, levels])
+  // o mundo (colisão) e as portas como o mapa diz que começam
+  const mundo = useMemo(() => {
+    const m = montarMundo(Object.values(chunks), levels)
+    portas.clear(); novasPortas(m).forEach((v, k) => portas.set(k, v))
+    return m
+  }, [chunks, levels, portas])
   const agente = useMemo(() => montarAgente(), [])
   const acoes = useMemo(() => new Acoes(), [])
   const est = useRef({
     j: novoJogador(inicio[0], chaoEm(mundo, inicio[0], inicio[2], inicio[1] + 0.3) ?? inicio[1], inicio[2], yaw),
     camYaw: yaw, pitch: -0.12, k: 1, pivX: inicio[0], pivZ: inicio[2], pivY: inicio[1], altura: CAMERA.altura, travou: false,
+    msg: '', msgT: 0, dica: null as string | null,
   })
   const sairRef = useRef(onSair); sairRef.current = onSair
   const travRef = useRef(onTravado); travRef.current = onTravado
+  const dicaRef = useRef(onDica); dicaRef.current = onDica
 
   // o agente na cena, a entrada ligada, o mouse travado com um clique; Esc (ou soltar o mouse) volta ao editor
   useEffect(() => {
@@ -78,7 +88,14 @@ export function Testar({ chunks, levels, inicio, yaw, onTravado, onSair }: Props
     s.pitch = Math.min(CAMERA.pitchMax, Math.max(CAMERA.pitchMin, s.pitch - dy * sens))
     // andar
     passoJogador(j, acoes, s.camYaw, mundo, dt)
+    // as portas: a mais perto na frente (do corpo ou da câmera); E abre, fecha ou diz por que não
+    animarPortas(portas, dt)
+    const porta = portaPerto(mundo, j.x, j.y, j.z, [j.yaw, s.camYaw])
+    if (acoes.interagir() && porta) { const msg = usarPorta(mundo, portas, porta, j.x, j.z); if (msg) { s.msg = msg; s.msgT = 2.5 } }
     acoes.fimDoQuadro()
+    s.msgT -= dt
+    const dica = s.msgT > 0 ? s.msg : porta ? dicaDaPorta(porta, portas) : null
+    if (dica !== s.dica) { s.dica = dica; dicaRef.current(dica) }
     agente.root.position.set(j.x, j.y, j.z)
     agente.root.rotation.y = j.yaw
     animarAgente(agente, { velocidade: j.velocidade, corrida: j.corrida, esquiva: j.esquiva >= 0 ? Math.min(1, j.esquiva / 0.5) : -1 }, dt)

@@ -16,6 +16,7 @@ export interface ObjDef {
   grupo: Grupo
   tam: [number, number, number] // largura (x), altura (y), profundidade (z), em metros
   apoio?: 'chao' | 'teto' // onde encosta (padrão: chão)
+  vazado?: boolean // dá para ver através (o guarda-corpo): bate no corpo, mas não empurra a câmera
   pecas: Peca[]
   params?: Record<string, string[]> // as opções que o painel mostra (ex.: lâmpada: modo)
 }
@@ -39,6 +40,18 @@ const coberto = (w: number, h: number, d: number, encosto = 0): Peca[] => [
   ['caixa', [w * 0.92, 0.07, d * 0.9], [0, h * 0.92, 0], 'lencol'],
   ...(encosto ? [['caixa', [w * 0.96, encosto, d * 0.28], [0, h * 0.9 + encosto / 2, -d * 0.36], 'lencol'] as Peca] : []),
   ['caixa', [0.07, 0.1, 0.006], [w * 0.28, h * 0.62, d / 2 + 0.04], 'papel', [0, 0, 14]], // a etiqueta do leilão de 1931
+]
+
+/** O guarda-corpo (a balaustrada das galerias): dois pilares, o corrimão, a travessa de baixo e um balaústre a cada 20 cm.
+ *  Fica de pé sobre a borda: o comprimento vai em x, e ele é fino em z. As mesmas medidas do corrimão automático das escadas. */
+export const GUARDA = { altura: 1.05, corrimao: 0.985, passo: 0.2 }
+const guardaCorpo = (L: number): Peca[] => [
+  ['caixa', [0.09, GUARDA.altura, 0.09], [-(L / 2 - 0.045), GUARDA.altura / 2, 0], 'madeiraE'],
+  ['caixa', [0.09, GUARDA.altura, 0.09], [L / 2 - 0.045, GUARDA.altura / 2, 0], 'madeiraE'],
+  ['caixa', [L, 0.07, 0.11], [0, GUARDA.corrimao, 0], 'madeira'],
+  ['caixa', [L - 0.09, 0.05, 0.07], [0, 0.1, 0], 'madeiraE'],
+  ...Array.from({ length: Math.round(L / GUARDA.passo) - 1 }, (_, i) =>
+    ['caixa', [0.035, 0.83, 0.035], [-L / 2 + (i + 1) * GUARDA.passo, 0.54, 0], 'madeiraE'] as Peca),
 ]
 
 const cadeira: Peca[] = [
@@ -99,6 +112,10 @@ export const OBJETOS: Record<string, ObjDef> = {
   'tapete': { nome: 'Tapete persa', grupo: 'casa', tam: [2.0, 0.02, 3.0], pecas: [
     ['caixa', [2.0, 0.012, 3.0], [0, 0.006, 0], 'tapete'], ['caixa', [1.6, 0.014, 2.6], [0, 0.007, 0], 'tapeteB'], ['caixa', [1.4, 0.016, 2.4], [0, 0.008, 0], 'tapete'],
   ] },
+  // o guarda-corpo das bordas sem parede (o vão do salão, a galeria): em pedaços de 1, 2 e 4 m que se emendam
+  'guarda-corpo-1': { nome: 'Guarda-corpo 1 m', grupo: 'casa', tam: [1, GUARDA.altura, 0.12], vazado: true, pecas: guardaCorpo(1) },
+  'guarda-corpo-2': { nome: 'Guarda-corpo 2 m', grupo: 'casa', tam: [2, GUARDA.altura, 0.12], vazado: true, pecas: guardaCorpo(2) },
+  'guarda-corpo-4': { nome: 'Guarda-corpo 4 m', grupo: 'casa', tam: [4, GUARDA.altura, 0.12], vazado: true, pecas: guardaCorpo(4) },
   'lamparina': { nome: 'Lamparina', grupo: 'casa', tam: [0.16, 0.45, 0.16], pecas: [
     ['cilindro', [0.055, 0.075, 0.035], [0, 0.018, 0], 'latao'], ['cilindro', [0.018, 0.03, 0.1], [0, 0.085, 0], 'latao'],
     ['esfera', [0.06], [0, 0.18, 0], 'latao'], ['cilindro', [0.03, 0.045, 0.2], [0, 0.34, 0], 'cristal'], ['esfera', [0.025], [0, 0.29, 0], 'luz:chama'],

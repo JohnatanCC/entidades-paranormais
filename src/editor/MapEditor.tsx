@@ -15,6 +15,7 @@ import type { Prop, Stair, Vec3 } from '../maps/types'
 import { OBJETOS } from '../maps/objetos'
 import { CORTE, setModoParedes, type ModoParedes } from '../render/corte'
 import { Testar } from '../game/Testar'
+import type { PortasVivas } from '../game/world/portas'
 import { ICONES } from './Icones'
 import { GavetaAberturas, GavetaObjetos, GavetaPincel, GavetaPiso } from './Gaveta'
 import { FerramentaContaGotas, descreverPego, type Pego } from './FerramentaContaGotas'
@@ -99,6 +100,9 @@ export function MapEditor({ go }: { go: Go }) {
   // o Testar: o agente andando no mapa (paredes sempre altas enquanto joga)
   const [testando, setTestando] = useState<{ inicio: [number, number, number]; yaw: number } | null>(null)
   const [travado, setTravado] = useState(false)
+  const [dicaTeste, setDicaTeste] = useState<string | null>(null)
+  // o estado vivo das portas enquanto testa (o mapa não muda; sair do teste volta tudo como estava)
+  const portasVivas = useMemo<PortasVivas | null>(() => (testando ? new Map() : null), [testando])
   useEffect(() => { setModoParedes(testando ? 'altas' : modoParedes) }, [modoParedes, testando])
   function comecarTeste() {
     if (!doc) return
@@ -107,7 +111,7 @@ export function MapEditor({ go }: { go: Go }) {
     setSelecionada(null); setTipoObjeto(null)
     setTestando({ inicio: [a.x, andar * LEVEL_H, a.y], yaw: Math.atan2(-d.x, -d.y) })
   }
-  const sairTeste = useCallback(() => { setTestando(null); setTravado(false) }, [])
+  const sairTeste = useCallback(() => { setTestando(null); setTravado(false); setDicaTeste(null) }, [])
   // o aviso some sozinho depois de uns segundos
   useEffect(() => { if (!aviso) return; const t = setTimeout(() => setAviso(''), 5000); return () => clearTimeout(t) }, [aviso])
   const statusRef = useRef<HTMLSpanElement>(null)
@@ -392,8 +396,8 @@ export function MapEditor({ go }: { go: Go }) {
             <directionalLight position={[8, 16, 6]} intensity={1.4} />
             <directionalLight position={[-10, 8, -4]} intensity={0.5} />
           </>}
-          {doc && <Suspense fallback={null}><MapView chunks={doc.chunks} maxLevel={testando ? nAndares - 1 : andar} ocultar={ferramenta === 'objetos' && !testando ? arrastando : null} /></Suspense>}
-          {doc && testando && <Testar chunks={doc.chunks} levels={nAndares} inicio={testando.inicio} yaw={testando.yaw} onTravado={setTravado} onSair={sairTeste} />}
+          {doc && <Suspense fallback={null}><MapView chunks={doc.chunks} maxLevel={testando ? nAndares - 1 : andar} ocultar={ferramenta === 'objetos' && !testando ? arrastando : null} portas={portasVivas} /></Suspense>}
+          {doc && testando && portasVivas && <Testar chunks={doc.chunks} levels={nAndares} inicio={testando.inicio} yaw={testando.yaw} portas={portasVivas} onTravado={setTravado} onDica={setDicaTeste} onSair={sairTeste} />}
           {doc && !testando && (ferramenta === 'paredes' || ferramenta === 'apagar') && <FerramentaParedes doc={doc} andar={andar} apagar={ferramenta === 'apagar'} onFeito={onFeito} onInfo={onInfo} />}
           {doc && !testando && ferramenta === 'piso' && <FerramentaPiso doc={doc} andar={andar} onFeito={onPiso} onInfo={onInfo} />}
           {doc && !testando && ferramenta === 'pincel' && <FerramentaPincel doc={doc} andar={andar} onFeito={onPintar} onInfo={onInfo} />}
@@ -407,13 +411,15 @@ export function MapEditor({ go }: { go: Go }) {
           {/* a malha: 1 m em linha fina, o bloco de 16 m em linha forte (ajuda a medir e a manter a simetria) */}
           {!testando && <Grid position={[0, andar * LEVEL_H + 0.006, 0]} args={[64, 64]} cellSize={1} cellThickness={1} cellColor="#8a7552" sectionSize={CHUNK} sectionThickness={2} sectionColor="#e0a050" fadeDistance={260} fadeStrength={0.8} infiniteGrid />}
           <EditorCamera y={andar * LEVEL_H} inicio={inicio} ativa={!testando} />
-          {(filtro || testando) && <RetroRenderer />}
+          {/* o filtro PS1 só com o botão de cima, também no Testar (decidido em 9/nov: desligado por enquanto) */}
+          {filtro && <RetroRenderer />}
         </Canvas>
         {!doc && <div className="vazio-b">Nenhum mapa aberto. Abra ou crie um em Mapas.</div>}
         {aviso && <div className="aviso-b">{aviso}</div>}
+        {testando && dicaTeste && <div className="dica-teste">{dicaTeste}</div>}
         {testando && <div className={travado ? 'teste-b jogando' : 'teste-b'}>
           {travado
-            ? <span>WASD anda · Shift corre · Espaço esquiva · mouse olha (sem o cursor travado: arraste) · <b>Esc</b> volta ao editor</span>
+            ? <span>WASD anda · Shift corre · Espaço esquiva · E abre e fecha porta · mouse olha (sem o cursor travado: arraste) · <b>Esc</b> volta ao editor</span>
             : <><b>Testar</b><span>Clique na vista para jogar · Esc volta ao editor</span></>}
         </div>}
         {/* o Painel Inspetor: as configurações do que está escolhido, numa janela que se arrasta */}

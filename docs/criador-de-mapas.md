@@ -24,7 +24,7 @@ Plano original e decisões: `docs/design/criador-de-mapas-plano.md`. Este arquiv
 | Lâmpadas de teto | normal, falhando, apagada |
 | Detalhes | quadros, sujeira, manchas (decalques colados na superfície) |
 | Scripts | Depois do mapa: gatilhos, cenas, nascimento de monstros. O formato já reserva `points` |
-| Capítulos | **Cada capítulo é um mapa próprio** (`maps/mansao-cap1`, `maps/mansao-cap2`...). A mansão que muda é uma troca de mapa; o mapa do capítulo seguinte nasce como cópia do anterior. Arena de chefe pode ser outro mapa, atrás de uma tela de carregamento |
+| Capítulos | **Cada capítulo é um mapa próprio** (`maps/mansao-cap1`, `maps/mansao-cap2`...). A mansão que muda é uma troca de mapa; o mapa do capítulo seguinte nasce como cópia do anterior. A arena do chefe é outro mapa, atrás de uma porta e de uma tela de carregamento (o capítulo 1 tem `mansao-cap1` e `bercario-cap1`) |
 | A demo | É o **capítulo 1 inteiro**: o primeiro mapa de verdade é `mansao-cap1` |
 | Gerenciar mapas | Novo, abrir, salvar, copiar a partir de outro, apagar (digitando o nome), exportar e importar. Exportar gera um `.json` único (`{ formato, meta, chunks }`, o mapa inteiro) para backup ou para mandar a alguém; importar lê esse arquivo e cria a pasta em `maps/`. Gravar, apagar e importar só no `npm run dev` |
 | Pé-direito alto | Paredes de dois andares (7 m) e sem piso no andar de cima. Assim sai a arena do berçário (24 × 32 m, paredes de ~7 m, sem teto) e o salão de pé-direito duplo |
@@ -32,8 +32,8 @@ Plano original e decisões: `docs/design/criador-de-mapas-plano.md`. Este arquiv
 
 ## Pontos a decidir antes das etapas que dependem deles
 
-- **Largura mínima onde tem luta.** A câmera é sobre o ombro (estilo Resident Evil 4) e a esquiva anda 2,7 m: corredor de
-  1,4 m (como no design antigo da mansão) aperta a câmera e a esquiva. Proposta: 2,5 m ou mais onde houver luta, 1,4 m só em passagem.
+- **Largura mínima onde tem luta.** ✅ Decidido em 9/nov: corredores e galeria de 3 m na mansão (a câmera é sobre o ombro e
+  a esquiva anda 2,7 m; o 1,4 m do design antigo apertava as duas).
 - **O que o capítulo 1 pede do mapa** (a Mãe perseguidora e os objetos ligados, ver `docs/jogo.md`):
   - por onde ela anda: as paredes, portas e escadas do mapa precisam bastar para ela achar caminho pela casa inteira,
     nos dois andares (a malha de caminhos sai do mapa na etapa 7, não é desenhada à mão);
@@ -120,6 +120,10 @@ Cada etapa vira uma versão que o desenvolvedor testa antes da próxima.
    2 m de comprimento). A linha de status mostra os degraus e a pisada (uma escada confortável tem pisada de 25 a 32 cm:
    ~5 a 6 m para um andar). Clique numa escada para escolher: o painel troca o sentido (girar de eixo gira em volta do
    centro, mantendo o tamanho) e a textura dos degraus; Ctrl + clique ou Del apaga.
+   **Corrimão automático** (9/nov): cada lado da escada ganha um corrimão inclinado com balaústres (menos o lado que já
+   tem parede do pé ao topo), e o buraco no piso de cima ganha guarda-corpo nas bordas que têm piso do lado de fora e
+   não têm parede (menos a ponta do topo, por onde se sai). Não fica gravado no mapa: é calculado da escada e das paredes
+   (`src/maps/corrimao.ts`), e muda sozinho quando elas mudam. No Testar, segura o agente; a câmera passa por ele.
 6. **Objetos e detalhes.** O catálogo (móveis da mansão e da Intro), encaixe e rotação, modo livre, lâmpadas com os três modos, quadros e sujeira.
    Dividida em duas versões:
    - **6a. Objetos e lâmpadas.** ✅ Ferramenta **Objetos e luzes (7)**: 19 objetos no primeiro lote (casa: cadeira, cadeira caída,
@@ -128,6 +132,9 @@ Cada etapa vira uma versão que o desenvolvedor testa antes da próxima.
      Encaixe a cada 0,25 m, R gira 15° (Shift + R 45°), clique escolhe e arrasta, Ctrl + clique ou Del apaga.
      Modo livre no painel (altura, girar, inclinar e tombar; arrastar encaixa a cada 5 cm). A lâmpada acende de verdade e
      a "falhando" pisca. Outros móveis do laboratório entram quando o desenvolvedor pedir.
+     **Guarda-corpo** (9/nov): a balaustrada das bordas sem parede (o vão do salão, a galeria), em pedaços de 1, 2 e 4 m
+     que se emendam (gire 90° para pôr no outro eixo; encaixe na linha da grade, onde o piso acaba). Mesma altura e
+     desenho do corrimão automático. Segura o agente, mas a câmera passa.
    - **6b. Detalhes.** Quadros, sujeira e manchas (decalques colados na superfície).
 
 ### A interface (conceito B, "Arquivo C.R.O.S.", aprovado em 9/nov)
@@ -153,12 +160,20 @@ Ajudas de construção propostas para depois (uma de cada vez, se aprovadas): **
    Feita antes da 6b (decidido em 9/nov: andar no mapa mostra cedo se as medidas servem para o jogo). Duas versões:
    - **7a. Testar.** ✅ O botão **Testar** (ou T) solta o agente no ponto que a câmera do editor olha, de costas para ela.
      Clique trava o mouse; WASD anda, Shift corre (fôlego), Espaço esquiva, mouse olha; **Esc** volta ao editor no mesmo lugar.
-     Câmera por cima do ombro direito (braço que encolhe na parede, não atravessa o teto), filtro PS1 ligado, luz de jogo
+     Câmera por cima do ombro direito (braço que encolhe na parede, não atravessa o teto), o filtro PS1 só se o botão de
+     cima estiver ligado (desligado por enquanto, pedido em 9/nov; o jogo continua com o PS1 como padrão), luz de jogo
      (as lâmpadas do mapa é que iluminam), paredes sempre altas. Bate em paredes, janelas, portas fechadas e trancadas e
      móveis; passa por porta aberta e vão; sobe e desce escada; cai no buraco da escada. Sem armas, fantasmas nem HUD.
+     **Abrir portas** (9/nov): perto de uma porta e de frente para ela, aparece "E · abrir a porta"; **E** abre e fecha.
+     A folha abre sempre para longe do agente e não fecha com ele parado no vão; a trancada mostra o motivo (e o nome da
+     chave, até o inventário existir). O estado das portas no teste não muda o mapa: sair do Testar volta tudo como estava.
+     O código: `src/game/world/portas.ts`; a ação "interagir" em `src/game/input/acoes.ts`.
      O código mora em `src/game/` (player/, input/, world/), já na estrutura do jogo.
    - **7b. Os blocos.** O jogo carrega só os blocos perto do agente e junta as malhas por bloco (desempenho da mansão e do celular).
 8. **A mansão nova.** O desenvolvedor monta a planta no editor; o Claude ajusta o que faltar.
+   A planta do capítulo 1 está em `docs/mansao-cap1.md` (aprovada em 9/nov). **A planta crua foi gerada** (9/nov) no mapa
+   `maps/mansao-cap1`: paredes, pisos, tetos, portas, janelas, as duas escadas, o guarda-corpo do vão e algumas lâmpadas.
+   Falta o desenvolvedor decorar e decidir quais portas trancam.
 
 Depois do mapa: os scripts e, mais tarde, o Editor de modelos.
 

@@ -7,6 +7,7 @@ e captura entidades. Este projeto começa pelo **Modo desenvolvedor → Criador 
 
 1. `docs/criador-de-mapas.md` — o foco agora: decisões, o formato dos mapas e as 8 etapas (qual é a próxima).
 2. `docs/jogo.md` — o que já foi decidido e jogado (agente, armas, captura, fantasmas, HUD, a demo Intro).
+   `docs/mansao-cap1.md` — a planta da mansão do capítulo 1 (cômodos, escadas, rota, onde ficam os objetos da Mãe).
 3. `docs/portando-do-laboratorio.md` — onde está cada coisa no laboratório antigo e o que **não** trazer.
 4. `docs/design/` — cópias do documento de design (história, mansão, intro). Referência; os docs acima valem quando discordarem.
 
@@ -63,7 +64,8 @@ src/
                            corte.ts (paredes altas / recortadas / baixas no editor), miniaturas.ts (fotos do catálogo de objetos)
   maps/                    types.ts (o formato v1), loader.ts (o jogo lê a pasta), storage.ts (o editor lê, grava,
                            exporta e importa; o pacote MapBundle), textures.ts (o catálogo: cada nome, o desenho em canvas e o tamanho em metros),
-                           objetos.ts (o catálogo de móveis e lâmpadas, em dados: tamanho e peças)
+                           objetos.ts (o catálogo de móveis e lâmpadas, em dados: tamanho e peças),
+                           corrimao.ts (o corrimão automático das escadas, calculado do mapa; o editor desenha em editor/corrimaoMesh.ts)
   editor/                  MapEditor (a tela, conceito B), Gaveta (o catálogo embaixo), Icones, Inspetor (a janela flutuante),
                            Medida (a etiqueta ao construir), FerramentaContaGotas, MapManager (o gerenciador de mapas), MapView + wallMesh (desenha;
                            paredes juntadas por textura, cantos fechados), EditorCamera, FerramentaParedes,
@@ -91,7 +93,8 @@ src/game/                  (já existem: Testar.tsx, player/, input/, world/ —
   allies/                  Lara e Nicolas
   hud/                     o HUD conceito C
   input/                   acoes.ts: ações do jogador (teclado e mouse; depois controle e toque): o jogo lê ações, nunca teclas
-  world/                   colisao.ts (paredes, portas, móveis, chão, escadas, braço da câmera); depois carregar por blocos, portas, luz
+  world/                   colisao.ts (paredes, portas, móveis, corrimão, chão, escadas, braço da câmera), portas.ts (abrir e fechar
+                           com E, o estado vivo das portas); depois carregar por blocos, luz
 src/chapters/cap1/         o roteiro do capítulo: qual mapa, gatilhos, cenas, chefe
 ```
 
