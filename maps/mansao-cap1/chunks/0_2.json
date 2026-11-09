@@ -1,0 +1,293 @@
+{
+ "cx": 0,
+ "cz": 2,
+ "walls": [
+  {
+   "level": 0,
+   "x": 8,
+   "z": 32,
+   "axis": "x",
+   "a": {
+    "tex": "reboco-creme",
+    "base": {
+     "tex": "barra-verde",
+     "h": 1
+    }
+   },
+   "b": {
+    "tex": "fachada"
+   }
+  },
+  {
+   "level": 0,
+   "x": 9,
+   "z": 32,
+   "axis": "x",
+   "a": {
+    "tex": "reboco-creme",
+    "base": {
+     "tex": "barra-verde",
+     "h": 1
+    }
+   },
+   "b": {
+    "tex": "fachada"
+   }
+  },
+  {
+   "level": 0,
+   "x": 10,
+   "z": 32,
+   "axis": "x",
+   "a": {
+    "tex": "reboco-creme",
+    "base": {
+     "tex": "barra-verde",
+     "h": 1
+    }
+   },
+   "b": {
+    "tex": "fachada"
+   }
+  },
+  {
+   "level": 0,
+   "x": 11,
+   "z": 32,
+   "axis": "x",
+   "a": {
+    "tex": "reboco-creme",
+    "base": {
+     "tex": "barra-verde",
+     "h": 1
+    }
+   },
+   "b": {
+    "tex": "fachada"
+   }
+  },
+  {
+   "level": 0,
+   "x": 12,
+   "z": 32,
+   "axis": "x",
+   "a": {
+    "tex": "reboco-creme",
+    "base": {
+     "tex": "barra-verde",
+     "h": 1
+    }
+   },
+   "b": {
+    "tex": "fachada"
+   }
+  },
+  {
+   "level": 0,
+   "x": 13,
+   "z": 32,
+   "axis": "x",
+   "a": {
+    "tex": "reboco-creme",
+    "base": {
+     "tex": "barra-verde",
+     "h": 1
+    }
+   },
+   "b": {
+    "tex": "fachada"
+   }
+  },
+  {
+   "level": 0,
+   "x": 14,
+   "z": 32,
+   "axis": "x",
+   "a": {
+    "tex": "reboco-creme",
+    "base": {
+     "tex": "barra-verde",
+     "h": 1
+    }
+   },
+   "b": {
+    "tex": "fachada"
+   }
+  },
+  {
+   "level": 0,
+   "x": 15,
+   "z": 32,
+   "axis": "x",
+   "a": {
+    "tex": "reboco-creme",
+    "base": {
+     "tex": "barra-verde",
+     "h": 1
+    }
+   },
+   "b": {
+    "tex": "fachada"
+   }
+  },
+  {
+   "level": 1,
+   "x": 8,
+   "z": 32,
+   "axis": "x",
+   "a": {
+    "tex": "reboco-creme",
+    "base": {
+     "tex": "barra-madeira",
+     "h": 1
+    }
+   },
+   "b": {
+    "tex": "fachada"
+   }
+  },
+  {
+   "level": 1,
+   "x": 9,
+   "z": 32,
+   "axis": "x",
+   "a": {
+    "tex": "reboco-creme",
+    "base": {
+     "tex": "barra-madeira",
+     "h": 1
+    }
+   },
+   "b": {
+    "tex": "fachada"
+   }
+  },
+  {
+   "level": 1,
+   "x": 10,
+   "z": 32,
+   "axis": "x",
+   "a": {
+    "tex": "reboco-creme",
+    "base": {
+     "tex": "barra-madeira",
+     "h": 1
+    }
+   },
+   "b": {
+    "tex": "fachada"
+   }
+  },
+  {
+   "level": 1,
+   "x": 11,
+   "z": 32,
+   "axis": "x",
+   "a": {
+    "tex": "reboco-creme",
+    "base": {
+     "tex": "barra-madeira",
+     "h": 1
+    }
+   },
+   "b": {
+    "tex": "fachada"
+   }
+  },
+  {
+   "level": 1,
+   "x": 12,
+   "z": 32,
+   "axis": "x",
+   "a": {
+    "tex": "reboco-creme",
+    "base": {
+     "tex": "barra-madeira",
+     "h": 1
+    }
+   },
+   "b": {
+    "tex": "fachada"
+   }
+  },
+  {
+   "level": 1,
+   "x": 13,
+   "z": 32,
+   "axis": "x",
+   "a": {
+    "tex": "reboco-creme",
+    "base": {
+     "tex": "barra-madeira",
+     "h": 1
+    }
+   },
+   "b": {
+    "tex": "fachada"
+   }
+  },
+  {
+   "level": 1,
+   "x": 14,
+   "z": 32,
+   "axis": "x",
+   "a": {
+    "tex": "reboco-creme",
+    "base": {
+     "tex": "barra-madeira",
+     "h": 1
+    }
+   },
+   "b": {
+    "tex": "fachada"
+   }
+  },
+  {
+   "level": 1,
+   "x": 15,
+   "z": 32,
+   "axis": "x",
+   "a": {
+    "tex": "reboco-creme",
+    "base": {
+     "tex": "barra-madeira",
+     "h": 1
+    }
+   },
+   "b": {
+    "tex": "fachada"
+   }
+  }
+ ],
+ "floors": [],
+ "openings": [
+  {
+   "id": "janela-criados",
+   "level": 0,
+   "axis": "x",
+   "x": 12,
+   "z": 32,
+   "width": 1,
+   "kind": "janela",
+   "window": "normal",
+   "lado": "a",
+   "light2d": false
+  },
+  {
+   "id": "janela-rouparia",
+   "level": 1,
+   "axis": "x",
+   "x": 12,
+   "z": 32,
+   "width": 1,
+   "kind": "janela",
+   "window": "normal",
+   "lado": "a",
+   "light2d": false
+  }
+ ],
+ "stairs": [],
+ "props": [],
+ "decals": [],
+ "points": []
+}

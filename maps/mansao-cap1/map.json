@@ -1,0 +1,28 @@
+{
+ "formato": 1,
+ "id": "mansao-cap1",
+ "nome": "Mansão · capítulo 1",
+ "levels": 3,
+ "levelH": 3.5,
+ "chunkSize": 16,
+ "spawn": {
+  "pos": [
+   24,
+   0,
+   6.5
+  ],
+  "yaw": 0,
+  "level": 0
+ },
+ "chunks": [
+  "0_0",
+  "0_1",
+  "0_2",
+  "1_0",
+  "1_1",
+  "1_2",
+  "2_0",
+  "2_1",
+  "2_2"
+ ]
+}
