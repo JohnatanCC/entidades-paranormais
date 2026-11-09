@@ -2,7 +2,7 @@
  "formato": 1,
  "id": "teste",
  "nome": "Sala de teste",
- "levels": 2,
+ "levels": 1,
  "levelH": 3.5,
  "chunkSize": 16,
  "spawn": {
