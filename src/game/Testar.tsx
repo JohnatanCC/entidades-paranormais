@@ -1,0 +1,114 @@
+// O Testar do criador de mapas: o agente andando no mapa aberto, com a câmera por cima do ombro, colisão, escadas e
+// as lâmpadas acesas. Sem armas, fantasmas nem HUD (isso vem com o jogo). Fica dentro do <Canvas> do editor.
+//   clique trava o mouse · WASD anda · Shift corre · Espaço esquiva · mouse olha · Esc volta ao editor
+import { useEffect, useMemo, useRef } from 'react'
+import { useFrame, useThree } from '@react-three/fiber'
+import * as THREE from 'three'
+import type { Chunk } from '../maps/types'
+import { useSettings } from '../settings/settings'
+import { Acoes } from './input/acoes'
+import { animarAgente } from './player/animacao'
+import { novoJogador, passoJogador } from './player/controle'
+import { montarAgente } from './player/modelo'
+import { CAMERA } from './player/numeros'
+import { alcanceCamera, chaoEm, montarMundo, tetoEm } from './world/colisao'
+
+interface Props {
+  chunks: Record<string, Chunk>
+  levels: number
+  inicio: [number, number, number] // onde o agente aparece (x, y, z)
+  yaw: number // para onde a câmera começa olhando
+  onTravado: (travado: boolean) => void // o mouse travou (jogando) ou soltou
+  onSair: () => void
+}
+
+const amortece = (de: number, para: number, k: number, dt: number) => de + (para - de) * (1 - Math.exp(-k * dt))
+
+export function Testar({ chunks, levels, inicio, yaw, onTravado, onSair }: Props) {
+  const { camera, gl, scene } = useThree()
+  const { sensibilidade } = useSettings()
+  const mundo = useMemo(() => montarMundo(Object.values(chunks), levels), [chunks, levels])
+  const agente = useMemo(() => montarAgente(), [])
+  const acoes = useMemo(() => new Acoes(), [])
+  const est = useRef({
+    j: novoJogador(inicio[0], chaoEm(mundo, inicio[0], inicio[2], inicio[1] + 0.3) ?? inicio[1], inicio[2], yaw),
+    camYaw: yaw, pitch: -0.12, k: 1, pivX: inicio[0], pivZ: inicio[2], pivY: inicio[1], altura: CAMERA.altura, travou: false,
+  })
+  const sairRef = useRef(onSair); sairRef.current = onSair
+  const travRef = useRef(onTravado); travRef.current = onTravado
+
+  // o agente na cena, a entrada ligada, o mouse travado com um clique; Esc (ou soltar o mouse) volta ao editor
+  useEffect(() => {
+    const el = gl.domElement
+    scene.add(agente.root)
+    acoes.ligar(el)
+    const clique = () => { if (document.pointerLockElement !== el) { try { const r = el.requestPointerLock() as unknown as Promise<void> | undefined; r?.catch?.(() => {}) } catch { /* sem trava: segue sem olhar com o mouse */ } } }
+    const trava = () => {
+      const travado = document.pointerLockElement === el
+      if (travado) est.current.travou = true
+      else if (est.current.travou) sairRef.current() // soltou o mouse (Esc): fim do teste
+      travRef.current(travado)
+    }
+    // Esc sai; qualquer outra tecla tira o aviso do meio da tela (mesmo sem o mouse travado)
+    const esc = (e: KeyboardEvent) => { if (e.code === 'Escape') sairRef.current(); else travRef.current(true) }
+    el.addEventListener('click', clique)
+    document.addEventListener('pointerlockchange', trava)
+    window.addEventListener('keydown', esc)
+    clique() // tenta travar já (o clique no botão Testar conta como gesto do usuário)
+    return () => {
+      scene.remove(agente.root)
+      acoes.desligar()
+      el.removeEventListener('click', clique)
+      document.removeEventListener('pointerlockchange', trava)
+      window.removeEventListener('keydown', esc)
+      if (document.pointerLockElement === el) document.exitPointerLock()
+      const c = camera as THREE.PerspectiveCamera
+      c.fov = 50; c.updateProjectionMatrix() // o campo de visão do editor
+    }
+  }, [gl, scene, agente, acoes, camera])
+
+  const cam = camera as THREE.PerspectiveCamera
+  const v = useMemo(() => ({ f: new THREE.Vector3(), r: new THREE.Vector3(), de: new THREE.Vector3(), para: new THREE.Vector3() }), [])
+
+  useFrame((_, dtBruto) => {
+    const dt = Math.min(dtBruto, 0.05), s = est.current, j = s.j
+    // olhar
+    const [dx, dy] = acoes.olhar(), sens = CAMERA.sens * sensibilidade
+    s.camYaw -= dx * sens
+    s.pitch = Math.min(CAMERA.pitchMax, Math.max(CAMERA.pitchMin, s.pitch - dy * sens))
+    // andar
+    passoJogador(j, acoes, s.camYaw, mundo, dt)
+    acoes.fimDoQuadro()
+    agente.root.position.set(j.x, j.y, j.z)
+    agente.root.rotation.y = j.yaw
+    animarAgente(agente, { velocidade: j.velocidade, corrida: j.corrida, esquiva: j.esquiva >= 0 ? Math.min(1, j.esquiva / 0.5) : -1 }, dt)
+
+    // a câmera por cima do ombro direito: o braço encolhe na hora ao bater e estica devagar
+    s.altura = amortece(s.altura, j.esquiva >= 0 ? CAMERA.alturaEsquiva : CAMERA.altura, 7, dt)
+    s.pivX = amortece(s.pivX, j.x, 16, dt); s.pivZ = amortece(s.pivZ, j.z, 16, dt); s.pivY = amortece(s.pivY, j.y, 12, dt)
+    const cp = Math.cos(s.pitch)
+    v.f.set(Math.sin(s.camYaw) * cp, Math.sin(s.pitch), Math.cos(s.camYaw) * cp)
+    v.r.set(-Math.cos(s.camYaw), 0, Math.sin(s.camYaw))
+    const by = s.pivY + s.altura
+    v.de.set(s.pivX, by, s.pivZ).addScaledVector(v.r, CAMERA.lado * 0.45)
+    v.para.set(s.pivX, by, s.pivZ).addScaledVector(v.r, CAMERA.lado).addScaledVector(v.f, -CAMERA.atras)
+    v.para.y += CAMERA.acima
+    const k = alcanceCamera(mundo, v.de, v.para)
+    s.k = k < s.k ? k : amortece(s.k, k, 3.2, dt)
+    cam.position.lerpVectors(v.de, v.para, Math.max(0.1, s.k - 0.03))
+    // não atravessa o chão nem o teto do andar
+    const teto = tetoEm(mundo, cam.position.x, cam.position.z, j.y)
+    cam.position.y = Math.max(j.y + 0.25, teto !== null ? Math.min(cam.position.y, teto - 0.2) : cam.position.y)
+    cam.lookAt(cam.position.x + v.f.x, cam.position.y + v.f.y, cam.position.z + v.f.z)
+    const fov = CAMERA.fov + CAMERA.fovCorrendo * j.corrida
+    if (Math.abs(cam.fov - fov) > 0.01) { cam.fov = fov; cam.updateProjectionMatrix() }
+  })
+
+  return (
+    <>
+      {/* a luz do jogo: mais escura que a do editor; as lâmpadas do mapa é que iluminam */}
+      <hemisphereLight args={['#c9c0ff', '#1a1612', 0.55]} />
+      <directionalLight position={[-6, 10, 4]} intensity={0.35} color="#9fb8e8" />
+    </>
+  )
+}

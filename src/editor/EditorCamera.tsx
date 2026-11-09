@@ -11,15 +11,18 @@ import * as THREE from 'three'
 import { CORTE } from '../render/corte'
 
 interface Props {
+  ativa?: boolean // false = parada (o Testar está usando a câmera); guarda onde estava para voltar igual
   y: number // a altura do chão do andar escolhido (a câmera sobe e desce junto, suave)
   inicio: [number, number] // onde a câmera começa (x, z); mudou = recentra (abrir outro mapa)
 }
 
 const PITCH_MIN = 0.2, PITCH_MAX = 1.5, DIST_MIN = 3, DIST_MAX = 90
 
-export function EditorCamera({ y, inicio }: Props) {
+export function EditorCamera({ y, inicio, ativa = true }: Props) {
   const { camera, gl } = useThree()
   const st = useRef({ tx: inicio[0], tz: inicio[1], ty: y, yaw: Math.PI / 4, pitch: 0.85, dist: 22, foco: null as [number, number] | null })
+  const ativaRef = useRef(ativa)
+  ativaRef.current = ativa
   const yRef = useRef(y)
   yRef.current = y
   const teclas = useRef(new Set<string>())
@@ -48,6 +51,7 @@ export function EditorCamera({ y, inicio }: Props) {
     }
     const onde = (e: PointerEvent) => { mx = e.clientX; my = e.clientY }
     const down = (e: PointerEvent) => {
+      if (!ativaRef.current) return
       if (e.button === 1 || (e.button === 2 && e.shiftKey)) modo = 'mover'
       else if (e.button === 2) modo = 'girar'
       else return
@@ -72,6 +76,7 @@ export function EditorCamera({ y, inicio }: Props) {
     }
     const up = (e: PointerEvent) => { if (modo) { modo = null; if (el.hasPointerCapture(e.pointerId)) el.releasePointerCapture(e.pointerId) } }
     const wheel = (e: WheelEvent) => {
+      if (!ativaRef.current) return
       e.preventDefault()
       const s = st.current
       s.dist = Math.min(DIST_MAX, Math.max(DIST_MIN, s.dist * Math.exp(e.deltaY * 0.0012)))
@@ -79,7 +84,7 @@ export function EditorCamera({ y, inicio }: Props) {
     const menu = (e: Event) => e.preventDefault()
     const campo = (e: KeyboardEvent) => e.target instanceof HTMLInputElement || e.target instanceof HTMLTextAreaElement
     const kd = (e: KeyboardEvent) => {
-      if (campo(e) || e.ctrlKey || e.metaKey || e.altKey) return
+      if (!ativaRef.current || campo(e) || e.ctrlKey || e.metaKey || e.altKey) return
       teclas.current.add(e.code)
       if (e.code === 'KeyF') centrar(mx, my)
       if (e.code === 'Home') st.current.foco = [ix, iz]
@@ -111,6 +116,7 @@ export function EditorCamera({ y, inicio }: Props) {
   }, [gl, camera, ix, iz])
 
   useFrame((_, dtRaw) => {
+    if (!ativaRef.current) { teclas.current.clear(); return }
     const dt = Math.min(dtRaw, 0.1), s = st.current, t = teclas.current
     const fwd = (t.has('KeyW') || t.has('ArrowUp') ? 1 : 0) - (t.has('KeyS') || t.has('ArrowDown') ? 1 : 0)
     const dir = (t.has('KeyD') || t.has('ArrowRight') ? 1 : 0) - (t.has('KeyA') || t.has('ArrowLeft') ? 1 : 0)

@@ -20,6 +20,7 @@ export const ICONES = {
   salvar: <I><path d="M4 4h13l3 3v13H4z" /><path d="M8 4v5h8V4M7 20v-6h10v6" /></I>,
   mapas: <I><path d="M3 6h7l2 2h9v12H3z" /><path d="M3 10h18" /></I>,
   filtro: <I><rect x="3" y="5" width="18" height="13" /><path d="M8 21h8M12 18v3" /><path d="M6 9h1M6 12h1M17 9h1M17 12h1M10 9h1M13 12h1" /></I>,
+  testar: <I><path d="M7 4l13 8-13 8z" /></I>,
   sair: <I><path d="M14 4H5v16h9" /><path d="M10 12h11M17 8l4 4-4 4" /></I>,
   altas: <I><rect x="5" y="3" width="14" height="18" /><path d="M5 8h14M5 13h14M5 18h14" /></I>,
   recortadas: <I><path d="M5 21V10l14-6v17z" /><path d="M5 14h14M5 18h14" /></I>,

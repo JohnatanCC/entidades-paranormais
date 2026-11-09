@@ -13,7 +13,8 @@ import { RetroRenderer } from '../render/RetroRenderer'
 import { aberturas, andarTemCoisa, comAbertura, comAndares, comEscada, comObjeto, comParedes, comPiso, docDe, escadaCabe, escadas, sentidoNovo, mudarAbertura, mudarEscada, mudarObjeto, objetos, pacoteDe, pintarLados, semAbertura, semEscada, semObjeto, semParedes, semPiso, type LadoDe, type MapDoc, type Seg } from './doc'
 import type { Prop, Stair, Vec3 } from '../maps/types'
 import { OBJETOS } from '../maps/objetos'
-import { setModoParedes, type ModoParedes } from '../render/corte'
+import { CORTE, setModoParedes, type ModoParedes } from '../render/corte'
+import { Testar } from '../game/Testar'
 import { ICONES } from './Icones'
 import { GavetaAberturas, GavetaObjetos, GavetaPincel, GavetaPiso } from './Gaveta'
 import { FerramentaContaGotas, descreverPego, type Pego } from './FerramentaContaGotas'
@@ -95,7 +96,18 @@ export function MapEditor({ go }: { go: Go }) {
   const [arrastando, setArrastando] = useState<string | null>(null) // o objeto sendo arrastado (some do lugar antigo)
   const [modoParedes, setModoState] = useState<ModoParedes>(lerModo)
   const setModo = (m: ModoParedes) => { setModoState(m); try { localStorage.setItem(CHAVE_MODO, m) } catch { /* vale só agora */ } }
-  useEffect(() => { setModoParedes(modoParedes) }, [modoParedes])
+  // o Testar: o agente andando no mapa (paredes sempre altas enquanto joga)
+  const [testando, setTestando] = useState<{ inicio: [number, number, number]; yaw: number } | null>(null)
+  const [travado, setTravado] = useState(false)
+  useEffect(() => { setModoParedes(testando ? 'altas' : modoParedes) }, [modoParedes, testando])
+  function comecarTeste() {
+    if (!doc) return
+    // o agente aparece no ponto que a câmera do editor olha, de costas para ela
+    const a = CORTE.alvo.value, d = CORTE.dir.value
+    setSelecionada(null); setTipoObjeto(null)
+    setTestando({ inicio: [a.x, andar * LEVEL_H, a.y], yaw: Math.atan2(-d.x, -d.y) })
+  }
+  const sairTeste = useCallback(() => { setTestando(null); setTravado(false) }, [])
   // o aviso some sozinho depois de uns segundos
   useEffect(() => { if (!aviso) return; const t = setTimeout(() => setAviso(''), 5000); return () => clearTimeout(t) }, [aviso])
   const statusRef = useRef<HTMLSpanElement>(null)
@@ -290,6 +302,7 @@ export function MapEditor({ go }: { go: Go }) {
   const atalhos = useRef<(e: KeyboardEvent) => void>(() => {})
   atalhos.current = (e) => {
     if (e.target instanceof HTMLInputElement || e.target instanceof HTMLTextAreaElement) return
+    if (testando) return // jogando: as teclas são do agente (Esc volta, quem cuida é o Testar)
     const ctrl = e.ctrlKey || e.metaKey, k = e.key.toLowerCase()
     if (ctrl && k === 'z' && !e.shiftKey) { e.preventDefault(); hist.desfazer() }
     else if (ctrl && (k === 'y' || (k === 'z' && e.shiftKey))) { e.preventDefault(); hist.refazer() }
@@ -298,6 +311,7 @@ export function MapEditor({ go }: { go: Go }) {
     else if (e.key === 'PageUp') { e.preventDefault(); setAndar(Math.min(nAndares - 1, andar + 1)) }
     else if (e.key === 'PageDown') { e.preventDefault(); setAndar(Math.max(0, andar - 1)) }
     else if (doc && FERRAMENTAS.some((f) => f.tecla === e.key)) setFerramenta(FERRAMENTAS.find((f) => f.tecla === e.key)!.id)
+    else if (k === 't' && doc && !gerenciador) comecarTeste()
     else if (k === 'v') setModo(MODOS_PAREDE[(MODOS_PAREDE.indexOf(modoParedes) + 1) % 3])
     else if (k === 'r' && ferramenta === 'objetos') {
       const passo = e.shiftKey ? 45 : 15
@@ -349,6 +363,7 @@ export function MapEditor({ go }: { go: Go }) {
           </div>
         </>}
         <span className="espaco" />
+        <button className="bt testar-b" onClick={comecarTeste} disabled={!doc || !!testando} data-dica="O agente anda no mapa, onde a câmera olha (T)">{ICONES.testar} Testar</button>
         <button className="ic" onClick={hist.desfazer} disabled={!hist.podeDesfazer} data-dica="Desfazer (Ctrl+Z)">{ICONES.desfazer}</button>
         <button className="ic" onClick={hist.refazer} disabled={!hist.podeRefazer} data-dica="Refazer (Ctrl+Y)">{ICONES.refazer}</button>
         <button className="bt" onClick={salvar} disabled={!doc || !disco.podeGravar || ocupado} data-dica={disco.podeGravar ? 'Salvar (Ctrl+S)' : 'Só com npm run dev'}>{ICONES.salvar} Salvar</button>
@@ -372,35 +387,43 @@ export function MapEditor({ go }: { go: Go }) {
         <Canvas camera={{ position: [10, 12, 10], fov: 50 }} gl={{ antialias: !filtro }}>
           <color attach="background" args={['#0b0c0f']} />
           {/* luz de trabalho: clara e sem sombra, para ver as texturas; cada lado da parede pega um tom diferente */}
-          <hemisphereLight args={['#fff4e0', '#3a3530', 1.6]} />
-          <directionalLight position={[8, 16, 6]} intensity={1.4} />
-          <directionalLight position={[-10, 8, -4]} intensity={0.5} />
-          {doc && <Suspense fallback={null}><MapView chunks={doc.chunks} maxLevel={andar} ocultar={ferramenta === 'objetos' ? arrastando : null} /></Suspense>}
-          {doc && (ferramenta === 'paredes' || ferramenta === 'apagar') && <FerramentaParedes doc={doc} andar={andar} apagar={ferramenta === 'apagar'} onFeito={onFeito} onInfo={onInfo} />}
-          {doc && ferramenta === 'piso' && <FerramentaPiso doc={doc} andar={andar} onFeito={onPiso} onInfo={onInfo} />}
-          {doc && ferramenta === 'pincel' && <FerramentaPincel doc={doc} andar={andar} onFeito={onPintar} onInfo={onInfo} />}
-          {doc && ferramenta === 'objetos' && <FerramentaObjetos doc={doc} andar={andar} tipo={tipoObjeto} rot={rotObjeto} selecionada={objetoEscolhido?.id ?? null}
+          {!testando && <>
+            <hemisphereLight args={['#fff4e0', '#3a3530', 1.6]} />
+            <directionalLight position={[8, 16, 6]} intensity={1.4} />
+            <directionalLight position={[-10, 8, -4]} intensity={0.5} />
+          </>}
+          {doc && <Suspense fallback={null}><MapView chunks={doc.chunks} maxLevel={testando ? nAndares - 1 : andar} ocultar={ferramenta === 'objetos' && !testando ? arrastando : null} /></Suspense>}
+          {doc && testando && <Testar chunks={doc.chunks} levels={nAndares} inicio={testando.inicio} yaw={testando.yaw} onTravado={setTravado} onSair={sairTeste} />}
+          {doc && !testando && (ferramenta === 'paredes' || ferramenta === 'apagar') && <FerramentaParedes doc={doc} andar={andar} apagar={ferramenta === 'apagar'} onFeito={onFeito} onInfo={onInfo} />}
+          {doc && !testando && ferramenta === 'piso' && <FerramentaPiso doc={doc} andar={andar} onFeito={onPiso} onInfo={onInfo} />}
+          {doc && !testando && ferramenta === 'pincel' && <FerramentaPincel doc={doc} andar={andar} onFeito={onPintar} onInfo={onInfo} />}
+          {doc && !testando && ferramenta === 'objetos' && <FerramentaObjetos doc={doc} andar={andar} tipo={tipoObjeto} rot={rotObjeto} selecionada={objetoEscolhido?.id ?? null}
             onPor={onPorObjeto} onSelecionar={setSelecionada} onMover={onMoverObjeto} onApagar={onApagarObjeto} onArrastando={setArrastando} onInfo={onInfo} />}
-          {doc && ferramenta === 'escadas' && <FerramentaEscadas doc={doc} andar={andar} tex={texEscada} selecionada={escadaEscolhida?.id ?? null}
+          {doc && !testando && ferramenta === 'escadas' && <FerramentaEscadas doc={doc} andar={andar} tex={texEscada} selecionada={escadaEscolhida?.id ?? null}
             onPor={onPorEscada} onSelecionar={setSelecionada} onApagar={onApagarEscada} onInfo={onInfo} />}
-          {doc && ferramenta === 'aberturas' && <FerramentaAberturas doc={doc} andar={andar} tipo={tipoAbertura} larguraVao={larguraVao} selecionada={escolhida?.id ?? null}
+          {doc && !testando && ferramenta === 'aberturas' && <FerramentaAberturas doc={doc} andar={andar} tipo={tipoAbertura} larguraVao={larguraVao} selecionada={escolhida?.id ?? null}
             onPor={onPorAbertura} onSelecionar={setSelecionada} onApagar={onApagarAbertura} onInfo={onInfo} />}
-          {doc && ferramenta === 'contagotas' && <FerramentaContaGotas doc={doc} andar={andar} onPegar={onPegar} onInfo={onInfo} />}
+          {doc && !testando && ferramenta === 'contagotas' && <FerramentaContaGotas doc={doc} andar={andar} onPegar={onPegar} onInfo={onInfo} />}
           {/* a malha: 1 m em linha fina, o bloco de 16 m em linha forte (ajuda a medir e a manter a simetria) */}
-          <Grid position={[0, andar * LEVEL_H + 0.006, 0]} args={[64, 64]} cellSize={1} cellThickness={1} cellColor="#8a7552" sectionSize={CHUNK} sectionThickness={2} sectionColor="#e0a050" fadeDistance={260} fadeStrength={0.8} infiniteGrid />
-          <EditorCamera y={andar * LEVEL_H} inicio={inicio} />
-          {filtro && <RetroRenderer />}
+          {!testando && <Grid position={[0, andar * LEVEL_H + 0.006, 0]} args={[64, 64]} cellSize={1} cellThickness={1} cellColor="#8a7552" sectionSize={CHUNK} sectionThickness={2} sectionColor="#e0a050" fadeDistance={260} fadeStrength={0.8} infiniteGrid />}
+          <EditorCamera y={andar * LEVEL_H} inicio={inicio} ativa={!testando} />
+          {(filtro || testando) && <RetroRenderer />}
         </Canvas>
         {!doc && <div className="vazio-b">Nenhum mapa aberto. Abra ou crie um em Mapas.</div>}
         {aviso && <div className="aviso-b">{aviso}</div>}
+        {testando && <div className={travado ? 'teste-b jogando' : 'teste-b'}>
+          {travado
+            ? <span>WASD anda · Shift corre · Espaço esquiva · mouse olha (sem o cursor travado: arraste) · <b>Esc</b> volta ao editor</span>
+            : <><b>Testar</b><span>Clique na vista para jogar · Esc volta ao editor</span></>}
+        </div>}
         {/* o Painel Inspetor: as configurações do que está escolhido, numa janela que se arrasta */}
-        {objetoEscolhido && <Inspetor titulo={OBJETOS[objetoEscolhido.type]?.nome ?? objetoEscolhido.type} onFechar={() => setSelecionada(null)}>
+        {!testando && objetoEscolhido && <Inspetor titulo={OBJETOS[objetoEscolhido.type]?.nome ?? objetoEscolhido.type} onFechar={() => setSelecionada(null)}>
           <PainelObjeto p={objetoEscolhido} onMudar={onMudarObjeto} onApagar={() => onApagarObjeto(objetoEscolhido.id)} />
         </Inspetor>}
-        {escolhida && <Inspetor titulo={nomeDe(escolhida)} onFechar={() => setSelecionada(null)}>
+        {!testando && escolhida && <Inspetor titulo={nomeDe(escolhida)} onFechar={() => setSelecionada(null)}>
           <PainelAbertura o={escolhida} onMudar={onMudarAbertura} onApagar={() => onApagarAbertura(escolhida.id)} />
         </Inspetor>}
-        {escadaEscolhida && <Inspetor titulo="Escada" onFechar={() => setSelecionada(null)}>
+        {!testando && escadaEscolhida && <Inspetor titulo="Escada" onFechar={() => setSelecionada(null)}>
           <PainelEscada s={escadaEscolhida} onMudar={onMudarEscada} onApagar={() => onApagarEscada(escadaEscolhida.id)} />
         </Inspetor>}
       </div>

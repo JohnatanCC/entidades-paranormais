@@ -156,3 +156,11 @@ button { font: inherit; color: inherit; }
 .medida { font-family: var(--display); font-size: 22px; line-height: 1; color: #fff3d6; background: rgba(12, 10, 8, 0.86);
   border: 1px solid var(--lamp); padding: 3px 9px 4px; white-space: nowrap; box-shadow: 0 2px 10px rgba(0, 0, 0, 0.5); }
 .medida.erro { color: #ffd2cc; border-color: var(--accent); }
+
+/* o Testar: o aviso no meio da vista (antes de travar o mouse) e a linha de ajuda embaixo (jogando) */
+.editor .testar-b { border-color: var(--brass); color: var(--amber); }
+.editor .teste-b { position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%); z-index: 6; display: flex; flex-direction: column; align-items: center; gap: 6px;
+  background: rgba(16, 14, 11, .92); border: 1px solid var(--brass); padding: 14px 22px; color: var(--cream); pointer-events: none; text-align: center; }
+.editor .teste-b b { font-family: var(--display); font-weight: 400; font-size: 32px; letter-spacing: .1em; color: var(--amber); text-transform: uppercase; }
+.editor .teste-b.jogando { top: auto; bottom: 10px; transform: translateX(-50%); padding: 4px 12px; background: rgba(16, 14, 11, .7); font-size: 12px; color: var(--muted); }
+.editor .teste-b.jogando b { font-family: inherit; font-size: inherit; letter-spacing: 0; color: var(--amber); text-transform: none; }

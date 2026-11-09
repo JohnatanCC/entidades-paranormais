@@ -69,7 +69,7 @@ src/
                            paredes juntadas por textura, cantos fechados), EditorCamera, FerramentaParedes,
                            FerramentaPiso, FerramentaPincel, FerramentaAberturas + PainelAbertura, FerramentaEscadas + PainelEscada,
                            FerramentaObjetos + PainelObjeto, Objetos (monta o catálogo; a lâmpada acende),
-                           Aberturas (portas, janelas, luar), Paleta, doc.ts (o documento e as operações),
+                           Aberturas (portas, janelas) + Luar (feixe macio, brilho, poeira), Paleta, doc.ts (o documento e as operações),
                            historico.ts (desfazer e refazer)
 public/musica/             as músicas do jogo (menu.mp3: o menu e o criador de mapas)
 reference/                 o laboratório antigo, só para consulta (não importar nada daqui); ost/ = as 4 músicas dele
@@ -82,15 +82,16 @@ Cada coisa do jogo mora na sua pasta; nada de arquivo gigante como o laboratóri
 ficam num arquivo próprio de cada pasta, para ajustar sem caçar no código.
 
 ```
-src/game/
-  player/                  o agente: movimento, câmera, esquiva, vida, animação
+src/game/                  (já existem: Testar.tsx, player/, input/, world/ — o resto entra quando a etapa chegar)
+  Testar.tsx               o Testar do editor: o agente andando no mapa aberto (câmera, colisão, luz do jogo)
+  player/                  o agente: modelo.ts, animacao.ts, controle.ts (andar, correr, esquivar), numeros.ts
   weapons/                 pistola, escopeta, armadilha, sobrecarga
   enemies/<nome>/          um fantasma por pasta (espectral/, glutao/, ...): IA, ataques, modelo, números
   capture/                 a poça e a captura
   allies/                  Lara e Nicolas
   hud/                     o HUD conceito C
-  input/                   ações do jogador (teclado e mouse, controle, toque): o jogo lê ações, nunca teclas
-  world/                   carrega o mapa, colisão, portas, luz
+  input/                   acoes.ts: ações do jogador (teclado e mouse; depois controle e toque): o jogo lê ações, nunca teclas
+  world/                   colisao.ts (paredes, portas, móveis, chão, escadas, braço da câmera); depois carregar por blocos, portas, luz
 src/chapters/cap1/         o roteiro do capítulo: qual mapa, gatilhos, cenas, chefe
 ```
 

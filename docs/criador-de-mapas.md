@@ -113,6 +113,8 @@ Cada etapa vira uma versão que o desenvolvedor testa antes da próxima.
    O lado de dentro é adivinhado (o lado com piso; sem piso, o oposto à câmera). Clique numa porta ou janela para escolher:
    o painel muda o estado (fechada, aberta, trancada com motivo e chave), o lado e o luar; Ctrl + clique ou Del apaga.
    No editor a porta trancada mostra um cadeado vermelho. Ficaram de fora: porta emperrada e porta de correr (a da Intro).
+   O luar (refeito em 9/nov, como o do laboratório): o feixe macio (some nas laterais, forte no vidro, apaga no chão, não
+   ofusca quando você entra nele), a mancha de borda esfumada no chão, um brilho leve no vidro e poeira descendo devagar.
 5. **Escadas.** ✅ Retas, montadas sozinhas pela área e pela altura; o buraco no piso de cima.
    Ferramenta **Escadas (6)**: arraste a área do pé até o topo (sobe no sentido do lado mais comprido do arraste; no mínimo
    2 m de comprimento). A linha de status mostra os degraus e a pisada (uma escada confortável tem pisada de 25 a 32 cm:
@@ -148,6 +150,14 @@ A mesma cara do HUD do jogo: latão, âmbar e VT323.
 Ajudas de construção propostas para depois (uma de cada vez, se aprovadas): **espelhar** (simetria por um eixo),
 **copiar e colar uma área**, o **andar de baixo apagado** ao construir em cima, a **fita métrica**.
 7. **Testar e os blocos.** O botão Testar: o agente andando no mapa com colisão e luz; o carregamento por blocos perto do jogador e a junção das malhas por bloco.
+   Feita antes da 6b (decidido em 9/nov: andar no mapa mostra cedo se as medidas servem para o jogo). Duas versões:
+   - **7a. Testar.** ✅ O botão **Testar** (ou T) solta o agente no ponto que a câmera do editor olha, de costas para ela.
+     Clique trava o mouse; WASD anda, Shift corre (fôlego), Espaço esquiva, mouse olha; **Esc** volta ao editor no mesmo lugar.
+     Câmera por cima do ombro direito (braço que encolhe na parede, não atravessa o teto), filtro PS1 ligado, luz de jogo
+     (as lâmpadas do mapa é que iluminam), paredes sempre altas. Bate em paredes, janelas, portas fechadas e trancadas e
+     móveis; passa por porta aberta e vão; sobe e desce escada; cai no buraco da escada. Sem armas, fantasmas nem HUD.
+     O código mora em `src/game/` (player/, input/, world/), já na estrutura do jogo.
+   - **7b. Os blocos.** O jogo carrega só os blocos perto do agente e junta as malhas por bloco (desempenho da mansão e do celular).
 8. **A mansão nova.** O desenvolvedor monta a planta no editor; o Claude ajusta o que faltar.
 
 Depois do mapa: os scripts e, mais tarde, o Editor de modelos.
