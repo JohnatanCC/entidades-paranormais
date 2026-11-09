@@ -1,20 +1,30 @@
-// O criador de mapas — etapas 2 e 3: a câmera do editor, os andares, as paredes automáticas (reta e sala), apagar,
-// desfazer e refazer, o gerenciador de mapas (novo, abrir, salvar, copiar, apagar, exportar e importar),
-// o piso (chão e o teto de baixo) e o pincel de parede (textura e barra de baixo), com o catálogo de texturas.
+// O criador de mapas: a tela no conceito B ("Arquivo C.R.O.S."): a barra de cima (mapa, andar, paredes altas /
+// recortadas / baixas, desfazer, salvar), a coluna de ferramentas em ícones, a gaveta com o catálogo da ferramenta
+// e o Painel Inspetor flutuante. As ferramentas: paredes, apagar, piso e teto, pincel, portas e janelas, escadas,
+// objetos e luzes, e o conta-gotas. Mais o gerenciador de mapas (novo, abrir, salvar, copiar, apagar, exportar, importar).
 // O mapa aberto é um documento (doc.ts): as ferramentas geram um documento novo e a vista desenha a partir dele.
-import { Suspense, useCallback, useEffect, useMemo, useRef, useState } from 'react'
+import { Suspense, useCallback, useEffect, useMemo, useRef, useState, type ReactNode } from 'react'
 import { Canvas } from '@react-three/fiber'
 import { Grid } from '@react-three/drei'
 import type { Go } from '../App'
 import * as disco from '../maps/storage'
 import { CHUNK, LEVEL_H } from '../maps/types'
 import { RetroRenderer } from '../render/RetroRenderer'
-import { aberturas, andarTemCoisa, comAbertura, comAndares, comEscada, comParedes, comPiso, docDe, escadaCabe, escadas, sentidoNovo, mudarAbertura, mudarEscada, pacoteDe, pintarLados, semAbertura, semEscada, semParedes, semPiso, type LadoDe, type MapDoc, type Seg } from './doc'
-import type { Stair } from '../maps/types'
+import { aberturas, andarTemCoisa, comAbertura, comAndares, comEscada, comObjeto, comParedes, comPiso, docDe, escadaCabe, escadas, sentidoNovo, mudarAbertura, mudarEscada, mudarObjeto, objetos, pacoteDe, pintarLados, semAbertura, semEscada, semObjeto, semParedes, semPiso, type LadoDe, type MapDoc, type Seg } from './doc'
+import type { Prop, Stair, Vec3 } from '../maps/types'
+import { OBJETOS } from '../maps/objetos'
+import { setModoParedes, type ModoParedes } from '../render/corte'
+import { ICONES } from './Icones'
+import { GavetaAberturas, GavetaObjetos, GavetaPincel, GavetaPiso } from './Gaveta'
+import { FerramentaContaGotas, descreverPego, type Pego } from './FerramentaContaGotas'
+import { FerramentaObjetos } from './FerramentaObjetos'
+import { PainelObjeto } from './PainelObjeto'
+import { Inspetor } from './Inspetor'
+import { nomeDe } from './FerramentaAberturas'
 import { FerramentaEscadas } from './FerramentaEscadas'
 import { PainelEscada } from './PainelEscada'
 import type { Opening } from '../maps/types'
-import { FerramentaAberturas, TIPOS, type TipoAbertura } from './FerramentaAberturas'
+import { FerramentaAberturas, type TipoAbertura } from './FerramentaAberturas'
 import { PainelAbertura } from './PainelAbertura'
 import { useHistorico } from './historico'
 import { EditorCamera } from './EditorCamera'
@@ -25,8 +35,20 @@ import { Paleta } from './Paleta'
 import { MapManager } from './MapManager'
 import { MapView } from './MapView'
 
-type Ferramenta = 'paredes' | 'apagar' | 'piso' | 'pincel' | 'aberturas' | 'escadas'
-const FUTURAS = ['Objetos', 'Luzes', 'Detalhes', 'Scripts']
+type Ferramenta = 'paredes' | 'apagar' | 'piso' | 'pincel' | 'aberturas' | 'escadas' | 'objetos' | 'contagotas'
+const FERRAMENTAS: { id: Ferramenta; nome: string; tecla: string; icone: ReactNode }[] = [
+  { id: 'paredes', nome: 'Paredes', tecla: '1', icone: ICONES.paredes },
+  { id: 'apagar', nome: 'Apagar paredes', tecla: '2', icone: ICONES.apagar },
+  { id: 'piso', nome: 'Piso e teto', tecla: '3', icone: ICONES.piso },
+  { id: 'pincel', nome: 'Pintar parede', tecla: '4', icone: ICONES.pincel },
+  { id: 'aberturas', nome: 'Portas e janelas', tecla: '5', icone: ICONES.aberturas },
+  { id: 'escadas', nome: 'Escadas', tecla: '6', icone: ICONES.escadas },
+  { id: 'objetos', nome: 'Objetos e luzes', tecla: '7', icone: ICONES.objetos },
+  { id: 'contagotas', nome: 'Conta-gotas', tecla: '8', icone: ICONES.contagotas },
+]
+const MODOS_PAREDE: ModoParedes[] = ['altas', 'recortadas', 'baixas']
+const CHAVE_MODO = 'entidades.editor.paredes'
+const lerModo = (): ModoParedes => { try { const m = localStorage.getItem(CHAVE_MODO) as ModoParedes; return MODOS_PAREDE.includes(m) ? m : 'recortadas' } catch { return 'recortadas' } }
 const ULTIMO = 'entidades.editor.ultimo' // o último mapa aberto (abre sozinho na próxima vez)
 const ID_OK = /^[a-z0-9][a-z0-9_-]{0,63}$/
 
@@ -39,9 +61,16 @@ const AJUDA: Record<Ferramenta, string> = {
   piso: 'Arraste uma área (ou clique num quadrado): põe o piso com o chão e o teto de baixo escolhidos; num piso que já existe, repinta. Ctrl + arrastar apaga o piso.',
   pincel: 'Clique numa parede: pinta o lado virado para você. Arraste: pinta tudo por onde passar. Shift + clique: pinta a sala inteira por dentro.',
   aberturas: 'Escolha o tipo e clique numa parede para pôr. Clique numa porta ou janela para mudar as propriedades; Ctrl + clique (ou Del) apaga.',
+  objetos: 'Escolha um objeto e clique no chão para pôr (encaixa a cada 0,25 m; R gira 15°, Shift + R 45°; Esc para de pôr). Clique num objeto para escolher e arraste para mover; Ctrl + clique (ou Del) apaga. O modo livre fica no painel do escolhido.',
+  contagotas: 'Clique numa parede, piso, porta, janela, escada ou objeto: o editor pega a textura ou o objeto e troca para a ferramenta certa.',
   escadas: 'Arraste a área da escada do pé até o topo: ela sobe no sentido do arraste (o lado mais comprido). Os degraus se montam pela altura do andar e o piso de cima ganha o buraco. Clique numa escada para escolher; Ctrl + clique (ou Del) apaga.',
 }
-const ALTURAS = [0.8, 1, 1.2, 1.5] // alturas comuns da barra de baixo (m)
+// o que vai na gaveta das ferramentas que não têm catálogo
+const EXTRA: Partial<Record<Ferramenta, string>> = {
+  paredes: 'As paredes novas saem em reboco creme; pinte depois com o pincel (4). A medida aparece no meio do arraste.',
+  apagar: 'Apagar a parede apaga junto a porta ou janela que estava nela. Ctrl+Z traz tudo de volta.',
+  contagotas: 'Pegou? Ele troca sozinho para o pincel, o piso, as portas e janelas, as escadas ou os objetos, com a escolha pronta.',
+}
 
 
 export function MapEditor({ go }: { go: Go }) {
@@ -61,6 +90,14 @@ export function MapEditor({ go }: { go: Go }) {
   const [larguraVao, setLarguraVao] = useState(1)
   const [selecionada, setSelecionada] = useState<string | null>(null) // a porta, janela ou escada escolhida
   const [texEscada, setTexEscada] = useState('tabua-corrida')
+  const [tipoObjeto, setTipoObjeto] = useState<string | null>(null) // o objeto do catálogo para pôr
+  const [rotObjeto, setRotObjeto] = useState(0)
+  const [arrastando, setArrastando] = useState<string | null>(null) // o objeto sendo arrastado (some do lugar antigo)
+  const [modoParedes, setModoState] = useState<ModoParedes>(lerModo)
+  const setModo = (m: ModoParedes) => { setModoState(m); try { localStorage.setItem(CHAVE_MODO, m) } catch { /* vale só agora */ } }
+  useEffect(() => { setModoParedes(modoParedes) }, [modoParedes])
+  // o aviso some sozinho depois de uns segundos
+  useEffect(() => { if (!aviso) return; const t = setTimeout(() => setAviso(''), 5000); return () => clearTimeout(t) }, [aviso])
   const statusRef = useRef<HTMLSpanElement>(null)
   const iniciou = useRef(false)
 
@@ -217,6 +254,16 @@ export function MapEditor({ go }: { go: Go }) {
     hist.mudar(() => r.doc); setSelecionada(r.id)
   }, [doc, hist.mudar])
   const onApagarEscada = useCallback((id: string) => { hist.mudar((d) => d && semEscada(d, id)); setSelecionada(null) }, [hist.mudar])
+  const objetoEscolhido = doc && selecionada && ferramenta === 'objetos' ? objetos(doc).find((o) => o.id === selecionada) : undefined
+  const onPorObjeto = useCallback((o: Omit<Prop, 'id'>) => {
+    if (!doc) return
+    const r = comObjeto(doc, o)
+    hist.mudar(() => r.doc); setSelecionada(r.id)
+  }, [doc, hist.mudar])
+  const onMoverObjeto = useCallback((id: string, pos: Vec3) => hist.mudar((d) => d && mudarObjeto(d, id, { pos })), [hist.mudar])
+  const onApagarObjeto = useCallback((id: string) => { hist.mudar((d) => d && semObjeto(d, id)); setSelecionada(null) }, [hist.mudar])
+  // os controles deslizantes do modo livre juntam as mudanças seguidas num passo só de desfazer
+  const onMudarObjeto = (patch: Partial<Prop>) => { if (objetoEscolhido) hist.mudar((d) => d && mudarObjeto(d, objetoEscolhido.id, patch), 'obj:' + objetoEscolhido.id + ':' + Object.keys(patch).join()) }
   const onMudarEscada = (patch: Partial<Stair>) => {
     if (!escadaEscolhida || !doc) return
     const p = patch.dir ? { ...patch, ...sentidoNovo(escadaEscolhida, patch.dir) } : patch
@@ -225,6 +272,17 @@ export function MapEditor({ go }: { go: Go }) {
     hist.mudar((d) => d && mudarEscada(d, escadaEscolhida.id, p))
   }
   const onInfo = useCallback((t: string) => { if (statusRef.current) statusRef.current.textContent = t }, [])
+
+  /** O conta-gotas pegou alguma coisa: guarda a escolha e troca para a ferramenta que repete. */
+  function onPegar(p: Pego) {
+    setSelecionada(null)
+    if (p.tipo === 'parede') { setPincel({ parede: p.side.tex, barra: p.side.base?.tex ?? pincel.barra, h: p.side.base?.h ?? pincel.h, comBarra: !!p.side.base }); setFerramenta('pincel') }
+    else if (p.tipo === 'piso') { setPiso({ chao: p.top, teto: p.bottom }); setFerramenta('piso') }
+    else if (p.tipo === 'objeto') { setTipoObjeto(p.type); setRotObjeto(p.rot); setFerramenta('objetos') }
+    else if (p.tipo === 'abertura') { setTipoAbertura(p.tipoAbertura); if (p.tipoAbertura === 'vao') setLarguraVao(p.width); setFerramenta('aberturas') }
+    else { setTexEscada(p.tex); setFerramenta('escadas') }
+    setAviso('Peguei · ' + descreverPego(p))
+  }
 
   function sair() { if (podePerder()) go('dev') }
 
@@ -239,12 +297,15 @@ export function MapEditor({ go }: { go: Go }) {
     else if (ctrl) return
     else if (e.key === 'PageUp') { e.preventDefault(); setAndar(Math.min(nAndares - 1, andar + 1)) }
     else if (e.key === 'PageDown') { e.preventDefault(); setAndar(Math.max(0, andar - 1)) }
-    else if (e.key === '1') setFerramenta('paredes')
-    else if (e.key === '2') setFerramenta('apagar')
-    else if (e.key === '3') setFerramenta('piso')
-    else if (e.key === '4') setFerramenta('pincel')
-    else if (e.key === '5') setFerramenta('aberturas')
-    else if (e.key === '6') setFerramenta('escadas')
+    else if (doc && FERRAMENTAS.some((f) => f.tecla === e.key)) setFerramenta(FERRAMENTAS.find((f) => f.tecla === e.key)!.id)
+    else if (k === 'v') setModo(MODOS_PAREDE[(MODOS_PAREDE.indexOf(modoParedes) + 1) % 3])
+    else if (k === 'r' && ferramenta === 'objetos') {
+      const passo = e.shiftKey ? 45 : 15
+      if (tipoObjeto) setRotObjeto((r) => (r + passo) % 360)
+      else if (objetoEscolhido) onMudarObjeto({ rot: [objetoEscolhido.rot[0], ((objetoEscolhido.rot[1] + passo + 540) % 360) - 180, objetoEscolhido.rot[2]] })
+    }
+    else if ((e.key === 'Delete' || e.key === 'Backspace') && objetoEscolhido) onApagarObjeto(objetoEscolhido.id)
+    else if (e.key === 'Escape' && ferramenta === 'objetos' && tipoObjeto) setTipoObjeto(null)
     else if ((e.key === 'Delete' || e.key === 'Backspace') && escolhida) onApagarAbertura(escolhida.id)
     else if ((e.key === 'Delete' || e.key === 'Backspace') && escadaEscolhida) onApagarEscada(escadaEscolhida.id)
     else if (e.key === 'Escape' && gerenciador && doc) setGerenciador(false)
@@ -264,75 +325,49 @@ export function MapEditor({ go }: { go: Go }) {
     return () => window.removeEventListener('beforeunload', f)
   }, [sujo])
 
+  const ferr = FERRAMENTAS.find((f) => f.id === ferramenta)!
   return (
     <div className="editor">
-      <div className="barra">
-        <span className="titulo">Criador de mapas{doc ? ` — ${doc.meta.nome}` : ''}{sujo && <span className="sujo" title="mudanças não salvas"> •</span>}</span>
-        <button onClick={() => setGerenciador(true)}>Mapas…</button>
-        <button onClick={salvar} disabled={!doc || !disco.podeGravar || ocupado} title={disco.podeGravar ? 'Ctrl+S' : 'só com npm run dev'}>Salvar</button>
-        <button onClick={hist.desfazer} disabled={!hist.podeDesfazer} title="Ctrl+Z">Desfazer</button>
-        <button onClick={hist.refazer} disabled={!hist.podeRefazer} title="Ctrl+Y">Refazer</button>
-        <button onClick={() => setFiltro((v) => !v)} aria-pressed={filtro}>{filtro ? 'Filtro: ligado' : 'Filtro: desligado'}</button>
-        <button onClick={sair}>Sair</button>
-      </div>
-      <aside className="painel">
-        {doc ? <>
-          <h3>Mapa</h3>
-          <div className="nota"><b style={{ color: 'var(--cream)' }}>{doc.meta.nome}</b><br />maps/{doc.meta.id}/ · {sujo ? <span style={{ color: 'var(--amber)' }}>não salvo</span> : 'salvo'}</div>
-          <h3>Andar</h3>
-          <div className="andares">
-            {Array.from({ length: nAndares }, (_, i) => nAndares - 1 - i).map((i) => (
-              <button key={i} className="item" aria-pressed={andar === i} onClick={() => setAndar(i)}>{nomeAndar(i)}</button>
+      {/* a barra de cima: o mapa, o andar, as paredes, desfazer e salvar */}
+      <header className="topo">
+        <button className="bt" onClick={() => setGerenciador(true)} data-dica="Novo, abrir, copiar, exportar, importar">{ICONES.mapas} Mapas</button>
+        <span className="nome-mapa" title={doc ? `maps/${doc.meta.id}/` : ''}>{doc ? doc.meta.nome : 'Nenhum mapa'}{sujo && <span className="sujo" title="mudanças não salvas"> •</span>}</span>
+        {doc && <>
+          <div className="grupo">
+            <span className="rotulo-b">Andar</span>
+            <button className="ic" onClick={() => setAndar(Math.max(0, andar - 1))} disabled={andar === 0} data-dica="Andar de baixo (PageDown)">{ICONES.descer}</button>
+            <span className="andar-atual">{nomeAndar(andar)}</span>
+            <button className="ic" onClick={() => setAndar(Math.min(nAndares - 1, andar + 1))} disabled={andar >= nAndares - 1} data-dica="Andar de cima (PageUp)">{ICONES.subir}</button>
+            <button className="ic" onClick={maisAndar} data-dica="Criar um andar em cima">{ICONES.mais}</button>
+            <button className="ic" onClick={menosAndar} disabled={nAndares <= 1} data-dica="Tirar o último andar (vazio)">{ICONES.menos}</button>
+          </div>
+          <div className="grupo">
+            <span className="rotulo-b">Paredes</span>
+            {(['altas', 'recortadas', 'baixas'] as ModoParedes[]).map((mo) => (
+              <button key={mo} className="ic" aria-pressed={modoParedes === mo} onClick={() => setModo(mo)} data-dica={`Paredes ${mo} (V troca)`}>{ICONES[mo]}</button>
             ))}
           </div>
-          <div style={{ display: 'flex', gap: 6 }}>
-            <button onClick={maisAndar}>+ andar</button>
-            <button onClick={menosAndar} disabled={nAndares <= 1}>− andar</button>
-          </div>
-          <div className="nota">Os andares acima do escolhido ficam escondidos. PageUp / PageDown trocam.</div>
-          <h3>Ferramentas</h3>
-          <button className="item" aria-pressed={ferramenta === 'paredes'} onClick={() => setFerramenta('paredes')}>Paredes <kbd>1</kbd></button>
-          <button className="item" aria-pressed={ferramenta === 'apagar'} onClick={() => setFerramenta('apagar')}>Apagar paredes <kbd>2</kbd></button>
-          <button className="item" aria-pressed={ferramenta === 'piso'} onClick={() => setFerramenta('piso')}>Piso e teto <kbd>3</kbd></button>
-          <button className="item" aria-pressed={ferramenta === 'pincel'} onClick={() => setFerramenta('pincel')}>Pintar parede <kbd>4</kbd></button>
-          <button className="item" aria-pressed={ferramenta === 'aberturas'} onClick={() => setFerramenta('aberturas')}>Portas e janelas <kbd>5</kbd></button>
-          <button className="item" aria-pressed={ferramenta === 'escadas'} onClick={() => setFerramenta('escadas')}>Escadas <kbd>6</kbd></button>
-          <div className="nota">{AJUDA[ferramenta]}</div>
-          {ferramenta === 'piso' && <>
-            <Paleta titulo="Chão" uso="piso" valor={piso.chao} onEscolher={(chao) => setPiso({ ...piso, chao })} />
-            <Paleta titulo="Teto do andar de baixo" uso="teto" valor={piso.teto} onEscolher={(teto) => setPiso({ ...piso, teto })} />
-            {andar === 0 && <div className="nota">No térreo o teto de baixo não aparece (não há andar embaixo).</div>}
-          </>}
-          {ferramenta === 'escadas' && (escadaEscolhida
-            ? <PainelEscada s={escadaEscolhida} onMudar={onMudarEscada} onApagar={() => onApagarEscada(escadaEscolhida.id)} />
-            : <Paleta titulo="Degraus" uso="piso" valor={texEscada} onEscolher={setTexEscada} />)}
-          {ferramenta === 'aberturas' && <>
-            <div className="tipos">
-              {(Object.keys(TIPOS) as TipoAbertura[]).map((t) => <button key={t} className="item" aria-pressed={tipoAbertura === t} onClick={() => setTipoAbertura(t)}>{TIPOS[t].nome}</button>)}
-            </div>
-            {tipoAbertura === 'vao' && <div className="altura"><span>Largura do vão</span><div className="opcoes">{[1, 2, 3].map((w) => <button key={w} aria-pressed={larguraVao === w} onClick={() => setLarguraVao(w)}>{w} m</button>)}</div></div>}
-            {escolhida && <PainelAbertura o={escolhida} onMudar={onMudarAbertura} onApagar={() => onApagarAbertura(escolhida.id)} />}
-          </>}
-          {ferramenta === 'pincel' && <>
-            <Paleta titulo="Parede" uso="parede" valor={pincel.parede} onEscolher={(parede) => setPincel({ ...pincel, parede })} />
-            <label className="marcar"><input type="checkbox" checked={pincel.comBarra} onChange={(e) => setPincel({ ...pincel, comBarra: e.target.checked })} /> Barra embaixo (lambri)</label>
-            {pincel.comBarra && <>
-              <Paleta titulo="Barra" uso="lambri" valor={pincel.barra} onEscolher={(barra) => setPincel({ ...pincel, barra })} />
-              <div className="altura">
-                <span>Altura da barra</span>
-                <div className="opcoes">{ALTURAS.map((h) => <button key={h} aria-pressed={pincel.h === h} onClick={() => setPincel({ ...pincel, h })}>{h.toFixed(1).replace('.', ',')} m</button>)}</div>
-                <input type="range" min={0.2} max={3} step={0.1} value={pincel.h} onChange={(e) => setPincel({ ...pincel, h: Number(e.target.value) })} aria-label="Altura da barra" />
-                <b>{pincel.h.toFixed(1).replace('.', ',')} m</b>
-              </div>
-            </>}
-          </>}
-          {FUTURAS.map((f) => <button key={f} className="item" disabled>{f}</button>)}
-          <div className="nota">As outras ferramentas entram nas próximas etapas.</div>
-          <h3>Câmera</h3>
-          <div className="nota">Botão direito: gira · botão do meio ou Shift + direito: move · rodinha: aproxima · WASD / setas: move · Q / E: gira</div>
-        </> : <div className="nota">Nenhum mapa aberto. Abra ou crie um em <b>Mapas…</b></div>}
-        {aviso && <div className="nota aviso">{aviso}</div>}
-      </aside>
+        </>}
+        <span className="espaco" />
+        <button className="ic" onClick={hist.desfazer} disabled={!hist.podeDesfazer} data-dica="Desfazer (Ctrl+Z)">{ICONES.desfazer}</button>
+        <button className="ic" onClick={hist.refazer} disabled={!hist.podeRefazer} data-dica="Refazer (Ctrl+Y)">{ICONES.refazer}</button>
+        <button className="bt" onClick={salvar} disabled={!doc || !disco.podeGravar || ocupado} data-dica={disco.podeGravar ? 'Salvar (Ctrl+S)' : 'Só com npm run dev'}>{ICONES.salvar} Salvar</button>
+        <button className="ic" onClick={() => setFiltro((v) => !v)} aria-pressed={filtro} data-dica={filtro ? 'Filtro PS1: ligado' : 'Filtro PS1: desligado'}>{ICONES.filtro}</button>
+        <button className="ic" onClick={sair} data-dica="Sair do criador">{ICONES.sair}</button>
+      </header>
+
+      {/* a coluna de ferramentas */}
+      <nav className="ferramentas" aria-label="Ferramentas">
+        {FERRAMENTAS.map((f, i) => (
+          <span key={f.id} style={{ display: 'contents' }}>
+            {(i === 4 || i === 7) && <hr />}
+            <button aria-pressed={ferramenta === f.id} onClick={() => setFerramenta(f.id)} disabled={!doc} data-dica={`${f.nome} (${f.tecla})`} aria-label={f.nome}>
+              {f.icone}<span className="tecla">{f.tecla}</span>
+            </button>
+          </span>
+        ))}
+      </nav>
+
       <div className="vista">
         <Canvas camera={{ position: [10, 12, 10], fov: 50 }} gl={{ antialias: !filtro }}>
           <color attach="background" args={['#0b0c0f']} />
@@ -340,20 +375,53 @@ export function MapEditor({ go }: { go: Go }) {
           <hemisphereLight args={['#fff4e0', '#3a3530', 1.6]} />
           <directionalLight position={[8, 16, 6]} intensity={1.4} />
           <directionalLight position={[-10, 8, -4]} intensity={0.5} />
-          {doc && <Suspense fallback={null}><MapView chunks={doc.chunks} maxLevel={andar} /></Suspense>}
+          {doc && <Suspense fallback={null}><MapView chunks={doc.chunks} maxLevel={andar} ocultar={ferramenta === 'objetos' ? arrastando : null} /></Suspense>}
           {doc && (ferramenta === 'paredes' || ferramenta === 'apagar') && <FerramentaParedes doc={doc} andar={andar} apagar={ferramenta === 'apagar'} onFeito={onFeito} onInfo={onInfo} />}
           {doc && ferramenta === 'piso' && <FerramentaPiso doc={doc} andar={andar} onFeito={onPiso} onInfo={onInfo} />}
           {doc && ferramenta === 'pincel' && <FerramentaPincel doc={doc} andar={andar} onFeito={onPintar} onInfo={onInfo} />}
+          {doc && ferramenta === 'objetos' && <FerramentaObjetos doc={doc} andar={andar} tipo={tipoObjeto} rot={rotObjeto} selecionada={objetoEscolhido?.id ?? null}
+            onPor={onPorObjeto} onSelecionar={setSelecionada} onMover={onMoverObjeto} onApagar={onApagarObjeto} onArrastando={setArrastando} onInfo={onInfo} />}
           {doc && ferramenta === 'escadas' && <FerramentaEscadas doc={doc} andar={andar} tex={texEscada} selecionada={escadaEscolhida?.id ?? null}
             onPor={onPorEscada} onSelecionar={setSelecionada} onApagar={onApagarEscada} onInfo={onInfo} />}
           {doc && ferramenta === 'aberturas' && <FerramentaAberturas doc={doc} andar={andar} tipo={tipoAbertura} larguraVao={larguraVao} selecionada={escolhida?.id ?? null}
             onPor={onPorAbertura} onSelecionar={setSelecionada} onApagar={onApagarAbertura} onInfo={onInfo} />}
-          <Grid position={[0, andar * LEVEL_H + 0.005, 0]} args={[64, 64]} cellSize={1} cellThickness={0.6} cellColor="#4a4238" sectionSize={CHUNK} sectionThickness={1.2} sectionColor="#8b6a3a" fadeDistance={140} infiniteGrid />
+          {doc && ferramenta === 'contagotas' && <FerramentaContaGotas doc={doc} andar={andar} onPegar={onPegar} onInfo={onInfo} />}
+          {/* a malha: 1 m em linha fina, o bloco de 16 m em linha forte (ajuda a medir e a manter a simetria) */}
+          <Grid position={[0, andar * LEVEL_H + 0.006, 0]} args={[64, 64]} cellSize={1} cellThickness={1} cellColor="#8a7552" sectionSize={CHUNK} sectionThickness={2} sectionColor="#e0a050" fadeDistance={260} fadeStrength={0.8} infiniteGrid />
           <EditorCamera y={andar * LEVEL_H} inicio={inicio} />
           {filtro && <RetroRenderer />}
         </Canvas>
-        <div className="status"><span ref={statusRef} /><span className="atalhos">Ctrl+Z desfaz · Ctrl+Y refaz · Ctrl+S salva</span></div>
+        {!doc && <div className="vazio-b">Nenhum mapa aberto. Abra ou crie um em Mapas.</div>}
+        {aviso && <div className="aviso-b">{aviso}</div>}
+        {/* o Painel Inspetor: as configurações do que está escolhido, numa janela que se arrasta */}
+        {objetoEscolhido && <Inspetor titulo={OBJETOS[objetoEscolhido.type]?.nome ?? objetoEscolhido.type} onFechar={() => setSelecionada(null)}>
+          <PainelObjeto p={objetoEscolhido} onMudar={onMudarObjeto} onApagar={() => onApagarObjeto(objetoEscolhido.id)} />
+        </Inspetor>}
+        {escolhida && <Inspetor titulo={nomeDe(escolhida)} onFechar={() => setSelecionada(null)}>
+          <PainelAbertura o={escolhida} onMudar={onMudarAbertura} onApagar={() => onApagarAbertura(escolhida.id)} />
+        </Inspetor>}
+        {escadaEscolhida && <Inspetor titulo="Escada" onFechar={() => setSelecionada(null)}>
+          <PainelEscada s={escadaEscolhida} onMudar={onMudarEscada} onApagar={() => onApagarEscada(escadaEscolhida.id)} />
+        </Inspetor>}
       </div>
+
+      {/* a gaveta: o catálogo e as opções da ferramenta escolhida */}
+      <section className="gaveta">
+        <div className="cabeca">
+          <b>{ferr.nome}</b>
+          <span className="ajuda">{AJUDA[ferramenta]}</span>
+        </div>
+        <div className="conteudo">
+          {ferramenta === 'piso' && <GavetaPiso piso={piso} setPiso={setPiso} andar={andar} />}
+          {ferramenta === 'pincel' && <GavetaPincel pincel={pincel} setPincel={setPincel} />}
+          {ferramenta === 'aberturas' && <GavetaAberturas tipo={tipoAbertura} setTipo={setTipoAbertura} larguraVao={larguraVao} setLarguraVao={setLarguraVao} />}
+          {ferramenta === 'escadas' && <Paleta titulo="Degraus da escada nova" uso="piso" valor={texEscada} onEscolher={setTexEscada} />}
+          {ferramenta === 'objetos' && <GavetaObjetos tipo={tipoObjeto} onEscolher={(t) => { setTipoObjeto(t); setSelecionada(null) }} />}
+          {(ferramenta === 'paredes' || ferramenta === 'apagar' || ferramenta === 'contagotas') && <div className="nota">{EXTRA[ferramenta]}</div>}
+        </div>
+        <div className="status-b"><span ref={statusRef} /><span>Botão direito gira · meio move · rodinha aproxima · duplo clique direito ou F centraliza · V troca as paredes · Ctrl+Z desfaz · Ctrl+S salva</span></div>
+      </section>
+
       {(gerenciador || !doc) && (
         <MapManager mapas={mapas} aberto={doc?.meta.id} ocupado={ocupado}
           onAbrir={abrir} onCopiar={copiar} onApagar={apagar} onExportar={exportar} onNovo={novo} onImportar={importar}

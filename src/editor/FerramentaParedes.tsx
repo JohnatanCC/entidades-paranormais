@@ -4,9 +4,11 @@
 // Enquanto arrasta, mostra a prévia (âmbar = põe, vermelho = tira). Esc cancela.
 import { useEffect, useMemo, useRef, useState } from 'react'
 import type { ThreeEvent } from '@react-three/fiber'
+import { pontoCortado } from '../render/corte'
 import { LEVEL_H, chunkKey, chunkOf } from '../maps/types'
 import { paredeMaisPerto, paredeNoRaio, paredesNaArea, segmentosDoArraste, type MapDoc, type Seg } from './doc'
 import { ESPESSURA } from './wallMesh'
+import { Medida } from './Medida'
 
 interface Props {
   doc: MapDoc
@@ -33,13 +35,14 @@ export function FerramentaParedes({ doc, andar, apagar, onFeito, onInfo }: Props
     if (!drag) return null
     if (drag.apagar) {
       const segs = drag.x0 === drag.x1 && drag.z0 === drag.z1
-        ? [paredeNoRaio(doc, andar, drag.ro, drag.rd, LEVEL_H) ?? paredeMaisPerto(doc, andar, drag.px, drag.pz)].filter((s): s is Seg => !!s)
+        ? [paredeNoRaio(doc, andar, drag.ro, drag.rd, LEVEL_H, pontoCortado) ?? paredeMaisPerto(doc, andar, drag.px, drag.pz)].filter((s): s is Seg => !!s)
         : paredesNaArea(doc, andar, drag.x0, drag.z0, drag.x1, drag.z1)
-      return { segs, texto: `Apagar: ${segs.length} ${segs.length === 1 ? 'pedaço' : 'pedaços'} de parede` }
+      return { segs, texto: `Apagar: ${segs.length} ${segs.length === 1 ? 'pedaço' : 'pedaços'} de parede`, curto: `− ${segs.length} m de parede` }
     }
     const a = segmentosDoArraste(andar, drag.x0, drag.z0, drag.x1, drag.z1)
     const texto = a.tipo === 'reta' ? `Parede reta: ${a.segs.length} m` : a.tipo === 'sala' ? `Sala: ${a.w} × ${a.d} m (${a.segs.length} m de parede)` : 'Arraste para desenhar'
-    return { segs: a.segs, texto }
+    const curto = a.tipo === 'reta' ? `${a.segs.length} m` : a.tipo === 'sala' ? `${a.w} × ${a.d} m · ${a.w * a.d} m²` : ''
+    return { segs: a.segs, texto, curto }
   }
   const previa = useMemo(() => calcular(drag), [drag, doc, andar])
 
@@ -80,6 +83,8 @@ export function FerramentaParedes({ doc, andar, apagar, onFeito, onInfo }: Props
   }
 
   const cor = drag?.apagar ? '#c2453a' : '#e8b765'
+  // a medida fica no meio da área arrastada, um pouco acima do topo das paredes
+  const meio: [number, number, number] | null = drag && previa?.curto ? [(drag.x0 + drag.x1) / 2, y + LEVEL_H + 0.4, (drag.z0 + drag.z1) / 2] : null
   return (
     <group>
       {/* o chão que recebe o mouse: grande, transparente, na altura do andar */}
@@ -93,6 +98,7 @@ export function FerramentaParedes({ doc, andar, apagar, onFeito, onInfo }: Props
           <meshBasicMaterial color={apagar ? '#c2453a' : '#e8b765'} />
         </mesh>
       )}
+      {meio && previa && <Medida pos={meio} texto={previa.curto} erro={drag?.apagar} />}
       {previa?.segs.map((s) => (
         <mesh key={`${s.axis}${s.x}_${s.z}`} position={[s.axis === 'x' ? s.x + 0.5 : s.x, y + LEVEL_H / 2, s.axis === 'z' ? s.z + 0.5 : s.z]} rotation-y={s.axis === 'x' ? 0 : Math.PI / 2}>
           <boxGeometry args={[1, LEVEL_H + 0.02, ESPESSURA * 1.6]} />

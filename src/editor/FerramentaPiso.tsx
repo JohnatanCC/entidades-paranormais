@@ -4,6 +4,7 @@ import { useEffect, useMemo, useRef, useState } from 'react'
 import type { ThreeEvent } from '@react-three/fiber'
 import { LEVEL_H } from '../maps/types'
 import { pisoNaArea, quadrados, type MapDoc } from './doc'
+import { Medida } from './Medida'
 
 interface Props {
   doc: MapDoc
@@ -67,6 +68,7 @@ export function FerramentaPiso({ doc, andar, onFeito, onInfo }: Props) {
     setDrag(null)
   }
 
+  const medida = area && drag ? (drag.apagar ? `− ${pisoNaArea(doc, andar, area.qs)} m²` : `${area.bx - area.ax} × ${area.bz - area.az} m · ${(area.bx - area.ax) * (area.bz - area.az)} m²`) : null
   const r = area ?? (mira ? { ax: mira[0], bx: mira[0] + 1, az: mira[1], bz: mira[1] + 1 } : null)
   return (
     <group>
@@ -74,6 +76,7 @@ export function FerramentaPiso({ doc, andar, onFeito, onInfo }: Props) {
         <planeGeometry args={[4000, 4000]} />
         <meshBasicMaterial transparent opacity={0} depthWrite={false} />
       </mesh>
+      {medida && area && <Medida pos={[(area.ax + area.bx) / 2, y + 0.5, (area.az + area.bz) / 2]} texto={medida} erro={drag?.apagar} />}
       {r && (
         <mesh position={[(r.ax + r.bx) / 2, y + 0.03, (r.az + r.bz) / 2]} rotation-x={-Math.PI / 2}>
           <planeGeometry args={[r.bx - r.ax, r.bz - r.az]} />

@@ -77,7 +77,10 @@ Unidades: metros e graus; y para cima; andar 0 = térreo.
   `rise` (um andar = 3,5 m) para `dir`: norte = −z, sul = +z, leste = +x, oeste = −x. Os degraus saem da conta
   (espelho de ~18 cm: 19 degraus num andar). O piso do andar de cima some sobre a área da escada (o buraco é calculado,
   o piso continua no mapa).
-- **Objeto** `{ id, type, level, pos, rot, free?, params? }` (rot em graus; na grade só o y conta).
+- **Objeto** `{ id, type, level, pos, rot, free?, params? }`: `type` = o nome no catálogo (`src/maps/objetos.ts`); `pos` = o ponto
+  no mundo (centro da base; a lâmpada de teto fica no teto do andar); `rot` em graus, aplicada y, depois x, depois z (na grade
+  só o y conta, em passos de 15°); `free` = modo livre (fora da grade: altura e inclinação); `params` = as opções do tipo
+  (lâmpada: `{ modo: "normal"|"falhando"|"apagada" }`). O objeto pertence ao bloco onde está o `pos` e troca de bloco ao ser movido.
 - **Decalque** `{ id, type, level, pos, normal, rot, size }`.
 - **Ponto de script** `{ id, kind, level, pos, params? }`.
 
@@ -116,6 +119,34 @@ Cada etapa vira uma versão que o desenvolvedor testa antes da próxima.
    ~5 a 6 m para um andar). Clique numa escada para escolher: o painel troca o sentido (girar de eixo gira em volta do
    centro, mantendo o tamanho) e a textura dos degraus; Ctrl + clique ou Del apaga.
 6. **Objetos e detalhes.** O catálogo (móveis da mansão e da Intro), encaixe e rotação, modo livre, lâmpadas com os três modos, quadros e sujeira.
+   Dividida em duas versões:
+   - **6a. Objetos e lâmpadas.** ✅ Ferramenta **Objetos e luzes (7)**: 19 objetos no primeiro lote (casa: cadeira, cadeira caída,
+     guarda-roupa, aparador, cômoda e sofá cobertos, mesa de jantar, cama de dossel, berço, relógio de pé, espelho coberto,
+     tapete, lamparina; Intro: armário de aço, mesa de metal, caixa de madeira, banco, monitor; luz: lâmpada de teto).
+     Encaixe a cada 0,25 m, R gira 15° (Shift + R 45°), clique escolhe e arrasta, Ctrl + clique ou Del apaga.
+     Modo livre no painel (altura, girar, inclinar e tombar; arrastar encaixa a cada 5 cm). A lâmpada acende de verdade e
+     a "falhando" pisca. Outros móveis do laboratório entram quando o desenvolvedor pedir.
+   - **6b. Detalhes.** Quadros, sujeira e manchas (decalques colados na superfície).
+
+### A interface (conceito B, "Arquivo C.R.O.S.", aprovado em 9/nov)
+
+A mesma cara do HUD do jogo: latão, âmbar e VT323.
+- **Barra de cima:** Mapas (o gerenciador), o nome do mapa (• = não salvo), o andar (▼ ▲, + e − andar), as **paredes altas,
+  recortadas ou baixas** (V troca; recortadas abaixa as paredes entre a câmera e o ponto que ela olha), desfazer e refazer,
+  Salvar, o filtro PS1 e Sair.
+- **Coluna da esquerda:** as ferramentas em ícones, com a tecla: 1 paredes, 2 apagar, 3 piso e teto, 4 pintar parede,
+  5 portas e janelas, 6 escadas, 7 objetos e luzes, 8 **conta-gotas** (clique em qualquer coisa e ele pega a textura ou o
+  objeto e troca para a ferramenta certa).
+- **Gaveta de baixo:** a ajuda da ferramenta e o catálogo dela (texturas, tipos de porta e janela com ícone, objetos com
+  **miniatura**), e a linha de status.
+- **Painel Inspetor:** a janela flutuante e arrastável com as configurações do que está escolhido.
+- Ao pôr ou escolher um objeto, ele aparece de verdade, com **contorno amarelo**. Ao construir, a **medida** flutua no meio do
+  arraste ("4 × 3 m · 12 m²"). A **malha** marca 1 m em linha fina e o bloco de 16 m em âmbar forte.
+- **Câmera:** duplo clique com o botão **direito** (ou F com o mouse em cima) centraliza no ponto; Home volta ao começo.
+  O duplo clique esquerdo ficou para as ferramentas (senão poria piso ou objeto sem querer).
+
+Ajudas de construção propostas para depois (uma de cada vez, se aprovadas): **espelhar** (simetria por um eixo),
+**copiar e colar uma área**, o **andar de baixo apagado** ao construir em cima, a **fita métrica**.
 7. **Testar e os blocos.** O botão Testar: o agente andando no mapa com colisão e luz; o carregamento por blocos perto do jogador e a junção das malhas por bloco.
 8. **A mansão nova.** O desenvolvedor monta a planta no editor; o Claude ajusta o que faltar.
 

@@ -58,14 +58,20 @@ src/
   styles.css               a paleta e as telas
   screens/                 MainMenu, SettingsScreen, DevMenu
   settings/settings.ts     configurações no localStorage (useSettings / setSettings)
-  render/                  RetroRenderer (pós-processo PS1), psx.ts (tremor de vértice), materiais.ts (nome da textura -> material)
+  audio/musica.ts          a trilha: useMusica('menu') toca public/musica/<nome>.mp3 em laço, com o volume das configurações
+  render/                  RetroRenderer (pós-processo PS1), psx.ts (tremor de vértice), materiais.ts (nome da textura -> material),
+                           corte.ts (paredes altas / recortadas / baixas no editor), miniaturas.ts (fotos do catálogo de objetos)
   maps/                    types.ts (o formato v1), loader.ts (o jogo lê a pasta), storage.ts (o editor lê, grava,
-                           exporta e importa; o pacote MapBundle), textures.ts (o catálogo: cada nome, o desenho em canvas e o tamanho em metros)
-  editor/                  MapEditor (a tela), MapManager (o gerenciador de mapas), MapView + wallMesh (desenha;
+                           exporta e importa; o pacote MapBundle), textures.ts (o catálogo: cada nome, o desenho em canvas e o tamanho em metros),
+                           objetos.ts (o catálogo de móveis e lâmpadas, em dados: tamanho e peças)
+  editor/                  MapEditor (a tela, conceito B), Gaveta (o catálogo embaixo), Icones, Inspetor (a janela flutuante),
+                           Medida (a etiqueta ao construir), FerramentaContaGotas, MapManager (o gerenciador de mapas), MapView + wallMesh (desenha;
                            paredes juntadas por textura, cantos fechados), EditorCamera, FerramentaParedes,
                            FerramentaPiso, FerramentaPincel, FerramentaAberturas + PainelAbertura, FerramentaEscadas + PainelEscada,
+                           FerramentaObjetos + PainelObjeto, Objetos (monta o catálogo; a lâmpada acende),
                            Aberturas (portas, janelas, luar), Paleta, doc.ts (o documento e as operações),
                            historico.ts (desfazer e refazer)
+public/musica/             as músicas do jogo (menu.mp3: o menu e o criador de mapas)
 reference/                 o laboratório antigo, só para consulta (não importar nada daqui); ost/ = as 4 músicas dele
 docs/                      o que está decidido
 ```

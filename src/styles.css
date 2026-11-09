@@ -31,30 +31,112 @@ button { font: inherit; color: inherit; }
 .form input[type='range'] { width: 100%; accent-color: var(--lamp); }
 .form .valor { font-size: 12px; color: var(--muted); }
 
-/* criador de mapas */
-.editor { position: fixed; inset: 0; display: grid; grid-template-columns: 260px 1fr; grid-template-rows: 44px 1fr; background: var(--bg); }
-.editor .barra { grid-column: 1 / 3; display: flex; align-items: center; gap: 10px; padding: 0 12px; border-bottom: 1px solid var(--line); background: var(--bg2); }
-.editor .barra .titulo { font-family: var(--display); font-size: 26px; color: var(--cream); margin-right: auto; }
-.editor .barra button, .editor .painel button { background: transparent; border: 1px solid var(--line); padding: 5px 12px; cursor: pointer; font-size: 13px; }
-.editor .barra button:hover, .editor .painel button:hover { border-color: var(--lamp); color: var(--amber); }
-.editor .painel { border-right: 1px solid var(--line); padding: 12px; overflow: auto; display: flex; flex-direction: column; gap: 10px; font-size: 13px; }
-.editor .painel h3 { margin: 6px 0 0; font-size: 11px; letter-spacing: .14em; color: var(--muted); text-transform: uppercase; font-weight: 500; }
-.editor .painel .item { text-align: left; }
-.editor .painel .item[aria-pressed='true'] { border-color: var(--lamp); color: var(--amber); }
-.editor .painel .nota { color: var(--muted); font-size: 12px; line-height: 1.5; }
-.editor .vista { position: relative; }
-.editor .status { position: absolute; left: 10px; bottom: 8px; font-size: 12px; color: var(--muted); pointer-events: none; }
-.editor .painel .nota.aviso { color: var(--amber); }
-.editor .painel .andares { display: flex; flex-direction: column; gap: 4px; }
-.editor .painel button:disabled, .editor .barra button:disabled { opacity: .4; cursor: not-allowed; border-color: var(--line); color: inherit; }
-.editor kbd { float: right; font-family: var(--body); font-size: 11px; color: var(--muted); }
-.editor .barra .sujo { color: var(--amber); }
-.editor .status { right: 10px; display: flex; justify-content: space-between; gap: 16px; }
-.editor .status .atalhos { opacity: .7; }
+
+/* criador de mapas: o conceito B, "Arquivo C.R.O.S." — latão, âmbar e VT323, a mesma cara do HUD do jogo.
+   Em cima, a barra do mapa (andar, paredes, desfazer, salvar); à esquerda, a coluna de ferramentas em ícones;
+   embaixo, a gaveta com o catálogo da ferramenta escolhida; o Inspetor flutua sobre a vista. */
+.editor { position: fixed; inset: 0; display: grid; grid-template-columns: 52px minmax(0, 1fr); grid-template-rows: 46px minmax(0, 1fr) auto; background: var(--bg); font-size: 13px; }
+.editor button { font: inherit; color: inherit; cursor: pointer; }
+.editor button:disabled { opacity: .35; cursor: not-allowed; }
+.editor .rotulo-b { font-family: var(--display); font-size: 17px; letter-spacing: .08em; color: var(--muted); text-transform: uppercase; white-space: nowrap; }
+.editor kbd { font-family: var(--display); font-size: 14px; color: var(--muted); margin-left: 6px; }
+
+/* a barra de cima */
+.editor .topo { grid-column: 1 / 3; display: flex; align-items: center; gap: 14px; padding: 0 10px; background: #16130f; border-bottom: 1px solid var(--brass); min-width: 0; }
+.editor .topo .bt { display: inline-flex; align-items: center; gap: 6px; background: transparent; border: 1px solid var(--line); padding: 3px 9px; font-family: var(--display); font-size: 18px; letter-spacing: .06em; text-transform: uppercase; }
+.editor .topo .bt:hover:not(:disabled), .editor .topo .ic:hover:not(:disabled) { border-color: var(--lamp); color: var(--amber); }
+.editor .topo .ic { width: 30px; height: 30px; display: inline-flex; align-items: center; justify-content: center; background: transparent; border: 1px solid var(--line); padding: 0; }
+.editor .topo [aria-pressed='true'] { border-color: var(--amber); color: var(--amber); background: rgba(232, 183, 101, .1); }
+.editor .topo .nome-mapa { font-family: var(--display); font-size: 24px; letter-spacing: .06em; color: var(--cream); text-transform: uppercase; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; min-width: 0; max-width: 26vw; }
+.editor .topo .sujo { color: var(--amber); }
+.editor .topo .grupo { display: flex; align-items: center; gap: 4px; }
+.editor .topo .andar-atual { font-family: var(--display); font-size: 20px; color: var(--amber); min-width: 78px; text-align: center; text-transform: uppercase; }
+.editor .topo .espaco { flex: 1; }
+
+/* a coluna de ferramentas */
+.editor .ferramentas { grid-row: 2 / 4; display: flex; flex-direction: column; align-items: center; gap: 4px; padding: 8px 0; background: #16130f; border-right: 1px solid var(--brass); z-index: 7; }
+.editor .ferramentas button { position: relative; width: 38px; height: 38px; display: flex; align-items: center; justify-content: center; background: transparent; border: 1px solid transparent; color: var(--muted); padding: 0; }
+.editor .ferramentas button:hover { color: var(--fg); border-color: var(--line); }
+.editor .ferramentas button[aria-pressed='true'] { color: var(--amber); border-color: var(--amber); background: rgba(232, 183, 101, .08); }
+.editor .ferramentas .tecla { position: absolute; right: 2px; bottom: -1px; font-family: var(--display); font-size: 12px; color: var(--muted); }
+.editor .ferramentas hr { width: 26px; border: 0; border-top: 1px solid var(--line); margin: 4px 0; }
+/* a dica ao passar o mouse */
+.editor [data-dica]:hover::after { content: attr(data-dica); position: absolute; left: calc(100% + 8px); top: 50%; transform: translateY(-50%); z-index: 30; white-space: nowrap;
+  background: #100e0b; border: 1px solid var(--brass); color: var(--cream); padding: 3px 8px; font-family: var(--display); font-size: 17px; letter-spacing: .04em; text-transform: none; pointer-events: none; }
+.editor .topo [data-dica] { position: relative; }
+.editor .topo [data-dica]:hover::after { left: 50%; top: calc(100% + 6px); transform: translateX(-50%); }
+
+/* a vista e o aviso */
+.editor .vista { position: relative; overflow: hidden; min-height: 0; }
+.editor .aviso-b { position: absolute; top: 12px; left: 50%; transform: translateX(-50%); z-index: 6; max-width: min(640px, 80%); background: rgba(16, 14, 11, .95);
+  border: 1px solid var(--brass); color: var(--cream); padding: 6px 14px; text-align: center; pointer-events: none; }
+.editor .vazio-b { position: absolute; inset: 0; display: grid; place-items: center; color: var(--muted); font-family: var(--display); font-size: 22px; pointer-events: none; }
+
+/* a gaveta de baixo: altura fixa (não pula quando troca de ferramenta ou de aba); o que passar rola dentro dela */
+.editor .gaveta { grid-column: 2; display: grid; grid-template-columns: 220px minmax(0, 1fr); grid-template-rows: 148px auto; border-top: 1px solid var(--brass); background: #16130f; min-width: 0; }
+.editor .gaveta .cabeca, .editor .gaveta .conteudo { min-height: 0; }
+.editor .gaveta .cabeca { padding: 8px 10px; border-right: 1px solid var(--line); display: flex; flex-direction: column; gap: 4px; overflow: auto; }
+.editor .gaveta .cabeca b { font-family: var(--display); font-weight: 400; font-size: 22px; letter-spacing: .06em; color: var(--amber); text-transform: uppercase; }
+.editor .gaveta .cabeca .ajuda { color: var(--muted); font-size: 12px; line-height: 1.45; }
+.editor .gaveta .conteudo { padding: 8px 10px; display: flex; gap: 20px; overflow: auto; align-items: flex-start; min-width: 0; }
+.editor .gaveta .status-b { grid-column: 1 / 3; display: flex; justify-content: space-between; gap: 16px; padding: 3px 10px; border-top: 1px solid var(--line); font-size: 12px; color: var(--muted); white-space: nowrap; overflow: hidden; }
+.editor .gaveta .status-b span:first-child { color: var(--fg); overflow: hidden; text-overflow: ellipsis; }
+.editor .bloco-g { display: flex; flex-direction: column; gap: 5px; flex: none; }
+.editor .bloco-g > .rotulo-b { font-size: 15px; }
+
+/* as paletas de textura (na gaveta: em duas fileiras, rolando para o lado) */
+.editor .paleta { display: flex; flex-direction: column; gap: 5px; flex: none; }
+.editor .paleta-topo { display: flex; justify-content: space-between; gap: 10px; font-size: 11px; color: var(--muted); }
+.editor .paleta-topo b { font-weight: 500; color: var(--cream); }
+.editor .amostras { display: grid; grid-template-columns: repeat(auto-fill, minmax(34px, 1fr)); gap: 4px; }
+.editor .gaveta .amostras { grid-auto-flow: column; grid-template-rows: repeat(2, 36px); grid-auto-columns: 36px; grid-template-columns: none; }
+.editor .amostras button { aspect-ratio: 1; padding: 0; background-size: 100% 100%; image-rendering: pixelated; border: 2px solid var(--line); background-color: #000; }
+.editor .amostras button:hover { border-color: var(--brass); }
+.editor .amostras button[aria-pressed='true'] { border-color: var(--amber); box-shadow: 0 0 0 1px var(--bg) inset; }
+
+/* os ladrilhos do catálogo (objetos, portas e janelas) */
+.editor .abas-b { display: flex; gap: 4px; }
+.editor .abas-b button, .editor .opcoes button { background: transparent; border: 1px solid var(--line); padding: 2px 9px; font-family: var(--display); font-size: 16px; letter-spacing: .05em; text-transform: uppercase; }
+.editor .abas-b button[aria-pressed='true'], .editor .opcoes button[aria-pressed='true'] { border-color: var(--amber); color: var(--amber); }
+.editor .ladrilhos { display: flex; gap: 6px; }
+.editor .ladrilho { width: 76px; flex: none; display: flex; flex-direction: column; align-items: center; gap: 2px; padding: 4px 2px 3px; background: #0e0d0b; border: 1px solid var(--line); color: var(--fg); }
+.editor .ladrilho:hover { border-color: var(--brass); }
+.editor .ladrilho[aria-pressed='true'] { border-color: var(--amber); color: var(--amber); background: rgba(232, 183, 101, .07); }
+.editor .ladrilho img, .editor .ladrilho .icone-l { width: 56px; height: 56px; display: flex; align-items: center; justify-content: center; }
+.editor .ladrilho span { font-size: 11px; line-height: 1.15; text-align: center; height: 26px; overflow: hidden; }
+.editor .opcoes { display: flex; gap: 4px; flex-wrap: wrap; }
+.editor .marcar { display: flex; align-items: center; gap: 8px; font-size: 12px; cursor: pointer; }
+.editor .marcar input, .editor input[type='range'] { accent-color: var(--lamp); }
+.editor .altura { display: grid; gap: 5px; font-size: 11px; color: var(--muted); }
+.editor .altura b { color: var(--cream); font-weight: 500; }
+
+/* as propriedades (no Inspetor) */
+.editor .propriedades { display: flex; flex-direction: column; gap: 7px; }
+.editor .propriedades .rotulo { font-size: 11px; color: var(--muted); }
+.editor .propriedades .campo { display: flex; flex-direction: column; gap: 3px; }
+.editor .propriedades input:not([type]), .editor .propriedades input[type='text'] { background: var(--bg); border: 1px solid var(--line); color: var(--fg); font: inherit; font-size: 12px; padding: 4px 6px; }
+.editor .propriedades input:focus { outline: none; border-color: var(--lamp); }
+.editor .nota { color: var(--muted); font-size: 12px; line-height: 1.5; }
+
+/* o Painel Inspetor: a ficha de campo flutuando sobre a vista */
+.editor .inspetor { position: absolute; z-index: 5; width: 264px; max-height: calc(100% - 24px); display: flex; flex-direction: column;
+  background: rgba(16, 14, 11, 0.97); border: 1px solid var(--brass); box-shadow: 0 8px 28px rgba(0, 0, 0, 0.55); }
+.editor .inspetor-topo { display: flex; align-items: center; gap: 8px; padding: 5px 8px; background: #1b1814; border-bottom: 1px solid var(--line); cursor: grab; user-select: none; touch-action: none; }
+.editor .inspetor-topo:active { cursor: grabbing; }
+.editor .inspetor-topo .pega { color: var(--muted); letter-spacing: -2px; }
+.editor .inspetor-topo b { font-family: var(--display); font-weight: 400; font-size: 20px; letter-spacing: .06em; color: var(--amber); text-transform: uppercase; }
+.editor .inspetor-topo .titulo-insp { flex: 1; color: var(--cream); font-family: var(--display); font-size: 18px; text-transform: uppercase; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.editor .inspetor-topo button { background: transparent; border: 0; color: var(--muted); font-size: 14px; padding: 2px 4px; }
+.editor .inspetor-topo button:hover { color: var(--amber); }
+.editor .inspetor-corpo { overflow: auto; padding: 8px; }
+.editor .inspetor button { background: transparent; border: 1px solid var(--line); padding: 4px 10px; }
+.editor .inspetor button:hover { border-color: var(--lamp); color: var(--amber); }
+.editor .inspetor button.perigo:hover { border-color: var(--accent); color: var(--accent); }
+.editor .inspetor .amostras button { padding: 0; }
 
 /* o gerenciador de mapas */
 .modal-fundo { position: fixed; inset: 0; background: rgba(4, 4, 6, .72); display: grid; place-items: center; z-index: 10; padding: 16px; }
-.modal { background: var(--bg2); border: 1px solid var(--line); width: min(720px, 100%); max-height: calc(100vh - 32px); display: flex; flex-direction: column; gap: 12px; padding: 16px; font-size: 13px; }
+.modal { background: #16130f; border: 1px solid var(--brass); width: min(720px, 100%); max-height: calc(100vh - 32px); display: flex; flex-direction: column; gap: 12px; padding: 16px; font-size: 13px; }
 .modal-topo { display: flex; align-items: center; gap: 8px; }
 .modal-topo h2 { font-family: var(--display); font-weight: 400; font-size: 32px; margin: 0 auto 0 0; color: var(--cream); }
 .modal button { background: transparent; border: 1px solid var(--line); padding: 5px 12px; cursor: pointer; font-size: 13px; }
@@ -70,30 +152,7 @@ button { font: inherit; color: inherit; }
 .linha-mapa .nome b { font-weight: 500; color: var(--cream); }
 .linha-mapa .nome span { color: var(--muted); font-size: 11px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 
-/* a paleta de texturas e o pincel */
-.editor .paleta { display: flex; flex-direction: column; gap: 6px; }
-.editor .paleta-topo { display: flex; justify-content: space-between; gap: 8px; font-size: 11px; color: var(--muted); }
-.editor .paleta-topo b { font-weight: 500; color: var(--cream); text-align: right; }
-.editor .amostras { display: grid; grid-template-columns: repeat(auto-fill, minmax(34px, 1fr)); gap: 4px; }
-.editor .painel .amostras button { aspect-ratio: 1; padding: 0; background-size: 100% 100%; image-rendering: pixelated; border: 2px solid var(--line); }
-.editor .painel .amostras button[aria-pressed='true'] { border-color: var(--amber); box-shadow: 0 0 0 1px var(--bg) inset; }
-.editor .marcar { display: flex; align-items: center; gap: 8px; font-size: 12px; cursor: pointer; }
-.editor .marcar input { accent-color: var(--lamp); }
-.editor .altura { display: grid; gap: 6px; font-size: 11px; color: var(--muted); }
-.editor .altura .opcoes { display: flex; gap: 4px; flex-wrap: wrap; }
-.editor .painel .altura .opcoes button { padding: 3px 7px; font-size: 12px; }
-.editor .painel .altura .opcoes button[aria-pressed='true'] { border-color: var(--lamp); color: var(--amber); }
-.editor .altura input { accent-color: var(--lamp); }
-.editor .altura b { color: var(--cream); font-weight: 500; }
-
-/* portas e janelas */
-.editor .tipos { display: grid; grid-template-columns: 1fr 1fr; gap: 4px; }
-.editor .painel .tipos .item { font-size: 12px; padding: 5px 6px; }
-.editor .propriedades { display: flex; flex-direction: column; gap: 6px; border: 1px solid var(--line); padding: 8px; }
-.editor .propriedades .rotulo { font-size: 11px; color: var(--muted); }
-.editor .propriedades .opcoes { display: flex; gap: 4px; flex-wrap: wrap; }
-.editor .painel .propriedades .opcoes button[aria-pressed='true'] { border-color: var(--lamp); color: var(--amber); }
-.editor .propriedades .campo { display: flex; flex-direction: column; gap: 3px; }
-.editor .propriedades input { background: var(--bg); border: 1px solid var(--line); color: var(--fg); font: inherit; font-size: 12px; padding: 4px 6px; }
-.editor .propriedades input:focus { outline: none; border-color: var(--lamp); }
-.editor .painel button.perigo:hover { border-color: var(--accent); color: var(--accent); }
+/* a medida flutuando na cena enquanto você constrói */
+.medida { font-family: var(--display); font-size: 22px; line-height: 1; color: #fff3d6; background: rgba(12, 10, 8, 0.86);
+  border: 1px solid var(--lamp); padding: 3px 9px 4px; white-space: nowrap; box-shadow: 0 2px 10px rgba(0, 0, 0, 0.5); }
+.medida.erro { color: #ffd2cc; border-color: var(--accent); }

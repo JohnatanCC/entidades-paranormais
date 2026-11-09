@@ -5,6 +5,7 @@
 import * as THREE from 'three'
 import { TEXTURAS, type TexDef } from '../maps/textures'
 import { applyPsx } from './psx'
+import { aplicarCorte } from './corte'
 
 export const TOPO = '#topo' // o corte da parede (topo e a parte de baixo das vergas)
 export const BATENTE = '#batente' // a madeira do batente e das guarnições das portas e janelas
@@ -74,13 +75,16 @@ export function texturaDe(nome: string): THREE.Texture | null {
   return t
 }
 
-/** O material de um nome do catálogo (magenta se o nome não existe; TOPO, BATENTE e VIDRO são só cor). */
-export function materialDe(nome: string): THREE.MeshStandardMaterial {
-  let m = materiais.get(nome)
+/** O material de um nome do catálogo (magenta se o nome não existe; TOPO, BATENTE e VIDRO são só cor).
+ *  corte = true: a versão das paredes (e portas e janelas), que abaixa com o modo de paredes do editor (render/corte.ts). */
+export function materialDe(nome: string, corte = false): THREE.MeshStandardMaterial {
+  const chave = corte ? nome + '|corte' : nome
+  let m = materiais.get(chave)
   if (!m) {
     const cor = CORES[nome], map = cor ? null : texturaDe(nome)
     m = applyPsx(new THREE.MeshStandardMaterial({ map, color: cor ?? (map ? '#ffffff' : '#ff00ff'), roughness: nome === VIDRO ? 0.25 : 0.92 }))
-    materiais.set(nome, m)
+    if (corte) aplicarCorte(m)
+    materiais.set(chave, m)
   }
   return m
 }

@@ -3,6 +3,7 @@
 // (todos os lados virados para dentro do cômodo clicado). Esc cancela.
 import { useEffect, useMemo, useRef, useState } from 'react'
 import type { ThreeEvent } from '@react-three/fiber'
+import { pontoCortado } from '../render/corte'
 import { LEVEL_H } from '../maps/types'
 import { ladoKey, ladoVisto, ladosDaSala, paredeNoRaio, type LadoDe, type MapDoc } from './doc'
 import { ESPESSURA } from './wallMesh'
@@ -24,7 +25,7 @@ export function FerramentaPincel({ doc, andar, onFeito, onInfo }: Props) {
 
   const alvo = (e: ThreeEvent<PointerEvent>): LadoDe | null => {
     const { origin: o, direction: d } = e.ray, dir: [number, number, number] = [d.x, d.y, d.z]
-    const seg = paredeNoRaio(doc, andar, [o.x, o.y, o.z], dir, LEVEL_H)
+    const seg = paredeNoRaio(doc, andar, [o.x, o.y, o.z], dir, LEVEL_H, pontoCortado)
     return seg ? { seg, lado: ladoVisto(seg, dir) } : null
   }
 

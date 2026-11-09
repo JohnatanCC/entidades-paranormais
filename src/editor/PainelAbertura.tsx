@@ -3,7 +3,6 @@
 // você sai do campo (ou aperta Enter), não a cada letra.
 import { useEffect, useState } from 'react'
 import type { DoorState, Opening } from '../maps/types'
-import { nomeDe } from './FerramentaAberturas'
 
 interface Props { o: Opening; onMudar: (patch: Partial<Opening>) => void; onApagar: () => void }
 
@@ -12,8 +11,7 @@ const ESTADOS: [DoorState, string][] = [['fechada', 'Fechada'], ['aberta', 'Aber
 export function PainelAbertura({ o, onMudar, onApagar }: Props) {
   const lado = o.lado ?? 'b', outro = lado === 'a' ? 'b' : 'a'
   return (
-    <div className="propriedades">
-      <div className="paleta-topo"><span>Escolhida</span><b>{nomeDe(o)}</b></div>
+    <div className="propriedades sem-borda">
       <div className="nota">{o.id} · {o.width} m</div>
       {o.kind === 'porta' && o.door !== 'vao' && <>
         <span className="rotulo">Começa</span>

@@ -6,6 +6,7 @@ import type { ThreeEvent } from '@react-three/fiber'
 import { LEVEL_H, type Stair } from '../maps/types'
 import { SOBE, escadaCabe, escadaEm, escadas, type Direcao, type MapDoc } from './doc'
 import { degrausDe } from './wallMesh'
+import { Medida } from './Medida'
 
 export const NOMES_DIRECAO: Record<Direcao, string> = { norte: 'Norte', sul: 'Sul', leste: 'Leste', oeste: 'Oeste' }
 
@@ -104,6 +105,8 @@ export function FerramentaEscadas({ doc, andar, tex, selecionada, onPor, onSelec
       </mesh>
       {sel && <Marca s={sel} cor="#e8b765" opacidade={0.3} />}
       {previa && <Marca s={previa.s} cor={previa.erro ? '#c2453a' : '#e8b765'} opacidade={0.35} />}
+      {previa && <Medida pos={[previa.s.x + previa.s.w / 2, y + LEVEL_H + 0.4, previa.s.z + previa.s.d / 2]} erro={!!previa.erro}
+        texto={`${contaDe(previa.s).larg} × ${contaDe(previa.s).comp} m · ${contaDe(previa.s).n} degraus`} />}
     </group>
   )
 }

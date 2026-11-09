@@ -9,8 +9,7 @@ interface Props { s: Stair; onMudar: (patch: Partial<Stair>) => void; onApagar: 
 export function PainelEscada({ s, onMudar, onApagar }: Props) {
   const c = contaDe(s)
   return (
-    <div className="propriedades">
-      <div className="paleta-topo"><span>Escolhida</span><b>Escada</b></div>
+    <div className="propriedades sem-borda">
       <div className="nota">{s.id} · {c.larg} × {c.comp} m · {c.n} degraus de {c.espelho} cm, pisada de {c.pisada} cm</div>
       <span className="rotulo">Sobe para</span>
       <div className="opcoes">

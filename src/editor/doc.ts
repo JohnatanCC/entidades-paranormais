@@ -1,7 +1,7 @@
 // O documento que o editor muda: o cabeçalho e os blocos (pela chave "cx_cz"). Nunca é alterado no lugar: cada
 // mudança gera um documento novo que reaproveita os blocos que não mudaram. É isso que deixa o desfazer barato
 // (o histórico guarda documentos inteiros, mas eles dividem quase tudo entre si).
-import { chunkKey, chunkOf, emptyChunk, type Axis, type Chunk, type MapMeta, type Opening, type Stair, type Wall, type WallSide } from '../maps/types'
+import { chunkKey, chunkOf, emptyChunk, type Axis, type Chunk, type MapMeta, type Opening, type Prop, type Stair, type Vec3, type Wall, type WallSide } from '../maps/types'
 import { vazio, type MapBundle } from '../maps/storage'
 
 export interface MapDoc { meta: MapMeta; chunks: Record<string, Chunk> }
@@ -60,16 +60,23 @@ export function paredeMaisPerto(doc: MapDoc, level: number, px: number, pz: numb
 }
 
 /** A parede que o raio do mouse acerta primeiro (no plano do meio da parede): clicar na parede, não no chão atrás dela. */
-export function paredeNoRaio(doc: MapDoc, level: number, o: [number, number, number], d: [number, number, number], altura: number): Seg | undefined {
-  let best: Seg | undefined, bt = Infinity
+export function paredeNoRaio(doc: MapDoc, level: number, o: Vec3, d: Vec3, altura: number, cortado?: (x: number, y: number, z: number) => boolean): Seg | undefined {
+  return paredeNoRaioT(doc, level, o, d, altura, cortado)?.seg
+}
+
+/** O mesmo, com a distância no raio (t) e a altura do ponto acertado. cortado: o ponto não aparece (parede abaixada). */
+export function paredeNoRaioT(doc: MapDoc, level: number, o: Vec3, d: Vec3, altura: number, cortado?: (x: number, y: number, z: number) => boolean): { seg: Seg; t: number; y: number } | undefined {
+  let best: { seg: Seg; t: number; y: number } | undefined
   const y0 = level * altura
   for (const w of paredes(doc, level)) {
     const [ia, ib] = w.axis === 'x' ? [2, 0] : [0, 2] // o eixo que atravessa a parede e o eixo ao longo dela
     if (Math.abs(d[ia]) < 1e-6) continue
     const t = ((w.axis === 'x' ? w.z : w.x) - o[ia]) / d[ia]
-    if (t <= 0 || t >= bt) continue
+    if (t <= 0 || (best && t >= best.t)) continue
     const u = o[ib] + t * d[ib], y = o[1] + t * d[1], s = w.axis === 'x' ? w.x : w.z
-    if (u >= s && u <= s + 1 && y >= y0 && y <= y0 + altura) { bt = t; best = w }
+    if (u < s || u > s + 1 || y < y0 || y > y0 + altura) continue
+    if (cortado?.(o[0] + t * d[0], y, o[2] + t * d[2])) continue // o mouse atravessa o pedaço que não aparece
+    best = { seg: w, t, y }
   }
   return best
 }
@@ -334,6 +341,71 @@ export function mudarEscada(doc: MapDoc, id: string, patch: Partial<Stair>): Map
   const atual = doc.chunks[b].stairs.find((s) => s.id === id)!
   if (Object.entries(patch).every(([k, v]) => (atual as unknown as Record<string, unknown>)[k] === v)) return doc
   return mudarBlocos(doc, [b], (c) => ({ ...c, stairs: c.stairs.map((s) => (s.id === id ? { ...s, ...patch } : s)) }))
+}
+
+// ---------- objetos ----------
+
+export function objetos(doc: MapDoc): Prop[] {
+  return Object.values(doc.chunks).flatMap((c) => c.props)
+}
+
+/**
+ * O objeto do andar que o raio do mouse acerta primeiro: o raio entra no referencial de cada objeto (girado só em y) e
+ * bate na caixa do tamanho dele (do chão para cima; a de teto, do teto para baixo). Assim clicar no próprio objeto escolhe,
+ * esteja ele no chão ou no teto.
+ */
+export function objetoNoRaio(doc: MapDoc, level: number, o: Vec3, d: Vec3, tam: (type: string) => [number, number, number], noTeto: (type: string) => boolean): Prop | undefined {
+  return objetoNoRaioT(doc, level, o, d, tam, noTeto)?.p
+}
+
+export function objetoNoRaioT(doc: MapDoc, level: number, o: Vec3, d: Vec3, tam: (type: string) => [number, number, number], noTeto: (type: string) => boolean): { p: Prop; t: number } | undefined {
+  let best: Prop | undefined, bt = Infinity
+  for (const p of objetos(doc)) {
+    if (p.level !== level) continue
+    const [w, h, dd] = tam(p.type), a = (p.rot[1] * Math.PI) / 180, c = Math.cos(a), s = Math.sin(a)
+    const loc = (x: number, z: number): [number, number] => [x * c - z * s, x * s + z * c] // gira −yaw
+    const [ox, oz] = loc(o[0] - p.pos[0], o[2] - p.pos[2]), [dx, dz] = loc(d[0], d[2])
+    const oy = o[1] - p.pos[1], m = 0.05
+    const min = [-w / 2 - m, noTeto(p.type) ? -h - m : -m, -dd / 2 - m], max = [w / 2 + m, noTeto(p.type) ? m : h + m, dd / 2 + m]
+    const O = [ox, oy, oz], D = [dx, d[1], dz]
+    let t0 = 0, t1 = Infinity
+    for (let i = 0; i < 3; i++) {
+      if (Math.abs(D[i]) < 1e-9) { if (O[i] < min[i] || O[i] > max[i]) { t0 = Infinity; break } continue }
+      let ta = (min[i] - O[i]) / D[i], tb = (max[i] - O[i]) / D[i]
+      if (ta > tb) [ta, tb] = [tb, ta]
+      t0 = Math.max(t0, ta); t1 = Math.min(t1, tb)
+    }
+    if (t0 <= t1 && t0 < bt) { bt = t0; best = p }
+  }
+  return best ? { p: best, t: bt } : undefined
+}
+
+const blocoDoPonto = (p: { pos: Vec3 }) => chunkKey(...chunkOf(p.pos[0], p.pos[2]))
+
+export function comObjeto(doc: MapDoc, p: Omit<Prop, 'id'>): { doc: MapDoc; id: string } {
+  const id = novoId(p.type), b = blocoDoPonto(p)
+  return { doc: mudarBlocos(doc, [b], (c) => ({ ...c, props: [...c.props, { ...p, id }] })), id }
+}
+
+export function semObjeto(doc: MapDoc, id: string): MapDoc {
+  const b = Object.entries(doc.chunks).find(([, c]) => c.props.some((p) => p.id === id))?.[0]
+  if (!b) return doc
+  return mudarBlocos(doc, [b], (c) => ({ ...c, props: c.props.filter((p) => p.id !== id) }))
+}
+
+/** Muda um objeto; se ele andou para outro bloco, troca de bloco (cada coisa pertence ao bloco de onde está). */
+export function mudarObjeto(doc: MapDoc, id: string, patch: Partial<Prop>): MapDoc {
+  const b = Object.entries(doc.chunks).find(([, c]) => c.props.some((p) => p.id === id))?.[0]
+  if (!b) return doc
+  const atual = doc.chunks[b].props.find((p) => p.id === id)!
+  const novo: Prop = { ...atual, ...patch }
+  if (JSON.stringify(novo) === JSON.stringify(atual)) return doc
+  const nb = blocoDoPonto(novo)
+  if (nb === b) return mudarBlocos(doc, [b], (c) => ({ ...c, props: c.props.map((p) => (p.id === id ? novo : p)) }))
+  return mudarBlocos(doc, [b, nb], (c) => {
+    const k = chunkKey(c.cx, c.cz)
+    return k === b ? { ...c, props: c.props.filter((p) => p.id !== id) } : { ...c, props: [...c.props, novo] }
+  })
 }
 
 export const comAndares = (doc: MapDoc, levels: number): MapDoc => ({ ...doc, meta: { ...doc.meta, levels } })

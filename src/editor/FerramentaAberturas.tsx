@@ -3,6 +3,7 @@
 // as propriedades dela); Ctrl + clique apaga. Precisa de parede reta livre em todos os pedaços da largura.
 import { useEffect, useMemo, useState } from 'react'
 import type { ThreeEvent } from '@react-three/fiber'
+import { pontoCortado } from '../render/corte'
 import { LEVEL_H, type DoorKind, type Opening, type WindowKind } from '../maps/types'
 import { aberturaNo, aberturas, ladoDeDentro, ladoVisto, ondeCabe, paredeNoRaio, pedacosDe, type Lado, type MapDoc, type Seg } from './doc'
 import { ESPESSURA, buraco } from './wallMesh'
@@ -64,7 +65,7 @@ export function FerramentaAberturas({ doc, andar, tipo, larguraVao, selecionada,
 
   const alvo = (e: ThreeEvent<PointerEvent>) => {
     const { origin: o, direction: d } = e.ray
-    return paredeNoRaio(doc, andar, [o.x, o.y, o.z], [d.x, d.y, d.z], LEVEL_H) ?? null
+    return paredeNoRaio(doc, andar, [o.x, o.y, o.z], [d.x, d.y, d.z], LEVEL_H, pontoCortado) ?? null
   }
   function move(e: ThreeEvent<PointerEvent>) {
     const s = alvo(e)

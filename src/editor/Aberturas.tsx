@@ -8,6 +8,7 @@ import { useMemo } from 'react'
 import * as THREE from 'three'
 import { LEVEL_H, type Chunk, type Opening } from '../maps/types'
 import { BATENTE, VIDRO, materialDe } from '../render/materiais'
+import { aplicarCorte } from '../render/corte'
 import { ESPESSURA, buraco } from './wallMesh'
 
 const T2 = ESPESSURA / 2
@@ -15,8 +16,8 @@ const FW = 0.08 // a largura da guarnição
 const ABERTA = 1.4 // quanto a folha aberta gira (rad, ~80°)
 const LUA = new THREE.Vector3(0.12, -0.72, 1).normalize() // o luar desce entrando (no referencial da janela: +z = para dentro)
 
-const latao = new THREE.MeshStandardMaterial({ color: '#6a5630', roughness: 0.5 })
-const cadeado = new THREE.MeshBasicMaterial({ color: '#c2453a' })
+const latao = aplicarCorte(new THREE.MeshStandardMaterial({ color: '#6a5630', roughness: 0.5 }))
+const cadeado = aplicarCorte(new THREE.MeshBasicMaterial({ color: '#c2453a' }))
 const feixeMat = new THREE.MeshBasicMaterial({ color: '#a9c2f0', transparent: true, opacity: 0.1, blending: THREE.AdditiveBlending, depthWrite: false, side: THREE.DoubleSide })
 const manchaMat = new THREE.MeshBasicMaterial({ color: '#8fb0e8', transparent: true, opacity: 0.22, blending: THREE.AdditiveBlending, depthWrite: false, side: THREE.DoubleSide, polygonOffset: true, polygonOffsetFactor: -2, polygonOffsetUnits: -8 })
 
@@ -36,7 +37,7 @@ function Caixa({ u0, u1, y0, y1, z0, z1, m }: { u0: number; u1: number; y0: numb
 
 function Abertura({ o }: { o: Opening }) {
   const { pos, rotY, sb } = referencial(o)
-  const W = o.width, [h0, h1] = buraco(o), bat = materialDe(BATENTE)
+  const W = o.width, [h0, h1] = buraco(o), bat = materialDe(BATENTE, true)
   const lados = [-1, 1]
   return (
     <group position={pos} rotation-y={rotY}>
@@ -63,7 +64,7 @@ function Folhas({ o, sb, h1 }: { o: Opening; sb: number; h1: number }) {
   const lw = W / n - 0.02, lh = h1 - 0.02
   const zLado = (o.lado ?? 'b') === 'b' ? sb : -sb // para que lado (z local) a folha abre
   const ang = (o.estado ?? 'fechada') === 'aberta' ? ABERTA : 0
-  const folha = materialDe(o.tex ?? 'porta-madeira')
+  const folha = materialDe(o.tex ?? 'porta-madeira', true)
   return (
     <>
       {Array.from({ length: n }, (_, i) => {
@@ -83,7 +84,7 @@ function Folhas({ o, sb, h1 }: { o: Opening; sb: number; h1: number }) {
 }
 
 function Janela({ o, sb, h0, h1 }: { o: Opening; sb: number; h0: number; h1: number }) {
-  const W = o.width, bat = materialDe(BATENTE), vidro = materialDe(VIDRO)
+  const W = o.width, bat = materialDe(BATENTE, true), vidro = materialDe(VIDRO, true)
   const um = W / 2, vm = (h0 + h1) / 2, b = 0.05
   // os caixilhos: a moldura, o encontro das folhas da guilhotina, as divisões
   const verticais = useMemo(() => (o.window === 'grande' ? [W * 0.25, W * 0.5, W * 0.75] : [W / 2]), [o.window, W])
