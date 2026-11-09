@@ -1,0 +1,659 @@
+{
+ "cx": 0,
+ "cz": 0,
+ "walls": [
+  {
+   "level": 0,
+   "x": 0,
+   "z": 0,
+   "axis": "x",
+   "a": {
+    "tex": "reboco-creme"
+   },
+   "b": {
+    "tex": "papel-verde",
+    "base": {
+     "tex": "lambri-madeira",
+     "h": 1
+    }
+   }
+  },
+  {
+   "level": 0,
+   "x": 0,
+   "z": 5,
+   "axis": "x",
+   "a": {
+    "tex": "papel-verde",
+    "base": {
+     "tex": "lambri-madeira",
+     "h": 1
+    }
+   },
+   "b": {
+    "tex": "reboco-creme"
+   }
+  },
+  {
+   "level": 0,
+   "x": 1,
+   "z": 0,
+   "axis": "x",
+   "a": {
+    "tex": "reboco-creme"
+   },
+   "b": {
+    "tex": "papel-verde",
+    "base": {
+     "tex": "lambri-madeira",
+     "h": 1
+    }
+   }
+  },
+  {
+   "level": 0,
+   "x": 1,
+   "z": 5,
+   "axis": "x",
+   "a": {
+    "tex": "papel-verde",
+    "base": {
+     "tex": "lambri-madeira",
+     "h": 1
+    }
+   },
+   "b": {
+    "tex": "reboco-creme"
+   }
+  },
+  {
+   "level": 0,
+   "x": 2,
+   "z": 0,
+   "axis": "x",
+   "a": {
+    "tex": "reboco-creme"
+   },
+   "b": {
+    "tex": "papel-verde",
+    "base": {
+     "tex": "lambri-madeira",
+     "h": 1
+    }
+   }
+  },
+  {
+   "level": 0,
+   "x": 2,
+   "z": 5,
+   "axis": "x",
+   "a": {
+    "tex": "papel-verde",
+    "base": {
+     "tex": "lambri-madeira",
+     "h": 1
+    }
+   },
+   "b": {
+    "tex": "reboco-creme"
+   }
+  },
+  {
+   "level": 0,
+   "x": 3,
+   "z": 0,
+   "axis": "x",
+   "a": {
+    "tex": "reboco-creme"
+   },
+   "b": {
+    "tex": "papel-verde",
+    "base": {
+     "tex": "lambri-madeira",
+     "h": 1
+    }
+   }
+  },
+  {
+   "level": 0,
+   "x": 3,
+   "z": 5,
+   "axis": "x",
+   "a": {
+    "tex": "papel-verde",
+    "base": {
+     "tex": "lambri-madeira",
+     "h": 1
+    }
+   },
+   "b": {
+    "tex": "reboco-creme"
+   }
+  },
+  {
+   "level": 0,
+   "x": 4,
+   "z": 0,
+   "axis": "x",
+   "a": {
+    "tex": "reboco-creme"
+   },
+   "b": {
+    "tex": "papel-verde",
+    "base": {
+     "tex": "lambri-madeira",
+     "h": 1
+    }
+   }
+  },
+  {
+   "level": 0,
+   "x": 4,
+   "z": 5,
+   "axis": "x",
+   "a": {
+    "tex": "papel-verde",
+    "base": {
+     "tex": "lambri-madeira",
+     "h": 1
+    }
+   },
+   "b": {
+    "tex": "reboco-creme"
+   }
+  },
+  {
+   "level": 0,
+   "x": 5,
+   "z": 0,
+   "axis": "x",
+   "a": {
+    "tex": "reboco-creme"
+   },
+   "b": {
+    "tex": "papel-verde",
+    "base": {
+     "tex": "lambri-madeira",
+     "h": 1
+    }
+   }
+  },
+  {
+   "level": 0,
+   "x": 5,
+   "z": 5,
+   "axis": "x",
+   "a": {
+    "tex": "papel-verde",
+    "base": {
+     "tex": "lambri-madeira",
+     "h": 1
+    }
+   },
+   "b": {
+    "tex": "reboco-creme"
+   }
+  },
+  {
+   "level": 0,
+   "x": 0,
+   "z": 0,
+   "axis": "z",
+   "a": {
+    "tex": "reboco-creme"
+   },
+   "b": {
+    "tex": "papel-verde",
+    "base": {
+     "tex": "lambri-madeira",
+     "h": 1
+    }
+   }
+  },
+  {
+   "level": 0,
+   "x": 6,
+   "z": 0,
+   "axis": "z",
+   "a": {
+    "tex": "papel-verde",
+    "base": {
+     "tex": "lambri-madeira",
+     "h": 1
+    }
+   },
+   "b": {
+    "tex": "reboco-creme"
+   }
+  },
+  {
+   "level": 0,
+   "x": 0,
+   "z": 1,
+   "axis": "z",
+   "a": {
+    "tex": "reboco-creme"
+   },
+   "b": {
+    "tex": "papel-verde",
+    "base": {
+     "tex": "lambri-madeira",
+     "h": 1
+    }
+   }
+  },
+  {
+   "level": 0,
+   "x": 6,
+   "z": 1,
+   "axis": "z",
+   "a": {
+    "tex": "papel-verde",
+    "base": {
+     "tex": "lambri-madeira",
+     "h": 1
+    }
+   },
+   "b": {
+    "tex": "reboco-creme"
+   }
+  },
+  {
+   "level": 0,
+   "x": 0,
+   "z": 2,
+   "axis": "z",
+   "a": {
+    "tex": "reboco-creme"
+   },
+   "b": {
+    "tex": "papel-verde",
+    "base": {
+     "tex": "lambri-madeira",
+     "h": 1
+    }
+   }
+  },
+  {
+   "level": 0,
+   "x": 6,
+   "z": 2,
+   "axis": "z",
+   "a": {
+    "tex": "papel-verde",
+    "base": {
+     "tex": "lambri-madeira",
+     "h": 1
+    }
+   },
+   "b": {
+    "tex": "reboco-creme"
+   }
+  },
+  {
+   "level": 0,
+   "x": 0,
+   "z": 3,
+   "axis": "z",
+   "a": {
+    "tex": "reboco-creme"
+   },
+   "b": {
+    "tex": "papel-verde",
+    "base": {
+     "tex": "lambri-madeira",
+     "h": 1
+    }
+   }
+  },
+  {
+   "level": 0,
+   "x": 6,
+   "z": 3,
+   "axis": "z",
+   "a": {
+    "tex": "papel-verde",
+    "base": {
+     "tex": "lambri-madeira",
+     "h": 1
+    }
+   },
+   "b": {
+    "tex": "reboco-creme"
+   }
+  },
+  {
+   "level": 0,
+   "x": 0,
+   "z": 4,
+   "axis": "z",
+   "a": {
+    "tex": "reboco-creme"
+   },
+   "b": {
+    "tex": "papel-verde",
+    "base": {
+     "tex": "lambri-madeira",
+     "h": 1
+    }
+   }
+  },
+  {
+   "level": 0,
+   "x": 6,
+   "z": 4,
+   "axis": "z",
+   "a": {
+    "tex": "papel-verde",
+    "base": {
+     "tex": "lambri-madeira",
+     "h": 1
+    }
+   },
+   "b": {
+    "tex": "reboco-creme"
+   }
+  }
+ ],
+ "floors": [
+  {
+   "level": 0,
+   "x": 0,
+   "z": 0,
+   "top": "taco-madeira",
+   "bottom": "gesso"
+  },
+  {
+   "level": 0,
+   "x": 0,
+   "z": 1,
+   "top": "taco-madeira",
+   "bottom": "gesso"
+  },
+  {
+   "level": 0,
+   "x": 0,
+   "z": 2,
+   "top": "taco-madeira",
+   "bottom": "gesso"
+  },
+  {
+   "level": 0,
+   "x": 0,
+   "z": 3,
+   "top": "taco-madeira",
+   "bottom": "gesso"
+  },
+  {
+   "level": 0,
+   "x": 0,
+   "z": 4,
+   "top": "taco-madeira",
+   "bottom": "gesso"
+  },
+  {
+   "level": 0,
+   "x": 1,
+   "z": 0,
+   "top": "taco-madeira",
+   "bottom": "gesso"
+  },
+  {
+   "level": 0,
+   "x": 1,
+   "z": 1,
+   "top": "taco-madeira",
+   "bottom": "gesso"
+  },
+  {
+   "level": 0,
+   "x": 1,
+   "z": 2,
+   "top": "taco-madeira",
+   "bottom": "gesso"
+  },
+  {
+   "level": 0,
+   "x": 1,
+   "z": 3,
+   "top": "taco-madeira",
+   "bottom": "gesso"
+  },
+  {
+   "level": 0,
+   "x": 1,
+   "z": 4,
+   "top": "taco-madeira",
+   "bottom": "gesso"
+  },
+  {
+   "level": 0,
+   "x": 2,
+   "z": 0,
+   "top": "taco-madeira",
+   "bottom": "gesso"
+  },
+  {
+   "level": 0,
+   "x": 2,
+   "z": 1,
+   "top": "taco-madeira",
+   "bottom": "gesso"
+  },
+  {
+   "level": 0,
+   "x": 2,
+   "z": 2,
+   "top": "taco-madeira",
+   "bottom": "gesso"
+  },
+  {
+   "level": 0,
+   "x": 2,
+   "z": 3,
+   "top": "taco-madeira",
+   "bottom": "gesso"
+  },
+  {
+   "level": 0,
+   "x": 2,
+   "z": 4,
+   "top": "taco-madeira",
+   "bottom": "gesso"
+  },
+  {
+   "level": 0,
+   "x": 3,
+   "z": 0,
+   "top": "taco-madeira",
+   "bottom": "gesso"
+  },
+  {
+   "level": 0,
+   "x": 3,
+   "z": 1,
+   "top": "taco-madeira",
+   "bottom": "gesso"
+  },
+  {
+   "level": 0,
+   "x": 3,
+   "z": 2,
+   "top": "taco-madeira",
+   "bottom": "gesso"
+  },
+  {
+   "level": 0,
+   "x": 3,
+   "z": 3,
+   "top": "taco-madeira",
+   "bottom": "gesso"
+  },
+  {
+   "level": 0,
+   "x": 3,
+   "z": 4,
+   "top": "taco-madeira",
+   "bottom": "gesso"
+  },
+  {
+   "level": 0,
+   "x": 4,
+   "z": 0,
+   "top": "taco-madeira",
+   "bottom": "gesso"
+  },
+  {
+   "level": 0,
+   "x": 4,
+   "z": 1,
+   "top": "taco-madeira",
+   "bottom": "gesso"
+  },
+  {
+   "level": 0,
+   "x": 4,
+   "z": 2,
+   "top": "taco-madeira",
+   "bottom": "gesso"
+  },
+  {
+   "level": 0,
+   "x": 4,
+   "z": 3,
+   "top": "taco-madeira",
+   "bottom": "gesso"
+  },
+  {
+   "level": 0,
+   "x": 4,
+   "z": 4,
+   "top": "taco-madeira",
+   "bottom": "gesso"
+  },
+  {
+   "level": 0,
+   "x": 5,
+   "z": 0,
+   "top": "taco-madeira",
+   "bottom": "gesso"
+  },
+  {
+   "level": 0,
+   "x": 5,
+   "z": 1,
+   "top": "taco-madeira",
+   "bottom": "gesso"
+  },
+  {
+   "level": 0,
+   "x": 5,
+   "z": 2,
+   "top": "taco-madeira",
+   "bottom": "gesso"
+  },
+  {
+   "level": 0,
+   "x": 5,
+   "z": 3,
+   "top": "taco-madeira",
+   "bottom": "gesso"
+  },
+  {
+   "level": 0,
+   "x": 5,
+   "z": 4,
+   "top": "taco-madeira",
+   "bottom": "gesso"
+  },
+  {
+   "level": 0,
+   "x": 1,
+   "z": 5,
+   "top": "pedra",
+   "bottom": "gesso"
+  },
+  {
+   "level": 0,
+   "x": 1,
+   "z": 6,
+   "top": "pedra",
+   "bottom": "gesso"
+  },
+  {
+   "level": 0,
+   "x": 2,
+   "z": 5,
+   "top": "pedra",
+   "bottom": "gesso"
+  },
+  {
+   "level": 0,
+   "x": 2,
+   "z": 6,
+   "top": "pedra",
+   "bottom": "gesso"
+  },
+  {
+   "level": 0,
+   "x": 3,
+   "z": 5,
+   "top": "pedra",
+   "bottom": "gesso"
+  },
+  {
+   "level": 0,
+   "x": 3,
+   "z": 6,
+   "top": "pedra",
+   "bottom": "gesso"
+  }
+ ],
+ "openings": [
+  {
+   "id": "porta1",
+   "level": 0,
+   "x": 2,
+   "z": 5,
+   "axis": "x",
+   "width": 1,
+   "kind": "porta",
+   "door": "comum",
+   "tex": "porta-madeira"
+  },
+  {
+   "id": "janela1",
+   "level": 0,
+   "x": 6,
+   "z": 2,
+   "axis": "z",
+   "width": 1,
+   "kind": "janela",
+   "window": "normal",
+   "light2d": true
+  }
+ ],
+ "stairs": [],
+ "props": [
+  {
+   "id": "lamp1",
+   "type": "lampada-teto",
+   "level": 0,
+   "pos": [
+    3,
+    3.5,
+    2.5
+   ],
+   "rot": [
+    0,
+    0,
+    0
+   ],
+   "params": {
+    "modo": "normal"
+   }
+  }
+ ],
+ "decals": [],
+ "points": []
+}
