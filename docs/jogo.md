@@ -26,7 +26,8 @@ a tiro e os prende com a armadilha. Cenário e personagens em blocos com textura
   Os dedos fecham por poses (solta, punho, aberta, segurar, apontar) e o rosto tem expressões (neutra, esforço, medo,
   dor, raiva, surpresa), com piscar e o olhar passeando; as mechas do cabelo balançam com física simples (a gravidade
   e o tranco da cabeça, com limites para não entrar na cabeça) (`src/game/player/maos.ts`, `rosto.ts` e `cabelo.ts`).
-- **Ver modelos** (Modo desenvolvedor): o personagem de perto, com animações, expressões, mãos e a luz do jogo.
+- **Ver modelos** (Modo desenvolvedor): o personagem de perto, com animações, expressões, mãos, a arma na mão e a luz
+  do jogo; e cada arma e objeto sozinho.
 - **Modelos no Blockbench**: o desenvolvedor modela e pinta; o jogo lê o `.bbmodel` direto. Passo a passo em
   `docs/blockbench.md`. Os objetos do cenário e as armas também (decidido em 10/nov); o Editor de modelos saiu do plano.
 - **Sem filtro PS1 por padrão:** a imagem limpa é a padrão; PS1 e suave ficam como opção nas configurações.
@@ -99,13 +100,25 @@ não colidem com ele, e só "lutam" nas cutscenes. Usam a mesma animação de an
 Trocar: 1/2/3, Q (alterna), rodinha do mouse, ou **Tab segurado = roda de armas**.
 Mirar: botão direito. Atirar: botão esquerdo. Correr: Shift. Interagir: E.
 
-## A captura (regra nova, vale em toda luta)
+Os modelos (10/nov) estão em `modelos/armas/` e o agente já segura cada uma (`src/game/player/arma.ts`): a pistola
+e a escopeta na guarda, a arma apontada para o chão na frente, numa mão só; a armadilha pendurada pela alça. No Testar,
+Q troca (pistola, escopeta, armadilha, mão vazia). Mirar, atirar, o coice, a outra mão na escopeta e jogar a armadilha
+vêm na etapa das armas. Quando ela chegar, 1/2/3 deixam de mostrar as expressões no Testar (isso fica no Ver modelos).
 
-- Com a vida zerada, o fantasma comum **se desfaz numa poça de ectoplasma** com um anel que mostra o tempo.
-- Em cima da poça aparece o **ícone da armadilha** (ensina o que fazer).
-- A armadilha jogada na poça captura; ela puxa **todas as poças num raio de 2,8 m**.
-- Se o tempo acaba (**10 s**), ele volta com metade da vida.
-- Não existe animação de morte: o fantasma vira poça e some na captura.
+## Destruir ou capturar (decidido em 10/nov, vale em toda luta)
+
+Os fantasmas são de dois tipos:
+
+- **Menores: o Espectral e os demônios** (nenhum demônio desenhado ainda). Com a vida zerada, **são destruídos**: estouram
+  num respingo de ectoplasma, sem corpo nem ossos, e deixam uma mancha no chão que seca em poucos segundos. É um efeito,
+  não uma animação de morte. Não há o que capturar.
+- **Maiores: o Glutão, a Mãe e os que vierem** (os chefes e os únicos). Esses **precisam ser capturados**:
+  - com a vida zerada, o fantasma **se desfaz numa poça de ectoplasma** com um anel que mostra o tempo;
+  - em cima da poça aparece o **ícone da armadilha** (ensina o que fazer);
+  - a armadilha jogada na poça captura; ela puxa **todas as poças num raio de 2,8 m** (para quando dois maiores caem juntos);
+  - se o tempo acaba (**10 s**), ele volta com metade da vida;
+  - a Mãe tem a regra dela: as quatro barras e a armadilha na hora em que fica enfraquecida (ver abaixo).
+- Não existe animação de morte: o menor estoura, o maior vira poça e some na captura.
 
 ## Os fantasmas da demo
 
@@ -114,7 +127,7 @@ Mirar: botão direito. Atirar: botão esquerdo. Correr: Shift. Interagir: E.
 | Vida | 60 | 400 (escala 1,6×) |
 | Ataque | mordida 30 (22 na Intro), bote a 3,4 m/s | pancada 35, investida 30, cospe Espectrais (primeiro aos 10 s, depois a cada 14 s) |
 | Especial | só um ataca por vez (um "token" de ataque) | só o **núcleo** leva dano cheio; com pouca vida **devora** um Espectral e cura **10% da vida máxima** (espera 20 s entre devoradas); Lara e Nicolas aparecem encolhidos dentro da barriga |
-| Captura | poça, 10 s | poça; capturado, solta Lara e Nicolas no chão |
+| Vida zerada | destruído (estoura em ectoplasma) | poça, 10 s; capturado, solta Lara e Nicolas no chão |
 
 Os Espectrais são esqueléticos, de manto. O Glutão é gordo, esquelético e deformado, com núcleo brilhante na barriga.
 
@@ -152,10 +165,15 @@ Números da tabela `T` em `buildDemo()` do laboratório (linha ~7674); a lógica
 ## A demo Intro (o que já foi feito)
 
 A primeira missão: a C.R.O.S. desce a uma instalação própria para recapturar o Glutão, que rompeu a contenção.
-Elevador → eclusa → corredor 1 → **escritório** (cutscene na visão da Lara + tutorial da armadilha) → corredor 2 →
+Elevador → eclusa → corredor 1 → **escritório** (cutscene na visão da Lara + tutorial de mirar e atirar) → corredor 2 →
 **refeitório** (Lara persegue um Espectral, portas tomadas por ectoplasma, 3 ondas: 1, 2, 2+2) → corredor 3 →
 **enfermaria** (kits, checkpoint) → **usina** (o Glutão; ao final, cutscene do rádio e relatório "INTRO").
 Detalhes completos: `docs/design/intro.md`. Código: `reference/lab/08-intro.js`.
+
+Com a regra de destruir ou capturar (10/nov), a Intro muda assim (vale sobre o `docs/design/intro.md`):
+- as ondas do refeitório terminam com os Espectrais **destruídos**, não capturados;
+- o **tutorial da armadilha passa para a usina**: o aviso aparece na primeira poça do Glutão;
+- os Espectrais que o Glutão cospe são destruídos a tiro, e destruir antes que ele os devore continua impedindo a cura.
 
 ## Fica de fora (não trazer do laboratório)
 

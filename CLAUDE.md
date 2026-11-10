@@ -33,11 +33,12 @@ e captura entidades. Este projeto começa pelo **Modo desenvolvedor → Criador 
 ## Regras do conteúdo
 
 - **Não usar animações de morte** (nem do agente, nem dos fantasmas) nem as animações específicas de cenas do laboratório.
-  O fantasma zerado vira poça e é capturado; o agente que cai volta no checkpoint.
+  O fantasma menor zerado (Espectral, demônios) estoura em ectoplasma e é destruído; o maior (Glutão, Mãe, chefes) vira
+  poça e é capturado (decidido em 10/nov); o agente que cai volta no checkpoint.
 - **A base é o laboratório v130**: `reference/laboratorio.html`, igual ao publicado em
   https://claude.ai/artifact/BDUaLP6DmvqwsBXhkdJdYw. O link antigo (`2wZHuEXpxxiRrKP9h2J1jM`, com fatia, pé de cabra e
   orbe) está desatualizado: não use como referência.
-- Faz parte da base: o agente, as duas armas e a armadilha, a captura por poça, o Espectral, o Glutão, o HUD conceito C,
+- Faz parte da base: o agente, as duas armas e a armadilha, a captura por poça (dos fantasmas maiores), o Espectral, o Glutão, o HUD conceito C,
   Lara e Nicolas (a demo Intro) e **a Mãe com a luta do berçário** (o berço, o tornado, as quatro barras).
 - Fora do projeto (eram testes do laboratório): os outros fantasmas do laboratório (Sombra, Desconhecido, Garota, Mordomo,
   Observador, Reflexo, Amigo), a demo da casa como fase, a demo "O Bando", a fatia, o círculo de velas, o orbe, o pé de cabra.
@@ -76,7 +77,7 @@ src/
   render/                  RetroRenderer (pós-processo PS1), psx.ts (tremor de vértice), materiais.ts (nome da textura -> material),
                            corte.ts (paredes altas / recortadas / baixas no editor), miniaturas.ts (fotos do catálogo de objetos),
                            bbmodel.ts (lê um modelo do Blockbench: pastas = juntas, blocos = malhas; "luz_" brilha),
-                           objetos3d.ts (cada tipo de objeto, porta e janela montado uma vez; o mapa usa cópias que dividem tudo)
+                           objetos3d.ts (cada tipo de objeto, porta, janela e arma montado uma vez; o mapa usa cópias que dividem tudo)
   maps/                    types.ts (o formato v1), loader.ts (o jogo lê a pasta), storage.ts (o editor lê, grava,
                            exporta e importa; o pacote MapBundle), textures.ts (o catálogo: cada nome, o uso e a cor; a imagem é texturas/<nome>.png),
                            objetos.ts (o catálogo de móveis e lâmpadas, em dados: nome, tamanho, apoio; a forma vem do modelo),
@@ -90,7 +91,7 @@ src/
                            historico.ts (desfazer e refazer)
 texturas/                  as texturas do cenário: <nome>.png, 32 × 32 px por bloco de 1 m, pintadas em pixel e sem costura
 modelos/                   os modelos do Blockbench (.bbmodel), lidos direto pelo jogo: agente.bbmodel, objetos/<tipo>.bbmodel,
-                           aberturas/<tipo>.bbmodel (as portas e janelas)
+                           aberturas/<tipo>.bbmodel (as portas e janelas), armas/<nome>.bbmodel (pistola, escopeta, armadilha)
 public/musica/             as músicas do jogo (menu.mp3: o menu e o criador de mapas)
 reference/                 o laboratório antigo, só para consulta (não importar nada daqui); ost/ = as 4 músicas dele
 docs/                      o que está decidido
@@ -105,8 +106,9 @@ ficam num arquivo próprio de cada pasta, para ajustar sem caçar no código.
 src/game/                  (já existem: Testar.tsx, player/, input/, world/ — o resto entra quando a etapa chegar)
   Testar.tsx               o Testar do editor: o agente andando no mapa aberto (câmera, colisão, luz do jogo)
   player/                  o agente: modelo.ts (liga modelos/agente.bbmodel no esqueleto), animacao.ts, maos.ts (os dedos),
+                           arma.ts (a arma na mão direita: Q troca no Testar),
                            rosto.ts (as expressões), cabelo.ts (as mechas com física), controle.ts (andar, correr, esquivar), numeros.ts
-  weapons/                 pistola, escopeta, armadilha, sobrecarga
+  weapons/                 atirar com a pistola e a escopeta, jogar a armadilha, a sobrecarga (os modelos já existem)
   enemies/<nome>/          um fantasma por pasta (espectral/, glutao/, ...): IA, ataques, modelo, números
   capture/                 a poça e a captura
   allies/                  Lara e Nicolas
