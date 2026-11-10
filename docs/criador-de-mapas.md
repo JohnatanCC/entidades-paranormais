@@ -85,10 +85,10 @@ Unidades: metros e graus; y para cima; andar 0 = térreo.
 - **Ponto de script** `{ id, kind, level, pos, params? }`.
 
 Texturas: por nome (`src/maps/textures.ts`). **Cada textura é um bloco de 1 m com 32 × 32 pixels**, como no Minecraft,
-no chão e na parede (decidido em 9/nov: 128 px por metro era detalhe demais para o estilo). **Por enquanto desenhadas por
-código**: o desenho do laboratório é encaixado em 1 m e reduzido para 32 px (`src/render/materiais.ts`); as que perderem
-detalhe demais serão redesenhadas à mão em 32 px. Mais tarde entram imagens PNG de 32 × 32 em `public/texturas/<nome>.png`
-com o mesmo nome, sem mudar os mapas. A porta não é bloco (é peça da etapa 4). Textura que não existe aparece magenta.
+no chão e na parede (decidido em 9/nov: 128 px por metro era detalhe demais para o estilo). **Desde 10/nov cada uma é uma
+imagem**, `texturas/<nome>.png` (32 × 32, pintada em pixel e sem costura: o que sai de uma borda entra na outra); o
+catálogo guarda só o nome, o uso e a cor de base. Para repintar, abra o PNG no Blockbench ou num editor de pixel com o
+modo lado a lado (Piskel, LibreSprite) e salve por cima: no `npm run dev` atualiza na hora. Textura que não existe aparece magenta.
 
 Mudança no formato = subir `formato` e escrever a conversão no carregador. Nunca quebrar mapas salvos.
 
@@ -106,13 +106,15 @@ Cada etapa vira uma versão que o desenvolvedor testa antes da próxima.
 3. **Pisos, tetos e texturas.** ✅ As duas faces do piso, a pintura de cada lado da parede com a barra de baixo, o catálogo de texturas (trazer as da mansão e da Intro do laboratório).
    Ferramentas: **Piso e teto (3)** arrasta uma área (ou clica num quadrado) e põe/repinta o chão e o teto de baixo; Ctrl + arrastar apaga.
    **Pintar parede (4)** pinta o lado apontado, arrastar pinta vários, **Shift + clique pinta a sala inteira** por dentro; a barra de baixo
-   (lambri) tem textura e altura próprias. O catálogo tem 34 texturas (casa, Intro e algumas novas), todas em blocos de 1 m com 32 × 32 px.
+   (lambri) tem textura e altura próprias. O catálogo tem 33 texturas (casa, Intro e algumas novas), todas em blocos de 1 m com 32 × 32 px (repintadas em pixel em 10/nov).
    A luz do editor é de trabalho (clara, sem sombra); a luz de verdade vem na etapa 6 (lâmpadas) e na 7 (Testar).
 4. **Portas e janelas.** ✅ Os quatro tipos de porta e os dois de janela, com a luz 2D.
    Ferramenta **Portas e janelas (5)**: escolha o tipo e clique numa parede (a prévia fica âmbar onde cabe, vermelha onde não).
    O lado de dentro é adivinhado (o lado com piso; sem piso, o oposto à câmera). Clique numa porta ou janela para escolher:
    o painel muda o estado (fechada, aberta, trancada com motivo e chave), o lado e o luar; Ctrl + clique ou Del apaga.
    No editor a porta trancada mostra um cadeado vermelho. Ficaram de fora: porta emperrada e porta de correr (a da Intro).
+   **Desde 10/nov o desenho vem do Blockbench** (`modelos/aberturas/`): folhas com almofadas e maçaneta de latão,
+   guarnições com cornija, janela com vidro, caixilhos e parapeito. As folhas são pastas do modelo, que o jogo gira.
    O luar (refeito em 9/nov, como o do laboratório): o feixe macio (some nas laterais, forte no vidro, apaga no chão, não
    ofusca quando você entra nele), a mancha de borda esfumada no chão, um brilho leve no vidro e poeira descendo devagar.
 5. **Escadas.** ✅ Retas, montadas sozinhas pela área e pela altura; o buraco no piso de cima.
@@ -132,6 +134,17 @@ Cada etapa vira uma versão que o desenvolvedor testa antes da próxima.
      Encaixe a cada 0,25 m, R gira 15° (Shift + R 45°), clique escolhe e arrasta, Ctrl + clique ou Del apaga.
      Modo livre no painel (altura, girar, inclinar e tombar; arrastar encaixa a cada 5 cm). A lâmpada acende de verdade e
      a "falhando" pisca. Outros móveis do laboratório entram quando o desenvolvedor pedir.
+     **Desde 10/nov os objetos vêm do Blockbench**: `modelos/objetos/<tipo>.bbmodel`, com 32 px por metro e a textura em
+     pixel (veio e nós na madeira, ferrugem no metal, trama e dobras no tecido, pó no lençol, a borda e a sombra mais
+     escuras). O catálogo (`src/maps/objetos.ts`) guarda só o nome, o grupo, o tamanho e o que o objeto tem de especial.
+     Cada tipo é montado uma vez e cada objeto do mapa divide a geometria e a textura com ele (uma chamada de desenho por
+     objeto, duas se tiver luz). O corrimão automático das escadas usa a mesma madeira em pixel.
+     **O segundo lote** (10/nov): 38 objetos. A cadeira ganhou grade no encosto e o berço, grade nos quatro lados. Novos na
+     casa: piano, poltrona coberta, estante de livros, mesa de cabeceira, penteadeira (com o espelho coberto), baú, cadeira
+     de balanço, mesinha, fogão a lenha, guarda-louça, vaso com planta seca. Novas luzes: lustre, arandela (presa na parede,
+     a 1,8 m: o apoio "parede"), abajur, luminária de pé, castiçal; a lamparina passou para a aba Luz e acende.
+     Toda luz tem os três modos (normal, falhando, apagada). **Cada luz acesa é uma luz de verdade e pesa no desempenho:**
+     poucas acesas por cômodo, o resto apagado (a peça continua lá, só não ilumina).
      **Guarda-corpo** (9/nov): a balaustrada das bordas sem parede (o vão do salão, a galeria), em pedaços de 1, 2 e 4 m
      que se emendam (gire 90° para pôr no outro eixo; encaixe na linha da grade, onde o piso acaba). Mesma altura e
      desenho do corrimão automático. Segura o agente, mas a câmera passa.
@@ -170,18 +183,20 @@ Ajudas de construção propostas para depois (uma de cada vez, se aprovadas): **
      O código: `src/game/world/portas.ts`; a ação "interagir" em `src/game/input/acoes.ts`.
      O código mora em `src/game/` (player/, input/, world/), já na estrutura do jogo.
    - **7b. Os blocos.** O jogo carrega só os blocos perto do agente e junta as malhas por bloco (desempenho da mansão e do celular).
+     Os modelos do Blockbench já vêm em pedaços (10/nov): no jogo publicado, cada .bbmodel é um arquivo à parte, baixado
+     quando abre uma tela que usa modelos (o pacote principal ficou em 1,1 MB, 328 KB comprimido). Falta, nesta etapa,
+     baixar só os modelos do capítulo (hoje a tela baixa todos).
 8. **A mansão nova.** O desenvolvedor monta a planta no editor; o Claude ajusta o que faltar.
    A planta do capítulo 1 está em `docs/mansao-cap1.md` (aprovada em 9/nov). **A planta crua foi gerada** (9/nov) no mapa
    `maps/mansao-cap1`: paredes, pisos, tetos, portas, janelas, as duas escadas, o guarda-corpo do vão e algumas lâmpadas.
    Falta o desenvolvedor decorar e decidir quais portas trancam.
 
 Depois do mapa: os scripts. Os modelos dos personagens vão ser feitos no Blockbench (em teste desde 10/nov,
-`docs/blockbench.md`); se ele servir, o Editor de modelos sai do plano.
+`docs/blockbench.md`), e os objetos também (desde 10/nov): o Editor de modelos saiu do plano.
 
 ## Fica de fora agora
 
 - Publicar mapas num servidor.
 - Escadas em L, em U ou curvas.
 - Altura de andar diferente por andar (pé-direito duplo sai sem isso: sem piso no andar de cima).
-- O Editor de modelos.
 - Os fantasmas e as lutas: entram depois do mapa.

@@ -40,7 +40,7 @@ No jogo elas vão para `public/musica/` e são chamadas por nome, como as textur
 - Filtro de imagem (limpo / suave / PS1: pixels nítidos, cores de 5 bits com pontilhado, vinheta, linhas, granulação) → `src/render/RetroRenderer.tsx`.
 - Tremor de vértice do PS1 → `src/render/psx.ts` (`applyPsx(material)`).
 - As texturas da casa (`07`) e da Intro (`08`), com os mesmos tamanhos por metro (TILE / ITILE) → o catálogo `src/maps/textures.ts`;
-  o canvas vira textura do three em `src/render/materiais.ts`. Ficaram de fora as dos móveis e efeitos (lençol, tapete, teia, cortina, chama...): entram com os objetos (etapa 6).
+  em 10/nov foram repintadas em pixel como imagens (`texturas/<nome>.png`) e o desenho em canvas saiu. Ficaram de fora as dos móveis e efeitos (lençol, tapete, teia, cortina, chama...): entram com os objetos (etapa 6).
 - A "casca" (faces juntadas por material, textura pelo mundo) → `src/editor/wallMesh.ts` (paredes e pisos).
 
 ## O que trazer, por etapa do criador de mapas

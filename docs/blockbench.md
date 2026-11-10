@@ -1,13 +1,15 @@
 # Blockbench: os modelos dos personagens
 
-Decidido em 10/nov (em teste): os personagens são feitos no **Blockbench**, um programa grátis feito para modelos em
-blocos com textura em pixel. O desenvolvedor modela e pinta; o jogo lê o próprio `.bbmodel` (sem exportar nada) e anima em código.
+Decidido em 10/nov: os personagens, os objetos do cenário e as armas são feitos no **Blockbench**, um programa grátis
+feito para modelos em blocos com textura em pixel. O desenvolvedor modela e pinta; o jogo lê o próprio `.bbmodel` (sem exportar nada) e anima em código.
 
 ## Os arquivos
 
 | Onde | O quê |
 | --- | --- |
-| `modelos/<nome>.bbmodel` | O modelo, aberto e salvo no Blockbench (a textura vai dentro do arquivo). O jogo lê este mesmo arquivo (`src/render/bbmodel.ts`) |
+| `modelos/<nome>.bbmodel` | Um personagem (o agente: `agente.bbmodel`). A textura vai dentro do arquivo; o jogo lê este mesmo arquivo (`src/render/bbmodel.ts`) |
+| `modelos/objetos/<tipo>.bbmodel` | Um objeto do catálogo do criador de mapas, com o nome do tipo (`cadeira.bbmodel`) |
+| `modelos/aberturas/<tipo>.bbmodel` | As portas e janelas: `porta-comum`, `porta-dupla`, `porta-grande`, `janela`, `janela-grande` |
 
 O primeiro é `modelos/agente.bbmodel`: o Matheus, já ligado no Testar do criador de mapas. Com o `npm run dev` aberto,
 salvar no Blockbench atualiza o jogo (se o Testar estiver aberto, saia e entre de novo).
@@ -45,6 +47,55 @@ salvar no Blockbench atualiza o jogo (se o Testar estiver aberto, saia e entre d
 - Peça nova (um coldre, óculos, o cabelo com mais volume): ponha dentro da pasta que deve levá-la junto (óculos na
   `cabeca`, coldre na `coxa_d`). A bota fica na pasta do pé (`pe_e`): é por ela que o jogo acha a sola e põe os pés no chão.
 - Uma textura só por modelo (a primeira da lista é a que vale).
+
+## Os objetos (móveis, máquinas, lâmpadas)
+
+- **O arquivo tem o nome do tipo** em `modelos/objetos/` (o mapa guarda só o nome). Objeto novo: o arquivo e uma linha no
+  catálogo `src/maps/objetos.ts` (o nome na tela, o grupo, o tamanho em metros para a colisão e a escolha).
+- **32 px por metro** (como as paredes e o chão): 1 pixel por unidade. Cada face com UV próprio (sem Box UV), para pintar
+  à vontade. A pintura que dá a cara do jogo: veio e nós na madeira, ferrugem e arranhões no metal, trama e dobras no
+  tecido, pó no lençol, e em toda peça **a borda um pouco mais escura e a sombra embaixo**.
+- **A origem é o centro da base** e **a frente é o sul (+Z)**, o lado que fica para a sala quando encosta na parede.
+- **Bloco que brilha** (a chama, a lâmpada, a tela): o nome começa com `luz_`. Ele não recebe sombra e escurece quando a
+  luz está no modo "apagada". A luz que ilumina a sala é do catálogo: o campo `luz` (onde ela fica no objeto, a cor, a
+  força, o alcance).
+- **Onde encosta** (o campo `apoio` no catálogo): no chão (padrão), no teto (a origem é o ponto que toca o teto; o
+  modelo desce) ou na parede (a origem é o pé da placa, encostada; o jogo põe a 1,8 m do chão).
+- **Leve:** os blocos de cada pasta viram uma malha só, e cada objeto do mapa é uma cópia que divide a geometria e a
+  textura com os outros do mesmo tipo. Prefira uma pasta só (`raiz`) a menos que uma parte precise mexer.
+- Os objetos de hoje (38) nasceram de um gerador, em 10/nov: são o ponto de partida para repintar e detalhar à mão.
+
+## As portas e janelas
+
+- Continuam sendo **aberturas** no mapa (presas à parede: o buraco, o estado, a chave, a colisão e o luar são do jogo);
+  só o desenho vem do modelo.
+- **O referencial é o da abertura:** a origem no começo do vão, no chão; x ao longo da parede (a largura), y para cima,
+  z atravessando a parede (ela tem 12 cm: de −0,06 a +0,06 m). Os vãos têm medida fixa por tipo: porta comum 1 m × 2,1 m,
+  dupla 2 m × 2,1 m, grande 2 m × 2,8 m; janela 1 m e janela grande 2 m, de 0,9 a 2,1 m do chão.
+- **As folhas** ficam nas pastas `folha_1` (o ponto de giro na dobradiça, em x = 0,01) e `folha_2` (em x = largura − 0,01).
+  O jogo gira essas pastas para abrir e fechar; o resto (guarnições, cornija) fica parado.
+- **A janela:** o luar entra pelos vidros entre as divisões, que o jogo calcula pelas medidas do tipo (no meio na
+  janela; em quartos na grande). Se mudar as divisões no modelo, avise: o luar precisa acompanhar.
+
+## O que não vai para o Blockbench (e por quê)
+
+| O quê | Por quê |
+| --- | --- |
+| Paredes, pisos, tetos e escadas | São montados pelo mapa (cada parede tem o seu tamanho e os seus cantos). A pintura deles é imagem: `texturas/<nome>.png` (abaixo) |
+| O corrimão automático das escadas | Muda com cada escada. Usa a mesma madeira em pixel do guarda-corpo |
+| O luar (o feixe, a mancha, a poeira) | É um efeito de luz, não um objeto |
+
+## As texturas do cenário (paredes, pisos, tetos, escadas)
+
+- Uma imagem por textura em `texturas/<nome>.png`, **32 × 32 px = um bloco de 1 m**. O nome é o que o mapa guarda.
+- **Sem costura:** a textura se repete lado a lado; o que sai por uma borda tem que entrar pela outra. Para pintar com a
+  emenda à vista, um editor de pixel com o modo lado a lado (Piskel, grátis no navegador; LibreSprite) é melhor que o Blockbench.
+- Textura nova: o PNG e uma linha no catálogo `src/maps/textures.ts` (o nome na tela, em que paletas aparece, a cor de base).
+
+## As armas (quando chegarem)
+
+- `modelos/armas/<nome>.bbmodel`, com **64 px por metro** (como os personagens: aparecem de perto, na mão).
+- Pastas com nome fixo: `empunhadura` (onde a mão segura, com a pose "segurar"), `cano` (de onde sai o tiro e o clarão).
 
 ## Passo a passo
 

@@ -27,8 +27,8 @@ a tiro e os prende com a armadilha. Cenário e personagens em blocos com textura
   dor, raiva, surpresa), com piscar e o olhar passeando; as mechas do cabelo balançam com física simples (a gravidade
   e o tranco da cabeça, com limites para não entrar na cabeça) (`src/game/player/maos.ts`, `rosto.ts` e `cabelo.ts`).
 - **Ver modelos** (Modo desenvolvedor): o personagem de perto, com animações, expressões, mãos e a luz do jogo.
-- **Modelos no Blockbench** (em teste): o desenvolvedor modela e pinta; o jogo lê o `.bbmodel` direto. Passo a passo em
-  `docs/blockbench.md`. Se servir, substitui o Editor de modelos que estava planejado.
+- **Modelos no Blockbench**: o desenvolvedor modela e pinta; o jogo lê o `.bbmodel` direto. Passo a passo em
+  `docs/blockbench.md`. Os objetos do cenário e as armas também (decidido em 10/nov); o Editor de modelos saiu do plano.
 - **Sem filtro PS1 por padrão:** a imagem limpa é a padrão; PS1 e suave ficam como opção nas configurações.
 
 ## O objetivo de cada capítulo

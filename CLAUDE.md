@@ -21,6 +21,11 @@ e captura entidades. Este projeto começa pelo **Modo desenvolvedor → Criador 
 - Ele prefere **instruções passo a passo** para o que ele mesmo tem que fazer (rodar, testar, configurar), em vez de você operar o computador dele.
 - Ao terminar uma etapa: rode `npm run build`, teste no navegador, marque a etapa como feita em `docs/criador-de-mapas.md` e diga em poucas linhas o que testar.
 - Commits pequenos, com mensagem em português dizendo o que mudou ("Criador de mapas: paredes automáticas").
+- **Ao terminar qualquer coisa, revise tudo o que mudou** (pedido em 10/nov): a estrutura de pastas, as regras do jogo, o
+  formato do mapa e os docs. **Tire arquivos e código que ficaram sem uso** (nada de sobra "para depois").
+- **Otimize sempre**: o jogo precisa rodar em qualquer aparelho atual, celular incluído. Poucas chamadas de desenho (juntar
+  malhas, um material por modelo), texturas pequenas, nada recalculado a cada quadro sem precisar, modelos repetidos
+  compartilhando geometria e material.
 - **Avalie toda ideia nova antes de aceitar.** É o maior projeto dele e pode virar produto: para cada ideia, diga se ela
   conflita com alguma mecânica já decidida (agente, armas, captura, chefes), com o formato do mapa ou com o mobile.
   Aponte o conflito e proponha a saída antes de construir. Estabilidade vem antes de recurso novo.
@@ -41,7 +46,9 @@ e captura entidades. Este projeto começa pelo **Modo desenvolvedor → Criador 
   com 32 px por metro, personagens com 64 e o rosto com 128), com **proporções quase realistas** (nada de cabeça e mãos grandes). O terror vem da ambientação: pouca luz,
   fantasmas com formas erradas, olhos que brilham, movimentos travados. O estilo é parecido com o do Hytale, mas os
   personagens são nossos: não copiar os deles.
-- Os modelos dos personagens são feitos no **Blockbench** (em teste; o passo a passo está em `docs/blockbench.md`).
+- Os modelos dos personagens, dos objetos e (quando chegarem) das armas são feitos no **Blockbench** (o passo a passo
+  está em `docs/blockbench.md`): personagens e armas com 64 px por metro, objetos do cenário com 32, com sombra e desgaste
+  pintados em pixel.
 - O visual padrão é a imagem **limpa**; o filtro PS1 (pixels, 5 bits com pontilhado, tremor de vértice) e o "suave" viraram opção.
 
 ## Comandos
@@ -68,10 +75,11 @@ src/
   audio/musica.ts          a trilha: useMusica('menu') toca public/musica/<nome>.mp3 em laço, com o volume das configurações
   render/                  RetroRenderer (pós-processo PS1), psx.ts (tremor de vértice), materiais.ts (nome da textura -> material),
                            corte.ts (paredes altas / recortadas / baixas no editor), miniaturas.ts (fotos do catálogo de objetos),
-                           bbmodel.ts (lê um modelo do Blockbench: pastas = juntas, blocos = malhas)
+                           bbmodel.ts (lê um modelo do Blockbench: pastas = juntas, blocos = malhas; "luz_" brilha),
+                           objetos3d.ts (cada tipo de objeto, porta e janela montado uma vez; o mapa usa cópias que dividem tudo)
   maps/                    types.ts (o formato v1), loader.ts (o jogo lê a pasta), storage.ts (o editor lê, grava,
-                           exporta e importa; o pacote MapBundle), textures.ts (o catálogo: cada nome, o desenho em canvas e o tamanho em metros),
-                           objetos.ts (o catálogo de móveis e lâmpadas, em dados: tamanho e peças),
+                           exporta e importa; o pacote MapBundle), textures.ts (o catálogo: cada nome, o uso e a cor; a imagem é texturas/<nome>.png),
+                           objetos.ts (o catálogo de móveis e lâmpadas, em dados: nome, tamanho, apoio; a forma vem do modelo),
                            corrimao.ts (o corrimão automático das escadas, calculado do mapa; o editor desenha em editor/corrimaoMesh.ts)
   editor/                  MapEditor (a tela, conceito B), Gaveta (o catálogo embaixo), Icones, Inspetor (a janela flutuante),
                            Medida (a etiqueta ao construir), FerramentaContaGotas, MapManager (o gerenciador de mapas), MapView + wallMesh (desenha;
@@ -80,7 +88,9 @@ src/
                            FerramentaObjetos + PainelObjeto, Objetos (monta o catálogo; a lâmpada acende),
                            Aberturas (portas, janelas) + Luar (feixe macio, brilho, poeira), Paleta, doc.ts (o documento e as operações),
                            historico.ts (desfazer e refazer)
-modelos/                   os personagens feitos no Blockbench (.bbmodel); o jogo lê o arquivo direto (render/bbmodel.ts)
+texturas/                  as texturas do cenário: <nome>.png, 32 × 32 px por bloco de 1 m, pintadas em pixel e sem costura
+modelos/                   os modelos do Blockbench (.bbmodel), lidos direto pelo jogo: agente.bbmodel, objetos/<tipo>.bbmodel,
+                           aberturas/<tipo>.bbmodel (as portas e janelas)
 public/musica/             as músicas do jogo (menu.mp3: o menu e o criador de mapas)
 reference/                 o laboratório antigo, só para consulta (não importar nada daqui); ost/ = as 4 músicas dele
 docs/                      o que está decidido
