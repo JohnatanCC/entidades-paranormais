@@ -3,10 +3,13 @@
 // O espaço da mão direita (o do modelo do agente): os dedos para −y, a palma para +z, o polegar para −x.
 import * as THREE from 'three'
 import { arma3d } from '../../render/objetos3d'
+import type { PoseMao } from './maos'
 import type { Agente } from './modelo'
 
 export type Arma = 'pistola' | 'escopeta' | 'armadilha'
 export const ARMAS: [Arma, string][] = [['pistola', 'Pistola de Demantino'], ['escopeta', 'Escopeta de sal grosso'], ['armadilha', 'Armadilha']]
+/** A pose da mão que segura cada uma: a pistola com o indicador fora do gatilho (a escopeta ganha o mesmo no parado dela). */
+export const POSE_DA_ARMA: Record<Arma, PoseMao> = { pistola: 'guarda', escopeta: 'segurar', armadilha: 'segurar' }
 
 const V = (x: number, y: number, z: number) => new THREE.Vector3(x, y, z)
 // como cada uma fica na mão: onde a empunhadura cai (no espaço da mão) e o giro da arma
@@ -19,6 +22,10 @@ const PEGA: Record<Arma, { ponto: THREE.Vector3; giro: THREE.Quaternion }> = {
   armadilha: { ponto: V(0, -0.085, 0.03), giro: new THREE.Quaternion() },
 }
 const NOME = '#arma'
+const _inv = new THREE.Quaternion()
+
+/** O giro que a mão precisa ter para a arma ficar com o giro qArma (os dois no mesmo espaço). Os gestos usam. */
+export const maoParaArma = (nome: Arma, qArma: THREE.Quaternion, out: THREE.Quaternion) => out.copy(qArma).multiply(_inv.copy(PEGA[nome].giro).invert())
 
 /** Põe a arma na mão direita (null = mão vazia). A animação lê a.arma para a pose (guarda, a mão fechada). */
 export function pegarArma(a: Agente, nome: Arma | null) {

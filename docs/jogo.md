@@ -23,15 +23,19 @@ a tiro e os prende com a armadilha. Cenário e personagens em blocos com textura
   de cega, a cabeça virando sem suavizar; o Espectral translúcido, se desfazendo em cubos embaixo; o Glutão inchado,
   com a boca rasgando o tronco. Olhos que brilham no escuro.
 - **Animação:** partes rígidas que giram nas juntas (como no laboratório), feita em código, ligada às ações do jogo.
-  Os dedos fecham por poses (solta, punho, aberta, segurar, apontar) e o rosto tem expressões (neutra, esforço, medo,
+  Os dedos fecham por poses (solta, punho, aberta, segurar, guarda com o indicador fora do gatilho, apontar) e o rosto tem expressões (neutra, esforço, medo,
   dor, raiva, surpresa), com piscar e o olhar passeando; as mechas do cabelo balançam com física simples (a gravidade
   e o tranco da cabeça, com limites para não entrar na cabeça) (`src/game/player/maos.ts`, `rosto.ts` e `cabelo.ts`).
 - **Parado** (`src/game/player/parado.ts`, os tempos em `numeros.ts`): a respiração mais funda e o peso passando de uma
   perna para a outra; depois de 8 a 15 s parado, um gesto sorteado (nunca o mesmo duas vezes seguidas): olhar em volta
   (os olhos chegam antes da cabeça), ajustar a alça da mochila, conferir a bolsa do cinto, abrir e fechar a mão.
-  Andar, esquivar ou trocar de arma corta o gesto na hora. Feito: sem arma. Faltam, um de cada vez: com a pistola (o
-  indicador fora do gatilho; conferir o frasco), com a armadilha (o pêndulo; levantar até o rosto) e com a escopeta
-  (falta decidir: no ombro, com uma mão, ou na guarda baixa com as duas). O relicário do traje ainda não está no modelo:
+  Andar, esquivar ou trocar de arma corta o gesto na hora. Cada estado tem os seus gestos:
+  - sem arma: os quatro acima;
+  - **com a pistola:** a mão na guarda com o indicador esticado por fora do gatilho, e a arma nunca parada de todo (o
+    braço e o pulso derivam devagar); gestos: olhar em volta (o peito vira mais e o braço sobe, a arma acompanha o
+    olhar), conferir o frasco (a pistola sobe deitada na frente do peito, o frasco virado para os olhos) e girar o pulso.
+  Faltam, um de cada vez: com a armadilha (o pêndulo; levantar até o rosto) e com a escopeta (falta decidir: no ombro,
+  com uma mão, ou na guarda baixa com as duas). O relicário do traje ainda não está no modelo:
   quando entrar, ganha o gesto de tocar nele.
 - **Ver modelos** (Modo desenvolvedor): o personagem de perto, com animações, expressões, mãos, a arma na mão, os gestos
   de parado (botões para ver na hora) e a luz do jogo; e cada arma e objeto sozinho.

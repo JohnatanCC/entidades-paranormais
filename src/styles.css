@@ -56,7 +56,6 @@ button { font: inherit; color: inherit; }
 .vermodelo .marcas label { display: flex; gap: 8px; align-items: center; cursor: pointer; }
 .vermodelo .info span { color: var(--muted); }
 .vermodelo .painel small { color: var(--muted); }
-.vermodelo .opcoes button:disabled { opacity: .4; cursor: default; }
 
 .editor { position: fixed; inset: 0; display: grid; grid-template-columns: 52px minmax(0, 1fr); grid-template-rows: 46px minmax(0, 1fr) auto; background: var(--bg); font-size: 13px; }
 .editor button { font: inherit; color: inherit; cursor: pointer; }

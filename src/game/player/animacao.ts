@@ -3,10 +3,11 @@
 // Sem queda nem morte (o projeto não usa animação de morte). Quem move e gira o root é o controle; aqui só os ossos.
 import * as THREE from 'three'
 import type { Agente } from './modelo'
+import { POSE_DA_ARMA } from './arma'
 import { animarCabelo } from './cabelo'
 import { animarMaos, type PoseMao } from './maos'
 import { AGENTE, PARADO } from './numeros'
-import { gestoParado, pesoParado } from './parado'
+import { balancoDaArma, gestoParado, pesoParado } from './parado'
 import { animarRosto, type Expressao } from './rosto'
 
 export interface EstadoAnim {
@@ -121,11 +122,12 @@ export function animarAgente(a: Agente, e: EstadoAnim, dt: number): void {
   // no laboratório a cabeça e os pés afundavam até 24 cm no chão no meio da cambalhota: o pivô sobe o que faltar
   if (rolando) a.roll.position.y += Math.max(0, -maisBaixo(a))
 
-  // ---------- os gestos de parado (olhar em volta, a alça, a bolsa, a mão): por cima da pose ----------
+  // ---------- parado: o balanço da arma e os gestos (olhar em volta, a alça, o frasco...), por cima da pose ----------
+  balancoDaArma(a, quieto * (1 - tuck))
   const gesto = gestoParado(a, quieto > 0.97 && sp < 0.05, dt)
 
   // ---------- as mãos e o rosto ----------
-  const forca: typeof gesto = [a.arma ? 'segurar' : gesto[0], gesto[1]] // a mão da arma fica fechada nela
+  const forca: typeof gesto = [a.arma ? POSE_DA_ARMA[a.arma] : gesto[0], gesto[1]] // a mão da arma fica fechada nela
   if (e.mao) animarMaos(a, e.mao, 1, dt, m.tempo, forca)
   else animarMaos(a, 'punho', rolando ? 1 : 0.6 * run * Math.min(1, amp), dt, m.tempo, forca)
   animarRosto(a, e.expressao ?? (rolando || run > 0.5 ? 'esforco' : 'neutra'), dt)

@@ -14,7 +14,7 @@ import { animarAgente } from '../game/player/animacao'
 import { ARMAS, pegarArma, type Arma } from '../game/player/arma'
 import type { PoseMao } from '../game/player/maos'
 import { montarAgente, type Agente } from '../game/player/modelo'
-import { fazerGesto, GESTOS, type Gesto } from '../game/player/parado'
+import { fazerGesto, gestosDe, type Gesto } from '../game/player/parado'
 import { AGENTE } from '../game/player/numeros'
 import type { Expressao } from '../game/player/rosto'
 import { GRUPOS, OBJETOS } from '../maps/objetos'
@@ -29,7 +29,7 @@ const ARMA = 'arma:' // o id de uma arma no seletor: arma:pistola
 const NA_MAO: [Arma | null, string][] = [[null, 'Nenhuma'], ...ARMAS.map(([k]): [Arma, string] => [k, k[0].toUpperCase() + k.slice(1)])]
 const ANIMS: [Anim, string][] = [['parado', 'Parado'], ['andando', 'Andando'], ['correndo', 'Correndo'], ['esquiva', 'Esquiva']]
 const EXPS: [Expressao | null, string][] = [[null, 'Automática'], ['neutra', 'Neutra'], ['esforco', 'Esforço'], ['medo', 'Medo'], ['dor', 'Dor'], ['raiva', 'Raiva'], ['surpresa', 'Surpresa']]
-const MAOS: [PoseMao | null, string][] = [[null, 'Automática'], ['solta', 'Solta'], ['punho', 'Punho'], ['aberta', 'Aberta'], ['segurar', 'Segurar'], ['apontar', 'Apontar']]
+const MAOS: [PoseMao | null, string][] = [[null, 'Automática'], ['solta', 'Solta'], ['punho', 'Punho'], ['aberta', 'Aberta'], ['segurar', 'Segurar'], ['guarda', 'Guarda'], ['apontar', 'Apontar']]
 const CAMERAS: [Camera, string][] = [['corpo', 'Corpo'], ['rosto', 'Rosto'], ['maos', 'Mãos'], ['pes', 'Pés'], ['costas', 'Costas']]
 const LUZES: [Luz, string][] = [['estudio', 'Estúdio'], ['jogo', 'Jogo (lâmpada no escuro)']]
 
@@ -87,8 +87,8 @@ export function VerModelos({ go }: { go: Go }) {
           <Opcoes titulo="Arma na mão" lista={NA_MAO} valor={e.arma} onEscolher={(arma) => muda({ arma })} />
           <section>
             <b>Gestos de parado</b>
-            <div className="opcoes">{GESTOS.map(([g, nome]) => <button key={g} disabled={!!e.arma} onClick={() => muda({ anim: 'parado', gesto: { g, n: (e.gesto?.n ?? 0) + 1 } })}>{nome}</button>)}</div>
-            <small>Parado, ele faz um sozinho a cada 8 a 15 s{e.arma ? ' (com arma, ainda não)' : ''}.</small>
+            <div className="opcoes">{gestosDe(e.arma).map(([g, nome]) => <button key={g} onClick={() => muda({ anim: 'parado', gesto: { g, n: (e.gesto?.n ?? 0) + 1 } })}>{nome}</button>)}</div>
+            <small>{gestosDe(e.arma).length ? 'Parado, ele faz um sozinho a cada 8 a 15 s (os de mão vazia, ou os da arma na mão).' : 'Com esta arma, ainda nenhum.'}</small>
           </section>
           <Opcoes titulo="Câmera" lista={CAMERAS} valor={e.camera} onEscolher={(camera) => muda({ camera })} />
         </>}

@@ -3,7 +3,7 @@
 // Os dedos fecham para a palma (+z da mão): girar a falange em x para o negativo.
 import type { Agente } from './modelo'
 
-export type PoseMao = 'solta' | 'punho' | 'aberta' | 'segurar' | 'apontar'
+export type PoseMao = 'solta' | 'punho' | 'aberta' | 'segurar' | 'guarda' | 'apontar'
 
 /** Quanto cada dedo fecha (0 = esticado, 1 = fechado): indicador, médio, anelar, mínimo; o polegar; abre = leque dos dedos. */
 export const POSES: Record<PoseMao, { dedos: [number, number, number, number]; polegar: number; abre: number }> = {
@@ -11,6 +11,7 @@ export const POSES: Record<PoseMao, { dedos: [number, number, number, number]; p
   punho: { dedos: [1, 1, 1, 1], polegar: 0.9, abre: 0 },
   aberta: { dedos: [0, 0, 0, 0], polegar: 0, abre: 1 },
   segurar: { dedos: [0.8, 0.9, 0.95, 1], polegar: 0.75, abre: 0 }, // a empunhadura das armas (arma.ts)
+  guarda: { dedos: [0.08, 0.9, 0.95, 1], polegar: 0.75, abre: 0 }, // na guarda: o indicador esticado por fora do gatilho (treinado)
   apontar: { dedos: [0, 1, 1, 1], polegar: 0.8, abre: 0 },
 }
 const DOBRA = { base: 1.35, ponta: 1.5, polegarX: 0.6, polegarZ: 0.9, leque: 0.13 } // radianos no fechado / aberto
