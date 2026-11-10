@@ -9,7 +9,7 @@
 import * as THREE from 'three'
 import { arquivoModelo, montarBB } from '../../render/bbmodel'
 import { animarAgente } from './animacao'
-import type { Arma } from './arma'
+import { novaLanterna, type AnimLanterna, type Arma } from './arma'
 import { novaFisicaCabelo, prepararMecha, type FisicaCabelo, type Mecha } from './cabelo'
 import { novaMao, type AnimMao } from './maos'
 import { novoParado, type AnimParado } from './parado'
@@ -29,7 +29,7 @@ export interface Rosto {
   base: { iris: THREE.Vector3[]; sobrancelhas: THREE.Vector3[] }
 }
 /** O que a animação lembra de um quadro para o outro. */
-export interface AnimAgente { fase: number; amp: number; corrida: number; tempo: number; maos: [AnimMao, AnimMao]; rosto: AnimRosto; cabelo: FisicaCabelo; parado: AnimParado }
+export interface AnimAgente { fase: number; amp: number; corrida: number; tempo: number; maos: [AnimMao, AnimMao]; rosto: AnimRosto; cabelo: FisicaCabelo; parado: AnimParado; lanterna: AnimLanterna }
 
 export interface Agente {
   root: THREE.Group
@@ -96,7 +96,7 @@ export function montarAgente(): Agente {
 
   const a: Agente = {
     root, roll, pelvis, legs, panels: [], spine, chest, pack: blocos.get('mochila') ?? chest, neck, head, arms, rosto, mechas: [],
-    sola: solaDe(legs[0].ft), arma: null, anim: { fase: 0, amp: 0, corrida: 0, tempo: 0, maos: [novaMao(), novaMao()], rosto: novoRosto(), cabelo: novaFisicaCabelo(), parado: novoParado() },
+    sola: solaDe(legs[0].ft), arma: null, anim: { fase: 0, amp: 0, corrida: 0, tempo: 0, maos: [novaMao(), novaMao()], rosto: novoRosto(), cabelo: novaFisicaCabelo(), parado: novoParado(), lanterna: novaLanterna() },
   }
   animarAgente(a, { velocidade: 0, corrida: 0, esquiva: -1 }, 0) // a pose parada: os pés no chão desde o primeiro quadro
   // as mechas: com o corpo já na pose, cada uma sabe onde nasce na cabeça (e daí os limites dela)

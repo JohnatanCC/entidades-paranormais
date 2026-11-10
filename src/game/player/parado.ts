@@ -1,6 +1,6 @@
 // O agente parado: a base (a respiração, o peso passando de uma perna para a outra e, com a pistola, o balanço leve da
 // arma) e os gestos que ele faz sozinho depois de um tempo sem se mexer. Cada estado tem os seus gestos (sem arma, com
-// a pistola; a armadilha e a escopeta vêm depois). Andar, esquivar ou trocar de arma corta o gesto na hora: a animação
+// a pistola, com a armadilha; a escopeta vem depois). O pêndulo da armadilha e o vidro que respira ficam em arma.ts. Andar, esquivar ou trocar de arma corta o gesto na hora: a animação
 // nunca segura o controle. Os tempos ficam em numeros.ts (PARADO).
 import * as THREE from 'three'
 import { alcancar } from './alcancar'
@@ -9,17 +9,17 @@ import type { PoseMao } from './maos'
 import type { Agente } from './modelo'
 import { PARADO } from './numeros'
 
-export type Gesto = 'olhar' | 'alca' | 'bolsa' | 'mao' | 'frasco' | 'pulso'
+export type Gesto = 'olhar' | 'alca' | 'bolsa' | 'mao' | 'frasco' | 'pulso' | 'rosto' | 'girar'
 const NOMES: Record<Gesto, string> = {
   olhar: 'Olhar em volta', alca: 'Ajustar a alça', bolsa: 'Conferir a bolsa', mao: 'Abrir e fechar a mão',
-  frasco: 'Conferir o frasco', pulso: 'Girar o pulso',
+  frasco: 'Conferir o frasco', pulso: 'Girar o pulso', rosto: 'Levantar até o rosto', girar: 'Girar a lanterna',
 }
-// os gestos de cada estado (com a armadilha e a escopeta, ainda nenhum)
+// os gestos de cada estado (com a escopeta, ainda nenhum)
 const DO_ESTADO: Record<Arma | 'nenhuma', Gesto[]> = {
   nenhuma: ['olhar', 'alca', 'bolsa', 'mao'],
   pistola: ['olhar', 'frasco', 'pulso'],
   escopeta: [],
-  armadilha: [],
+  armadilha: ['olhar', 'rosto', 'girar'],
 }
 /** Os gestos (e os nomes) de quem está com esta arma na mão (null = mão vazia). */
 export const gestosDe = (arma: Arma | null): [Gesto, string][] => DO_ESTADO[arma ?? 'nenhuma'].map((g) => [g, NOMES[g]])
@@ -75,6 +75,9 @@ function olhos(a: Agente, adiante: number) {
   r.olharAlvo = Math.max(-0.008, Math.min(0.008, adiante * 0.02)); r.olharT = 0.5
 }
 
+// a mão por cima da lanterna, com os dedos para a frente (no espaço do peito): o gesto de levantar até o rosto
+const _qMaoChao = new THREE.Quaternion().setFromRotationMatrix(new THREE.Matrix4().makeBasis(V(-1, 0, 0), V(0, 0.25, -1).normalize(), V(0, -1, -0.25).normalize()))
+
 const GESTO: Record<Gesto, DefGesto> = {
   // olha devagar para a esquerda, para, e para a direita; os olhos chegam primeiro. Com a pistola, o peito vira mais
   // (a arma acompanha o olhar) e o braço sobe um pouco, pronto
@@ -88,6 +91,10 @@ const GESTO: Record<Gesto, DefGesto> = {
       if (a.arma === 'pistola') {
         a.chest.rotation.y += y * 0.2 * k
         a.arms[0].up.rotation.x -= 0.22 * Math.min(1, Math.abs(y) / 0.6) * k
+      } else if (a.arma === 'armadilha') { // a lanterna vai um pouco à frente, iluminando o caminho
+        const b = curva(t, [[0, 0], [0.7, 1], [3.9, 1], [4.6, 0]]) * k
+        a.arms[0].up.rotation.x -= 0.35 * b; a.arms[0].fo.rotation.x -= 0.45 * b
+        a.chest.rotation.y += y * 0.15 * k
       }
       return [undefined, undefined]
     },
@@ -155,6 +162,31 @@ const GESTO: Record<Gesto, DefGesto> = {
       b.fo.rotation.x += curva(t, [[0, 0], [0.5, -0.15], [1.9, -0.15], [2.4, 0]]) * k
       b.hd.rotation.y += curva(t, [[0, 0], [0.45, -0.55], [0.9, 0.35], [1.35, -0.45], [1.8, 0.2], [2.4, 0]]) * k
       b.hd.rotation.x += curva(t, [[0, 0], [0.6, 0.25], [1.2, -0.15], [1.8, 0.2], [2.4, 0]]) * k
+      return [undefined, undefined]
+    },
+  },
+  // levanta a lanterna na frente do rosto, a mão por cima com os dedos para a frente, e olha o vidro, que acende mais
+  rosto: {
+    dur: 3.8,
+    fazer: (a, t, k) => {
+      const b = curva(t, [[0, 0], [0.9, 1], [2.9, 1], [3.8, 0]]) * k, braco = a.arms[0]
+      alcancar(braco, _alvo.set(-0.05, 0.55, 0.28), V(-0.5, -1, 0.1), b)
+      _qPai.copy(braco.up.quaternion).multiply(braco.fo.quaternion).invert()
+      braco.hd.quaternion.slerp(_qMao.copy(_qMaoChao).premultiply(_qPai), b)
+      cabeca(a, -0.12 * b, 0.22 * b)
+      a.anim.lanterna.brilho += 0.35 * curva(t, [[0.6, 0], [1.3, 1], [2.6, 1], [3.2, 0]]) * k
+      return [undefined, undefined]
+    },
+  },
+  // levanta um pouco a lanterna e gira ela pela alça, para um lado e para o outro, olhando
+  girar: {
+    dur: 3.0,
+    fazer: (a, t, k) => {
+      const b = curva(t, [[0, 0], [0.5, 1], [2.5, 1], [3.0, 0]]) * k
+      a.arms[0].fo.rotation.x -= 0.6 * b; a.arms[0].up.rotation.x -= 0.15 * b
+      a.anim.lanterna.giro += curva(t, [[0.4, 0], [1.0, 1.3], [1.7, -0.7], [2.4, 0.4], [3.0, 0]]) * k
+      a.anim.lanterna.brilho += 0.12 * b
+      cabeca(a, -0.15 * b, 0.35 * b)
       return [undefined, undefined]
     },
   },

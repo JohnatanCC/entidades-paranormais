@@ -3,7 +3,7 @@
 // Sem queda nem morte (o projeto não usa animação de morte). Quem move e gira o root é o controle; aqui só os ossos.
 import * as THREE from 'three'
 import type { Agente } from './modelo'
-import { POSE_DA_ARMA } from './arma'
+import { animarArma, POSE_DA_ARMA } from './arma'
 import { animarCabelo } from './cabelo'
 import { animarMaos, type PoseMao } from './maos'
 import { AGENTE, PARADO } from './numeros'
@@ -140,4 +140,6 @@ export function animarAgente(a: Agente, e: EstadoAnim, dt: number): void {
   }
   // ---------- o cabelo: as mechas balançam com o movimento da cabeça (depois de tudo posto no lugar) ----------
   animarCabelo(a, dt)
+  // ---------- a armadilha balança pela alça (depois do braço no lugar) ----------
+  animarArma(a, dt)
 }

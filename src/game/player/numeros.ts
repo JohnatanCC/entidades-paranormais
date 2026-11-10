@@ -32,3 +32,9 @@ export const PARADO = {
   balanco: { braco: 0.025, pulso: 0.045 }, // com a pistola na guarda: quanto o braço e o pulso derivam (rad)
   sai: 9, // quão rápido o gesto some quando é cortado (andar, esquivar, trocar de arma)
 }
+
+// A armadilha na mão (player/arma.ts): pendurada pela alça, balança como um pêndulo; o vidro aceso respira
+export const ARMADILHA = {
+  pendulo: { comprimento: 0.1, amortece: 2.2, limite: 1.0 }, // m da alça ao peso; quanto acalma (por s); o máximo que abre (rad)
+  brilho: { volta: 3.4, minimo: 0.7 }, // s de uma respiração do vidro; o mais fraco (1 = o brilho cheio)
+}

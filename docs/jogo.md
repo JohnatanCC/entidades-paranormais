@@ -34,8 +34,11 @@ a tiro e os prende com a armadilha. Cenário e personagens em blocos com textura
   - **com a pistola:** a mão na guarda com o indicador esticado por fora do gatilho, e a arma nunca parada de todo (o
     braço e o pulso derivam devagar); gestos: olhar em volta (o peito vira mais e o braço sobe, a arma acompanha o
     olhar), conferir o frasco (a pistola sobe deitada na frente do peito, o frasco virado para os olhos) e girar o pulso.
-  Faltam, um de cada vez: com a armadilha (o pêndulo; levantar até o rosto) e com a escopeta (falta decidir: no ombro,
-  com uma mão, ou na guarda baixa com as duas). O relicário do traje ainda não está no modelo:
+  - **com a armadilha:** a lanterna balança pela alça como um pêndulo (a gravidade e o tranco da mão: andando, parando,
+    virando) e o vidro aceso respira devagar; gestos: olhar em volta (a lanterna vai à frente, iluminando o caminho),
+    levantar até o rosto (na altura do queixo, o vidro acende mais) e girar a lanterna pela alça. O vidro não ilumina
+    o rosto: seria uma luz a mais na cena, pesada no celular (fica para quando o jogo tiver a luz dele).
+  Falta a escopeta (decidir antes: no ombro, com uma mão, ou na guarda baixa com as duas). O relicário do traje ainda não está no modelo:
   quando entrar, ganha o gesto de tocar nele.
 - **Ver modelos** (Modo desenvolvedor): o personagem de perto, com animações, expressões, mãos, a arma na mão, os gestos
   de parado (botões para ver na hora) e a luz do jogo; e cada arma e objeto sozinho.
@@ -112,7 +115,7 @@ Trocar: 1/2/3, Q (alterna), rodinha do mouse, ou **Tab segurado = roda de armas*
 Mirar: botão direito. Atirar: botão esquerdo. Correr: Shift. Interagir: E.
 
 Os modelos (10/nov) estão em `modelos/armas/` e o agente já segura cada uma (`src/game/player/arma.ts`): a pistola
-e a escopeta na guarda, a arma apontada para o chão na frente, numa mão só; a armadilha pendurada pela alça. No Testar,
+e a escopeta na guarda, a arma apontada para o chão na frente, numa mão só; a armadilha pendurada pela alça, balançando. No Testar,
 Q troca (pistola, escopeta, armadilha, mão vazia). Mirar, atirar, o coice, a outra mão na escopeta e jogar a armadilha
 vêm na etapa das armas. Quando ela chegar, 1/2/3 deixam de mostrar as expressões no Testar (isso fica no Ver modelos).
 

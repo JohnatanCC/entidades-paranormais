@@ -106,7 +106,7 @@ ficam num arquivo próprio de cada pasta, para ajustar sem caçar no código.
 src/game/                  (já existem: Testar.tsx, player/, input/, world/ — o resto entra quando a etapa chegar)
   Testar.tsx               o Testar do editor: o agente andando no mapa aberto (câmera, colisão, luz do jogo)
   player/                  o agente: modelo.ts (liga modelos/agente.bbmodel no esqueleto), animacao.ts, maos.ts (os dedos),
-                           arma.ts (a arma na mão direita: Q troca no Testar), parado.ts (a respiração, o peso e os gestos
+                           arma.ts (a arma na mão direita, o pêndulo da armadilha; Q troca no Testar), parado.ts (a respiração, o peso e os gestos
                            de parado), alcancar.ts (o braço alcança um ponto: IK de dois ossos),
                            rosto.ts (as expressões), cabelo.ts (as mechas com física), controle.ts (andar, correr, esquivar), numeros.ts
   weapons/                 atirar com a pistola e a escopeta, jogar a armadilha, a sobrecarga (os modelos já existem)
