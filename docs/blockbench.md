@@ -92,10 +92,18 @@ salvar no Blockbench atualiza o jogo (se o Testar estiver aberto, saia e entre d
   emenda à vista, um editor de pixel com o modo lado a lado (Piskel, grátis no navegador; LibreSprite) é melhor que o Blockbench.
 - Textura nova: o PNG e uma linha no catálogo `src/maps/textures.ts` (o nome na tela, em que paletas aparece, a cor de base).
 
-## As armas (quando chegarem)
+## As armas
 
-- `modelos/armas/<nome>.bbmodel`, com **64 px por metro** (como os personagens: aparecem de perto, na mão).
-- Pastas com nome fixo: `empunhadura` (onde a mão segura, com a pose "segurar"), `cano` (de onde sai o tiro e o clarão).
+- `modelos/armas/<nome>.bbmodel`, com **64 px por metro** (como os personagens: aparecem de perto, na mão). As três de
+  hoje (`pistola`, `escopeta`, `armadilha`) nasceram de um gerador em 10/nov, com as medidas do laboratório.
+- **O cano aponta para +z** e y é para cima.
+- Pastas com nome fixo:
+  - `empunhadura` (vazia): o ponto que vai na mão. Mova a pasta para mudar onde a mão segura;
+  - `cano` (vazia): de onde sai o tiro e o clarão (na armadilha, a íris de cima, de onde sai o raio);
+  - `bomba` (só a escopeta): a bomba de madeira, que corre para trás no tiro.
+- Bloco `luz_` brilha sozinho: o frasco de ectoplasma da pistola e o vidro da armadilha.
+- Como a mão segura cada uma (o giro e o ponto na palma) fica em `src/game/player/arma.ts`: a pistola e a escopeta com o
+  cano seguindo os dedos, a armadilha pendurada pela alça.
 
 ## Passo a passo
 
@@ -116,10 +124,11 @@ salvar no Blockbench atualiza o jogo (se o Testar estiver aberto, saia e entre d
    vai para Downloads: copie para `modelos/` no lugar do antigo.
 7. **Ver de perto:** Modo desenvolvedor → **Ver modelos**. O personagem sozinho, com a câmera girando em volta, a luz
    de estúdio ou a do jogo (uma lâmpada no escuro), e botões para a animação (parado, andando, correndo, esquiva), a
-   expressão, a pose das mãos e o ângulo (corpo, rosto, mãos, pés, costas). Mostra também a altura e o peso do modelo.
+   expressão, a pose das mãos, a arma na mão e o ângulo (corpo, rosto, mãos, pés, costas). As armas e os objetos
+   também aparecem sozinhos (escolha no seletor Modelo). Mostra também a altura e o peso do modelo.
 8. **Ver no jogo:** no criador de mapas, aperte **Testar (T)**. Não precisa exportar nada. Para ver o rosto, ande para
    trás (S) e o agente vira de frente para a câmera. No Testar, as teclas **1 a 6** mostram as expressões (neutra, esforço,
-   medo, dor, raiva, surpresa), **7 a 9** as mãos (punho, aberta, apontar) e **0** volta ao automático.
+   medo, dor, raiva, surpresa), **7 a 9** as mãos (punho, aberta, apontar) e **0** volta ao automático; **Q** troca a arma na mão.
 
 ## O que vem depois
 

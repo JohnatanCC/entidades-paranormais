@@ -1,4 +1,4 @@
-// A animação do agente (do laboratório, sem armas): a passada pela distância percorrida, o tronco que desfaz o giro
+// A animação do agente (do laboratório): a passada pela distância percorrida, o tronco que desfaz o giro
 // do quadril, os braços balançando opostos às pernas, a barra da jaqueta numa mola e a cambalhota da esquiva.
 // Sem queda nem morte (o projeto não usa animação de morte). Quem move e gira o root é o controle; aqui só os ossos.
 import * as THREE from 'three'
@@ -102,20 +102,25 @@ export function animarAgente(a: Agente, e: EstadoAnim, dt: number): void {
   a.head.rotation.set(hx * 0.65 * k, hy * 0.6 * k, 0)
 
   // ---------- os braços: soltos, balançam opostos às pernas; correndo, o cotovelo dobra ----------
+  // com pistola ou escopeta, o direito fica na guarda: o cotovelo dobrado e a arma apontada para o chão na frente
+  // (mirar, o coice e a outra mão na escopeta vêm na etapa das armas); a armadilha vai pendurada, o braço balança
+  const guarda = a.arma === 'pistola' || a.arma === 'escopeta'
   for (const b of a.arms) {
     let x = -b.s * 0.38 * amp * Math.sin(ph) * (1 + 0.5 * run) + 0.06
     let el = -0.22 - 1.0 * run * amp - 0.1 * amp
+    if (guarda && b.s < 0) { x = -0.3 - 0.05 * amp * Math.sin(ph) - 0.25 * run * amp; el = -0.95 - 0.3 * run * amp }
     if (tuck > 0) { x = lerp(x, -0.7, tuck); el = lerp(el, -1.7, tuck) } // agarrado às pernas
     b.up.rotation.set(x, 0, b.s * (0.1 + 0.06 * run), 'XZY')
     b.fo.rotation.set(el, 0, 0)
-    b.hd.rotation.set(0.1, -b.s * Math.PI / 2, 0) // a palma virada para a coxa (sem arma, nada a segurar)
+    b.hd.rotation.set(0.1, -b.s * Math.PI / 2, 0) // a palma virada para dentro (para a coxa, ou de lado no cabo da arma)
   }
   // no laboratório a cabeça e os pés afundavam até 24 cm no chão no meio da cambalhota: o pivô sobe o que faltar
   if (rolando) a.roll.position.y += Math.max(0, -maisBaixo(a))
 
   // ---------- as mãos e o rosto ----------
-  if (e.mao) animarMaos(a, e.mao, 1, dt, m.tempo)
-  else animarMaos(a, 'punho', rolando ? 1 : 0.6 * run * Math.min(1, amp), dt, m.tempo)
+  const segura = a.arma ? 'segurar' : undefined // a mão da arma fica fechada nela
+  if (e.mao) animarMaos(a, e.mao, 1, dt, m.tempo, segura)
+  else animarMaos(a, 'punho', rolando ? 1 : 0.6 * run * Math.min(1, amp), dt, m.tempo, segura)
   animarRosto(a, e.expressao ?? (rolando || run > 0.5 ? 'esforco' : 'neutra'), dt)
 
   // ---------- a barra da jaqueta: as da frente seguem as coxas, a de trás abre correndo (uma mola) ----------

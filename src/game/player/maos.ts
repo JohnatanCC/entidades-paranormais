@@ -10,7 +10,7 @@ export const POSES: Record<PoseMao, { dedos: [number, number, number, number]; p
   solta: { dedos: [0.22, 0.28, 0.34, 0.4], polegar: 0.25, abre: 0.15 },
   punho: { dedos: [1, 1, 1, 1], polegar: 0.9, abre: 0 },
   aberta: { dedos: [0, 0, 0, 0], polegar: 0, abre: 1 },
-  segurar: { dedos: [0.8, 0.9, 0.95, 1], polegar: 0.75, abre: 0 }, // a empunhadura (para as armas, quando vierem)
+  segurar: { dedos: [0.8, 0.9, 0.95, 1], polegar: 0.75, abre: 0 }, // a empunhadura das armas (arma.ts)
   apontar: { dedos: [0, 1, 1, 1], polegar: 0.8, abre: 0 },
 }
 const DOBRA = { base: 1.35, ponta: 1.5, polegarX: 0.6, polegarZ: 0.9, leque: 0.13 } // radianos no fechado / aberto
@@ -21,18 +21,20 @@ export const novaMao = (): AnimMao => ({ dedos: [...POSES.solta.dedos], polegar:
 
 const damp = (cur: number, alvo: number, k: number, dt: number) => cur + (alvo - cur) * (1 - Math.exp(-k * dt))
 
-/** Leva as duas mãos para a pose (k = quanto da pose, 0..1, sobre a "solta"). */
-export function animarMaos(a: Agente, pose: PoseMao, k: number, dt: number, tempo: number) {
-  const alvo = POSES[pose], base = POSES.solta
+/** Leva as duas mãos para a pose (k = quanto da pose, 0..1, sobre a "solta"). direita: uma pose inteira só para a mão
+ *  direita (a que segura a arma). */
+export function animarMaos(a: Agente, pose: PoseMao, k: number, dt: number, tempo: number, direita?: PoseMao) {
+  const base = POSES.solta
   a.arms.forEach((b, lado) => {
     const m = a.anim.maos[lado]
+    const alvo = POSES[lado === 0 && direita ? direita : pose], kk = lado === 0 && direita ? 1 : k
     for (let i = 0; i < 4; i++) {
       // parada e solta, cada dedo mexe um pouco, cada um no seu ritmo
-      const vivo = pose === 'solta' ? 0.05 * Math.sin(tempo * (1.3 + i * 0.37) + lado * 2 + i) : 0
-      m.dedos[i] = damp(m.dedos[i], base.dedos[i] + (alvo.dedos[i] - base.dedos[i]) * k + vivo, 14, dt)
+      const vivo = alvo === base ? 0.05 * Math.sin(tempo * (1.3 + i * 0.37) + lado * 2 + i) : 0
+      m.dedos[i] = damp(m.dedos[i], base.dedos[i] + (alvo.dedos[i] - base.dedos[i]) * kk + vivo, 14, dt)
     }
-    m.polegar = damp(m.polegar, base.polegar + (alvo.polegar - base.polegar) * k, 14, dt)
-    m.abre = damp(m.abre, base.abre + (alvo.abre - base.abre) * k, 10, dt)
+    m.polegar = damp(m.polegar, base.polegar + (alvo.polegar - base.polegar) * kk, 14, dt)
+    m.abre = damp(m.abre, base.abre + (alvo.abre - base.abre) * kk, 10, dt)
     b.dedos.forEach((d, i) => {
       d.base.rotation.set(-m.dedos[i] * DOBRA.base, 0, b.s * (1.5 - i) * DOBRA.leque * m.abre)
       d.ponta.rotation.set(-m.dedos[i] * DOBRA.ponta, 0, 0)

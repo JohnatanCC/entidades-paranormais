@@ -3,6 +3,7 @@
 // cem cadeiras custam uma geometria e uma textura. Tipo sem modelo aparece como uma caixa vermelha de arame.
 // Usado pelo editor (a vista, a prévia, o contorno de seleção), pelas miniaturas do catálogo e pelo Ver modelos.
 // As portas e janelas também (modelos/aberturas/<tipo>.bbmodel): o mesmo molde, com o corte das paredes do editor.
+// E as armas (modelos/armas/<nome>.bbmodel), que o agente segura (game/player/arma.ts).
 import * as THREE from 'three'
 import { arquivoModelo, existeModelo, montarBB, UNIDADE } from './bbmodel'
 
@@ -20,22 +21,25 @@ function falta(): THREE.Object3D {
 
 /** Uma cópia do objeto (origem no centro da base, frente +z). apagada = a lâmpada desligada. */
 export function objeto3d(tipo: string, opc: { apagada?: boolean } = {}): THREE.Object3D {
-  let molde = moldes.get(tipo)
-  if (!molde) { molde = existeModelo(caminhoObjeto(tipo)) ? montarBB(arquivoModelo(caminhoObjeto(tipo))).raiz : falta(); moldes.set(tipo, molde) }
-  const c = molde.clone()
+  const c = molde(caminhoObjeto(tipo)).clone()
   if (opc.apagada) c.traverse((o) => { if (o.name === '#luz') (o as THREE.Mesh).material = APAGADA })
   return c
 }
 
-const moldesAbertura = new Map<string, THREE.Object3D>()
+/** O molde de um modelo pelo caminho (montado uma vez); falta() se o arquivo não existe. */
+function molde(caminho: string, opc: { corte?: boolean } = {}): THREE.Object3D {
+  let m = moldes.get(caminho)
+  if (!m) { m = existeModelo(caminho) ? montarBB(arquivoModelo(caminho), opc).raiz : falta(); moldes.set(caminho, m) }
+  return m
+}
+
 /** Uma cópia da porta ou janela (porta-comum, porta-dupla, porta-grande, janela, janela-grande), no referencial da
  *  abertura: a origem no começo do vão, no chão. As folhas das portas são as pastas folha_1 e folha_2. */
-export function abertura3d(tipo: string): THREE.Object3D {
-  let molde = moldesAbertura.get(tipo)
-  const caminho = `aberturas/${tipo}`
-  if (!molde) { molde = existeModelo(caminho) ? montarBB(arquivoModelo(caminho), { corte: true }).raiz : falta(); moldesAbertura.set(tipo, molde) }
-  return molde.clone()
-}
+export const abertura3d = (tipo: string): THREE.Object3D => molde(`aberturas/${tipo}`, { corte: true }).clone()
+
+/** Uma cópia da arma (modelos/armas/<nome>.bbmodel): o cano para +z; as pastas empunhadura e cano marcam onde a mão
+ *  segura e de onde sai o tiro; a bomba da escopeta é a pasta bomba. */
+export const arma3d = (nome: string): THREE.Object3D => molde(`armas/${nome}`).clone()
 
 /** O contorno do objeto: a "casca invertida" (cada bloco um pouco maior, desenhado só por dentro, numa cor só). */
 export function casca3d(tipo: string, cor: string): THREE.Object3D {

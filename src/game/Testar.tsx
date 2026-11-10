@@ -1,6 +1,6 @@
 // O Testar do criador de mapas: o agente andando no mapa aberto, com a câmera por cima do ombro, colisão, escadas e
-// as lâmpadas acesas. Sem armas, fantasmas nem HUD (isso vem com o jogo). Fica dentro do <Canvas> do editor.
-//   clique trava o mouse · WASD anda · Shift corre · Espaço esquiva · E abre e fecha porta · mouse olha · Esc volta ao editor
+// as lâmpadas acesas. A arma só na mão (Q troca); atirar, fantasmas e HUD vêm com o jogo. Fica dentro do <Canvas> do editor.
+//   clique trava o mouse · WASD anda · Shift corre · Espaço esquiva · E abre e fecha porta · Q troca a arma · mouse olha · Esc volta ao editor
 //   para ver o modelo (só no Testar, não é controle do jogo): 1–6 expressões, 7–9 poses da mão, 0 volta ao automático
 import { useEffect, useMemo, useRef } from 'react'
 import { useFrame, useThree } from '@react-three/fiber'
@@ -9,6 +9,7 @@ import type { Chunk } from '../maps/types'
 import { useSettings } from '../settings/settings'
 import { Acoes } from './input/acoes'
 import { animarAgente } from './player/animacao'
+import { ARMAS, pegarArma } from './player/arma'
 import { novoJogador, passoJogador } from './player/controle'
 import type { PoseMao } from './player/maos'
 import { montarAgente } from './player/modelo'
@@ -111,6 +112,8 @@ export function Testar({ chunks, levels, inicio, yaw, portas, onTravado, onDica,
     // as portas: a mais perto na frente (do corpo ou da câmera); E abre, fecha ou diz por que não
     animarPortas(portas, dt)
     const porta = portaPerto(mundo, j.x, j.y, j.z, [j.yaw, s.camYaw])
+    // Q: a próxima arma (pistola, escopeta, armadilha, mão vazia)
+    if (acoes.trocarArma()) { const i = ARMAS.findIndex(([k]) => k === agente.arma); pegarArma(agente, i + 1 < ARMAS.length ? ARMAS[i + 1][0] : null) }
     if (acoes.interagir() && porta) { const msg = usarPorta(mundo, portas, porta, j.x, j.z); if (msg) { s.msg = msg; s.msgT = 2.5 } }
     acoes.fimDoQuadro()
     s.msgT -= dt
