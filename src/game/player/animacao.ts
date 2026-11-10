@@ -3,16 +3,20 @@
 // Sem queda nem morte (o projeto não usa animação de morte). Quem move e gira o root é o controle; aqui só os ossos.
 import * as THREE from 'three'
 import type { Agente } from './modelo'
+import { animarCabelo } from './cabelo'
+import { animarMaos, type PoseMao } from './maos'
 import { AGENTE } from './numeros'
+import { animarRosto, type Expressao } from './rosto'
 
 export interface EstadoAnim {
   velocidade: number // m/s no chão
   corrida: number // 0..1, quanto está correndo
   esquiva: number // -1 = não está esquivando; 0..1 = andamento da esquiva
+  expressao?: Expressao // força uma expressão (sem: neutra parado, esforço correndo e na cambalhota)
+  mao?: PoseMao // força uma pose das mãos (sem: soltas, fechando ao correr, punho na cambalhota)
 }
 
 const STAND = 0.42 // a altura do quadril dentro do pivô da cambalhota, antes de acertar os pés no chão
-const SOLA = [new THREE.Vector3(0, -0.068, -0.07), new THREE.Vector3(0, -0.068, 0.19)] // calcanhar e ponta (espaço do pé)
 const VOLTA = Math.PI * 2
 
 const cl = (x: number, a = 0, b = 1) => Math.max(a, Math.min(b, x))
@@ -69,7 +73,7 @@ export function animarAgente(a: Agente, e: EstadoAnim, dt: number): void {
   a.pelvis.rotation.set(0.05 * run * amp, rolando ? 0 : osc, 0.045 * amp * Math.cos(ph))
   // o pé de apoio fica no chão: mede as solas e acerta a altura do quadril
   let lo = Infinity
-  for (const L of a.legs) for (const q of SOLA) { const y = naRaiz(L.ft, a.root, _p.copy(q)).y; if (y < lo) lo = y }
+  for (const L of a.legs) for (const q of a.sola) { const y = naRaiz(L.ft, a.root, _p.copy(q)).y; if (y < lo) lo = y }
   a.pelvis.position.y = STAND - lo + 0.03 * run * amp * Math.max(0, Math.sin(2 * ph - 0.4)) // correndo: o voo entre os passos
 
   // ---------- o tronco: desfaz o giro do quadril; parado, respira ----------
@@ -109,10 +113,17 @@ export function animarAgente(a: Agente, e: EstadoAnim, dt: number): void {
   // no laboratório a cabeça e os pés afundavam até 24 cm no chão no meio da cambalhota: o pivô sobe o que faltar
   if (rolando) a.roll.position.y += Math.max(0, -maisBaixo(a))
 
+  // ---------- as mãos e o rosto ----------
+  if (e.mao) animarMaos(a, e.mao, 1, dt, m.tempo)
+  else animarMaos(a, 'punho', rolando ? 1 : 0.6 * run * Math.min(1, amp), dt, m.tempo)
+  animarRosto(a, e.expressao ?? (rolando || run > 0.5 ? 'esforco' : 'neutra'), dt)
+
   // ---------- a barra da jaqueta: as da frente seguem as coxas, a de trás abre correndo (uma mola) ----------
   for (const pn of a.panels) {
     let tg = pn.s ? Math.min(0.06, a.legs[pn.s < 0 ? 0 : 1].th.rotation.x * 0.8) : 0.08 + 0.28 * run * amp + 0.1 * amp
     if (tuck > 0.3) tg = pn.s ? -0.75 : 0.65
     pn.v += ((tg - pn.sw) * 120 - pn.v * 14) * dt; pn.sw += pn.v * dt; pn.g.rotation.x = pn.sw
   }
+  // ---------- o cabelo: as mechas balançam com o movimento da cabeça (depois de tudo posto no lugar) ----------
+  animarCabelo(a, dt)
 }

@@ -2,9 +2,9 @@ import type { Go } from '../App'
 import { resetSettings, setSettings, useSettings, type ImagemPreset } from '../settings/settings'
 
 const IMAGENS: { id: ImagemPreset; nome: string }[] = [
-  { id: 'ps1', nome: 'Retrô PS1' },
+  { id: 'limpo', nome: 'Limpo' }, // o padrão desde 10/nov
   { id: 'suave', nome: 'Suave' },
-  { id: 'limpo', nome: 'Limpo' },
+  { id: 'ps1', nome: 'Retrô PS1' },
 ]
 
 export function SettingsScreen({ go }: { go: Go }) {

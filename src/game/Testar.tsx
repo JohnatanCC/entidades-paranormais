@@ -1,6 +1,7 @@
 // O Testar do criador de mapas: o agente andando no mapa aberto, com a câmera por cima do ombro, colisão, escadas e
 // as lâmpadas acesas. Sem armas, fantasmas nem HUD (isso vem com o jogo). Fica dentro do <Canvas> do editor.
 //   clique trava o mouse · WASD anda · Shift corre · Espaço esquiva · E abre e fecha porta · mouse olha · Esc volta ao editor
+//   para ver o modelo (só no Testar, não é controle do jogo): 1–6 expressões, 7–9 poses da mão, 0 volta ao automático
 import { useEffect, useMemo, useRef } from 'react'
 import { useFrame, useThree } from '@react-three/fiber'
 import * as THREE from 'three'
@@ -9,7 +10,9 @@ import { useSettings } from '../settings/settings'
 import { Acoes } from './input/acoes'
 import { animarAgente } from './player/animacao'
 import { novoJogador, passoJogador } from './player/controle'
+import type { PoseMao } from './player/maos'
 import { montarAgente } from './player/modelo'
+import type { Expressao } from './player/rosto'
 import { CAMERA } from './player/numeros'
 import { alcanceCamera, chaoEm, montarMundo, tetoEm } from './world/colisao'
 import { animarPortas, dicaDaPorta, novasPortas, portaPerto, usarPorta, type PortasVivas } from './world/portas'
@@ -24,6 +27,10 @@ interface Props {
   onDica: (texto: string | null) => void // a linha de ação na tela ("E · abrir a porta", "Trancada.")
   onSair: () => void
 }
+
+// as teclas de ver o modelo: 1–6 forçam uma expressão, 7–9 uma pose das mãos, 0 solta as duas
+const VER_EXP: Expressao[] = ['neutra', 'esforco', 'medo', 'dor', 'raiva', 'surpresa']
+const VER_MAO: PoseMao[] = ['punho', 'aberta', 'apontar']
 
 const amortece = (de: number, para: number, k: number, dt: number) => de + (para - de) * (1 - Math.exp(-k * dt))
 
@@ -46,6 +53,19 @@ export function Testar({ chunks, levels, inicio, yaw, portas, onTravado, onDica,
   const sairRef = useRef(onSair); sairRef.current = onSair
   const travRef = useRef(onTravado); travRef.current = onTravado
   const dicaRef = useRef(onDica); dicaRef.current = onDica
+  const ver = useRef<{ exp?: Expressao; mao?: PoseMao }>({})
+  useEffect(() => {
+    const tecla = (e: KeyboardEvent) => {
+      const n = /^Digit(\d)$/.exec(e.code)?.[1]
+      if (n === undefined) return
+      const d = Number(n)
+      if (d === 0) ver.current = {}
+      else if (d <= 6) ver.current.exp = VER_EXP[d - 1]
+      else ver.current.mao = VER_MAO[d - 7]
+    }
+    window.addEventListener('keydown', tecla)
+    return () => window.removeEventListener('keydown', tecla)
+  }, [])
 
   // o agente na cena, a entrada ligada, o mouse travado com um clique; Esc (ou soltar o mouse) volta ao editor
   useEffect(() => {
@@ -98,7 +118,7 @@ export function Testar({ chunks, levels, inicio, yaw, portas, onTravado, onDica,
     if (dica !== s.dica) { s.dica = dica; dicaRef.current(dica) }
     agente.root.position.set(j.x, j.y, j.z)
     agente.root.rotation.y = j.yaw
-    animarAgente(agente, { velocidade: j.velocidade, corrida: j.corrida, esquiva: j.esquiva >= 0 ? Math.min(1, j.esquiva / 0.5) : -1 }, dt)
+    animarAgente(agente, { velocidade: j.velocidade, corrida: j.corrida, esquiva: j.esquiva >= 0 ? Math.min(1, j.esquiva / 0.5) : -1, expressao: ver.current.exp, mao: ver.current.mao }, dt)
 
     // a câmera por cima do ombro direito: o braço encolhe na hora ao bater e estica devagar
     s.altura = amortece(s.altura, j.esquiva >= 0 ? CAMERA.alturaEsquiva : CAMERA.altura, 7, dt)
