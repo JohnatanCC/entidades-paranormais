@@ -121,7 +121,8 @@ src/game/                  (já existem: Testar.tsx, player/, input/, world/, we
   enemies/<nome>/          um fantasma por pasta (mae/, espectral/, glutao/): IA, ataques, modelo, números; a Mãe já tem
                            modelo.ts (monta o modelo, a saia e o cabelo com molas), pose.ts (as molas da pose, do
                            laboratório), animacao.ts (parada, andar, passar pela porta), rosto.ts (as expressões, os
-                           tiques e o brilho dos olhos), golpes.ts (os ataques e os movimentos do Luto), estados.ts
+                           tiques e o brilho dos olhos), efeitos.ts (o rosto que escurece, as ondas do grito, a fase 4
+                           preta com partículas), golpes.ts (os ataques e os movimentos do Luto), estados.ts
                            (grito, exausta, atordoada, cambaleio, enfraquecida, capturada), luto.ts (a poça, as ondas,
                            os respingos, o aviso) e numeros.ts
   capture/                 a poça e a captura

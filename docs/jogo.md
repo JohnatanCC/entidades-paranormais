@@ -231,10 +231,9 @@ parada, de vez em quando ela tomba a cabeça de lado de uma vez (0,55 rad por 0,
   Luto tateando, agarram o chão, ela se puxa para fora curvada, a coluna desenrola, a cabeça sobe, tomba, o pescoço
   estala e ela guincha) e o **aviso** (com ela embaixo, o chão estufa, borbulha e brilha vermelho pulsando); a investida
   sai do Luto com um respingo. Embaixo do Luto ela não desenha;
-- ✅ 5 (10/nov): **os estados** (`estados.ts`; as durações em `numeros.ts`, ESTADO): o **grito** (braços abertos, a cabeça
-  para trás, tremendo), **exausta** (curvada, ofegando, os braços pendurados: a janela para atirar), **atordoada** (grita
-  jogando os braços, cai de joelhos e agarra a cabeça, soluçando; o Luto escorre dos olhos; levanta no fim), o
-  **cambaleio** (recua 0,85 m com a mão direita no rosto e a esquerda aberta, torta), **enfraquecida** (de joelhos,
+- ✅ 5 (10/nov; o grito, a atordoada e o cambaleio refeitos no mesmo dia, ver abaixo): **os estados** (`estados.ts`; as
+  durações em `numeros.ts`, ESTADO): o **grito**, **exausta** (curvada, ofegando, os braços pendurados: a janela para
+  atirar), **atordoada**, o **cambaleio** (recua 0,85 m com a mão direita no rosto e a esquerda aberta), **enfraquecida** (de joelhos,
   quase apagada, balançando, as mãos apoiadas no chão, o Luto escorrendo: a hora da armadilha), **levanta** (sai dos
   joelhos de volta à guarda) e **capturada** (se debate presa nos raios). De joelhos, as canelas deitam no chão (as
   pernas dela são mais longas que as do laboratório: só abaixar o quadril a deixaria agachada).
@@ -251,10 +250,30 @@ parada, de vez em quando ela tomba a cabeça de lado de uma vez (0,55 rad por 0,
   no choro e exausta). A coluna dobra em dois lugares (a cintura e o peito) e o pescoço divide a dobra com a
   cabeça: curvada, ela faz uma curva, não uma tábua; as clavículas sobem quando o braço passa da altura do ombro (a
   garra erguida). No Ver modelos, **Expressão** força uma delas (a câmera vai para o rosto e acompanha a cabeça);
+- ✅ Os ajustes pedidos (10/nov, depois da A):
+  - **o grito refeito:** ela puxa o ar (endireita, a cabeça vai para trás, os braços se juntam à frente) e se joga
+    para a frente olhando você, os braços para trás quase deitados, os dedos abertos, tremendo. O rosto escurece, os
+    olhos crescem e queimam vermelhos, a boca escancara, e da boca saem **ondas cinzas** em 2D (anéis que abrem
+    andando para a frente: `efeitos.ts`, uma chamada de desenho). As ondas são só visuais: se o grito vai empurrar ou
+    ferir o agente, decide-se na luta;
+  - **a atordoada refeita (como no desenho):** o golpe joga o corpo dela para trás e ela despenca de joelhos; bate
+    no chão, endireita e fica de joelhos, arqueada, com a cabeça caída para trás. O rosto fica para o céu, a boca
+    aberta e o Luto transbordando dos olhos; os braços pendem soltos com as mãos quase no chão, os dedos mexendo
+    sozinhos, e os soluços sacodem os ombros. No fim, a cabeça estala de volta para a frente, olhando você, e ela
+    levanta;
+  - **as mãos do cambaleio:** a palma direita no rosto, com os dedos abertos sobre os olhos (cravando de vez em
+    quando); a esquerda abre torta na altura do ombro, para o lado, balançando para equilibrar;
+  - **a fase 4** (a última barra): ela fica **preta**, com **partículas brancas** subindo dela e os **olhos maiores**
+    (no Ver modelos: Fase → Fase 4). Os olhos e as partículas mantêm o vulto visível no escuro;
+  - **o vestido ao agachar:** a dobra de ajoelhar contava como um passo para trás e as pernas jogavam a saia de trás
+    para cima; agora só o passo de andar empurra o pano;
+  - **o cabelo pende de verdade:** com a cabeça caída para trás ou para a frente, as mechas param de ficar espetadas
+    (os limites delas eram estreitos). Com o rosto virado para o chão, as de trás caem sobre o rosto.
 - B: **a parada, o andar e a porta mais vivos** (a cabeça que segue você aos trancos, a boca cantarolando, os dedos
   mexendo um de cada vez, arrepios, a cabeça entrando primeiro na porta);
 - C: **os ataques com antecipação e acompanhamento**;
-- D: **o Luto e os estados** (os soluços sacudindo os ombros, o peito estufando no grito, puxada aos trancos na captura).
+- D: **o Luto e o resto dos estados** (o mergulhar e o surgir mais fluidos, a exausta e a enfraquecida, puxada aos
+  trancos na captura).
 
 Com isso, todas as animações dela estão feitas. A inteligência e a luta (as fases, as quatro barras, o berço, o
 tornado, quando ela abaixa na porta) vêm depois, em `src/game/enemies/mae/`.
@@ -273,7 +292,7 @@ Números da tabela `T` em `buildDemo()` do laboratório (linha ~7674); a lógica
 - **Fase 1:** rodeia → mergulha no Luto → aviso vermelho perto de você → investida → garradas → exausta (a janela de dano, ×1,3).
 - **Fase 2:** + a finta (afunda num lugar e sai em outro).
 - **Fase 3:** o tornado em volta do berço; as investidas saem da parede dele.
-- **Fase 4:** o tornado vira chuva e o berço fica exposto; ele protege a última barra. Berço quebrado: o Luto seca e ela passa a correr (carga).
+- **Fase 4:** o tornado vira chuva e o berço fica exposto; ele protege a última barra. Berço quebrado: o Luto seca e ela passa a correr (carga). Ela fica preta, soltando partículas brancas, com os olhos maiores (10/nov).
 - Barra zerada: **atordoada 6 s**. A última zerada: **enfraquecida 12 s**, a hora da armadilha.
 - Caiu: recomeça a partir da fase em que você caiu.
 

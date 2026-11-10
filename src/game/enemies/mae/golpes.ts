@@ -23,8 +23,8 @@ export type NomeGolpe = 'garra_d' | 'garra_e' | 'garra_ultima_d' | 'garra_ultima
 /** parou = quando parou de correr (−1 = ainda não); alcance = até onde a investida vai (m); fase = o passo da corrida (no
  *  aviso, o relógio das ondas); feito = os efeitos que já saíram (cada um uma vez); acc = o relógio das bolhas */
 export interface Golpe { nome: NomeGolpe; t: number; dur: number; rate: number; parou: number; alcance: number; fase: number; feito: Set<string>; acc: number }
-/** Onde ela está (para os efeitos do Luto), as mãos e os olhos dela (no mundo). */
-export interface Contexto { luto?: Luto; onde: THREE.Vector3; maos: () => THREE.Vector3[]; olhos: () => THREE.Vector3[] }
+/** Onde ela está (para os efeitos do Luto), as mãos e os olhos dela (no mundo); onda = solta uma onda do grito da boca. */
+export interface Contexto { luto?: Luto; onde: THREE.Vector3; maos: () => THREE.Vector3[]; olhos: () => THREE.Vector3[]; onda: () => void }
 /** O que sai de um quadro de golpe: o quanto ela avança (m/s), a altura do corpo e o quanto está de joelhos. */
 export interface SaidaGolpe { avanca: number; y: number; ajoelha?: number }
 const ehEstado = (n: NomeGolpe): n is NomeEstado => n in ESTADO

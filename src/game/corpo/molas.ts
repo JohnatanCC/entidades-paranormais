@@ -2,7 +2,8 @@
 // balança como um pêndulo com mola: a gravidade e o tranco de quem a segura (a cabeça, o quadril: andar, correr, virar,
 // cair) empurram a ponta; a mola traz de volta e o amortecimento acalma. Parada, a pasta fica na pose do modelo.
 // Sem colisão: cada uma tem limites pelo lugar onde nasce em volta da âncora (a cabeça, o quadril), para não entrar nela:
-// abre bastante para fora e quase nada para dentro. Uma pasta nova no Blockbench (com o nome do grupo) já balança.
+// abre bastante para fora e quase nada para dentro (com `passa`, inclinada demais, ela passa por dentro: o cabelo de
+// trás caindo sobre o rosto). Uma pasta nova no Blockbench (com o nome do grupo) já balança.
 // Uma corrente (o painel e a ponta dele) funciona sozinha: cada mola faz a conta no espaço de quem a segura.
 import * as THREE from 'three'
 
@@ -14,6 +15,9 @@ export interface ConfigMolas {
   solto: number // rad: o máximo que abre para fora
   preso: number // rad: o máximo que vai para dentro (para o lado da âncora)
   zona: { tras: number; frente: number; lado: number } // m: a partir de onde, em volta da âncora, a pasta está atrás, na frente, de lado
+  // rad: com a força inclinada além disso (a cabeça caída para a frente), o lado preso abre aos poucos e a pasta passa
+  // por dentro da âncora para pender (o cabelo de trás caindo sobre o rosto); sem ele, nunca passa
+  passa?: number
 }
 
 export interface Mola { g: THREE.Object3D; base: THREE.Euler; ax: number; az: number; vx: number; vz: number; lim: [number, number, number, number] }
@@ -56,8 +60,14 @@ export function animarMolas(m: Molas, raiz: THREE.Object3D, dt: number) {
     s.g.parent!.getWorldQuaternion(_q)
     _l.copy(_f).applyQuaternion(_q.invert())
     const baixo = Math.max(0.5, -_l.y)
-    const [x0, x1, z0, z1] = s.lim
-    const alvoX = cl(-Math.atan2(_l.z, baixo), x0, x1), alvoZ = cl(Math.atan2(_l.x, baixo), z0, z1)
+    let [x0, x1, z0, z1] = s.lim
+    if (C.passa !== undefined) {
+      const abre = Math.max(0, Math.atan2(Math.hypot(_l.x, _l.z), -_l.y) - C.passa) * 3
+      x0 = Math.min(x0, -abre); x1 = Math.max(x1, abre); z0 = Math.min(z0, -abre); z1 = Math.max(z1, abre)
+    }
+    // o giro para a frente/trás leva a ponta para a força; o de lado, o que sobra dela (medido contra o resto da força,
+    // não só contra o "para baixo": com a pasta já bem girada, um empurrão de lado pequeno não vira um giro enorme)
+    const alvoX = cl(-Math.atan2(_l.z, baixo), x0, x1), alvoZ = cl(Math.atan2(_l.x, Math.hypot(_l.y, _l.z)), z0, z1)
     s.vx += (C.mola * (alvoX - s.ax) - C.amortece * s.vx) * dt; s.ax = cl(s.ax + s.vx * dt, x0, x1)
     s.vz += (C.mola * (alvoZ - s.az) - C.amortece * s.vz) * dt; s.az = cl(s.az + s.vz * dt, z0, z1)
     s.g.rotation.set(s.base.x + s.ax, s.base.y, s.base.z + s.az)

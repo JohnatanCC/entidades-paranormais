@@ -9,21 +9,24 @@
 //   os ataques (golpes.ts): golpear(m, nome) começa um; enquanto dura, ele manda na pose e diz quanto ela avança.
 // Quem move e gira o root é quem a controla (a inteligência, depois; o Ver modelos agora): aqui o andar é medido pelo
 // deslocamento do root, e animarMae devolve o quanto o golpe quer que ela avance e a altura do corpo (a investida sai de
-// baixo do chão). Os números em numeros.ts (MOV, GOLPE).
+// baixo do chão). O rosto em rosto.ts; as ondas do grito e a fase 4 (preta, soltando partículas) em efeitos.ts. Os
+// números em numeros.ts (MOV, GOLPE, ESTADO, EFEITOS).
 import * as THREE from 'three'
 import { animarMolas } from '../../corpo/molas'
 import type { Mae } from './modelo'
-import { ESTADO, LUTO, MOV } from './numeros'
+import { EFEITOS, ESTADO, LUTO, MOV } from './numeros'
 import { animarRostoMae, type ExpressaoMae } from './rosto'
+import { ondaDoGrito, passoEfeitos } from './efeitos'
 import { novoGolpe, quadroDoGolpe, type NomeGolpe, type SaidaGolpe } from './golpes'
 import { estufar, type Luto } from './luto'
 import { aplicarPose, misturar, pose0, seguirPose, type Pose } from './pose'
 
 /** porta: quanto ela está passando pela porta (0..1); perto: a distância até o alvo à frente dela (os golpes param ao
- *  chegar); luto: onde saem os efeitos do Luto (as ondas, os respingos, o chão estufando) */
-export interface EstadoMae { porta?: number; perto?: number; luto?: Luto; expressao?: ExpressaoMae } // expressao: força uma (o Ver modelos)
+ *  chegar); luto: onde saem os efeitos do Luto (as ondas, os respingos, o chão estufando); fase4: a última barra (ela
+ *  fica preta, soltando partículas brancas, os olhos maiores); expressao: força uma (o Ver modelos) */
+export interface EstadoMae { porta?: number; perto?: number; luto?: Luto; fase4?: boolean; expressao?: ExpressaoMae }
 
-const EXPRESSAO_DO_ESTADO: Partial<Record<string, ExpressaoMae>> = { grito: 'grito', exausta: 'exausta', cambaleio: 'dor', enfraquecida: 'choro', capturada: 'terror' }
+const EXPRESSAO_DO_ESTADO: Partial<Record<string, ExpressaoMae>> = { exausta: 'exausta', cambaleio: 'dor', enfraquecida: 'choro', capturada: 'terror' }
 /** A expressão de cada movimento: vazia procurando; caça quando viu você; fúria no ataque; e a de cada estado. */
 function expressaoDe(m: Mae): ExpressaoMae {
   const g = m.anim.golpe
@@ -33,8 +36,10 @@ function expressaoDe(m: Mae): ExpressaoMae {
   if (n === 'aproximar' || n === 'mergulhar' || n === 'aviso' || n === 'levanta') return 'caca'
   // surgir: vazia enquanto sobe de cabeça baixa; o guincho arregalado; depois, a caça
   if (n === 'surgir') { const u = g.t - LUTO.surgir.espera; return u < 2.95 ? 'vazia' : u < 3.8 ? 'grito' : 'caca' }
-  // atordoada: o grito, a dor de joelhos e, levantando, a caça de novo
-  if (n === 'atordoada') return g.t < 0.45 ? 'grito' : g.t > g.dur - 0.9 ? 'caca' : 'dor'
+  // atordoada: o grito do golpe, a dor de joelhos e, quando a cabeça estala de volta, a caça de novo
+  if (n === 'atordoada') return g.t < 0.35 ? 'grito' : g.t > g.dur - ESTADO.atordoada.estala ? 'caca' : 'dor'
+  // grito: a caça enquanto puxa o ar; o rosto escurece no grito
+  if (n === 'grito') return g.t < ESTADO.grito.puxa ? 'caca' : 'grito'
   return EXPRESSAO_DO_ESTADO[n] ?? 'vazia'
 }
 
@@ -108,7 +113,7 @@ export function animarMae(m: Mae, e: EstadoMae, dt: number): { avanca: number; y
     golpe.t += dt
     const maos = () => m.bracos.map((b, i) => b.hd.getWorldPosition(_maos[i]))
     const olhos = () => [-1, 1].map((s, i) => m.cabeca.localToWorld(_olhos[i].set(s * 0.045, 0.15, 0.12)))
-    saida = quadroDoGolpe(golpe, T, base, e.perto ?? 9, dt, { luto: e.luto, onde: _onde.copy(_p).setY(0), maos, olhos })
+    saida = quadroDoGolpe(golpe, T, base, e.perto ?? 9, dt, { luto: e.luto, onde: _onde.copy(_p).setY(0), maos, olhos, onda: () => ondaDoGrito(m) })
     if (golpe.t >= golpe.dur) A.golpe = null
   }
   if (porta > 0.001 && !golpe) {
@@ -128,19 +133,23 @@ export function animarMae(m: Mae, e: EstadoMae, dt: number): { avanca: number; y
   else if (wk < 0.3 && porta < 0.3 && !golpe && Math.random() < dt * E.chance) A.estaloT = E.dura
   A.estalo = A.estaloT > 0 ? E.giro : damp(A.estalo, 0, E.volta, dt)
   aplicarPose(m, m.pose, A.estalo)
-  animarRostoMae(m, e.expressao ?? expressaoDe(m), A.estaloT > 0, dt)
+  A.preta = damp(A.preta, e.fase4 ? 1 : 0, 3 / EFEITOS.fase4.escurece, dt)
+  animarRostoMae(m, e.expressao ?? expressaoDe(m), A.estaloT > 0, dt, A.preta)
 
   // ---------- as pernas: dobram para os pés ficarem no chão quando o quadril desce; andando, passos curtos ----------
   const L1 = m.base.coxa, L2 = m.base.canela, h = Math.max(0.3, Math.min(L1 + L2 - 1e-4, L1 + L2 + m.pose.cur.hy))
   const a1 = Math.acos(Math.max(-1, Math.min(1, (L1 * L1 + h * h - L2 * L2) / (2 * L1 * h))))
   const dobra = Math.PI - Math.acos(Math.max(-1, Math.min(1, (L1 * L1 + L2 * L2 - h * h) / (2 * L1 * L2))))
-  for (const P of m.pernas) {
-    const ph = g + (P.s > 0 ? Math.PI : 0)
-    const th = -a1 - MOV.andar.pernas * wk * Math.sin(ph), kn = dobra + MOV.andar.joelho * wk * Math.max(0, Math.cos(ph))
+  // passo: só o passo do andar (< 0 = a perna à frente); é ele que empurra a saia, não a dobra de abaixar nem a de ajoelhar
+  const passo = [0, 0]
+  m.pernas.forEach((P, i) => {
+    const ph = g + (P.s > 0 ? Math.PI : 0), anda = -MOV.andar.pernas * wk * Math.sin(ph)
+    const th = -a1 + anda, kn = dobra + MOV.andar.joelho * wk * Math.max(0, Math.cos(ph))
     // de joelhos: a coxa quase em pé, a canela deitada para trás, o pé esticado (em vez de agachar com os pés no chão)
     const j = ajoelha, thJ = th + (-0.12 - th) * j, knJ = kn + (1.62 - kn) * j
     P.coxa.rotation.set(thJ, 0, 0); P.canela.rotation.set(knJ, 0, 0); P.pe.rotation.set(-(thJ + knJ) * (1 - j) + 1.3 * j, 0, 0)
-  }
+    passo[i] = anda * (1 - j)
+  })
   // ---------- a saia e o cabelo, com o que o corpo fez ----------
   // abaixando, a saia encolhe a partir da cintura (a barra amontoa no chão em vez de afundar) e abre um pouco
   const sk = Math.max(0.3, Math.min(1, (m.base.cintura + m.pose.cur.hy) / m.base.cintura)), abre = 1 + (1 - sk) * 0.55
@@ -148,7 +157,6 @@ export function animarMae(m: Mae, e: EstadoMae, dt: number): { avanca: number; y
   animarMolas(m.saia, m.root, dt)
   // as pernas empurram o pano para onde vão, do lado de cada uma: o painel da frente vai para a frente com a coxa que
   // avança (e a parte de baixo, com o joelho e o pé, mais um pouco); o de trás vai para trás com a perna que fica atrás
-  const passo = m.pernas.map((P) => P.coxa.rotation.x + a1) // só o passo (a dobra de abaixar, a1, não empurra); < 0 = à frente
   for (const s of m.saia.molas) {
     const ponta = s.g.name.endsWith('_ponta'), painel = ponta ? s.g.parent! : s.g
     const ax = painel.position.x, az = painel.position.z, r = Math.hypot(ax, az) || 1
@@ -160,6 +168,7 @@ export function animarMae(m: Mae, e: EstadoMae, dt: number): { avanca: number; y
     s.g.rotation.x += empurra * (ponta ? MOV.andar.saiaPonta : MOV.andar.saia)
   }
   animarMolas(m.cabelo, m.root, dt)
+  passoEfeitos(m, A.preta, dt) // as ondas do grito, a fase 4
   // o aviso acabou (ou foi cortado): o chão volta; embaixo do Luto, ela não desenha
   if (e.luto?.domo.visible && A.golpe?.nome !== 'aviso') estufar(e.luto, 0, 0, 0, 0)
   m.root.visible = saida.y > -2.35

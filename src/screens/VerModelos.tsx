@@ -62,7 +62,7 @@ const MAOS: [PoseMao | null, string][] = [[null, 'Automática'], ['solta', 'Solt
 const CAMERAS: [Camera, string][] = [['corpo', 'Corpo'], ['rosto', 'Rosto'], ['maos', 'Mãos'], ['pes', 'Pés'], ['costas', 'Costas']]
 const LUZES: [Luz, string][] = [['estudio', 'Estúdio'], ['jogo', 'Jogo (lâmpada no escuro)']]
 
-interface Escolhas { qual: string; anim: Anim; exp: Expressao | null; mao: PoseMao | null; arma: Arma | null; gesto: { g: Gesto; n: number } | null; mirando: boolean; tiros: number; golpes: number; ferido: boolean; ataque: { nome: string; n: number } | null; rostoMae: ExpressaoMae | null; camera: Camera; luz: Luz; girar: boolean; grade: boolean }
+interface Escolhas { qual: string; anim: Anim; exp: Expressao | null; mao: PoseMao | null; arma: Arma | null; gesto: { g: Gesto; n: number } | null; mirando: boolean; tiros: number; golpes: number; ferido: boolean; ataque: { nome: string; n: number } | null; rostoMae: ExpressaoMae | null; fase4: boolean; camera: Camera; luz: Luz; girar: boolean; grade: boolean }
 interface Info { linhas: string[] }
 
 function Opcoes<T>({ titulo, lista, valor, onEscolher }: { titulo: string; lista: [T, string][]; valor: T; onEscolher: (v: T) => void }) {
@@ -75,7 +75,7 @@ function Opcoes<T>({ titulo, lista, valor, onEscolher }: { titulo: string; lista
 }
 
 export function VerModelos({ go }: { go: Go }) {
-  const [e, setE] = useState<Escolhas>({ qual: AGENTE_ID, anim: 'parado', exp: null, mao: null, arma: null, gesto: null, mirando: false, tiros: 0, golpes: 0, ferido: false, ataque: null, rostoMae: null, camera: 'corpo', luz: 'estudio', girar: false, grade: true })
+  const [e, setE] = useState<Escolhas>({ qual: AGENTE_ID, anim: 'parado', exp: null, mao: null, arma: null, gesto: null, mirando: false, tiros: 0, golpes: 0, ferido: false, ataque: null, rostoMae: null, fase4: false, camera: 'corpo', luz: 'estudio', girar: false, grade: true })
   const [info, setInfo] = useState<Info | null>(null)
   const muda = (p: Partial<Escolhas>) => setE((v) => ({ ...v, ...p }))
   const agente = e.qual === AGENTE_ID, arma = e.qual.startsWith(ARMA) ? e.qual.slice(ARMA.length) : null, mae = e.qual === MAE
@@ -112,6 +112,7 @@ export function VerModelos({ go }: { go: Go }) {
         </section>
         {mae && <Opcoes titulo="Animação" lista={ANIMS_MAE} valor={e.anim} onEscolher={(anim) => muda({ anim })} />}
         {mae && <Opcoes titulo="Expressão" lista={[[null, 'Automática'], ...EXPRESSOES_MAE] as [ExpressaoMae | null, string][]} valor={e.rostoMae} onEscolher={(rostoMae) => muda({ rostoMae })} />}
+        {mae && <Opcoes titulo="Fase" lista={[[false, 'Fases 1 a 3'], [true, 'Fase 4 (a última barra)']] as [boolean, string][]} valor={e.fase4} onEscolher={(fase4) => muda({ fase4 })} />}
         {mae && <section>
           <b>Ataques</b>
           <div className="opcoes">{ATAQUES.map(([id, nome]) => <button key={id} onClick={() => muda({ anim: 'parado', girar: false, ataque: { nome: id, n: (e.ataque?.n ?? 0) + 1 } })}>{nome}</button>)}</div>
@@ -333,12 +334,13 @@ function CenaMae({ e, onInfo }: { e: Escolhas; onInfo: (i: Info) => void }) {
       if (!m.anim.golpe && Aq.fila.length) { const [nome, dur] = Aq.fila.shift()!.split(':'); const g = golpear(m, nome as NomeGolpe); if (dur) g.dur = Number(dur) }
       else if (!m.anim.golpe && (Aq.espera += dt) > 1.2) { Aq.ativo = false; volta(0) }
     }
-    const saida = animarMae(m, { porta: k, perto: ALVO_Z - m.root.position.z, luto, expressao: e.rostoMae ?? undefined }, dt)
+    const saida = animarMae(m, { porta: k, perto: ALVO_Z - m.root.position.z, luto, fase4: e.fase4, expressao: e.rostoMae ?? undefined }, dt)
     passoLuto(luto, dt)
     if (Aq.ativo) { m.root.position.z += saida.avanca * dt; m.root.position.y = saida.y }
   })
   return <>
     <primitive object={m.root} />
+    <primitive object={m.efeitos.grupo} />
     {e.anim === 'porta' && <primitive object={porta} />}
     {e.anim === 'parado' && e.ataque && !ESTADOS_MAE.some(([id]) => id === e.ataque!.nome) && <primitive object={alvo} />}
     {e.anim !== 'porta' && <primitive object={luto.grupo} />}
