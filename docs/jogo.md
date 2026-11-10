@@ -231,7 +231,16 @@ parada, de vez em quando ela tomba a cabeça de lado de uma vez (0,55 rad por 0,
   Luto tateando, agarram o chão, ela se puxa para fora curvada, a coluna desenrola, a cabeça sobe, tomba, o pescoço
   estala e ela guincha) e o **aviso** (com ela embaixo, o chão estufa, borbulha e brilha vermelho pulsando); a investida
   sai do Luto com um respingo. Embaixo do Luto ela não desenha;
-- 5. os estados (grito, exausta, atordoada, cambaleio, enfraquecida, levanta, capturada).
+- ✅ 5 (10/nov): **os estados** (`estados.ts`; as durações em `numeros.ts`, ESTADO): o **grito** (braços abertos, a cabeça
+  para trás, tremendo), **exausta** (curvada, ofegando, os braços pendurados: a janela para atirar), **atordoada** (grita
+  jogando os braços, cai de joelhos e agarra a cabeça, soluçando; o Luto escorre dos olhos; levanta no fim), o
+  **cambaleio** (recua 0,85 m com a mão direita no rosto e a esquerda aberta, torta), **enfraquecida** (de joelhos,
+  quase apagada, balançando, as mãos apoiadas no chão, o Luto escorrendo: a hora da armadilha), **levanta** (sai dos
+  joelhos de volta à guarda) e **capturada** (se debate presa nos raios). De joelhos, as canelas deitam no chão (as
+  pernas dela são mais longas que as do laboratório: só abaixar o quadril a deixaria agachada).
+
+Com isso, todas as animações dela estão feitas. A inteligência e a luta (as fases, as quatro barras, o berço, o
+tornado, quando ela abaixa na porta) vêm depois, em `src/game/enemies/mae/`.
 - Fora: a cena de pegar o agente e a do armário (cenas do laboratório).
 
 Números da tabela `T` em `buildDemo()` do laboratório (linha ~7674); a lógica das fases na linha ~9623.

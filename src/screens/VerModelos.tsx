@@ -48,7 +48,12 @@ const DO_LUTO: [string, string, NomeGolpe[]][] = [
   ['mergulha', 'Mergulhar e voltar', ['mergulhar', 'surgir']], ['finta', 'Finta e investida', ['mergulhar', 'finta', 'investida']],
   ['aviso', 'Aviso e investida', ['mergulhar', 'aviso', 'investida']], ['surgir', 'Surgir (a apresentação)', ['surgir']],
 ]
-const SEQUENCIAS = [...ATAQUES, ...DO_LUTO]
+// os estados: no lugar (sem alvo); "nome:s" encurta o estado (a enfraquecida dura 12 s no jogo)
+const ESTADOS_MAE: [string, string, string[]][] = [
+  ['grito', 'Grito', ['grito']], ['exausta', 'Exausta', ['exausta']], ['atordoada', 'Atordoada', ['atordoada']], ['cambaleio', 'Cambaleio', ['cambaleio']],
+  ['enfraquecida', 'Enfraquecida e levanta', ['enfraquecida:4', 'levanta']], ['capturada', 'Capturada', ['capturada']],
+]
+const SEQUENCIAS: [string, string, string[]][] = [...ATAQUES, ...DO_LUTO, ...ESTADOS_MAE]
 const NA_MAO: [Arma | null, string][] = [[null, 'Nenhuma'], ...ARMAS.map(([k]): [Arma, string] => [k, k[0].toUpperCase() + k.slice(1)])]
 const ANIMS: [Anim, string][] = [['parado', 'Parado'], ['andando', 'Andando'], ['correndo', 'Correndo'], ['esquiva', 'Esquiva'], ['queda', 'Queda']]
 const EXPS: [Expressao | null, string][] = [[null, 'Automática'], ['neutra', 'Neutra'], ['esforco', 'Esforço'], ['medo', 'Medo'], ['dor', 'Dor'], ['raiva', 'Raiva'], ['surpresa', 'Surpresa'], ['desmaio', 'Desmaio']]
@@ -114,6 +119,11 @@ export function VerModelos({ go }: { go: Go }) {
           <b>O Luto</b>
           <div className="opcoes">{DO_LUTO.map(([id, nome]) => <button key={id} onClick={() => muda({ anim: 'parado', girar: false, ataque: { nome: id, n: (e.ataque?.n ?? 0) + 1 } })}>{nome}</button>)}</div>
           <small>A poça embaixo dela. O aviso: o chão estufa, borbulha e brilha vermelho onde ela vai sair.</small>
+        </section>}
+        {mae && <section>
+          <b>Estados</b>
+          <div className="opcoes">{ESTADOS_MAE.map(([id, nome]) => <button key={id} onClick={() => muda({ anim: 'parado', girar: false, ataque: { nome: id, n: (e.ataque?.n ?? 0) + 1 } })}>{nome}</button>)}</div>
+          <small>No lugar. Atordoada e enfraquecida: de joelhos, o Luto escorrendo dos olhos.</small>
         </section>}
         {agente && <>
           <Opcoes titulo="Animação" lista={ANIMS} valor={e.anim} onEscolher={(anim) => muda({ anim })} />
@@ -265,7 +275,7 @@ function CenaMae({ e, onInfo }: { e: Escolhas; onInfo: (i: Info) => void }) {
   const ida = useRef({ t: 0, z: -2.4, dir: 1, vira: 0 })
   // o ataque: a fila de golpes, de onde ela sai e o alvo à frente; depois de terminar, espera e volta ao lugar
   const ALVO_Z = 2.6
-  const ataque = useRef<{ fila: NomeGolpe[]; espera: number; ativo: boolean }>({ fila: [], espera: 0, ativo: false })
+  const ataque = useRef<{ fila: string[]; espera: number; ativo: boolean }>({ fila: [], espera: 0, ativo: false })
   const luto = useMemo(() => novoLuto(3.6), []) // a poça de Luto (também esconde ela quando mergulha)
   const alvo = useMemo(() => { const g = new THREE.Mesh(new THREE.RingGeometry(0.3, 0.38, 24).rotateX(-Math.PI / 2), new THREE.MeshBasicMaterial({ color: '#c2453a' })); g.position.set(0, 0.01, ALVO_Z); return g }, [])
   const volta = (z: number) => { m.root.position.set(0, 0, z); m.root.rotation.y = 0; m.saia.pos = m.cabelo.pos = null; m.anim.ultimo = null } // pula sem o tranco nas molas
@@ -273,7 +283,7 @@ function CenaMae({ e, onInfo }: { e: Escolhas; onInfo: (i: Info) => void }) {
     if (!e.ataque) return
     const def = SEQUENCIAS.find(([id]) => id === e.ataque!.nome)
     if (!def) return
-    volta(-2); ataque.current = { fila: [...def[2]], espera: 0, ativo: true }
+    volta(ESTADOS_MAE.some(([id]) => id === def[0]) ? 0 : -2); ataque.current = { fila: [...def[2]], espera: 0, ativo: true }
   }, [e.ataque])
   useEffect(() => {
     const c = contas(m.root)
@@ -299,7 +309,7 @@ function CenaMae({ e, onInfo }: { e: Escolhas; onInfo: (i: Info) => void }) {
     // o ataque: o próximo golpe da fila quando o anterior acaba; ela avança o que o golpe pede, de frente (+z)
     const Aq = ataque.current
     if (Aq.ativo && e.anim === 'parado') {
-      if (!m.anim.golpe && Aq.fila.length) golpear(m, Aq.fila.shift()!)
+      if (!m.anim.golpe && Aq.fila.length) { const [nome, dur] = Aq.fila.shift()!.split(':'); const g = golpear(m, nome as NomeGolpe); if (dur) g.dur = Number(dur) }
       else if (!m.anim.golpe && (Aq.espera += dt) > 1.2) { Aq.ativo = false; volta(0) }
     }
     const saida = animarMae(m, { porta: k, perto: ALVO_Z - m.root.position.z, luto }, dt)
@@ -309,7 +319,7 @@ function CenaMae({ e, onInfo }: { e: Escolhas; onInfo: (i: Info) => void }) {
   return <>
     <primitive object={m.root} />
     {e.anim === 'porta' && <primitive object={porta} />}
-    {e.anim === 'parado' && e.ataque && <primitive object={alvo} />}
+    {e.anim === 'parado' && e.ataque && !ESTADOS_MAE.some(([id]) => id === e.ataque!.nome) && <primitive object={alvo} />}
     {e.anim !== 'porta' && <primitive object={luto.grupo} />}
   </>
 }

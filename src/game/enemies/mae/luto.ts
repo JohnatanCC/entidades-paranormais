@@ -47,12 +47,12 @@ export function anel(L: Luto, x: number, z: number, r0: number, r1: number, dur:
   o.m.position.x = x; o.m.position.z = z; o.m.visible = true
 }
 
-/** Um respingo: n gotas pulando de (x, z): lado = m/s para os lados, alto = m/s para cima. */
-export function respingo(L: Luto, x: number, z: number, n: number, lado: number, alto: number, y = 0.02) {
+/** Um respingo: n gotas pulando de (x, y, z): lado = m/s para os lados, alto = m/s para cima, abre = o raio de onde saem (m). */
+export function respingo(L: Luto, x: number, z: number, n: number, lado: number, alto: number, y = 0.02, abre = 0.15) {
   for (let i = 0; i < n; i++) {
     const j = L.prox; L.prox = (L.prox + 1) % N_GOTAS
     const a = Math.random() * Math.PI * 2, v = lado * (0.3 + 0.7 * Math.random())
-    L.pos.set([x + Math.cos(a) * 0.15, y, z + Math.sin(a) * 0.15], j * 3)
+    L.pos.set([x + Math.cos(a) * abre, y, z + Math.sin(a) * abre], j * 3)
     L.vel.set([Math.cos(a) * v, alto * (0.5 + 0.5 * Math.random()), Math.sin(a) * v], j * 3)
     L.vida[j] = 2
   }

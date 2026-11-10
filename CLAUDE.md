@@ -121,7 +121,7 @@ src/game/                  (já existem: Testar.tsx, player/, input/, world/, we
   enemies/<nome>/          um fantasma por pasta (mae/, espectral/, glutao/): IA, ataques, modelo, números; a Mãe já tem
                            modelo.ts (monta o modelo, a saia e o cabelo com molas), pose.ts (as molas da pose, do
                            laboratório), animacao.ts (parada, andar, passar pela porta), golpes.ts (os ataques e os
-                           movimentos do Luto), luto.ts (a poça, as ondas, os respingos, o aviso) e numeros.ts
+                           movimentos do Luto), estados.ts (grito, exausta, atordoada, cambaleio, enfraquecida, capturada), luto.ts (a poça, as ondas, os respingos, o aviso) e numeros.ts
   capture/                 a poça e a captura
   allies/                  Lara e Nicolas
   hud/                     o HUD conceito C

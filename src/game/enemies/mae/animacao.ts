@@ -13,18 +13,18 @@
 import * as THREE from 'three'
 import { animarMolas } from '../../corpo/molas'
 import type { Mae } from './modelo'
-import { MOV } from './numeros'
-import { novoGolpe, quadroDoGolpe, type NomeGolpe } from './golpes'
+import { ESTADO, MOV } from './numeros'
+import { novoGolpe, quadroDoGolpe, type NomeGolpe, type SaidaGolpe } from './golpes'
 import { estufar, type Luto } from './luto'
 import { aplicarPose, misturar, pose0, seguirPose, type Pose } from './pose'
 
 /** porta: quanto ela está passando pela porta (0..1); perto: a distância até o alvo à frente dela (os golpes param ao
  *  chegar); luto: onde saem os efeitos do Luto (as ondas, os respingos, o chão estufando) */
 export interface EstadoMae { porta?: number; perto?: number; luto?: Luto }
-const _onde = new THREE.Vector3(), _maos = [new THREE.Vector3(), new THREE.Vector3()]
+const _onde = new THREE.Vector3(), _maos = [new THREE.Vector3(), new THREE.Vector3()], _olhos = [new THREE.Vector3(), new THREE.Vector3()]
 
 /** Começa um ataque (o que estava acontecendo acaba). */
-export function golpear(m: Mae, nome: NomeGolpe) { m.anim.golpe = novoGolpe(nome) }
+export function golpear(m: Mae, nome: NomeGolpe) { return (m.anim.golpe = novoGolpe(nome)) }
 
 const cl = (x: number, m: number) => Math.max(-m, Math.min(m, x))
 const lerp = (a: number, b: number, k: number) => a + (b - a) * k
@@ -86,11 +86,12 @@ export function animarMae(m: Mae, e: EstadoMae, dt: number): { avanca: number; y
   }
   // passando pela porta: abaixa, curva, a cabeça levanta para olhar e a mão direita segura o batente
   // o golpe: a pose dele por cima e o quanto ela avança
-  let saida = { avanca: 0, y: 0 }
+  let saida: SaidaGolpe = { avanca: 0, y: 0 }
   if (golpe) {
     golpe.t += dt
     const maos = () => m.bracos.map((b, i) => b.hd.getWorldPosition(_maos[i]))
-    saida = quadroDoGolpe(golpe, T, base, e.perto ?? 9, dt, { luto: e.luto, onde: _onde.copy(_p).setY(0), maos })
+    const olhos = () => [-1, 1].map((s, i) => m.cabeca.localToWorld(_olhos[i].set(s * 0.045, 0.15, 0.12)))
+    saida = quadroDoGolpe(golpe, T, base, e.perto ?? 9, dt, { luto: e.luto, onde: _onde.copy(_p).setY(0), maos, olhos })
     if (golpe.t >= golpe.dur) A.golpe = null
   }
   if (porta > 0.001 && !golpe) {
@@ -99,6 +100,8 @@ export function animarMae(m: Mae, e: EstadoMae, dt: number): { avanca: number; y
     const D = T.a[0]
     D.x = lerp(D.x, -2.5, k); D.z = lerp(D.z, 0.2, k); D.el = lerp(D.el, -0.35, k); D.wr = lerp(D.wr, 0.3, k); D.curl = lerp(D.curl, 0.7, k); D.tw = lerp(D.tw, 0, k)
   }
+  const ajoelha = saida.ajoelha ?? 0 // de joelhos: o quadril desce até as canelas deitarem no chão
+  if (ajoelha > 0) T.hy = T.hy + (ESTADO.joelhos.quadril - T.hy) * ajoelha
   const rate = golpe ? golpe.rate : porta > 0.3 ? MOV.porta.rate : wk > 0.3 ? MOV.andar.rate : MOV.parada.rate
   seguirPose(m.pose, T, rate, dt)
 
@@ -116,7 +119,9 @@ export function animarMae(m: Mae, e: EstadoMae, dt: number): { avanca: number; y
   for (const P of m.pernas) {
     const ph = g + (P.s > 0 ? Math.PI : 0)
     const th = -a1 - MOV.andar.pernas * wk * Math.sin(ph), kn = dobra + MOV.andar.joelho * wk * Math.max(0, Math.cos(ph))
-    P.coxa.rotation.set(th, 0, 0); P.canela.rotation.set(kn, 0, 0); P.pe.rotation.set(-(th + kn), 0, 0)
+    // de joelhos: a coxa quase em pé, a canela deitada para trás, o pé esticado (em vez de agachar com os pés no chão)
+    const j = ajoelha, thJ = th + (-0.12 - th) * j, knJ = kn + (1.62 - kn) * j
+    P.coxa.rotation.set(thJ, 0, 0); P.canela.rotation.set(knJ, 0, 0); P.pe.rotation.set(-(thJ + knJ) * (1 - j) + 1.3 * j, 0, 0)
   }
   // ---------- a saia e o cabelo, com o que o corpo fez ----------
   // abaixando, a saia encolhe a partir da cintura (a barra amontoa no chão em vez de afundar) e abre um pouco

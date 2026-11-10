@@ -13,17 +13,21 @@
 //     curvada, a coluna desenrola, a cabeça sobe por último, tomba de lado, o pescoço estala e ela guincha;
 //   aviso: ela está embaixo; o chão estufa, borbulha e brilha vermelho onde ela vai sair.
 import * as THREE from 'three'
+import { quadroDoEstado, type NomeEstado } from './estados'
 import { anel, bolha, estufar, respingo, type Luto } from './luto'
-import { GOLPE, LUTO } from './numeros'
+import { ESTADO, GOLPE, LUTO } from './numeros'
 import { misturar, pose0, type Pose } from './pose'
 
 export type NomeGolpe = 'garra_d' | 'garra_e' | 'garra_ultima_d' | 'garra_ultima_e' | 'aproximar' | 'investida' | 'carga'
-  | 'mergulhar' | 'finta' | 'surgir' | 'aviso'
+  | 'mergulhar' | 'finta' | 'surgir' | 'aviso' | NomeEstado
 /** parou = quando parou de correr (−1 = ainda não); alcance = até onde a investida vai (m); fase = o passo da corrida (no
  *  aviso, o relógio das ondas); feito = os efeitos que já saíram (cada um uma vez); acc = o relógio das bolhas */
 export interface Golpe { nome: NomeGolpe; t: number; dur: number; rate: number; parou: number; alcance: number; fase: number; feito: Set<string>; acc: number }
-/** Onde ela está (para os efeitos do Luto) e as mãos dela (no mundo). */
-export interface Contexto { luto?: Luto; onde: THREE.Vector3; maos: () => THREE.Vector3[] }
+/** Onde ela está (para os efeitos do Luto), as mãos e os olhos dela (no mundo). */
+export interface Contexto { luto?: Luto; onde: THREE.Vector3; maos: () => THREE.Vector3[]; olhos: () => THREE.Vector3[] }
+/** O que sai de um quadro de golpe: o quanto ela avança (m/s), a altura do corpo e o quanto está de joelhos. */
+export interface SaidaGolpe { avanca: number; y: number; ajoelha?: number }
+const ehEstado = (n: NomeGolpe): n is NomeEstado => n in ESTADO
 const DO_LUTO = { mergulhar: LUTO.mergulhar, finta: LUTO.finta, aviso: LUTO.aviso } as const
 
 const sm = (x: number) => { const k = Math.max(0, Math.min(1, x)); return k * k * (3 - 2 * k) }
@@ -32,6 +36,7 @@ const lerp = (a: number, b: number, k: number) => a + (b - a) * k
 /** Começa um golpe. */
 export function novoGolpe(nome: NomeGolpe): Golpe {
   const G = GOLPE
+  if (ehEstado(nome)) return { nome, t: 0, dur: ESTADO[nome].dur, rate: ESTADO[nome].rate, parou: -1, alcance: 0, fase: 0, feito: new Set(), acc: 0 }
   const luto = nome === 'mergulhar' || nome === 'finta' || nome === 'aviso' ? DO_LUTO[nome] : null
   const dur = nome.startsWith('garra') ? G.garra.preparo + (nome.includes('ultima') ? G.garra.ultima : G.garra.corte)
     : nome === 'aproximar' ? G.aproximar.dur : nome === 'investida' ? G.investida.dur : nome === 'carga' ? G.carga.prepara + G.carga.corre + G.carga.derrapa
@@ -41,8 +46,9 @@ export function novoGolpe(nome: NomeGolpe): Golpe {
 }
 
 /** Um quadro do golpe: muda a pose-alvo (que chega com a parada dentro) e diz quanto ela avança e a altura do corpo. */
-export function quadroDoGolpe(g: Golpe, P: Pose, parada: Pose, perto: number, dt: number, ctx: Contexto): { avanca: number; y: number } {
+export function quadroDoGolpe(g: Golpe, P: Pose, parada: Pose, perto: number, dt: number, ctx: Contexto): SaidaGolpe {
   const t = g.t
+  if (ehEstado(g.nome)) return quadroDoEstado(g, P, parada, dt, ctx)
   if (g.nome === 'mergulhar' || g.nome === 'finta' || g.nome === 'surgir' || g.nome === 'aviso') return doLuto(g, P, parada, dt, ctx)
   if (g.nome.startsWith('garra')) {
     // k: o braço que corta (0 o direito, 1 o esquerdo); s: o lado dele (−1 direito, +1 esquerdo) para o giro do tronco
