@@ -128,12 +128,19 @@ No Testar, Q troca (pistola, escopeta, armadilha, mão vazia).
 antes, e o tiro sai quando ela chega). Mirando, a câmera chega mais perto, mais de lado e fecha (um ponto no meio da
 tela); ele anda devagar (1,1 m/s), não corre e vira para onde a câmera olha (`src/game/player/mira.ts`):
 - a pistola com as duas mãos, os braços quase esticados, a esquerda por baixo; o tiro a cada 0,2 s segurando o botão;
-- a escopeta com a coronha no ombro, o corpo de lado (40°: a esquerda alcança a bomba) e o rosto encostado; o coice
+- a escopeta com a coronha no ombro, o corpo de lado (40°: a esquerda alcança a bomba; o quadril e as pernas viram junto, os pés girando no lugar) e o rosto encostado; o coice
   empurra o ombro e, depois de cada tiro, a mão esquerda puxa a bomba e devolve; um tiro por segundo;
 - o tiro: o cano sobe e a arma vem para trás (o coice), e um clarão em pixel no cano (brasa na pistola, sal na escopeta;
   sem luz nova na cena). A cadência, o coice e o clarão em `src/game/weapons/numeros.ts`.
 
-A bala, o dano e a sobrecarga vêm na etapa das armas; jogar a armadilha vem a seguir. Quando a etapa das armas chegar,
+**Jogar a armadilha (10/nov):** com ela na mão, o botão direito mira: o braço arma para fora, na altura do ombro (longe da cabeça), a mão esquerda aponta
+o alvo e uma linha pontilhada mostra o arco, com um anel onde ela vai cair. O esquerdo joga (sem mirar, levanta antes):
+o braço passa por cima do ombro, ela sai (11 m/s para o ponto mirado, mais 1,6 para cima, como no laboratório) e o braço
+acompanha para baixo. Ela voa girando e **gruda no chão (em pé) ou na parede (com a base na parede)**; bate no teto e desce.
+Fora da mão, um clique a chama de volta: ela voa até a mão. Trocar de arma com ela fora a recolhe na hora
+(`src/game/weapons/armadilha.ts`). A captura (abrir a íris, o raio, puxar a poça) vem com o primeiro fantasma.
+
+A bala, o dano e a sobrecarga vêm na etapa das armas. Quando ela chegar,
 1/2/3 deixam de mostrar as expressões no Testar (isso fica no Ver modelos).
 
 ## A queda do agente (decidida em 10/nov)

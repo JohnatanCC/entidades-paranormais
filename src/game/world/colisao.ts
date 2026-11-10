@@ -26,7 +26,7 @@ export interface Mundo {
 }
 
 const ESPESSURA = 0.12
-const PASSO = 0.45 // o degrau mais alto que os pés sobem sozinhos (m)
+export const PASSO = 0.45 // o degrau mais alto que os pés sobem sozinhos (m)
 
 const ehVao = (o?: Opening) => !!o && o.kind === 'porta' && o.door === 'vao'
 const ehPorta = (o: Opening) => o.kind === 'porta' && o.door !== 'vao'
@@ -148,4 +148,21 @@ export function tetoEm(m: Mundo, x: number, z: number, y: number): number | null
   const L = andarDe(y) + 1
   if (L >= m.levels) return null
   return m.pisos.has(`${L}_${Math.floor(x)}_${Math.floor(z)}`) ? L * LEVEL_H - 0.02 : null
+}
+
+/** A armadilha jogada bateu em alguma caixa (parede, porta fechada, móvel, corrimão)? Devolve para onde a face batida
+ *  aponta (a normal no chão, x e z), para ela grudar virada para fora; null = nada ali. */
+export function batidaEm(m: Mundo, x: number, y: number, z: number, folga = 0.04): { nx: number; nz: number } | null {
+  for (const o of m.caixas) {
+    if ((o.porta && m.abertas.has(o.porta)) || y < o.y0 || y > o.y1) continue
+    const c = Math.cos(o.yaw), s = Math.sin(o.yaw)
+    const lx = (x - o.x) * c - (z - o.z) * s, lz = (x - o.x) * s + (z - o.z) * c
+    const hx = o.hx + folga, hz = o.hz + folga
+    if (Math.abs(lx) > hx || Math.abs(lz) > hz) continue
+    // a face mais perto é a que ela atravessou menos
+    const fx = hx - Math.abs(lx) < hz - Math.abs(lz)
+    const nlx = fx ? Math.sign(lx) : 0, nlz = fx ? 0 : Math.sign(lz)
+    return { nx: nlx * c + nlz * s, nz: -nlx * s + nlz * c }
+  }
+  return null
 }

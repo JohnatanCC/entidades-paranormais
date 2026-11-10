@@ -9,3 +9,14 @@ export const TIRO = {
   escopeta: { cadencia: 1.0, coice: 0.45, recua: 0.06, volta: 4.5, clarao: 0.07, tamanho: 0.26, cor: '#f4ead6', // as fagulhas de sal
     bomba: { apos: 0.3, dura: 0.4 } }, // a mão esquerda puxa a bomba depois do tiro: começa em `apos` s e dura `dura` s
 }
+
+// A armadilha jogada (weapons/armadilha.ts): os números do laboratório (11 m/s para onde mira, mais 1,6 para cima)
+export const ARREMESSO = {
+  forca: 11, sobe: 1.6, // m/s para o ponto mirado, e a mais para cima (o arco)
+  solta: [-0.27, 1.5, 0.37], // de onde ela sai, no espaço do agente: onde a lanterna está no instante de soltar (à frente do ombro direito)
+  dura: 0.45, soltaEm: 0.4, // a animação do arremesso (s) e em que parte dela a armadilha sai da mão
+  passo: 0.06, // m: a conta do voo anda nesses passos (não atravessa parede fina)
+  maxVoo: 4, // s: voando mais que isso, para onde estiver
+  volta: 16, chega: 0.25, // chamada de volta: m/s até a mão, e a que distância ela já está na mão
+  arco: { pontos: 60, dt: 0.035 }, // a linha do arco na mira: quantos pontos e o tempo entre eles (s)
+}

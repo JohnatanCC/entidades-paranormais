@@ -225,11 +225,12 @@ export function fazerGesto(a: Agente, g: Gesto) {
  */
 export function gestoParado(a: Agente, parado: boolean, dt: number): Maos {
   const p = a.anim.parado
-  if (!parado || (p.gesto && p.arma !== a.arma)) { // mexeu ou trocou de arma: corta o gesto e a espera recomeça
+  if (!parado || (p.gesto && p.arma !== a.arma) || (p.gesto === 'rosto' || p.gesto === 'girar') && a.anim.arma.fora) { // mexeu ou trocou de arma: corta
     p.espera = sorteia()
     if (p.gesto) p.cortado = true
   } else if (!p.gesto && (p.espera -= dt) <= 0) {
-    const lista = DO_ESTADO[a.arma ?? 'nenhuma'], outros = lista.filter((g) => g !== p.ultimo)
+    // a armadilha fora da mão (jogada): os gestos de mão vazia
+    const lista = DO_ESTADO[a.arma === 'armadilha' && a.anim.arma.fora ? 'nenhuma' : a.arma ?? 'nenhuma'], outros = lista.filter((g) => g !== p.ultimo)
     if (lista.length) fazerGesto(a, (outros.length ? outros : lista)[Math.floor(Math.random() * (outros.length || lista.length))])
     else p.espera = sorteia()
   }

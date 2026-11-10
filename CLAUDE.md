@@ -111,14 +111,14 @@ src/game/                  (já existem: Testar.tsx, player/, input/, world/, we
                            no Testar), mira.ts (mirar: a pose, o coice, a bomba depois do tiro), parado.ts (a respiração, o
                            peso e os gestos de parado), alcancar.ts (o braço alcança um ponto: IK de dois ossos),
                            rosto.ts (as expressões), cabelo.ts (as mechas com física), controle.ts (andar, correr, esquivar), numeros.ts
-  weapons/                 tiro.ts (o gatilho e a cadência), clarao.ts (o clarão no cano), numeros.ts; depois a bala, a
-                           sobrecarga e jogar a armadilha
+  weapons/                 tiro.ts (o gatilho e a cadência), clarao.ts (o clarão no cano), armadilha.ts (jogar: o voo em
+                           arco, grudar, chamar de volta, a linha do arco), numeros.ts; depois a bala e a sobrecarga
   enemies/<nome>/          um fantasma por pasta (espectral/, glutao/, ...): IA, ataques, modelo, números
   capture/                 a poça e a captura
   allies/                  Lara e Nicolas
   hud/                     o HUD conceito C
   input/                   acoes.ts: ações do jogador (teclado e mouse; depois controle e toque): o jogo lê ações, nunca teclas
-  world/                   colisao.ts (paredes, portas, móveis, corrimão, chão, escadas, braço da câmera), portas.ts (abrir e fechar
+  world/                   colisao.ts (paredes, portas, móveis, corrimão, chão, escadas, braço da câmera, a armadilha jogada), portas.ts (abrir e fechar
                            com E, o estado vivo das portas); depois carregar por blocos, luz
 src/chapters/cap1/         o roteiro do capítulo: qual mapa, gatilhos, cenas, chefe
 ```

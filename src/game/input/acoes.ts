@@ -30,6 +30,7 @@ export class Acoes {
       if (e.button === 0 && document.pointerLockElement !== alvo) return
       if (e.button === 2 && e.target !== alvo && document.pointerLockElement !== alvo) return
       this.botoes |= bit(e)
+      if (e.button === 0) this.apertou.add('Mouse0')
     }
     const mu = (e: MouseEvent) => { this.botoes &= ~bit(e) }
     const menu = (e: Event) => e.preventDefault() // o botão direito é mirar, não o menu do navegador
@@ -66,6 +67,8 @@ export class Acoes {
   mirar() { return (this.botoes & 2) !== 0 }
   /** Atirar: o botão esquerdo segurado, com o cursor travado. */
   atirar() { return (this.botoes & 1) !== 0 && !!this.alvo && document.pointerLockElement === this.alvo }
+  /** Clicou o botão esquerdo (com o cursor travado): true uma vez por clique (chamar a armadilha de volta). */
+  clicou() { const v = this.apertou.has('Mouse0'); this.apertou.delete('Mouse0'); return v }
   /** O quanto o mouse andou desde a última leitura (em pixels). */
   olhar(): [number, number] { const r: [number, number] = [this.dx, this.dy]; this.dx = this.dy = 0; return r }
   /** Limpa os apertos não lidos (no fim de cada quadro). */

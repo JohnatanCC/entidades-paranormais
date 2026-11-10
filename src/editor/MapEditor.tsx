@@ -421,7 +421,7 @@ export function MapEditor({ go }: { go: Go }) {
         {testando && mirando && <div className="mira-ponto" />}
         {testando && <div className={travado ? 'teste-b jogando' : 'teste-b'}>
           {travado
-            ? <span>WASD anda · Shift corre · Espaço esquiva · E abre e fecha porta · Q troca a arma · botão direito mira, esquerdo atira · mouse olha (sem o cursor travado: arraste) · 1–6 expressões, 7–9 mãos, 0 automático · <b>Esc</b> volta ao editor</span>
+            ? <span>WASD anda · Shift corre · Espaço esquiva · E abre e fecha porta · Q troca a arma · botão direito mira, esquerdo atira (ou joga a armadilha; fora, chama de volta) · mouse olha (sem o cursor travado: arraste) · 1–6 expressões, 7–9 mãos, 0 automático · <b>Esc</b> volta ao editor</span>
             : <><b>Testar</b><span>Clique na vista para jogar · Esc volta ao editor</span></>}
         </div>}
         {/* o Painel Inspetor: as configurações do que está escolhido, numa janela que se arrasta */}

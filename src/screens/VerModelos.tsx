@@ -3,7 +3,8 @@
 // modelos/objetos/<tipo>.bbmodel (salvar no
 // Blockbench atualiza aqui no npm run dev). A câmera gira em volta (botão esquerdo gira, direito move, rodinha aproxima).
 // Para o Matheus o painel troca a animação, a expressão, a pose das mãos, a arma na mão e o ângulo, faz os gestos de
-// parado na hora (sem esperar) e, com a pistola ou a escopeta, mira e atira (para a frente); para todos, a luz (estúdio, ou uma
+// parado na hora (sem esperar) e mira e atira com a pistola ou a escopeta, ou joga a armadilha (para a frente, num chão
+// sem paredes; ela volta sozinha); para todos, a luz (estúdio, ou uma
 // lâmpada da mansão no escuro, como no jogo).
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { Canvas, useFrame, useThree } from '@react-three/fiber'
@@ -16,6 +17,9 @@ import type { PoseMao } from '../game/player/maos'
 import { montarAgente, type Agente } from '../game/player/modelo'
 import { fazerGesto, gestosDe, type Gesto } from '../game/player/parado'
 import { gatilho } from '../game/weapons/tiro'
+import { chamar, descartarArco, desenharArco, gatilhoArmadilha, lancar, novaArmadilha, novoArco, passoArmadilha, pontoDeSoltar, recolher, velocidadeDoArremesso } from '../game/weapons/armadilha'
+import { montarMundo } from '../game/world/colisao'
+import { armadilhaFora } from '../game/player/arma'
 import { AGENTE } from '../game/player/numeros'
 import type { Expressao } from '../game/player/rosto'
 import { GRUPOS, OBJETOS } from '../maps/objetos'
@@ -91,13 +95,13 @@ export function VerModelos({ go }: { go: Go }) {
             <div className="opcoes">{gestosDe(e.arma).map(([g, nome]) => <button key={g} onClick={() => muda({ anim: 'parado', gesto: { g, n: (e.gesto?.n ?? 0) + 1 } })}>{nome}</button>)}</div>
             <small>{gestosDe(e.arma).length ? 'Parado, ele faz um sozinho a cada 8 a 15 s (os de mão vazia, ou os da arma na mão).' : 'Com esta arma, ainda nenhum.'}</small>
           </section>
-          {(e.arma === 'pistola' || e.arma === 'escopeta') && <section>
-            <b>Mirar e atirar</b>
+          {e.arma && <section>
+            <b>{e.arma === 'armadilha' ? 'Mirar e arremessar' : 'Mirar e atirar'}</b>
             <div className="opcoes">
               <button aria-pressed={e.mirando} onClick={() => muda({ mirando: !e.mirando })}>Mirando</button>
-              <button onClick={() => muda({ tiros: e.tiros + 1 })}>Atirar</button>
+              <button onClick={() => muda({ tiros: e.tiros + 1 })}>{e.arma === 'armadilha' ? 'Arremessar' : 'Atirar'}</button>
             </div>
-            <small>Para a frente. Atirar sem estar mirando levanta a arma antes.</small>
+            <small>{e.arma === 'armadilha' ? 'Para a frente; mirando, o arco mostra onde ela cai. Presa, ela volta sozinha em 1,5 s.' : 'Para a frente. Atirar sem estar mirando levanta a arma antes.'}</small>
           </section>}
           <Opcoes titulo="Câmera" lista={CAMERAS} valor={e.camera} onEscolher={(camera) => muda({ camera })} />
         </>}
@@ -168,6 +172,13 @@ function CenaAgente({ e, onInfo }: { e: Escolhas; onInfo: (i: Info) => void }) {
   const esq = useRef(0)
   const tiros = useRef(e.tiros) // os tiros pedidos que já saíram
   const alvo = useMemo(() => new THREE.Vector3(0, 1.45, 8), []) // a mira: para a frente, na altura do peito
+  // a armadilha jogada: num mundo só com o chão; o arco e a cópia solta ficam na cena
+  const { scene } = useThree()
+  const jogo = useMemo(() => ({ mundo: montarMundo([], 1), arm: novaArmadilha(), arco: novoArco(), vel: new THREE.Vector3(), mao: new THREE.Vector3() }), [])
+  useEffect(() => {
+    scene.add(jogo.arco.linha, jogo.arco.marca)
+    return () => { descartarArco(jogo.arco); recolher(jogo.arm) }
+  }, [scene, jogo])
 
   useEffect(() => {
     const c = contas(a.root)
@@ -176,7 +187,7 @@ function CenaAgente({ e, onInfo }: { e: Escolhas; onInfo: (i: Info) => void }) {
     onInfo({ linhas: [`Altura: ${(b.max.y - Math.max(0, b.min.y)).toFixed(2)} m`, `${c.blocos} blocos em ${c.juntas} juntas`, `${c.desenhos} chamadas de desenho`] })
   }, [a, onInfo])
   useEffect(() => { if (pronto) { const { alvo, de } = enquadra(e.camera, a); voar(alvo, de) } }, [e.camera, a, pronto])
-  useEffect(() => pegarArma(a, e.arma), [a, e.arma])
+  useEffect(() => { recolher(jogo.arm); pegarArma(a, e.arma) }, [a, e.arma, jogo])
   useEffect(() => { if (e.gesto) fazerGesto(a, e.gesto.g) }, [a, e.gesto])
 
   useFrame((_, dtBruto) => {
@@ -185,9 +196,19 @@ function CenaAgente({ e, onInfo }: { e: Escolhas; onInfo: (i: Info) => void }) {
     let esquiva = -1
     if (e.anim === 'esquiva') { esq.current = (esq.current + dt) % 1.4; esquiva = esq.current < 0.5 ? esq.current / 0.5 : -1 }
     const velocidade = e.anim === 'andando' ? AGENTE.andar : e.anim === 'correndo' ? AGENTE.correr : 0
-    const pede = e.tiros !== tiros.current // um tiro pedido: levanta a arma e atira quando ela chegar
-    animarAgente(a, { velocidade, corrida: e.anim === 'correndo' ? 1 : 0, esquiva, expressao: e.exp ?? undefined, mao: e.mao ?? undefined, mira: { quer: e.mirando || pede, alvo } }, dt)
-    if (gatilho(a, pede, dt) || (pede && a.arma !== 'pistola' && a.arma !== 'escopeta')) tiros.current = e.tiros
+    const pede = e.tiros !== tiros.current // um tiro (ou arremesso) pedido: levanta a arma e solta quando ela chegar
+    const naMao = a.arma === 'armadilha' && !a.anim.arma.fora
+    animarAgente(a, { velocidade, corrida: e.anim === 'correndo' ? 1 : 0, esquiva, expressao: e.exp ?? undefined, mao: e.mao ?? undefined, mira: { quer: (e.mirando || pede) && (a.arma !== 'armadilha' || naMao), alvo } }, dt)
+    const J = jogo
+    if (gatilho(a, pede, dt)) tiros.current = e.tiros
+    if (gatilhoArmadilha(a, pede && naMao, dt)) {
+      const de = pontoDeSoltar(a); lancar(J.arm, scene, de, velocidadeDoArremesso(de, alvo, J.vel)); armadilhaFora(a, true); tiros.current = e.tiros
+    }
+    if (pede && !a.arma) tiros.current = e.tiros
+    if (J.arm.estado === 'presa' && J.arm.t > 1.5) chamar(J.arm) // aqui ela volta sozinha
+    if (passoArmadilha(J.arm, J.mundo, a.arms[0].hd.getWorldPosition(J.mao), dt)) armadilhaFora(a, false)
+    if (naMao && a.anim.arma.mira > 0.5 && a.anim.arma.lanca < 0) { const de = pontoDeSoltar(a); desenharArco(J.arco, J.mundo, de, velocidadeDoArremesso(de, alvo, J.vel)) }
+    else J.arco.linha.visible = J.arco.marca.visible = false
     if (e.girar) a.root.rotation.y += dt * 0.5
   })
   return <primitive object={a.root} />

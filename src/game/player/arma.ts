@@ -38,7 +38,7 @@ export function pegarArma(a: Agente, nome: Arma | null) {
   const mao = a.arms[0].hd
   const velha = mao.getObjectByName(NOME)
   if (velha) { mao.remove(velha); (velha.userData.luz as THREE.Material | undefined)?.dispose() }
-  a.arma = nome; a.anim.arma.solta = true
+  a.arma = nome; a.anim.arma.solta = true; a.anim.arma.fora = false; a.anim.arma.lanca = -1
   if (!nome) return
   const obj = arma3d(nome), p = PEGA[nome]
   // a empunhadura do modelo vai para a origem do grupo (que fica no ponto da mão)
@@ -59,20 +59,31 @@ export function pegarArma(a: Agente, nome: Arma | null) {
   g.add(obj); mao.add(g)
 }
 
+/** A armadilha saiu da mão (fora = true) ou voltou: a da mão some ou aparece (e o pêndulo recomeça parado). */
+export function armadilhaFora(a: Agente, fora: boolean) {
+  const g = a.arms[0].hd.getObjectByName(NOME)
+  a.anim.arma.fora = fora
+  if (g) g.visible = !fora
+  if (!fora) a.anim.arma.solta = true
+}
+
 /** O que a arma na mão lembra de um quadro para o outro.
  *  armadilha: a ponta (bob) é um peso solto no mundo, preso pela alça; giro e brilho vêm dos gestos (somam).
  *  escopeta: ombro = quanto está apoiada no ombro (0..1) e parado = há quanto tempo está parado; esquerda = quanto a mão
  *  esquerda vai na bomba e bomba = quanto a bomba corre (0..1): a postura escreve a base, os gestos somam.
  *  o tiro (mira.ts, weapons/tiro.ts): mira = quanto a arma está levantada (0..1); cd = quanto falta para o próximo tiro;
- *  coice = o tranco do último tiro (1 no tiro, passa); tiroT = s desde o último tiro; clarao = s que o clarão ainda fica. */
+ *  coice = o tranco do último tiro (1 no tiro, passa); tiroT = s desde o último tiro; clarao = s que o clarão ainda fica.
+ *  a armadilha jogada (weapons/armadilha.ts): lanca = s desde o começo do arremesso (−1 = não está jogando); fora = ela
+ *  está fora da mão (voando, presa, voltando). */
 export interface AnimArma {
   bob: THREE.Vector3; ant: THREE.Vector3; solta: boolean; t: number; giro: number; brilho: number
   ombro: number; parado: number; esquerda: number; bomba: number
   mira: number; cd: number; coice: number; tiroT: number; clarao: number
+  lanca: number; fora: boolean
 }
 export const novaAnimArma = (): AnimArma => ({
   bob: new THREE.Vector3(), ant: new THREE.Vector3(), solta: true, t: 0, giro: 0, brilho: 0, ombro: 0, parado: 0, esquerda: 0, bomba: 0,
-  mira: 0, cd: 0, coice: 0, tiroT: 9, clarao: 0,
+  mira: 0, cd: 0, coice: 0, tiroT: 9, clarao: 0, lanca: -1, fora: false,
 })
 
 // ---------- levar a arma (e as mãos) até uma pose, no espaço do peito ----------

@@ -1,8 +1,8 @@
 // O Testar do criador de mapas: o agente andando no mapa aberto, com a câmera por cima do ombro, colisão, escadas e
-// as lâmpadas acesas e a arma na mão (Q troca): mira e atira (o coice e o clarão; a bala, os fantasmas e o HUD vêm com o
-// jogo). Fica dentro do <Canvas> do editor.
+// as lâmpadas acesas e a arma na mão (Q troca): mira e atira (o coice e o clarão), joga a armadilha e chama de volta
+// (a bala, os fantasmas e o HUD vêm com o jogo). Fica dentro do <Canvas> do editor.
 //   clique trava o mouse · WASD anda · Shift corre · Espaço esquiva · E abre e fecha porta · Q troca a arma · mouse olha
-//   botão direito mira · botão esquerdo atira · Esc volta ao editor
+//   botão direito mira · botão esquerdo atira (ou joga a armadilha; com ela fora, chama de volta) · Esc volta ao editor
 //   para ver o modelo (só no Testar, não é controle do jogo): 1–6 expressões, 7–9 poses da mão, 0 volta ao automático
 import { useEffect, useMemo, useRef } from 'react'
 import { useFrame, useThree } from '@react-three/fiber'
@@ -11,12 +11,13 @@ import type { Chunk } from '../maps/types'
 import { useSettings } from '../settings/settings'
 import { Acoes } from './input/acoes'
 import { animarAgente } from './player/animacao'
-import { ARMAS, pegarArma } from './player/arma'
+import { ARMAS, armadilhaFora, pegarArma } from './player/arma'
 import { novoJogador, passoJogador } from './player/controle'
 import type { PoseMao } from './player/maos'
 import { montarAgente } from './player/modelo'
 import type { Expressao } from './player/rosto'
 import { CAMERA } from './player/numeros'
+import { chamar, descartarArco, desenharArco, gatilhoArmadilha, lancar, novaArmadilha, novoArco, passoArmadilha, pontoDeSoltar, recolher, velocidadeDoArremesso } from './weapons/armadilha'
 import { gatilho } from './weapons/tiro'
 import { alcanceCamera, chaoEm, montarMundo, tetoEm } from './world/colisao'
 import { animarPortas, dicaDaPorta, novasPortas, portaPerto, usarPorta, type PortasVivas } from './world/portas'
@@ -50,6 +51,7 @@ export function Testar({ chunks, levels, inicio, yaw, portas, onTravado, onDica,
   }, [chunks, levels, portas])
   const agente = useMemo(() => montarAgente(), [])
   const acoes = useMemo(() => new Acoes(), [])
+  const armadilha = useMemo(() => novaArmadilha(), []), arco = useMemo(() => novoArco(), [])
   const est = useRef({
     j: novoJogador(inicio[0], chaoEm(mundo, inicio[0], inicio[2], inicio[1] + 0.3) ?? inicio[1], inicio[2], yaw),
     camYaw: yaw, pitch: -0.12, k: 1, pivX: inicio[0], pivZ: inicio[2], pivY: inicio[1], altura: CAMERA.altura, travou: false,
@@ -76,7 +78,7 @@ export function Testar({ chunks, levels, inicio, yaw, portas, onTravado, onDica,
   // o agente na cena, a entrada ligada, o mouse travado com um clique; Esc (ou soltar o mouse) volta ao editor
   useEffect(() => {
     const el = gl.domElement
-    scene.add(agente.root)
+    scene.add(agente.root, arco.linha, arco.marca)
     acoes.ligar(el)
     const clique = () => { if (document.pointerLockElement !== el) { try { const r = el.requestPointerLock() as unknown as Promise<void> | undefined; r?.catch?.(() => {}) } catch { /* sem trava: segue sem olhar com o mouse */ } } }
     const trava = () => {
@@ -93,6 +95,7 @@ export function Testar({ chunks, levels, inicio, yaw, portas, onTravado, onDica,
     clique() // tenta travar já (o clique no botão Testar conta como gesto do usuário)
     return () => {
       scene.remove(agente.root)
+      descartarArco(arco); recolher(armadilha)
       acoes.desligar()
       el.removeEventListener('click', clique)
       document.removeEventListener('pointerlockchange', trava)
@@ -101,10 +104,10 @@ export function Testar({ chunks, levels, inicio, yaw, portas, onTravado, onDica,
       const c = camera as THREE.PerspectiveCamera
       c.fov = 50; c.updateProjectionMatrix() // o campo de visão do editor
     }
-  }, [gl, scene, agente, acoes, camera])
+  }, [gl, scene, agente, acoes, camera, armadilha, arco])
 
   const cam = camera as THREE.PerspectiveCamera
-  const v = useMemo(() => ({ f: new THREE.Vector3(), r: new THREE.Vector3(), de: new THREE.Vector3(), para: new THREE.Vector3(), alvo: new THREE.Vector3() }), [])
+  const v = useMemo(() => ({ f: new THREE.Vector3(), r: new THREE.Vector3(), de: new THREE.Vector3(), para: new THREE.Vector3(), alvo: new THREE.Vector3(), vel: new THREE.Vector3(), mao: new THREE.Vector3() }), [])
 
   useFrame((_, dtBruto) => {
     const dt = Math.min(dtBruto, 0.05), s = est.current, j = s.j
@@ -112,15 +115,18 @@ export function Testar({ chunks, levels, inicio, yaw, portas, onTravado, onDica,
     const [dx, dy] = acoes.olhar(), sens = CAMERA.sens * sensibilidade
     s.camYaw -= dx * sens
     s.pitch = Math.min(CAMERA.pitchMax, Math.max(CAMERA.pitchMin, s.pitch - dy * sens))
-    // mirar (o botão direito; atirar sem mirar também levanta a arma) e andar
-    const quer = (acoes.mirar() || acoes.atirar()) && (agente.arma === 'pistola' || agente.arma === 'escopeta')
+    // mirar (o botão direito; atirar sem mirar também levanta a arma; a armadilha só na mão) e andar
+    const naMao = agente.arma === 'armadilha' && !agente.anim.arma.fora
+    const quer = (acoes.mirar() || acoes.atirar()) && (agente.arma === 'pistola' || agente.arma === 'escopeta' || naMao)
+    const clicou = acoes.clicou()
     j.mira = quer
     passoJogador(j, acoes, s.camYaw, mundo, dt)
     // as portas: a mais perto na frente (do corpo ou da câmera); E abre, fecha ou diz por que não
     animarPortas(portas, dt)
     const porta = portaPerto(mundo, j.x, j.y, j.z, [j.yaw, s.camYaw])
     // Q: a próxima arma (pistola, escopeta, armadilha, mão vazia)
-    if (acoes.trocarArma()) { const i = ARMAS.findIndex(([k]) => k === agente.arma); pegarArma(agente, i + 1 < ARMAS.length ? ARMAS[i + 1][0] : null) }
+    // (a armadilha fora da mão volta na hora: a mão vai segurar outra coisa)
+    if (acoes.trocarArma()) { recolher(armadilha); const i = ARMAS.findIndex(([k]) => k === agente.arma); pegarArma(agente, i + 1 < ARMAS.length ? ARMAS[i + 1][0] : null) }
     if (acoes.interagir() && porta) { const msg = usarPorta(mundo, portas, porta, j.x, j.z); if (msg) { s.msg = msg; s.msgT = 2.5 } }
     acoes.fimDoQuadro()
     s.msgT -= dt
@@ -133,6 +139,15 @@ export function Testar({ chunks, levels, inicio, yaw, portas, onTravado, onDica,
     v.alvo.copy(cam.position).addScaledVector(v.f, CAMERA.alcanceMira)
     animarAgente(agente, { velocidade: j.velocidade, corrida: j.corrida, esquiva: j.esquiva >= 0 ? Math.min(1, j.esquiva / 0.5) : -1, expressao: ver.current.exp, mao: ver.current.mao, mira: { quer, alvo: v.alvo } }, dt)
     gatilho(agente, acoes.atirar() && j.esquiva < 0, dt)
+    // a armadilha: o arremesso solta ela no meio da animação; fora, um clique chama de volta; voltando, chega na mão
+    if (gatilhoArmadilha(agente, acoes.atirar() && j.esquiva < 0, dt)) {
+      const de = pontoDeSoltar(agente)
+      lancar(armadilha, scene, de, velocidadeDoArremesso(de, v.alvo, v.vel)); armadilhaFora(agente, true)
+    } else if (clicou && agente.anim.arma.fora) chamar(armadilha)
+    if (passoArmadilha(armadilha, mundo, agente.arms[0].hd.getWorldPosition(v.mao), dt)) armadilhaFora(agente, false)
+    // mirando com ela na mão: o arco e onde ela cai
+    if (naMao && agente.anim.arma.mira > 0.5 && agente.anim.arma.lanca < 0) { const de = pontoDeSoltar(agente); desenharArco(arco, mundo, de, velocidadeDoArremesso(de, v.alvo, v.vel)) }
+    else arco.linha.visible = arco.marca.visible = false
     if (quer !== s.mirando) { s.mirando = quer; miraRef.current(quer) }
 
     // a câmera por cima do ombro direito: o braço encolhe na hora ao bater e estica devagar

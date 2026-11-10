@@ -136,8 +136,11 @@ export function animarAgente(a: Agente, e: EstadoAnim, dt: number): void {
   // ---------- as mãos e o rosto ----------
   // a mão da arma fica fechada nela (mirando, o indicador vai para o gatilho); a esquerda fecha na bomba da escopeta
   // ou, mirando a pistola, por cima da direita
+  // (a armadilha: fora da mão, a direita fica livre, aberta logo depois de soltar; mirando, a esquerda aponta o alvo)
   const A = a.anim.arma, mirada = A.mira > 0.5 && (a.arma === 'pistola' || a.arma === 'escopeta')
-  const forca: typeof gesto = [a.arma ? (mirada ? 'segurar' : POSE_DA_ARMA[a.arma]) : gesto[0], A.esquerda > 0.5 || (mirada && a.arma === 'pistola') ? 'segurar' : gesto[1]]
+  const direita: PoseMao | undefined = !a.arma ? gesto[0] : a.arma === 'armadilha' && A.fora ? (A.lanca >= 0 ? 'aberta' : gesto[0]) : mirada ? 'segurar' : POSE_DA_ARMA[a.arma]
+  const aponta = a.arma === 'armadilha' && !A.fora && A.mira > 0.5 && A.lanca < 0
+  const forca: typeof gesto = [direita, A.esquerda > 0.5 || (mirada && a.arma === 'pistola') ? 'segurar' : aponta ? 'apontar' : gesto[1]]
   if (e.mao) animarMaos(a, e.mao, 1, dt, m.tempo, forca)
   else animarMaos(a, 'punho', rolando ? 1 : 0.6 * run * Math.min(1, amp), dt, m.tempo, forca)
   animarRosto(a, e.expressao ?? (rolando || run > 0.5 ? 'esforco' : 'neutra'), dt)
