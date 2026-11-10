@@ -26,7 +26,8 @@ import type { Expressao } from '../game/player/rosto'
 import { GRUPOS, OBJETOS } from '../maps/objetos'
 import { arma3d, caminhoObjeto, objeto3d } from '../render/objetos3d'
 import { montarMae } from '../game/enemies/mae/modelo'
-import { animarMae } from '../game/enemies/mae/animacao'
+import { animarMae, golpear } from '../game/enemies/mae/animacao'
+import type { NomeGolpe } from '../game/enemies/mae/golpes'
 import { abertura3d } from '../render/objetos3d'
 
 type Anim = 'parado' | 'andando' | 'correndo' | 'esquiva' | 'queda' | 'porta'
@@ -37,6 +38,11 @@ const AGENTE_ID = 'agente'
 const ARMA = 'arma:' // o id de uma arma no seletor: arma:pistola
 const MAE = 'fantasma:mae'
 const ANIMS_MAE: [Anim, string][] = [['parado', 'Parada'], ['andando', 'Andando (em roda)'], ['porta', 'Passando pela porta']]
+// os ataques no Ver modelos: cada botão é uma sequência de golpes (contra um alvo marcado no chão)
+const ATAQUES: [string, string, NomeGolpe[]][] = [
+  ['garra', 'Garra', ['garra_d']], ['garras', 'Duas garradas', ['garra_d', 'garra_ultima_e']], ['aproximar', 'Aproximar aos trancos', ['aproximar']],
+  ['investida', 'Investida', ['investida']], ['carga', 'Carga', ['carga']],
+]
 const NA_MAO: [Arma | null, string][] = [[null, 'Nenhuma'], ...ARMAS.map(([k]): [Arma, string] => [k, k[0].toUpperCase() + k.slice(1)])]
 const ANIMS: [Anim, string][] = [['parado', 'Parado'], ['andando', 'Andando'], ['correndo', 'Correndo'], ['esquiva', 'Esquiva'], ['queda', 'Queda']]
 const EXPS: [Expressao | null, string][] = [[null, 'Automática'], ['neutra', 'Neutra'], ['esforco', 'Esforço'], ['medo', 'Medo'], ['dor', 'Dor'], ['raiva', 'Raiva'], ['surpresa', 'Surpresa'], ['desmaio', 'Desmaio']]
@@ -44,7 +50,7 @@ const MAOS: [PoseMao | null, string][] = [[null, 'Automática'], ['solta', 'Solt
 const CAMERAS: [Camera, string][] = [['corpo', 'Corpo'], ['rosto', 'Rosto'], ['maos', 'Mãos'], ['pes', 'Pés'], ['costas', 'Costas']]
 const LUZES: [Luz, string][] = [['estudio', 'Estúdio'], ['jogo', 'Jogo (lâmpada no escuro)']]
 
-interface Escolhas { qual: string; anim: Anim; exp: Expressao | null; mao: PoseMao | null; arma: Arma | null; gesto: { g: Gesto; n: number } | null; mirando: boolean; tiros: number; golpes: number; ferido: boolean; camera: Camera; luz: Luz; girar: boolean; grade: boolean }
+interface Escolhas { qual: string; anim: Anim; exp: Expressao | null; mao: PoseMao | null; arma: Arma | null; gesto: { g: Gesto; n: number } | null; mirando: boolean; tiros: number; golpes: number; ferido: boolean; ataque: { nome: string; n: number } | null; camera: Camera; luz: Luz; girar: boolean; grade: boolean }
 interface Info { linhas: string[] }
 
 function Opcoes<T>({ titulo, lista, valor, onEscolher }: { titulo: string; lista: [T, string][]; valor: T; onEscolher: (v: T) => void }) {
@@ -57,7 +63,7 @@ function Opcoes<T>({ titulo, lista, valor, onEscolher }: { titulo: string; lista
 }
 
 export function VerModelos({ go }: { go: Go }) {
-  const [e, setE] = useState<Escolhas>({ qual: AGENTE_ID, anim: 'parado', exp: null, mao: null, arma: null, gesto: null, mirando: false, tiros: 0, golpes: 0, ferido: false, camera: 'corpo', luz: 'estudio', girar: false, grade: true })
+  const [e, setE] = useState<Escolhas>({ qual: AGENTE_ID, anim: 'parado', exp: null, mao: null, arma: null, gesto: null, mirando: false, tiros: 0, golpes: 0, ferido: false, ataque: null, camera: 'corpo', luz: 'estudio', girar: false, grade: true })
   const [info, setInfo] = useState<Info | null>(null)
   const muda = (p: Partial<Escolhas>) => setE((v) => ({ ...v, ...p }))
   const agente = e.qual === AGENTE_ID, arma = e.qual.startsWith(ARMA) ? e.qual.slice(ARMA.length) : null, mae = e.qual === MAE
@@ -93,6 +99,11 @@ export function VerModelos({ go }: { go: Go }) {
           </select>
         </section>
         {mae && <Opcoes titulo="Animação" lista={ANIMS_MAE} valor={e.anim} onEscolher={(anim) => muda({ anim })} />}
+        {mae && <section>
+          <b>Ataques</b>
+          <div className="opcoes">{ATAQUES.map(([id, nome]) => <button key={id} onClick={() => muda({ anim: 'parado', girar: false, ataque: { nome: id, n: (e.ataque?.n ?? 0) + 1 } })}>{nome}</button>)}</div>
+          <small>Ela sai de 2 m atrás contra o alvo marcado no chão (a 4,6 m) e volta ao lugar. O aviso (o chão que estufa) vem com o Luto.</small>
+        </section>}
         {agente && <>
           <Opcoes titulo="Animação" lista={ANIMS} valor={e.anim} onEscolher={(anim) => muda({ anim })} />
           <Opcoes titulo="Expressão" lista={EXPS} valor={e.exp} onEscolher={(exp) => muda({ exp })} />
@@ -241,13 +252,24 @@ function CenaMae({ e, onInfo }: { e: Escolhas; onInfo: (i: Info) => void }) {
   const porta = useMemo(() => { const o = abertura3d('porta-comum'); o.position.set(-0.5, 0, 0); const f = o.getObjectByName('folha_1'); if (f) f.rotation.y = -1.4; return o }, [abertura3d])
   const { pronto, voar } = useVoo()
   const ida = useRef({ t: 0, z: -2.4, dir: 1, vira: 0 })
+  // o ataque: a fila de golpes, de onde ela sai e o alvo à frente; depois de terminar, espera e volta ao lugar
+  const ALVO_Z = 2.6
+  const ataque = useRef<{ fila: NomeGolpe[]; espera: number; ativo: boolean }>({ fila: [], espera: 0, ativo: false })
+  const alvo = useMemo(() => { const g = new THREE.Mesh(new THREE.RingGeometry(0.3, 0.38, 24).rotateX(-Math.PI / 2), new THREE.MeshBasicMaterial({ color: '#c2453a' })); g.position.set(0, 0.01, ALVO_Z); return g }, [])
+  const volta = (z: number) => { m.root.position.set(0, 0, z); m.root.rotation.y = 0; m.saia.pos = m.cabelo.pos = null; m.anim.ultimo = null } // pula sem o tranco nas molas
+  useEffect(() => {
+    if (!e.ataque) return
+    const def = ATAQUES.find(([id]) => id === e.ataque!.nome)
+    if (!def) return
+    volta(-2); ataque.current = { fila: [...def[2]], espera: 0, ativo: true }
+  }, [e.ataque])
   useEffect(() => {
     const c = contas(m.root)
     m.root.updateMatrixWorld(true)
     const b = new THREE.Box3().setFromObject(m.root)
     onInfo({ linhas: [`Altura: ${b.max.y.toFixed(2)} m`, `${c.blocos} blocos em ${c.juntas} juntas`, `${c.desenhos} chamadas de desenho`] })
   }, [m, onInfo])
-  useEffect(() => { if (pronto) voar(new THREE.Vector3(0, 1.2, 0), e.anim === 'porta' ? new THREE.Vector3(4.2, 1.9, 2.2) : new THREE.Vector3(1.8, 1.7, 4.4)) }, [m, pronto, e.anim])
+  useEffect(() => { if (pronto) voar(new THREE.Vector3(0, 1.2, e.ataque ? 0.3 : 0), e.anim === 'porta' || e.ataque ? new THREE.Vector3(5.6, 2.0, 1.2) : new THREE.Vector3(1.8, 1.7, 4.4)) }, [m, pronto, e.anim, !!e.ataque])
   useFrame((_, dtBruto) => {
     const dt = Math.min(dtBruto, 0.05), I = ida.current
     I.t += dt
@@ -260,13 +282,21 @@ function CenaMae({ e, onInfo }: { e: Escolhas; onInfo: (i: Info) => void }) {
       else { I.z += I.dir * 0.95 * dt; if (Math.abs(I.z) > 2.4) { I.z = Math.sign(I.z) * 2.4; I.dir = -I.dir; I.vira = 1.3 } }
       m.root.position.set(0, 0, I.z)
       k = 1 - Math.min(1, Math.max(0, (Math.abs(I.z) - 0.3) / 0.7)); k = k * k * (3 - 2 * k)
-    } else { m.root.position.set(0, 0, 0); if (!e.girar) m.root.rotation.y = 0 }
-    if (e.girar && e.anim === 'parado') m.root.rotation.y += dt * 0.5
-    animarMae(m, { porta: k }, dt)
+    } else if (!ataque.current.ativo) { m.root.position.set(0, 0, 0); if (!e.girar) m.root.rotation.y = 0 }
+    if (e.girar && e.anim === 'parado' && !ataque.current.ativo) m.root.rotation.y += dt * 0.5
+    // o ataque: o próximo golpe da fila quando o anterior acaba; ela avança o que o golpe pede, de frente (+z)
+    const Aq = ataque.current
+    if (Aq.ativo && e.anim === 'parado') {
+      if (!m.anim.golpe && Aq.fila.length) golpear(m, Aq.fila.shift()!)
+      else if (!m.anim.golpe && (Aq.espera += dt) > 1.2) { Aq.ativo = false; volta(0) }
+    }
+    const saida = animarMae(m, { porta: k, perto: ALVO_Z - m.root.position.z }, dt)
+    if (Aq.ativo) { m.root.position.z += saida.avanca * dt; m.root.position.y = saida.y }
   })
   return <>
     <primitive object={m.root} />
     {e.anim === 'porta' && <primitive object={porta} />}
+    {e.anim === 'parado' && e.ataque && <primitive object={alvo} />}
   </>
 }
 

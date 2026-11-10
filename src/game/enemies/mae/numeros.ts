@@ -13,3 +13,11 @@ export const MOV = {
   porta: { rate: 9, abaixa: 0.14, curva: 0.4, olha: 0.6 }, // passando pela porta: o quadril desce (m), o tronco curva e a cabeça levanta (rad)
   estalo: { chance: 0.45, dura: 0.18, giro: -0.55, volta: 14 }, // parada, a cabeça estala de lado de repente (por s; s; rad; quão rápido volta)
 }
+
+// os ataques (golpes.ts), com os números da fase 1 do laboratório (tabela T.mae): a luta muda por fase depois
+export const GOLPE = {
+  garra: { preparo: 0.42, corte: 0.37, ultima: 0.59, bote: 5.5, rate: 30 }, // ergue o braço (s), corta (s; a última garrada fica mais), o passo do golpe (m/s)
+  aproximar: { dur: 1.6, arranque: 5.0, tranco: 0.16, perto: 1.05, rate: 18 }, // aos trancos (m/s; s por tranco) até ficar a 1 m
+  investida: { dur: 1.3, alcance: 9, fundo: 2.0, sobe: 0.3, voo: 0.62, rate: 26 }, // sai de baixo (m de fundo, s para subir) e voa baixo (s) até perto
+  carga: { prepara: 0.75, corre: 1.15, derrapa: 0.5, vel: 8.6, perto: 0.95, rate: 18 }, // agacha e guincha; corre em linha reta (m/s); derrapa
+}

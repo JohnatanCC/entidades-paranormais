@@ -219,8 +219,14 @@ parada, de vez em quando ela tomba a cabeça de lado de uma vez (0,55 rad por 0,
   pernas empurram: a frente do vestido vai para a frente com a perna que avança, e a de trás vai para trás) e **abaixar para passar pela porta** (o quadril desce, o tronco curva, a cabeça levanta para olhar
   e a mão direita segura o batente: a cabeça passa a 1,87 m, abaixo dos 2,1 m da porta; a saia encolhe a partir da
   cintura e a barra amontoa no chão). Saber quando há porta em cima dela é da inteligência (depois);
-- 3. os ataques (aviso, investida, garra, aproximar aos trancos, carga); 4. o Luto (mergulhar, surgir, finta);
-  5. os estados (grito, atordoada, cambaleio, enfraquecida, levanta, capturada).
+- ✅ 3 (10/nov): **os ataques** (`golpes.ts`; os números da fase 1 em `numeros.ts`, GOLPE): a **garra** (ergue o braço
+  por 0,42 s, o aviso para quem joga, e corta na diagonal com um passo à frente; duas garradas emendam, a última fica
+  mais), **aproximar** aos trancos (arranca, quase para, arranca, a 5 m/s, até 1 m), a **investida** (sai de baixo do
+  chão, voa baixo com as garras na frente e a boca escancarada, pousa derrapando a 0,9 m) e a **carga** (agacha tremendo
+  e guincha, corre em linha reta a 8,6 m/s e passa derrapando). Cada golpe diz quanto ela avança; quem a move no mundo
+  (com as paredes) é a inteligência, depois;
+- 4. o Luto (o **aviso**, que é o chão estufando e brilhando vermelho com ela embaixo; mergulhar, surgir, finta);
+  5. os estados (grito, exausta, atordoada, cambaleio, enfraquecida, levanta, capturada).
 - Fora: a cena de pegar o agente e a do armário (cenas do laboratório).
 
 Números da tabela `T` em `buildDemo()` do laboratório (linha ~7674); a lógica das fases na linha ~9623.

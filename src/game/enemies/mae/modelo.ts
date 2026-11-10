@@ -6,6 +6,7 @@
 import * as THREE from 'three'
 import { arquivoModelo, montarBB, vestir } from '../../../render/bbmodel'
 import { prepararMolas, type Molas } from '../../corpo/molas'
+import type { Golpe } from './golpes'
 import { novasMolasDaPose, type MolasDaPose } from './pose'
 import { CABELO_MAE, SAIA } from './numeros'
 
@@ -26,7 +27,7 @@ export interface Mae {
   saia: Molas; cabelo: Molas
   pose: MolasDaPose
   /** o que a animação lembra (animacao.ts) */
-  anim: { t: number; passo: number; andar: number; estalo: number; estaloT: number; ultimo: THREE.Vector3 | null; vel: THREE.Vector3; yaw: number; giro: number }
+  anim: { t: number; passo: number; andar: number; estalo: number; estaloT: number; ultimo: THREE.Vector3 | null; vel: THREE.Vector3; yaw: number; giro: number; golpe: Golpe | null }
 }
 
 const DEDOS = ['indicador', 'medio', 'anelar', 'minimo']
@@ -57,7 +58,7 @@ export function montarMae(): Mae {
     saiaRaiz: [...pastas].filter(([n]) => /^saia_[0-9]+$/.test(n) || n === 'anagua').map(([, g]) => g),
     base: { quadrilY: quadril.position.y, coxa: pernas[0].canela.position.length(), canela: pernas[0].pe.position.length(), cintura: quadril.position.y + osso('anagua').position.y },
     saia: null!, cabelo: null!, pose: novasMolasDaPose(),
-    anim: { t: 0, passo: 0, andar: 0, estalo: 0, estaloT: 0, ultimo: null, vel: new THREE.Vector3(), yaw: 0, giro: 0 },
+    anim: { t: 0, passo: 0, andar: 0, estalo: 0, estaloT: 0, ultimo: null, vel: new THREE.Vector3(), yaw: 0, giro: 0, golpe: null },
   }
   m.boca.scale.y = 0.0001 // a boca fechada (a peça escura só aparece no grito)
   root.updateMatrixWorld(true)

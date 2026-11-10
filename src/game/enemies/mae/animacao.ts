@@ -6,15 +6,22 @@
 //     as pernas dão passos curtos por baixo da saia e empurram o pano na frente e atrás delas (e a saia arrasta: as molas);
 //   passando pela porta (porta: 0..1): ela é maior que a porta (2,26 m contra 2,1): o quadril desce, o tronco curva para
 //     a frente, a cabeça levanta para continuar olhando e a mão direita sobe e segura o batente.
+//   os ataques (golpes.ts): golpear(m, nome) começa um; enquanto dura, ele manda na pose e diz quanto ela avança.
 // Quem move e gira o root é quem a controla (a inteligência, depois; o Ver modelos agora): aqui o andar é medido pelo
-// deslocamento do root. Os números em numeros.ts (MOV).
+// deslocamento do root, e animarMae devolve o quanto o golpe quer que ela avance e a altura do corpo (a investida sai de
+// baixo do chão). Os números em numeros.ts (MOV, GOLPE).
 import * as THREE from 'three'
 import { animarMolas } from '../../corpo/molas'
 import type { Mae } from './modelo'
 import { MOV } from './numeros'
-import { aplicarPose, pose0, seguirPose, type Pose } from './pose'
+import { novoGolpe, quadroDoGolpe, type NomeGolpe } from './golpes'
+import { aplicarPose, misturar, pose0, seguirPose, type Pose } from './pose'
 
-export interface EstadoMae { porta?: number } // porta: quanto ela está passando pela porta (0..1)
+/** porta: quanto ela está passando pela porta (0..1); perto: a distância até o alvo à frente dela (os golpes param ao chegar) */
+export interface EstadoMae { porta?: number; perto?: number }
+
+/** Começa um ataque (o que estava acontecendo acaba). */
+export function golpear(m: Mae, nome: NomeGolpe) { m.anim.golpe = novoGolpe(nome) }
 
 const cl = (x: number, m: number) => Math.max(-m, Math.min(m, x))
 const lerp = (a: number, b: number, k: number) => a + (b - a) * k
@@ -32,7 +39,8 @@ function parada(t: number, P: Pose) {
   }))
 }
 
-export function animarMae(m: Mae, e: EstadoMae, dt: number) {
+/** Um quadro da Mãe. Devolve o que o golpe pede: avanca (m/s para a frente dela) e y (a altura do corpo). */
+export function animarMae(m: Mae, e: EstadoMae, dt: number): { avanca: number; y: number } {
   dt = Math.min(dt, 0.05)
   const A = m.anim, porta = e.porta ?? 0
   A.t += dt
@@ -57,11 +65,12 @@ export function animarMae(m: Mae, e: EstadoMae, dt: number) {
   // ---------- a pose-alvo: a parada, o andar por cima, a porta por cima ----------
   const T = pose0()
   parada(A.t, T)
+  const base = misturar(T, T, 0), golpe = A.golpe // a parada (a investida volta para ela no fim)
   // a inércia: arrancando ela inclina para trás, freando para a frente; virando, o peito e a cabeça vão na frente
   T.lean += cl(-af * 0.011, 0.22); T.lz += cl(as * 0.009 - A.giro * vf * 0.012, 0.18)
   T.ly += cl(A.giro * 0.07, 0.35); T.ny += cl(A.giro * 0.05, 0.3); T.hry += cl(-A.giro * 0.025, 0.12)
   const wk = A.andar, g = A.passo
-  if (wk > 0.01) {
+  if (wk > 0.01 && !golpe) { // (num golpe, quem manda nos braços é ele)
     T.a.forEach((B, k) => {
       const sw = Math.sin(g + k * Math.PI), lag = Math.sin(g + k * Math.PI - 0.9)
       // os braços descem e ficam pendurados (compensando a inclinação), balançando baixo, o cotovelo e a mão atrasados
@@ -73,19 +82,26 @@ export function animarMae(m: Mae, e: EstadoMae, dt: number) {
     T.nz += Math.sin(g) * 0.07 * wk; T.lz += Math.sin(g) * 0.04 * wk
   }
   // passando pela porta: abaixa, curva, a cabeça levanta para olhar e a mão direita segura o batente
-  if (porta > 0.001) {
+  // o golpe: a pose dele por cima e o quanto ela avança
+  let saida = { avanca: 0, y: 0 }
+  if (golpe) {
+    golpe.t += dt
+    saida = quadroDoGolpe(golpe, T, base, e.perto ?? 9, dt)
+    if (golpe.t >= golpe.dur) A.golpe = null
+  }
+  if (porta > 0.001 && !golpe) {
     const P = MOV.porta, k = porta
     T.hy -= P.abaixa * k; T.lean += P.curva * k; T.nx -= P.olha * k; T.nz *= 1 - k; T.jaw *= 1 - 0.5 * k
     const D = T.a[0]
     D.x = lerp(D.x, -2.5, k); D.z = lerp(D.z, 0.2, k); D.el = lerp(D.el, -0.35, k); D.wr = lerp(D.wr, 0.3, k); D.curl = lerp(D.curl, 0.7, k); D.tw = lerp(D.tw, 0, k)
   }
-  const rate = porta > 0.3 ? MOV.porta.rate : wk > 0.3 ? MOV.andar.rate : MOV.parada.rate
+  const rate = golpe ? golpe.rate : porta > 0.3 ? MOV.porta.rate : wk > 0.3 ? MOV.andar.rate : MOV.parada.rate
   seguirPose(m.pose, T, rate, dt)
 
   // ---------- o estalo da cabeça (parada): vira de lado de repente e volta ----------
   const E = MOV.estalo
   if (A.estaloT > 0) A.estaloT -= dt
-  else if (wk < 0.3 && porta < 0.3 && Math.random() < dt * E.chance) A.estaloT = E.dura
+  else if (wk < 0.3 && porta < 0.3 && !golpe && Math.random() < dt * E.chance) A.estaloT = E.dura
   A.estalo = A.estaloT > 0 ? E.giro : damp(A.estalo, 0, E.volta, dt)
   aplicarPose(m, m.pose, A.estalo)
 
@@ -117,4 +133,5 @@ export function animarMae(m: Mae, e: EstadoMae, dt: number) {
     s.g.rotation.x += empurra * (ponta ? MOV.andar.saiaPonta : MOV.andar.saia)
   }
   animarMolas(m.cabelo, m.root, dt)
+  return saida
 }
