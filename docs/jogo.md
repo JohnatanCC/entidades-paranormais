@@ -2,7 +2,7 @@
 
 Entidades Paranormais é um jogo de **ação com terror em terceira pessoa** (inspirado no Ghosthunter de PS2).
 Você é **Matheus Moura**, agente da **C.R.O.S.** (a organização que captura entidades). Você enfraquece os fantasmas
-a tiro e os prende com a armadilha. Visual retrô de PS1 por padrão (o filtro limpo é opcional).
+a tiro e os prende com a armadilha. Cenário e personagens em blocos com textura em pixel (ver "A identidade visual").
 
 ## A direção (9/nov/2026)
 
@@ -11,6 +11,25 @@ a tiro e os prende com a armadilha. Visual retrô de PS1 por padrão (o filtro l
 - **Capítulos:** a cada chefe derrotado a mansão muda, porque ela se alimenta dos fantasmas. Na prática, cada capítulo é um mapa.
 - **Mais tarde:** versão para celular, e talvez vender ou publicar de graça.
 - **A base é o laboratório v130** (`reference/laboratorio.html`, o mesmo de https://claude.ai/artifact/BDUaLP6DmvqwsBXhkdJdYw).
+
+## A identidade visual (10/nov)
+
+- **Blocos com textura pintada em pixel**: o cenário com 32 px por metro, os personagens com 64 (o rosto com 128), para
+  o detalhe do Hytale e não do Minecraft: cabeça em várias peças, cabelo com volume, mãos com dedos, expressões. Detalhe vai na textura, não na forma:
+  rosto, roupa, sujeira; piscar e mudar a expressão é trocar um pedaço da textura.
+- **Proporções quase realistas** (cabeça só um pouco maior, mãos normais): o estilo em blocos puxa para o "fofo", e o
+  terror compensa com a **ambientação mais tensa**: pouca luz, sombras, sons.
+- **Fantasmas com formas erradas:** a Mãe alta demais, braços longos, cabelo em mechas finas, o véu preto, olhos brancos
+  de cega, a cabeça virando sem suavizar; o Espectral translúcido, se desfazendo em cubos embaixo; o Glutão inchado,
+  com a boca rasgando o tronco. Olhos que brilham no escuro.
+- **Animação:** partes rígidas que giram nas juntas (como no laboratório), feita em código, ligada às ações do jogo.
+  Os dedos fecham por poses (solta, punho, aberta, segurar, apontar) e o rosto tem expressões (neutra, esforço, medo,
+  dor, raiva, surpresa), com piscar e o olhar passeando; as mechas do cabelo balançam com física simples (a gravidade
+  e o tranco da cabeça, com limites para não entrar na cabeça) (`src/game/player/maos.ts`, `rosto.ts` e `cabelo.ts`).
+- **Ver modelos** (Modo desenvolvedor): o personagem de perto, com animações, expressões, mãos e a luz do jogo.
+- **Modelos no Blockbench** (em teste): o desenvolvedor modela e pinta; o jogo lê o `.bbmodel` direto. Passo a passo em
+  `docs/blockbench.md`. Se servir, substitui o Editor de modelos que estava planejado.
+- **Sem filtro PS1 por padrão:** a imagem limpa é a padrão; PS1 e suave ficam como opção nas configurações.
 
 ## O objetivo de cada capítulo
 

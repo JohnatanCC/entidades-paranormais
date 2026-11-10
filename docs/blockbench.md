@@ -1,0 +1,82 @@
+# Blockbench: os modelos dos personagens
+
+Decidido em 10/nov (em teste): os personagens são feitos no **Blockbench**, um programa grátis feito para modelos em
+blocos com textura em pixel. O desenvolvedor modela e pinta; o jogo lê o próprio `.bbmodel` (sem exportar nada) e anima em código.
+
+## Os arquivos
+
+| Onde | O quê |
+| --- | --- |
+| `modelos/<nome>.bbmodel` | O modelo, aberto e salvo no Blockbench (a textura vai dentro do arquivo). O jogo lê este mesmo arquivo (`src/render/bbmodel.ts`) |
+
+O primeiro é `modelos/agente.bbmodel`: o Matheus, já ligado no Testar do criador de mapas. Com o `npm run dev` aberto,
+salvar no Blockbench atualiza o jogo (se o Testar estiver aberto, saia e entre de novo).
+
+## As regras (para o jogo conseguir animar)
+
+- **Não renomeie nem mude a ordem das pastas** do Organizador. O código gira cada pasta pelo nome:
+  - o corpo: `raiz` › `quadril` › `tronco` › `pescoco` › `cabeca`; `braco_e` › `antebraco_e` › `mao_e`; `coxa_e` › `canela_e` › `pe_e`
+    (e os `_d`);
+  - a mão (dentro de `mao_e`): `indicador_e`, `medio_e`, `anelar_e`, `minimo_e` e `polegar_e`, cada um com a
+    `..._ponta_e` dentro (a segunda falange);
+  - o rosto (dentro de `cabeca`): `olho_e` (com a `iris_e` dentro), `sobrancelha_e` e `boca`. São peças finas na frente
+    do rosto: o código mexe nelas para as expressões (piscar, medo, dor, raiva, surpresa, esforço) e para o olhar;
+    a `boca` é a boca **aberta** (dentes e o escuro): fechada, ela some e fica a boca pintada no rosto, na cabeça;
+  - o cabelo (dentro de `cabeca` › `cabelo`): a casca, a coroa e o topete ficam parados; **toda pasta que começa com
+    `mecha_` balança com física** (a gravidade e o tranco da cabeça). Para uma mecha nova: crie uma pasta `mecha_algo`
+    dentro de `cabelo`, ponha o ponto de giro na raiz (onde ela nasce) e o bloco pendurado para baixo. O jogo acha os
+    limites sozinho pelo lugar da raiz (as de trás não vão para a frente, as da franja não entram no rosto, as dos
+    lados não entram na cabeça);
+  Se faltar uma, o jogo avisa no console (F12) e aquela parte fica parada.
+  `_e` é o lado esquerdo do personagem, `_d` o direito.
+- **O ponto de giro de cada pasta é a junta** (o ombro, o cotovelo, o joelho). Se mudar o tamanho de um braço, leve o ponto
+  de giro junto (painel Transformar, campo "Pivô").
+- **Escala: 32 unidades = 1 metro.** O Matheus tem 56 unidades (1,75 m). A grade do Blockbench marca 16 unidades (meio metro).
+- **A frente é o sul (+Z).** O rosto fica na face sul da cabeça.
+- **64 px por metro nos personagens** (decidido em 10/nov; o cenário continua com 32): a textura tem o dobro de pixels do
+  espaço de UV, então cada unidade tem 2 × 2 px para pintar. A frente e os lados da cabeça (`cranio`) e as peças do rosto (olhos,
+  íris, sobrancelhas, boca) têm UV próprio, com 4 × 4 px por unidade: o rosto, o nariz, as orelhas e a barba são pintados ali, e as
+  peças finas dão a expressão. Deixe essas oito sem Box UV.
+- **Equilibrado, não super-realista** (pedido em 10/nov): a cabeça é um bloco só, sem mandíbula separada; o nariz e as
+  orelhas são pintura (sprites), não blocos.
+- O modelo tem bastante peça (88 blocos), mas o jogo junta os blocos de cada pasta numa malha só: o peso vem do número
+  de pastas, não de blocos. Detalhe à vontade dentro das pastas que já existem.
+- **Proporções quase realistas:** cabeça só um pouco maior, mãos normais. O terror vem da ambientação e dos fantasmas.
+- Peça nova (um coldre, óculos, o cabelo com mais volume): ponha dentro da pasta que deve levá-la junto (óculos na
+  `cabeca`, coldre na `coxa_d`). A bota fica na pasta do pé (`pe_e`): é por ela que o jogo acha a sola e põe os pés no chão.
+- Uma textura só por modelo (a primeira da lista é a que vale).
+
+## Passo a passo
+
+1. **Abrir o Blockbench.** Use direto no navegador em https://web.blockbench.net ou instale em https://www.blockbench.net
+   (botão Download, versão Windows). O instalado é melhor: salva direto na pasta do projeto.
+2. **Abrir o Matheus:** Arquivo → Abrir modelo → `modelos/agente.bbmodel`.
+3. **Olhar em volta:** botão direito gira, botão do meio move, rodinha aproxima. À direita, o Organizador mostra as pastas
+   (as juntas) e os blocos.
+4. **Os três modos** (no alto, à direita):
+   - **Editar:** clique num bloco para escolher; as setas movem, a ferramenta de tamanho estica. O painel Transformar mostra
+     os números exatos.
+   - **Pintar:** escolha o pincel e a cor e pinte direto no modelo, pixel por pixel. Dá para pintar também no painel UV,
+     à esquerda (a textura aberta).
+   - **Animar:** não use por enquanto: as animações ficam no código (andar, correr, esquivar, mirar).
+5. **Testar uma junta:** no modo Editar, escolha a pasta `braco_e` e gire (ferramenta de girar). O braço inteiro deve girar
+   pelo ombro. Desfaça com Ctrl+Z.
+6. **Salvar:** Arquivo → Salvar modelo (Ctrl+S), por cima de `modelos/agente.bbmodel`. No Blockbench do navegador, o arquivo
+   vai para Downloads: copie para `modelos/` no lugar do antigo.
+7. **Ver de perto:** Modo desenvolvedor → **Ver modelos**. O personagem sozinho, com a câmera girando em volta, a luz
+   de estúdio ou a do jogo (uma lâmpada no escuro), e botões para a animação (parado, andando, correndo, esquiva), a
+   expressão, a pose das mãos e o ângulo (corpo, rosto, mãos, pés, costas). Mostra também a altura e o peso do modelo.
+8. **Ver no jogo:** no criador de mapas, aperte **Testar (T)**. Não precisa exportar nada. Para ver o rosto, ande para
+   trás (S) e o agente vira de frente para a câmera. No Testar, as teclas **1 a 6** mostram as expressões (neutra, esforço,
+   medo, dor, raiva, surpresa), **7 a 9** as mãos (punho, aberta, apontar) e **0** volta ao automático.
+
+## O que vem depois
+
+1. ✅ **Ligar no jogo** (10/nov): o Testar lê `modelos/agente.bbmodel` e as animações do laboratório (andar, correr,
+   esquivar) giram as pastas pelo nome (`src/game/player/modelo.ts`).
+2. ✅ **O Matheus detalhado** (10/nov): cabeça de um bloco só com o rosto pintado (nariz e orelhas em sprite) e pescoço curto; cabelo em camadas (topo, coroa,
+   nuca, lados, topete) e 7 mechas com física (quatro na nuca até a gola e três na franja; as dos lados saíram em
+   10/nov, a pedido); rosto com expressões; mãos com palma, polegar e quatro dedos de duas falanges (luva sem dedos);
+   botas com cano, biqueira, salto e sola; gola, lapelas, bolsos, alças, cinto com bolsas, coldre e os frascos da mochila.
+3. **Os fantasmas no mesmo estilo:** a Mãe, o Espectral e o Glutão (ver "A identidade visual" em `docs/jogo.md`).
+4. **Lara e Nicolas**, quando a demo Intro for trazida.

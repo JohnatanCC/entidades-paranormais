@@ -1,6 +1,6 @@
 # Entidades Paranormais — instruções para o Claude
 
-Jogo de ação com terror em terceira pessoa, no navegador, visual retrô de PS1. Você é Matheus Moura, agente da C.R.O.S.,
+Jogo de ação com terror em terceira pessoa, no navegador, em blocos com textura em pixel. Você é Matheus Moura, agente da C.R.O.S.,
 e captura entidades. Este projeto começa pelo **Modo desenvolvedor → Criador de mapas**; o jogo em si vem depois.
 
 ## Leia antes de mexer
@@ -8,6 +8,7 @@ e captura entidades. Este projeto começa pelo **Modo desenvolvedor → Criador 
 1. `docs/criador-de-mapas.md` — o foco agora: decisões, o formato dos mapas e as 8 etapas (qual é a próxima).
 2. `docs/jogo.md` — o que já foi decidido e jogado (agente, armas, captura, fantasmas, HUD, a demo Intro).
    `docs/mansao-cap1.md` — a planta da mansão do capítulo 1 (cômodos, escadas, rota, onde ficam os objetos da Mãe).
+   `docs/blockbench.md` — como os personagens são feitos (Blockbench, as regras das juntas, a escala, a exportação).
 3. `docs/portando-do-laboratorio.md` — onde está cada coisa no laboratório antigo e o que **não** trazer.
 4. `docs/design/` — cópias do documento de design (história, mansão, intro). Referência; os docs acima valem quando discordarem.
 
@@ -36,7 +37,12 @@ e captura entidades. Este projeto começa pelo **Modo desenvolvedor → Criador 
 - Fora do projeto (eram testes do laboratório): os outros fantasmas do laboratório (Sombra, Desconhecido, Garota, Mordomo,
   Observador, Reflexo, Amigo), a demo da casa como fase, a demo "O Bando", a fatia, o círculo de velas, o orbe, o pé de cabra.
   Fora agora não quer dizer fora para sempre: se o desenvolvedor trouxer de volta, atualize esta lista.
-- O visual padrão é o **filtro PS1** (pixels, 5 bits com pontilhado, tremor de vértice); "limpo" e "suave" são opções.
+- **A identidade visual** (decidida em 10/nov): cenário e personagens em **blocos com textura pintada em pixel** (cenário
+  com 32 px por metro, personagens com 64 e o rosto com 128), com **proporções quase realistas** (nada de cabeça e mãos grandes). O terror vem da ambientação: pouca luz,
+  fantasmas com formas erradas, olhos que brilham, movimentos travados. O estilo é parecido com o do Hytale, mas os
+  personagens são nossos: não copiar os deles.
+- Os modelos dos personagens são feitos no **Blockbench** (em teste; o passo a passo está em `docs/blockbench.md`).
+- O visual padrão é a imagem **limpa**; o filtro PS1 (pixels, 5 bits com pontilhado, tremor de vértice) e o "suave" viraram opção.
 
 ## Comandos
 
@@ -57,11 +63,12 @@ maps/<id>/                 os mapas (JSON). map.json = cabeçalho; chunks/<cx>_<
 src/
   main.tsx, App.tsx        as telas (menu → configurações | modo desenvolvedor → criador de mapas)
   styles.css               a paleta e as telas
-  screens/                 MainMenu, SettingsScreen, DevMenu
+  screens/                 MainMenu, SettingsScreen, DevMenu, VerModelos (o personagem de perto: animação, expressão, mãos, luz)
   settings/settings.ts     configurações no localStorage (useSettings / setSettings)
   audio/musica.ts          a trilha: useMusica('menu') toca public/musica/<nome>.mp3 em laço, com o volume das configurações
   render/                  RetroRenderer (pós-processo PS1), psx.ts (tremor de vértice), materiais.ts (nome da textura -> material),
-                           corte.ts (paredes altas / recortadas / baixas no editor), miniaturas.ts (fotos do catálogo de objetos)
+                           corte.ts (paredes altas / recortadas / baixas no editor), miniaturas.ts (fotos do catálogo de objetos),
+                           bbmodel.ts (lê um modelo do Blockbench: pastas = juntas, blocos = malhas)
   maps/                    types.ts (o formato v1), loader.ts (o jogo lê a pasta), storage.ts (o editor lê, grava,
                            exporta e importa; o pacote MapBundle), textures.ts (o catálogo: cada nome, o desenho em canvas e o tamanho em metros),
                            objetos.ts (o catálogo de móveis e lâmpadas, em dados: tamanho e peças),
@@ -73,6 +80,7 @@ src/
                            FerramentaObjetos + PainelObjeto, Objetos (monta o catálogo; a lâmpada acende),
                            Aberturas (portas, janelas) + Luar (feixe macio, brilho, poeira), Paleta, doc.ts (o documento e as operações),
                            historico.ts (desfazer e refazer)
+modelos/                   os personagens feitos no Blockbench (.bbmodel); o jogo lê o arquivo direto (render/bbmodel.ts)
 public/musica/             as músicas do jogo (menu.mp3: o menu e o criador de mapas)
 reference/                 o laboratório antigo, só para consulta (não importar nada daqui); ost/ = as 4 músicas dele
 docs/                      o que está decidido
@@ -86,7 +94,8 @@ ficam num arquivo próprio de cada pasta, para ajustar sem caçar no código.
 ```
 src/game/                  (já existem: Testar.tsx, player/, input/, world/ — o resto entra quando a etapa chegar)
   Testar.tsx               o Testar do editor: o agente andando no mapa aberto (câmera, colisão, luz do jogo)
-  player/                  o agente: modelo.ts, animacao.ts, controle.ts (andar, correr, esquivar), numeros.ts
+  player/                  o agente: modelo.ts (liga modelos/agente.bbmodel no esqueleto), animacao.ts, maos.ts (os dedos),
+                           rosto.ts (as expressões), cabelo.ts (as mechas com física), controle.ts (andar, correr, esquivar), numeros.ts
   weapons/                 pistola, escopeta, armadilha, sobrecarga
   enemies/<nome>/          um fantasma por pasta (espectral/, glutao/, ...): IA, ataques, modelo, números
   capture/                 a poça e a captura
@@ -109,7 +118,8 @@ Versões fixas no `package.json`; não atualize sem pedir.
 ## Convenções de código
 
 - O estado das configurações fica em `src/settings/settings.ts`; telas leem com `useSettings()`.
-- Toda cena de jogo põe `<RetroRenderer />` dentro do `<Canvas>`; materiais de cenário e personagens passam por `applyPsx()`.
+- Materiais de cenário e personagens passam por `applyPsx()` (o tremor só liga com o filtro PS1). O `<RetroRenderer />` entra
+  na cena só quando o filtro escolhido não é o limpo.
 - O mapa é dado puro (JSON, tipos em `src/maps/types.ts`). O editor muda o dado; a vista desenha a partir dele. Nada de estado escondido nos objetos 3D.
 - Mudou o formato do mapa? Suba `formato` e escreva a conversão no carregador. Nunca quebre um mapa salvo.
 - Textura e objeto são referenciados por **nome** no mapa (`"papel-verde"`, `"lampada-teto"`), nunca por caminho de arquivo.

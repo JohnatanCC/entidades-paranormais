@@ -35,6 +35,26 @@ button { font: inherit; color: inherit; }
 /* criador de mapas: o conceito B, "Arquivo C.R.O.S." — latão, âmbar e VT323, a mesma cara do HUD do jogo.
    Em cima, a barra do mapa (andar, paredes, desfazer, salvar); à esquerda, a coluna de ferramentas em ícones;
    embaixo, a gaveta com o catálogo da ferramenta escolhida; o Inspetor flutua sobre a vista. */
+/* Ver modelos: a vista grande e o painel de escolhas à direita, na cara do criador de mapas */
+.vermodelo { position: fixed; inset: 0; display: grid; grid-template-columns: minmax(0, 1fr) 270px; grid-template-rows: 46px minmax(0, 1fr); background: var(--bg); font-size: 13px; }
+.vermodelo .topo { grid-column: 1 / 3; display: flex; align-items: center; gap: 14px; padding: 0 10px; background: #16130f; border-bottom: 1px solid var(--brass); }
+.vermodelo .titulo { font-family: var(--display); font-size: 26px; letter-spacing: .06em; color: var(--amber); text-transform: uppercase; }
+.vermodelo .nome { color: var(--muted); }
+.vermodelo .espaco { flex: 1; }
+.vermodelo .bt { background: transparent; border: 1px solid var(--line); padding: 3px 12px; font-family: var(--display); font-size: 18px; letter-spacing: .06em; text-transform: uppercase; }
+.vermodelo .bt:hover { border-color: var(--lamp); color: var(--amber); }
+.vermodelo .vista { position: relative; min-height: 0; }
+.vermodelo .ajuda { position: absolute; left: 50%; bottom: 10px; transform: translateX(-50%); background: rgba(16, 14, 11, .7); padding: 3px 12px; color: var(--muted); pointer-events: none; }
+.vermodelo .painel { background: #16130f; border-left: 1px solid var(--brass); padding: 12px; overflow-y: auto; display: flex; flex-direction: column; gap: 14px; }
+.vermodelo .painel section { display: flex; flex-direction: column; gap: 6px; }
+.vermodelo .painel b { font-family: var(--display); font-weight: 400; font-size: 20px; letter-spacing: .06em; color: var(--amber); text-transform: uppercase; }
+.vermodelo .opcoes { display: flex; flex-wrap: wrap; gap: 4px; }
+.vermodelo .opcoes button { background: var(--bg2); border: 1px solid var(--line); padding: 4px 9px; cursor: pointer; }
+.vermodelo .opcoes button:hover { border-color: var(--brass); }
+.vermodelo .opcoes button[aria-pressed='true'] { border-color: var(--amber); color: var(--amber); background: rgba(232, 183, 101, .1); }
+.vermodelo .marcas label { display: flex; gap: 8px; align-items: center; cursor: pointer; }
+.vermodelo .info span { color: var(--muted); }
+
 .editor { position: fixed; inset: 0; display: grid; grid-template-columns: 52px minmax(0, 1fr); grid-template-rows: 46px minmax(0, 1fr) auto; background: var(--bg); font-size: 13px; }
 .editor button { font: inherit; color: inherit; cursor: pointer; }
 .editor button:disabled { opacity: .35; cursor: not-allowed; }

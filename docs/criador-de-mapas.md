@@ -161,7 +161,7 @@ Ajudas de construção propostas para depois (uma de cada vez, se aprovadas): **
    - **7a. Testar.** ✅ O botão **Testar** (ou T) solta o agente no ponto que a câmera do editor olha, de costas para ela.
      Clique trava o mouse; WASD anda, Shift corre (fôlego), Espaço esquiva, mouse olha; **Esc** volta ao editor no mesmo lugar.
      Câmera por cima do ombro direito (braço que encolhe na parede, não atravessa o teto), o filtro PS1 só se o botão de
-     cima estiver ligado (desligado por enquanto, pedido em 9/nov; o jogo continua com o PS1 como padrão), luz de jogo
+     cima estiver ligado (desligado por padrão: em 10/nov a imagem limpa virou o visual do jogo), luz de jogo
      (as lâmpadas do mapa é que iluminam), paredes sempre altas. Bate em paredes, janelas, portas fechadas e trancadas e
      móveis; passa por porta aberta e vão; sobe e desce escada; cai no buraco da escada. Sem armas, fantasmas nem HUD.
      **Abrir portas** (9/nov): perto de uma porta e de frente para ela, aparece "E · abrir a porta"; **E** abre e fecha.
@@ -175,7 +175,8 @@ Ajudas de construção propostas para depois (uma de cada vez, se aprovadas): **
    `maps/mansao-cap1`: paredes, pisos, tetos, portas, janelas, as duas escadas, o guarda-corpo do vão e algumas lâmpadas.
    Falta o desenvolvedor decorar e decidir quais portas trancam.
 
-Depois do mapa: os scripts e, mais tarde, o Editor de modelos.
+Depois do mapa: os scripts. Os modelos dos personagens vão ser feitos no Blockbench (em teste desde 10/nov,
+`docs/blockbench.md`); se ele servir, o Editor de modelos sai do plano.
 
 ## Fica de fora agora
 
