@@ -10,7 +10,7 @@ export const AGENTE = {
   raio: 0.3, // o corpo no chão (m)
 }
 
-// A câmera por cima do ombro direito, como no RE4 remake (sem mirar ainda)
+// A câmera por cima do ombro direito, como no RE4 remake; mirando, ela chega mais perto e fecha (mira)
 export const CAMERA = {
   atras: 2.5, // m atrás do agente
   lado: 0.56, // m para a direita
@@ -22,6 +22,8 @@ export const CAMERA = {
   sens: 0.0022, // radianos por pixel do mouse (× a sensibilidade das configurações)
   pitchMin: -0.95,
   pitchMax: 0.8,
+  mira: { atras: 1.25, lado: 0.62, acima: 0.06, fov: 46, entra: 10 }, // mirando: mais perto, mais de lado, fechada; entra = quão rápido (por s)
+  alcanceMira: 25, // m: o ponto para onde a arma aponta, na frente da câmera
 }
 
 // Parado (player/parado.ts): a respiração, o peso trocando de perna, o balanço da arma e os gestos sozinhos
@@ -46,4 +48,13 @@ export const ESCOPETA = {
   ombro: { pega: [-0.19, 0.3, 0.2], cano: [-0.12, 0.72, -0.68], cima: [0, -0.7, -0.7], espera: 1.2, vai: 2.5, volta: 9 }, // apoiada: o cano para cima e para trás; espera = s parado até apoiar
   peso: 0.035, // quanto o peito vai para trás com a escopeta na frente (rad)
   bomba: { curso: 0.07 }, // quanto a bomba corre para trás (m)
+}
+
+// Mirar (player/mira.ts): a arma levantada para onde a câmera mira. Pontos no espaço do peito (x = esquerda do agente)
+export const MIRA = {
+  sobe: 12, desce: 7, // quão rápido a arma levanta e abaixa (por s)
+  andar: 1.1, // m/s: mirando, ele anda devagar e não corre (como no RE4)
+  ombros: [-0.03, 0.42, 0], // de onde os braços saem para a pistola (entre os ombros, um pouco para a direita)
+  pistola: { alcance: 0.45 }, // m do meio dos ombros até a empunhadura: os braços quase esticados, as duas mãos
+  escopeta: { coronha: [-0.13, 0.4, 0.08], lado: -0.7 }, // a coronha no ombro direito; o corpo vira de lado (rad): a esquerda alcança a bomba
 }

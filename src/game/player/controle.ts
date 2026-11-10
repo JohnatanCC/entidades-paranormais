@@ -1,10 +1,11 @@
-// O controle do agente (do laboratório, sem armas): anda relativo à câmera, corre gastando fôlego, esquiva com uma
-// cambalhota para onde está apertando (sem direção, para trás), vira o corpo para onde anda, bate nas paredes e
-// nos móveis e acompanha o chão (escadas e andares). Os números ficam em numeros.ts.
+// O controle do agente (do laboratório): anda relativo à câmera, corre gastando fôlego, esquiva com uma cambalhota
+// para onde está apertando (sem direção, para trás), vira o corpo para onde anda, bate nas paredes e nos móveis e
+// acompanha o chão (escadas e andares). Mirando, anda devagar, não corre e vira para onde a câmera olha (como no RE4).
+// Os números ficam em numeros.ts.
 import { LEVEL_H } from '../../maps/types'
 import type { Acoes } from '../input/acoes'
 import { chaoEm, empurrar, type Mundo } from '../world/colisao'
-import { AGENTE } from './numeros'
+import { AGENTE, MIRA } from './numeros'
 
 export interface Jogador {
   x: number; y: number; z: number
@@ -16,10 +17,11 @@ export interface Jogador {
   esquivaDir: [number, number]
   esquivaRecarga: number
   velocidade: number // a velocidade real no chão (m/s), para a animação
+  mira: boolean // mirando (quem joga diz, antes do passo)
 }
 
 export function novoJogador(x: number, y: number, z: number, yaw = 0): Jogador {
-  return { x, y, z, vx: 0, vz: 0, vy: 0, yaw, folego: AGENTE.folego, folegoTravado: false, folegoParado: 0, corrida: 0, esquiva: -1, esquivaDir: [0, 1], esquivaRecarga: 0, velocidade: 0 }
+  return { x, y, z, vx: 0, vz: 0, vy: 0, yaw, folego: AGENTE.folego, folegoTravado: false, folegoParado: 0, corrida: 0, esquiva: -1, esquivaDir: [0, 1], esquivaRecarga: 0, velocidade: 0, mira: false }
 }
 
 const ang = (a: number) => Math.atan2(Math.sin(a), Math.cos(a)) // −π..π
@@ -36,14 +38,14 @@ export function passoJogador(p: Jogador, a: Acoes, camYaw: number, m: Mundo, dt:
   const ocupado = p.esquiva >= 0
 
   // correr gasta fôlego; acabou, trava até recuperar 2 s
-  const corre = a.correr() && wl > 0.1 && !p.folegoTravado && p.folego > 0 && !ocupado
+  const corre = a.correr() && wl > 0.1 && !p.folegoTravado && p.folego > 0 && !ocupado && !p.mira
   p.corrida = amortece(p.corrida, corre ? 1 : 0, 7, dt)
   if (corre) { p.folego = Math.max(0, p.folego - dt); p.folegoParado = 0; if (p.folego <= 0) p.folegoTravado = true }
   else { p.folegoParado += dt; if (p.folegoParado > 0.7) p.folego = Math.min(AGENTE.folego, p.folego + AGENTE.folegoVolta * dt) }
   if (p.folegoTravado && p.folego >= 2) p.folegoTravado = false
 
   // acelera e freia até a velocidade desejada
-  const sp = corre ? AGENTE.correr : AGENTE.andar
+  const sp = corre ? AGENTE.correr : p.mira ? MIRA.andar : AGENTE.andar
   const tx = ocupado ? 0 : wx * sp, tz = ocupado ? 0 : wz * sp
   const dvx = tx - p.vx, dvz = tz - p.vz, dm = Math.hypot(dvx, dvz), taxa = (wl > 0.05 && !ocupado ? AGENTE.acel : AGENTE.freio) * dt
   if (dm <= taxa) { p.vx = tx; p.vz = tz } else { p.vx += (dvx / dm) * taxa; p.vz += (dvz / dm) * taxa }
@@ -60,8 +62,9 @@ export function passoJogador(p: Jogador, a: Acoes, camYaw: number, m: Mundo, dt:
     p.vx = p.esquivaDir[0] * v; p.vz = p.esquivaDir[1] * v
   }
 
-  // o corpo vira para onde anda
-  if (p.esquiva < 0 && p.vx * p.vx + p.vz * p.vz > 0.09) p.yaw = ang(p.yaw + ang(Math.atan2(p.vx, p.vz) - p.yaw) * (1 - Math.exp(-10 * dt)))
+  // o corpo vira para onde anda; mirando, para onde a câmera olha
+  if (p.mira && p.esquiva < 0) p.yaw = ang(p.yaw + ang(camYaw - p.yaw) * (1 - Math.exp(-18 * dt)))
+  else if (p.esquiva < 0 && p.vx * p.vx + p.vz * p.vz > 0.09) p.yaw = ang(p.yaw + ang(Math.atan2(p.vx, p.vz) - p.yaw) * (1 - Math.exp(-10 * dt)))
 
   // anda e bate; depois acompanha o chão (sobe degrau, desce caindo)
   const ox = p.x, oz = p.z

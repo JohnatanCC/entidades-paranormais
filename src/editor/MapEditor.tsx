@@ -101,6 +101,7 @@ export function MapEditor({ go }: { go: Go }) {
   const [testando, setTestando] = useState<{ inicio: [number, number, number]; yaw: number } | null>(null)
   const [travado, setTravado] = useState(false)
   const [dicaTeste, setDicaTeste] = useState<string | null>(null)
+  const [mirando, setMirando] = useState(false)
   // o estado vivo das portas enquanto testa (o mapa não muda; sair do teste volta tudo como estava)
   const portasVivas = useMemo<PortasVivas | null>(() => (testando ? new Map() : null), [testando])
   useEffect(() => { setModoParedes(testando ? 'altas' : modoParedes) }, [modoParedes, testando])
@@ -397,7 +398,7 @@ export function MapEditor({ go }: { go: Go }) {
             <directionalLight position={[-10, 8, -4]} intensity={0.5} />
           </>}
           {doc && <Suspense fallback={null}><MapView chunks={doc.chunks} maxLevel={testando ? nAndares - 1 : andar} ocultar={ferramenta === 'objetos' && !testando ? arrastando : null} portas={portasVivas} /></Suspense>}
-          {doc && testando && portasVivas && <Testar chunks={doc.chunks} levels={nAndares} inicio={testando.inicio} yaw={testando.yaw} portas={portasVivas} onTravado={setTravado} onDica={setDicaTeste} onSair={sairTeste} />}
+          {doc && testando && portasVivas && <Testar chunks={doc.chunks} levels={nAndares} inicio={testando.inicio} yaw={testando.yaw} portas={portasVivas} onTravado={setTravado} onDica={setDicaTeste} onMira={setMirando} onSair={sairTeste} />}
           {doc && !testando && (ferramenta === 'paredes' || ferramenta === 'apagar') && <FerramentaParedes doc={doc} andar={andar} apagar={ferramenta === 'apagar'} onFeito={onFeito} onInfo={onInfo} />}
           {doc && !testando && ferramenta === 'piso' && <FerramentaPiso doc={doc} andar={andar} onFeito={onPiso} onInfo={onInfo} />}
           {doc && !testando && ferramenta === 'pincel' && <FerramentaPincel doc={doc} andar={andar} onFeito={onPintar} onInfo={onInfo} />}
@@ -417,9 +418,10 @@ export function MapEditor({ go }: { go: Go }) {
         {!doc && <div className="vazio-b">Nenhum mapa aberto. Abra ou crie um em Mapas.</div>}
         {aviso && <div className="aviso-b">{aviso}</div>}
         {testando && dicaTeste && <div className="dica-teste">{dicaTeste}</div>}
+        {testando && mirando && <div className="mira-ponto" />}
         {testando && <div className={travado ? 'teste-b jogando' : 'teste-b'}>
           {travado
-            ? <span>WASD anda · Shift corre · Espaço esquiva · E abre e fecha porta · Q troca a arma · mouse olha (sem o cursor travado: arraste) · 1–6 expressões, 7–9 mãos, 0 automático · <b>Esc</b> volta ao editor</span>
+            ? <span>WASD anda · Shift corre · Espaço esquiva · E abre e fecha porta · Q troca a arma · botão direito mira, esquerdo atira · mouse olha (sem o cursor travado: arraste) · 1–6 expressões, 7–9 mãos, 0 automático · <b>Esc</b> volta ao editor</span>
             : <><b>Testar</b><span>Clique na vista para jogar · Esc volta ao editor</span></>}
         </div>}
         {/* o Painel Inspetor: as configurações do que está escolhido, numa janela que se arrasta */}

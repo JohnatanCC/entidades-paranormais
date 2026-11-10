@@ -43,7 +43,7 @@ a tiro e os prende com a armadilha. Cenário e personagens em blocos com textura
     câmara de sal (traz a arma deitada na frente do peito, o vidro virado para os olhos) e puxar a bomba até a metade.
   O relicário do traje ainda não está no modelo: quando entrar, ganha o gesto de tocar nele.
 - **Ver modelos** (Modo desenvolvedor): o personagem de perto, com animações, expressões, mãos, a arma na mão, os gestos
-  de parado (botões para ver na hora) e a luz do jogo; e cada arma e objeto sozinho.
+  de parado (botões para ver na hora), mirar e atirar, e a luz do jogo; e cada arma e objeto sozinho.
 - **Modelos no Blockbench**: o desenvolvedor modela e pinta; o jogo lê o `.bbmodel` direto. Passo a passo em
   `docs/blockbench.md`. Os objetos do cenário e as armas também (decidido em 10/nov); o Editor de modelos saiu do plano.
 - **Sem filtro PS1 por padrão:** a imagem limpa é a padrão; PS1 e suave ficam como opção nas configurações.
@@ -122,8 +122,25 @@ Os modelos (10/nov) estão em `modelos/armas/` e o agente já segura cada uma (`
   esquerda na bomba, o peito um pouco para trás com o peso; correndo, ela sobe; **mirar também vai ser com as duas**;
 - a armadilha pendurada pela alça, balançando.
 
-No Testar, Q troca (pistola, escopeta, armadilha, mão vazia). Mirar, atirar, o coice e jogar a armadilha vêm na etapa das
-armas. Quando ela chegar, 1/2/3 deixam de mostrar as expressões no Testar (isso fica no Ver modelos).
+No Testar, Q troca (pistola, escopeta, armadilha, mão vazia).
+
+**Mirar e atirar (10/nov, sem bala ainda):** o botão direito mira; o esquerdo atira (atirar sem mirar levanta a arma
+antes, e o tiro sai quando ela chega). Mirando, a câmera chega mais perto, mais de lado e fecha (um ponto no meio da
+tela); ele anda devagar (1,1 m/s), não corre e vira para onde a câmera olha (`src/game/player/mira.ts`):
+- a pistola com as duas mãos, os braços quase esticados, a esquerda por baixo; o tiro a cada 0,2 s segurando o botão;
+- a escopeta com a coronha no ombro, o corpo de lado (40°: a esquerda alcança a bomba) e o rosto encostado; o coice
+  empurra o ombro e, depois de cada tiro, a mão esquerda puxa a bomba e devolve; um tiro por segundo;
+- o tiro: o cano sobe e a arma vem para trás (o coice), e um clarão em pixel no cano (brasa na pistola, sal na escopeta;
+  sem luz nova na cena). A cadência, o coice e o clarão em `src/game/weapons/numeros.ts`.
+
+A bala, o dano e a sobrecarga vêm na etapa das armas; jogar a armadilha vem a seguir. Quando a etapa das armas chegar,
+1/2/3 deixam de mostrar as expressões no Testar (isso fica no Ver modelos).
+
+## A queda do agente (decidida em 10/nov)
+
+Com a vida zerada, o agente **perde as forças, cai de joelhos e tomba de lado**; a tela escurece e ele volta no
+checkpoint. Sem violência explícita: nada de sangue, ferimento ou corpo machucado. Ainda não feita (vem depois do
+arremesso da armadilha). Os fantasmas continuam sem animação de morte.
 
 ## Destruir ou capturar (decidido em 10/nov, vale em toda luta)
 
@@ -197,7 +214,8 @@ Com a regra de destruir ou capturar (10/nov), a Intro muda assim (vale sobre o `
 
 ## Fica de fora (não trazer do laboratório)
 
-- **Animações de morte** de qualquer tipo, e as cenas específicas feitas só para o laboratório.
+- **Animações de morte dos fantasmas** e as cenas específicas feitas só para o laboratório. (O agente ganha uma queda
+  sem violência, decidida em 10/nov: ver "A queda do agente".)
 - Os outros fantasmas do laboratório (Sombra, Desconhecido, Garota, Mordomo, Observador, Reflexo, Amigo), a demo "O Bando",
   a demo da casa como fase, a fatia jogável: eram testes. (A Mãe, o berço e o tornado **ficam**.)
 - Sistemas antigos de captura (círculo de velas, pé de cabra, orbe, chance de captura): substituídos pela poça + armadilha.

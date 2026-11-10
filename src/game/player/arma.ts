@@ -9,6 +9,8 @@ import { alcancar } from './alcancar'
 import type { PoseMao } from './maos'
 import type { Agente, Braco } from './modelo'
 import { ARMADILHA, ESCOPETA } from './numeros'
+import { novoClarao } from '../weapons/clarao'
+import { TIRO } from '../weapons/numeros'
 
 export type Arma = 'pistola' | 'escopeta' | 'armadilha'
 export const ARMAS: [Arma, string][] = [['pistola', 'Pistola de Demantino'], ['escopeta', 'Escopeta de sal grosso'], ['armadilha', 'Armadilha']]
@@ -51,18 +53,27 @@ export function pegarArma(a: Agente, nome: Arma | null) {
   // a bomba da escopeta corre para trás no gesto (e, depois, no tiro): guarda a peça e onde ela fica parada
   const bomba = obj.getObjectByName('bomba')
   if (bomba) { g.userData.bomba = bomba; g.userData.bombaZ = bomba.position.z }
+  // o clarão do tiro: escondido na pasta "cano" (a pistola e a escopeta)
+  const cano = obj.getObjectByName('cano')
+  if (cano && (nome === 'pistola' || nome === 'escopeta')) { const c = novoClarao(TIRO[nome].cor); c.scale.setScalar(TIRO[nome].tamanho); cano.add(c); g.userData.clarao = c }
   g.add(obj); mao.add(g)
 }
 
 /** O que a arma na mão lembra de um quadro para o outro.
  *  armadilha: a ponta (bob) é um peso solto no mundo, preso pela alça; giro e brilho vêm dos gestos (somam).
  *  escopeta: ombro = quanto está apoiada no ombro (0..1) e parado = há quanto tempo está parado; esquerda = quanto a mão
- *  esquerda vai na bomba e bomba = quanto a bomba corre (0..1): a postura escreve a base, os gestos somam. */
+ *  esquerda vai na bomba e bomba = quanto a bomba corre (0..1): a postura escreve a base, os gestos somam.
+ *  o tiro (mira.ts, weapons/tiro.ts): mira = quanto a arma está levantada (0..1); cd = quanto falta para o próximo tiro;
+ *  coice = o tranco do último tiro (1 no tiro, passa); tiroT = s desde o último tiro; clarao = s que o clarão ainda fica. */
 export interface AnimArma {
   bob: THREE.Vector3; ant: THREE.Vector3; solta: boolean; t: number; giro: number; brilho: number
   ombro: number; parado: number; esquerda: number; bomba: number
+  mira: number; cd: number; coice: number; tiroT: number; clarao: number
 }
-export const novaAnimArma = (): AnimArma => ({ bob: new THREE.Vector3(), ant: new THREE.Vector3(), solta: true, t: 0, giro: 0, brilho: 0, ombro: 0, parado: 0, esquerda: 0, bomba: 0 })
+export const novaAnimArma = (): AnimArma => ({
+  bob: new THREE.Vector3(), ant: new THREE.Vector3(), solta: true, t: 0, giro: 0, brilho: 0, ombro: 0, parado: 0, esquerda: 0, bomba: 0,
+  mira: 0, cd: 0, coice: 0, tiroT: 9, clarao: 0,
+})
 
 // ---------- levar a arma (e as mãos) até uma pose, no espaço do peito ----------
 const _w = new THREE.Vector3(), _x = new THREE.Vector3(), _y = new THREE.Vector3(), _z = new THREE.Vector3()
@@ -75,7 +86,7 @@ export function giroPeloCano(cano: THREE.Vector3, cima: THREE.Vector3, out: THRE
 }
 
 /** A mão vai até a pega (no peito) com o giro qMao (no peito); ponto = onde a pega fica no espaço da mão. k = quanto. */
-function maoEm(b: Braco, pega: THREE.Vector3, qMao: THREE.Quaternion, ponto: THREE.Vector3, polo: THREE.Vector3, k: number) {
+export function maoEm(b: Braco, pega: THREE.Vector3, qMao: THREE.Quaternion, ponto: THREE.Vector3, polo: THREE.Vector3, k: number) {
   if (k <= 0.001) return
   _w.copy(ponto).applyQuaternion(qMao).negate().add(pega) // o pulso
   alcancar(b, _w, polo, k)
@@ -149,6 +160,13 @@ const BAIXO = new THREE.Vector3(0, -1, 0), CIMA = new THREE.Vector3(0, 1, 0)
 export function animarArma(a: Agente, dt: number) {
   const L = a.anim.arma
   const g = a.arms[0].hd.getObjectByName(NOME)
+  // o clarão do tiro: aparece no tiro, girado e de tamanho sorteados, e some logo
+  const clarao = g?.userData.clarao as THREE.Mesh | undefined
+  if (clarao) {
+    if (L.clarao > 0 && !clarao.visible) { clarao.rotation.z = Math.random() * Math.PI; clarao.scale.setScalar(TIRO[a.arma as 'pistola' | 'escopeta'].tamanho * (0.8 + 0.4 * Math.random())) }
+    clarao.visible = L.clarao > 0
+  }
+  L.clarao = Math.max(0, L.clarao - dt)
   if (!g || a.arma !== 'armadilha' || dt <= 0) { L.giro = L.brilho = 0; return }
   const P = ARMADILHA.pendulo
   a.root.updateMatrixWorld(true)

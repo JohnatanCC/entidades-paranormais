@@ -128,7 +128,7 @@ salvar no Blockbench atualiza o jogo (se o Testar estiver aberto, saia e entre d
    também aparecem sozinhos (escolha no seletor Modelo). Mostra também a altura e o peso do modelo.
 8. **Ver no jogo:** no criador de mapas, aperte **Testar (T)**. Não precisa exportar nada. Para ver o rosto, ande para
    trás (S) e o agente vira de frente para a câmera. No Testar, as teclas **1 a 6** mostram as expressões (neutra, esforço,
-   medo, dor, raiva, surpresa), **7 a 9** as mãos (punho, aberta, apontar) e **0** volta ao automático; **Q** troca a arma na mão.
+   medo, dor, raiva, surpresa), **7 a 9** as mãos (punho, aberta, apontar) e **0** volta ao automático; **Q** troca a arma na mão; o botão direito mira e o esquerdo atira (o clarão sai na pasta `cano`).
 
 ## O que vem depois
 

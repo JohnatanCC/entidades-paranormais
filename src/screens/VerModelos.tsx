@@ -2,8 +2,8 @@
 // Não edita nada: o Matheus vem de modelos/agente.bbmodel, as armas de modelos/armas/<nome>.bbmodel e os objetos de
 // modelos/objetos/<tipo>.bbmodel (salvar no
 // Blockbench atualiza aqui no npm run dev). A câmera gira em volta (botão esquerdo gira, direito move, rodinha aproxima).
-// Para o Matheus o painel troca a animação, a expressão, a pose das mãos, a arma na mão e o ângulo, e faz os gestos de
-// parado na hora (sem esperar); para todos, a luz (estúdio, ou uma
+// Para o Matheus o painel troca a animação, a expressão, a pose das mãos, a arma na mão e o ângulo, faz os gestos de
+// parado na hora (sem esperar) e, com a pistola ou a escopeta, mira e atira (para a frente); para todos, a luz (estúdio, ou uma
 // lâmpada da mansão no escuro, como no jogo).
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { Canvas, useFrame, useThree } from '@react-three/fiber'
@@ -15,6 +15,7 @@ import { ARMAS, pegarArma, type Arma } from '../game/player/arma'
 import type { PoseMao } from '../game/player/maos'
 import { montarAgente, type Agente } from '../game/player/modelo'
 import { fazerGesto, gestosDe, type Gesto } from '../game/player/parado'
+import { gatilho } from '../game/weapons/tiro'
 import { AGENTE } from '../game/player/numeros'
 import type { Expressao } from '../game/player/rosto'
 import { GRUPOS, OBJETOS } from '../maps/objetos'
@@ -33,7 +34,7 @@ const MAOS: [PoseMao | null, string][] = [[null, 'Automática'], ['solta', 'Solt
 const CAMERAS: [Camera, string][] = [['corpo', 'Corpo'], ['rosto', 'Rosto'], ['maos', 'Mãos'], ['pes', 'Pés'], ['costas', 'Costas']]
 const LUZES: [Luz, string][] = [['estudio', 'Estúdio'], ['jogo', 'Jogo (lâmpada no escuro)']]
 
-interface Escolhas { qual: string; anim: Anim; exp: Expressao | null; mao: PoseMao | null; arma: Arma | null; gesto: { g: Gesto; n: number } | null; camera: Camera; luz: Luz; girar: boolean; grade: boolean }
+interface Escolhas { qual: string; anim: Anim; exp: Expressao | null; mao: PoseMao | null; arma: Arma | null; gesto: { g: Gesto; n: number } | null; mirando: boolean; tiros: number; camera: Camera; luz: Luz; girar: boolean; grade: boolean }
 interface Info { linhas: string[] }
 
 function Opcoes<T>({ titulo, lista, valor, onEscolher }: { titulo: string; lista: [T, string][]; valor: T; onEscolher: (v: T) => void }) {
@@ -46,7 +47,7 @@ function Opcoes<T>({ titulo, lista, valor, onEscolher }: { titulo: string; lista
 }
 
 export function VerModelos({ go }: { go: Go }) {
-  const [e, setE] = useState<Escolhas>({ qual: AGENTE_ID, anim: 'parado', exp: null, mao: null, arma: null, gesto: null, camera: 'corpo', luz: 'estudio', girar: false, grade: true })
+  const [e, setE] = useState<Escolhas>({ qual: AGENTE_ID, anim: 'parado', exp: null, mao: null, arma: null, gesto: null, mirando: false, tiros: 0, camera: 'corpo', luz: 'estudio', girar: false, grade: true })
   const [info, setInfo] = useState<Info | null>(null)
   const muda = (p: Partial<Escolhas>) => setE((v) => ({ ...v, ...p }))
   const agente = e.qual === AGENTE_ID, arma = e.qual.startsWith(ARMA) ? e.qual.slice(ARMA.length) : null
@@ -90,6 +91,14 @@ export function VerModelos({ go }: { go: Go }) {
             <div className="opcoes">{gestosDe(e.arma).map(([g, nome]) => <button key={g} onClick={() => muda({ anim: 'parado', gesto: { g, n: (e.gesto?.n ?? 0) + 1 } })}>{nome}</button>)}</div>
             <small>{gestosDe(e.arma).length ? 'Parado, ele faz um sozinho a cada 8 a 15 s (os de mão vazia, ou os da arma na mão).' : 'Com esta arma, ainda nenhum.'}</small>
           </section>
+          {(e.arma === 'pistola' || e.arma === 'escopeta') && <section>
+            <b>Mirar e atirar</b>
+            <div className="opcoes">
+              <button aria-pressed={e.mirando} onClick={() => muda({ mirando: !e.mirando })}>Mirando</button>
+              <button onClick={() => muda({ tiros: e.tiros + 1 })}>Atirar</button>
+            </div>
+            <small>Para a frente. Atirar sem estar mirando levanta a arma antes.</small>
+          </section>}
           <Opcoes titulo="Câmera" lista={CAMERAS} valor={e.camera} onEscolher={(camera) => muda({ camera })} />
         </>}
         <Opcoes titulo="Luz" lista={LUZES} valor={e.luz} onEscolher={(luz) => muda({ luz })} />
@@ -157,6 +166,8 @@ function CenaAgente({ e, onInfo }: { e: Escolhas; onInfo: (i: Info) => void }) {
   const a = useMemo(() => montarAgente(), [montarAgente])
   const { pronto, voar } = useVoo()
   const esq = useRef(0)
+  const tiros = useRef(e.tiros) // os tiros pedidos que já saíram
+  const alvo = useMemo(() => new THREE.Vector3(0, 1.45, 8), []) // a mira: para a frente, na altura do peito
 
   useEffect(() => {
     const c = contas(a.root)
@@ -174,7 +185,9 @@ function CenaAgente({ e, onInfo }: { e: Escolhas; onInfo: (i: Info) => void }) {
     let esquiva = -1
     if (e.anim === 'esquiva') { esq.current = (esq.current + dt) % 1.4; esquiva = esq.current < 0.5 ? esq.current / 0.5 : -1 }
     const velocidade = e.anim === 'andando' ? AGENTE.andar : e.anim === 'correndo' ? AGENTE.correr : 0
-    animarAgente(a, { velocidade, corrida: e.anim === 'correndo' ? 1 : 0, esquiva, expressao: e.exp ?? undefined, mao: e.mao ?? undefined }, dt)
+    const pede = e.tiros !== tiros.current // um tiro pedido: levanta a arma e atira quando ela chegar
+    animarAgente(a, { velocidade, corrida: e.anim === 'correndo' ? 1 : 0, esquiva, expressao: e.exp ?? undefined, mao: e.mao ?? undefined, mira: { quer: e.mirando || pede, alvo } }, dt)
+    if (gatilho(a, pede, dt) || (pede && a.arma !== 'pistola' && a.arma !== 'escopeta')) tiros.current = e.tiros
     if (e.girar) a.root.rotation.y += dt * 0.5
   })
   return <primitive object={a.root} />

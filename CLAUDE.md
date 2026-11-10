@@ -32,9 +32,10 @@ e captura entidades. Este projeto começa pelo **Modo desenvolvedor → Criador 
 
 ## Regras do conteúdo
 
-- **Não usar animações de morte** (nem do agente, nem dos fantasmas) nem as animações específicas de cenas do laboratório.
-  O fantasma menor zerado (Espectral, demônios) estoura em ectoplasma e é destruído; o maior (Glutão, Mãe, chefes) vira
-  poça e é capturado (decidido em 10/nov); o agente que cai volta no checkpoint.
+- **Sem animação de morte dos fantasmas** nem as animações específicas de cenas do laboratório. O fantasma menor zerado
+  (Espectral, demônios) estoura em ectoplasma e é destruído; o maior (Glutão, Mãe, chefes) vira poça e é capturado.
+- **O agente cai, sem violência explícita** (mudado em 10/nov, a pedido): perde as forças, cai de joelhos e tomba; a tela
+  escurece e ele volta no checkpoint. Nada de sangue, ferimento ou corpo machucado.
 - **A base é o laboratório v130**: `reference/laboratorio.html`, igual ao publicado em
   https://claude.ai/artifact/BDUaLP6DmvqwsBXhkdJdYw. O link antigo (`2wZHuEXpxxiRrKP9h2J1jM`, com fatia, pé de cabra e
   orbe) está desatualizado: não use como referência.
@@ -103,13 +104,15 @@ Cada coisa do jogo mora na sua pasta; nada de arquivo gigante como o laboratóri
 ficam num arquivo próprio de cada pasta, para ajustar sem caçar no código.
 
 ```
-src/game/                  (já existem: Testar.tsx, player/, input/, world/ — o resto entra quando a etapa chegar)
+src/game/                  (já existem: Testar.tsx, player/, input/, world/, weapons/ — o resto entra quando a etapa chegar)
   Testar.tsx               o Testar do editor: o agente andando no mapa aberto (câmera, colisão, luz do jogo)
   player/                  o agente: modelo.ts (liga modelos/agente.bbmodel no esqueleto), animacao.ts, maos.ts (os dedos),
-                           arma.ts (a arma na mão; a escopeta com as duas mãos ou no ombro; o pêndulo da armadilha; Q troca no Testar), parado.ts (a respiração, o peso e os gestos
-                           de parado), alcancar.ts (o braço alcança um ponto: IK de dois ossos),
+                           arma.ts (a arma na mão; a escopeta com as duas mãos ou no ombro; o pêndulo da armadilha; Q troca
+                           no Testar), mira.ts (mirar: a pose, o coice, a bomba depois do tiro), parado.ts (a respiração, o
+                           peso e os gestos de parado), alcancar.ts (o braço alcança um ponto: IK de dois ossos),
                            rosto.ts (as expressões), cabelo.ts (as mechas com física), controle.ts (andar, correr, esquivar), numeros.ts
-  weapons/                 atirar com a pistola e a escopeta, jogar a armadilha, a sobrecarga (os modelos já existem)
+  weapons/                 tiro.ts (o gatilho e a cadência), clarao.ts (o clarão no cano), numeros.ts; depois a bala, a
+                           sobrecarga e jogar a armadilha
   enemies/<nome>/          um fantasma por pasta (espectral/, glutao/, ...): IA, ataques, modelo, números
   capture/                 a poça e a captura
   allies/                  Lara e Nicolas

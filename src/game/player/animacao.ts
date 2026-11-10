@@ -1,12 +1,13 @@
 // A animação do agente (do laboratório): a passada pela distância percorrida, o tronco que desfaz o giro
 // do quadril, os braços balançando opostos às pernas, a barra da jaqueta numa mola e a cambalhota da esquiva.
-// Sem queda nem morte (o projeto não usa animação de morte). Quem move e gira o root é o controle; aqui só os ossos.
+// A queda (sem violência, decidida em 10/nov) ainda não está feita. Quem move e gira o root é o controle; aqui só os ossos.
 import * as THREE from 'three'
 import type { Agente } from './modelo'
 import { animarArma, maoNaBomba, POSE_DA_ARMA, posturaDaEscopeta } from './arma'
 import { animarCabelo } from './cabelo'
 import { animarMaos, type PoseMao } from './maos'
 import { AGENTE, PARADO } from './numeros'
+import { posturaDaMira } from './mira'
 import { balancoDaArma, gestoParado, pesoParado } from './parado'
 import { animarRosto, type Expressao } from './rosto'
 
@@ -16,6 +17,7 @@ export interface EstadoAnim {
   esquiva: number // -1 = não está esquivando; 0..1 = andamento da esquiva
   expressao?: Expressao // força uma expressão (sem: neutra parado, esforço correndo e na cambalhota)
   mao?: PoseMao // força uma pose das mãos (sem: soltas, fechando ao correr, punho na cambalhota)
+  mira?: { quer: boolean; alvo: THREE.Vector3 | null } // mirando (ou atirando): a arma levanta para o alvo (no mundo)
 }
 
 const STAND = 0.42 // a altura do quadril dentro do pivô da cambalhota, antes de acertar os pés no chão
@@ -124,15 +126,18 @@ export function animarAgente(a: Agente, e: EstadoAnim, dt: number): void {
   if (rolando) a.roll.position.y += Math.max(0, -maisBaixo(a))
 
   // ---------- a escopeta com as duas mãos (ou no ombro); parado: o balanço da pistola e os gestos, por cima da pose ----------
-  const parado = quieto > 0.97 && sp < 0.05
+  const mirando = !!e.mira?.quer, parado = quieto > 0.97 && sp < 0.05 && !mirando
   posturaDaEscopeta(a, { parado, amp, run, ph, solto: 1 - tuck }, dt)
-  balancoDaArma(a, quieto * (1 - tuck))
+  posturaDaMira(a, mirando, e.mira?.alvo ?? null, dt, 1 - tuck)
+  balancoDaArma(a, quieto * (1 - tuck) * (1 - a.anim.arma.mira))
   const gesto = gestoParado(a, parado, dt)
   maoNaBomba(a) // a mão esquerda na bomba, onde a escopeta estiver agora
 
   // ---------- as mãos e o rosto ----------
-  // a mão da arma fica fechada nela; a esquerda fecha na bomba da escopeta
-  const forca: typeof gesto = [a.arma ? POSE_DA_ARMA[a.arma] : gesto[0], a.anim.arma.esquerda > 0.5 ? 'segurar' : gesto[1]]
+  // a mão da arma fica fechada nela (mirando, o indicador vai para o gatilho); a esquerda fecha na bomba da escopeta
+  // ou, mirando a pistola, por cima da direita
+  const A = a.anim.arma, mirada = A.mira > 0.5 && (a.arma === 'pistola' || a.arma === 'escopeta')
+  const forca: typeof gesto = [a.arma ? (mirada ? 'segurar' : POSE_DA_ARMA[a.arma]) : gesto[0], A.esquerda > 0.5 || (mirada && a.arma === 'pistola') ? 'segurar' : gesto[1]]
   if (e.mao) animarMaos(a, e.mao, 1, dt, m.tempo, forca)
   else animarMaos(a, 'punho', rolando ? 1 : 0.6 * run * Math.min(1, amp), dt, m.tempo, forca)
   animarRosto(a, e.expressao ?? (rolando || run > 0.5 ? 'esforco' : 'neutra'), dt)
