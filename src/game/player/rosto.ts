@@ -4,7 +4,7 @@
 //   olho  = quanto o olho abre (1 = normal)  bocaY / bocaX = a boca abre / estica (1 = o tamanho do modelo; 0 = fechada: a peça some e fica a boca pintada no rosto)
 import type { Agente } from './modelo'
 
-export type Expressao = 'neutra' | 'esforco' | 'medo' | 'dor' | 'raiva' | 'surpresa'
+export type Expressao = 'neutra' | 'esforco' | 'medo' | 'dor' | 'raiva' | 'surpresa' | 'desmaio'
 
 export const EXPRESSOES: Record<Expressao, { sobe: number; meio: number; olho: number; bocaY: number; bocaX: number }> = {
   neutra: { sobe: 0, meio: 0, olho: 1, bocaY: 0, bocaX: 1 },
@@ -13,6 +13,7 @@ export const EXPRESSOES: Record<Expressao, { sobe: number; meio: number; olho: n
   dor: { sobe: -0.002, meio: 0.35, olho: 0.3, bocaY: 0.65, bocaX: 1.2 },
   raiva: { sobe: -0.006, meio: -0.3, olho: 0.75, bocaY: 0, bocaX: 1.1 },
   surpresa: { sobe: 0.012, meio: 0.05, olho: 1.35, bocaY: 1, bocaX: 0.75 },
+  desmaio: { sobe: -0.002, meio: 0.08, olho: 0.05, bocaY: 0.2, bocaX: 0.9 }, // a queda: olhos fechados, a boca entreaberta
 }
 const PISCA = { intervalo: [2, 5.5], dura: 0.13 } // de quanto em quanto pisca (s) e quanto dura
 

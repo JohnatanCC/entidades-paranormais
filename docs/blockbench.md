@@ -123,12 +123,12 @@ salvar no Blockbench atualiza o jogo (se o Testar estiver aberto, saia e entre d
 6. **Salvar:** Arquivo → Salvar modelo (Ctrl+S), por cima de `modelos/agente.bbmodel`. No Blockbench do navegador, o arquivo
    vai para Downloads: copie para `modelos/` no lugar do antigo.
 7. **Ver de perto:** Modo desenvolvedor → **Ver modelos**. O personagem sozinho, com a câmera girando em volta, a luz
-   de estúdio ou a do jogo (uma lâmpada no escuro), e botões para a animação (parado, andando, correndo, esquiva), a
+   de estúdio ou a do jogo (uma lâmpada no escuro), e botões para a animação (parado, andando, correndo, esquiva, queda), a
    expressão, a pose das mãos, a arma na mão, os gestos de parado e o ângulo (corpo, rosto, mãos, pés, costas). As armas e os objetos
    também aparecem sozinhos (escolha no seletor Modelo). Mostra também a altura e o peso do modelo.
 8. **Ver no jogo:** no criador de mapas, aperte **Testar (T)**. Não precisa exportar nada. Para ver o rosto, ande para
    trás (S) e o agente vira de frente para a câmera. No Testar, as teclas **1 a 6** mostram as expressões (neutra, esforço,
-   medo, dor, raiva, surpresa), **7 a 9** as mãos (punho, aberta, apontar) e **0** volta ao automático; **Q** troca a arma na mão; o botão direito mira e o esquerdo atira (o clarão sai na pasta `cano`) ou joga a armadilha (um clique a chama de volta).
+   medo, dor, raiva, surpresa), **7 a 9** as mãos (punho, aberta, apontar) e **0** volta ao automático; **J** toma dano, **F** usa um kit, **K** faz ele cair; **Q** troca a arma na mão; o botão direito mira e o esquerdo atira (o clarão sai na pasta `cano`) ou joga a armadilha (um clique a chama de volta).
 
 ## O que vem depois
 

@@ -1,14 +1,16 @@
 // A animação do agente (do laboratório): a passada pela distância percorrida, o tronco que desfaz o giro
-// do quadril, os braços balançando opostos às pernas, a barra da jaqueta numa mola e a cambalhota da esquiva.
-// A queda (sem violência, decidida em 10/nov) ainda não está feita. Quem move e gira o root é o controle; aqui só os ossos.
+// do quadril, os braços balançando opostos às pernas, a barra da jaqueta numa mola e a cambalhota da esquiva; por cima,
+// as camadas das armas, dos gestos e a queda (queda.ts, sem violência). Quem move e gira o root é o controle; aqui só os ossos.
 import * as THREE from 'three'
 import type { Agente } from './modelo'
 import { animarArma, maoNaBomba, POSE_DA_ARMA, posturaDaEscopeta } from './arma'
 import { animarCabelo } from './cabelo'
 import { animarMaos, type PoseMao } from './maos'
-import { AGENTE, PARADO } from './numeros'
+import { AGENTE, PARADO, QUEDA } from './numeros'
 import { posturaDaMira } from './mira'
 import { balancoDaArma, gestoParado, pesoParado } from './parado'
+import { pesoDaQueda, poseDaQueda } from './queda'
+import { doendo, maoNoLado, passoDoDano, poseDoTranco, troncoMachucado } from './dano'
 import { animarRosto, type Expressao } from './rosto'
 
 export interface EstadoAnim {
@@ -18,6 +20,8 @@ export interface EstadoAnim {
   expressao?: Expressao // força uma expressão (sem: neutra parado, esforço correndo e na cambalhota)
   mao?: PoseMao // força uma pose das mãos (sem: soltas, fechando ao correr, punho na cambalhota)
   mira?: { quer: boolean; alvo: THREE.Vector3 | null } // mirando (ou atirando): a arma levanta para o alvo (no mundo)
+  queda?: number // s desde que caiu (sem = em pé)
+  ferido?: boolean // machucado (30% da vida ou menos): curvado, mancando, a mão no lado (o tranco de um golpe: dano.ts, tranco)
 }
 
 const STAND = 0.42 // a altura do quadril dentro do pivô da cambalhota, antes de acertar os pés no chão
@@ -36,7 +40,7 @@ function naRaiz(o: THREE.Object3D, raiz: THREE.Object3D, v: THREE.Vector3) {
 }
 
 // O ponto mais baixo do corpo (espaço do root), medido em esferas nos ossos: a cabeça, a mochila, os ombros, o quadril,
-// os joelhos, os pés, os cotovelos e as mãos. Só na cambalhota (em pé, quem acerta a altura são as solas).
+// os joelhos, as canelas, os pés (e a sola de verdade), os cotovelos e as mãos. Só na cambalhota e na queda (em pé, quem acerta a altura são as solas).
 function maisBaixo(a: Agente) {
   let lo = Infinity
   const ver = (o: THREE.Object3D, x: number, y: number, z: number, r: number) => { const v = naRaiz(o, a.root, _p.set(x, y, z)).y - r; if (v < lo) lo = v }
@@ -44,7 +48,11 @@ function maisBaixo(a: Agente) {
   for (const sx of [-0.15, 0.15]) for (const sy of [-0.2, 0.2]) ver(a.pack, sx, sy, -0.1, 0)
   for (const s of [-1, 1]) ver(a.chest, s * 0.19, 0.205, 0, 0.075)
   ver(a.pelvis, 0, -0.03, 0, 0.12)
-  for (const L of a.legs) { ver(L.kn, 0, 0, 0, 0.065); ver(L.ft, 0, -0.03, -0.07, 0.04); ver(L.ft, 0, -0.03, 0.19, 0.04) }
+  for (const L of a.legs) {
+    ver(L.kn, 0, 0, 0, 0.065); ver(L.kn, 0, -0.17, 0, 0.06) // o joelho e o meio da canela (de joelhos, ela deita no chão)
+    ver(L.ft, 0, -0.03, -0.07, 0.04); ver(L.ft, 0, -0.03, 0.19, 0.04)
+    for (const q of a.sola) ver(L.ft, q.x, q.y, q.z, 0) // o calcanhar e a ponta da bota de verdade
+  }
   for (const b of a.arms) { ver(b.fo, 0, 0, 0, 0.05); ver(b.hd, 0, -0.07, 0, 0.05) }
   return lo
 }
@@ -53,7 +61,10 @@ export function animarAgente(a: Agente, e: EstadoAnim, dt: number): void {
   dt = cl(dt, 0, 0.05) // um quadro travado não estoura a mola da barra
   const m = a.anim
   const rolando = e.esquiva >= 0
-  const sp = rolando ? 0 : Math.max(0, e.velocidade)
+  const q = e.queda ?? -1, kq = pesoDaQueda(q) // caindo: as camadas de cima somem e a pose da queda manda
+  passoDoDano(a, !!e.ferido && q < 0, dt)
+  const fk = a.anim.dano.ferido // machucado: manca da perna direita
+  const sp = rolando || q >= 0 ? 0 : Math.max(0, e.velocidade)
   m.tempo = (m.tempo + dt) % (VOLTA / 1.9)
   m.corrida = damp(m.corrida, cl(e.corrida), 6, dt)
   m.amp = damp(m.amp, cl(sp / AGENTE.andar, 0, 1.3), 7, dt) // 1 andando; correndo passa um pouco
@@ -67,8 +78,9 @@ export function animarAgente(a: Agente, e: EstadoAnim, dt: number): void {
   for (const L of a.legs) {
     const p = ph + (L.s > 0 ? Math.PI : 0), sw = Math.sin(p), cs = Math.cos(p)
     const solta = Math.max(0, w * L.s) // a perna que descansa dobra o joelho
-    const th = -thA * sw - 0.1 * run * amp - 0.5 * P.joelho * solta
-    const kn = 0.06 + bend * Math.pow(Math.max(0, cs), 1.4) + 0.12 * run * amp + P.joelho * solta
+    const manca = L.s < 0 ? 1 - 0.4 * fk : 1 // a perna que dói dá o passo mais curto e dobra menos
+    const th = -thA * sw * manca - 0.1 * run * amp - 0.5 * P.joelho * solta
+    const kn = 0.06 + bend * manca * Math.pow(Math.max(0, cs), 1.4) + 0.12 * run * amp + P.joelho * solta
     const toe = amp * (0.3 * Math.max(0, Math.sin(p + 2.0)) - 0.22 * Math.max(0, Math.sin(p - 0.25)) * (1 - run * 0.5))
     L.th.rotation.set(th, 0, L.s * (0.045 + 0.025 * (1 - Math.min(1, amp))) + w * P.quadril)
     L.kn.rotation.set(kn, 0, 0)
@@ -77,7 +89,7 @@ export function animarAgente(a: Agente, e: EstadoAnim, dt: number): void {
   const osc = 0.11 * amp * Math.sin(ph) * (0.7 + 0.3 * run) // o quadril gira com a perna que vai à frente
   a.roll.rotation.set(0, 0, 0); a.roll.position.set(0, 0.5, 0)
   a.pelvis.position.set(0, STAND, 0)
-  a.pelvis.rotation.set(0.05 * run * amp, rolando ? 0 : osc, 0.045 * amp * Math.cos(ph) - w * P.quadril)
+  a.pelvis.rotation.set(0.05 * run * amp, rolando ? 0 : osc, 0.045 * amp * Math.cos(ph) - w * P.quadril + 0.06 * fk * amp * Math.sin(ph))
   // o pé de apoio fica no chão: mede as solas e acerta a altura do quadril
   let lo = Infinity
   for (const L of a.legs) for (const q of a.sola) { const y = naRaiz(L.ft, a.root, _p.copy(q)).y; if (y < lo) lo = y }
@@ -126,12 +138,20 @@ export function animarAgente(a: Agente, e: EstadoAnim, dt: number): void {
   if (rolando) a.roll.position.y += Math.max(0, -maisBaixo(a))
 
   // ---------- a escopeta com as duas mãos (ou no ombro); parado: o balanço da pistola e os gestos, por cima da pose ----------
-  const mirando = !!e.mira?.quer, parado = quieto > 0.97 && sp < 0.05 && !mirando
-  posturaDaEscopeta(a, { parado, amp, run, ph, solto: 1 - tuck }, dt)
-  posturaDaMira(a, mirando, e.mira?.alvo ?? null, dt, 1 - tuck)
-  balancoDaArma(a, quieto * (1 - tuck) * (1 - a.anim.arma.mira))
-  const gesto = gestoParado(a, parado, dt)
+  troncoMachucado(a, m.tempo) // machucado: curvado, inclinado para o lado, respirando pesado (as armas vêm por cima)
+  const mirando = !!e.mira?.quer && q < 0, parado = quieto > 0.97 && sp < 0.05 && !mirando && q < 0, solto = (1 - tuck) * (1 - kq)
+  posturaDaEscopeta(a, { parado, amp, run, ph, solto }, dt)
+  posturaDaMira(a, mirando, e.mira?.alvo ?? null, dt, solto)
+  balancoDaArma(a, quieto * solto * (1 - a.anim.arma.mira))
+  const gesto = gestoParado(a, parado && fk < 0.5, dt) // machucado, ele não fica fazendo gestos
   maoNaBomba(a) // a mão esquerda na bomba, onde a escopeta estiver agora
+  // machucado: a mão esquerda segura o lado, quando está livre (não está na bomba, na pistola mirando, apontando ou jogando)
+  const Ar = a.anim.arma, ocupada = Math.max(Ar.esquerda, a.arma === 'pistola' || (a.arma === 'armadilha' && !Ar.fora) ? Ar.mira : 0, Ar.lanca >= 0 ? 1 : 0)
+  const noLado = maoNoLado(a, (1 - ocupada) * solto)
+  poseDoTranco(a) // o tranco de um golpe: por cima de tudo, até da mira
+
+  // ---------- a queda: por cima de tudo; o chão acerta a altura pelo ponto mais baixo do corpo (joelhos, ombro, cabeça) ----------
+  if (q >= 0) { poseDaQueda(a, q); a.roll.position.y -= maisBaixo(a) * kq }
 
   // ---------- as mãos e o rosto ----------
   // a mão da arma fica fechada nela (mirando, o indicador vai para o gatilho); a esquerda fecha na bomba da escopeta
@@ -141,9 +161,13 @@ export function animarAgente(a: Agente, e: EstadoAnim, dt: number): void {
   const direita: PoseMao | undefined = !a.arma ? gesto[0] : a.arma === 'armadilha' && A.fora ? (A.lanca >= 0 ? 'aberta' : gesto[0]) : mirada ? 'segurar' : POSE_DA_ARMA[a.arma]
   const aponta = a.arma === 'armadilha' && !A.fora && A.mira > 0.5 && A.lanca < 0
   const forca: typeof gesto = [direita, A.esquerda > 0.5 || (mirada && a.arma === 'pistola') ? 'segurar' : aponta ? 'apontar' : gesto[1]]
+  if (noLado > 0.5 && !forca[1]) forca[1] = 'aberta' // a mão espalmada no lado
+  if (q >= 0) forca[1] = undefined // caído: a mão livre solta (a da arma continua nela)
   if (e.mao) animarMaos(a, e.mao, 1, dt, m.tempo, forca)
   else animarMaos(a, 'punho', rolando ? 1 : 0.6 * run * Math.min(1, amp), dt, m.tempo, forca)
-  animarRosto(a, e.expressao ?? (rolando || run > 0.5 ? 'esforco' : 'neutra'), dt)
+  // caindo: a dor, depois desmaiado (os olhos fecham)
+  // (um golpe: dor; machucado: o esforço no rosto)
+  animarRosto(a, e.expressao ?? (q >= 0 ? (q < QUEDA.joelhos[1] ? 'dor' : 'desmaio') : doendo(a) ? 'dor' : rolando || run > 0.5 || fk > 0.5 ? 'esforco' : 'neutra'), dt)
 
   // ---------- a barra da jaqueta: as da frente seguem as coxas, a de trás abre correndo (uma mola) ----------
   for (const pn of a.panels) {

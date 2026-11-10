@@ -126,7 +126,7 @@ No Testar, Q troca (pistola, escopeta, armadilha, mão vazia).
 
 **Mirar e atirar (10/nov, sem bala ainda):** o botão direito mira; o esquerdo atira (atirar sem mirar levanta a arma
 antes, e o tiro sai quando ela chega). Mirando, a câmera chega mais perto, mais de lado e fecha (um ponto no meio da
-tela); ele anda devagar (1,1 m/s), não corre e vira para onde a câmera olha (`src/game/player/mira.ts`):
+tela); ele anda devagar (1,45 m/s, como na tabela do agente), não corre e vira para onde a câmera olha (`src/game/player/mira.ts`):
 - a pistola com as duas mãos, os braços quase esticados, a esquerda por baixo; o tiro a cada 0,2 s segurando o botão;
 - a escopeta com a coronha no ombro, o corpo de lado (40°: a esquerda alcança a bomba; o quadril e as pernas viram junto, os pés girando no lugar) e o rosto encostado; o coice
   empurra o ombro e, depois de cada tiro, a mão esquerda puxa a bomba e devolve; um tiro por segundo;
@@ -143,11 +143,34 @@ Fora da mão, um clique a chama de volta: ela voa até a mão. Trocar de arma co
 A bala, o dano e a sobrecarga vêm na etapa das armas. Quando ela chegar,
 1/2/3 deixam de mostrar as expressões no Testar (isso fica no Ver modelos).
 
+## Tomar dano e ficar machucado (10/nov)
+
+Só a animação (decidido: machucado não muda a velocidade nem o correr). Sem sangue nem ferimento
+(`src/game/player/dano.ts`, os números em `numeros.ts`, DANO):
+- **o tranco** (0,45 s): o golpe joga o corpo para longe de onde veio (de frente, para trás com a cabeça; de costas,
+  para a frente; de lado, inclina para o outro lado), os braços abrem, ele afunda um pouco e volta; o rosto de dor. Vale
+  por cima de tudo, até mirando (a arma sacode junto). Depois do golpe, 0,9 s invulnerável;
+- **machucado** (30% da vida ou menos): curvado e inclinado para a esquerda, respirando mais fundo e mais rápido,
+  mancando da perna direita (o passo dela é mais curto), a mão esquerda segurando o lado quando está livre (não na
+  bomba, na mira ou apontando) e o rosto de esforço; não faz gestos de parado. Melhora devagar quando se cura.
+
+A vida (`src/game/player/vida.ts`): 200, invulnerável 0,9 s depois de um golpe, o kit (F) cura 60; zerou, a queda.
+No Testar ela é simples (sem HUD: a vida em % num canto): **J** toma 25 de uma direção sorteada, **F** usa um kit (sem
+limite, por enquanto) e, depois da queda, ele volta com a vida cheia. No Ver modelos: **Tomar dano** e **Machucado**.
+
 ## A queda do agente (decidida em 10/nov)
 
 Com a vida zerada, o agente **perde as forças, cai de joelhos e tomba de lado**; a tela escurece e ele volta no
-checkpoint. Sem violência explícita: nada de sangue, ferimento ou corpo machucado. Ainda não feita (vem depois do
-arremesso da armadilha). Os fantasmas continuam sem animação de morte.
+checkpoint. Sem violência explícita: nada de sangue, ferimento ou corpo machucado. Os fantasmas continuam sem animação
+de morte. Feita em 10/nov (`src/game/player/queda.ts`, os tempos em `numeros.ts`, QUEDA):
+- 0 a 0,3 s: a cabeça pende, o tronco curva, os joelhos amolecem e os braços soltam; o rosto de dor;
+- 0,22 a 0,6 s: de joelhos (as canelas no chão, os pés esticados para trás);
+- 0,65 a 1,15 s (deixada mais rápida a pedido): tomba para a esquerda dele, um pouco encolhido (a mão da arma por cima, à vista); o braço de baixo estica
+  no chão e a cabeça deita nele; o rosto **desmaia** (olhos fechados) e o peito continua respirando: desacordado, não morto;
+- a mão da arma não larga, mas dobra o pulso (o cano deitado: a escopeta não entra no chão);
+- caído, nada responde (andar, mirar, atirar, trocar de arma, portas); a tela escurece aos 1,5 s e ele volta em pé no
+  checkpoint aos 2,9 s, com a tela escura. No Testar, **K** faz cair (ou **J** até zerar a vida) e o checkpoint é
+  o ponto onde o teste começou.
 
 ## Destruir ou capturar (decidido em 10/nov, vale em toda luta)
 

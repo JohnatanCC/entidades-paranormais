@@ -188,6 +188,11 @@ button { font: inherit; color: inherit; }
 /* a linha de ação do Testar (perto de uma porta: "E · abrir a porta"; ou o aviso: "Trancada.") */
 .editor .mira-ponto { position: absolute; left: 50%; top: 50%; width: 4px; height: 4px; transform: translate(-50%, -50%); z-index: 6; pointer-events: none;
   background: var(--amber); box-shadow: 0 0 0 1px rgba(0, 0, 0, .7); } /* o ponto da mira (o HUD de verdade vem com o jogo) */
+.editor .escuro-teste { position: absolute; inset: 0; z-index: 5; pointer-events: none; background: #000; opacity: 0; transition: opacity .8s ease-out; }
+.editor .escuro-teste.ligado { opacity: 1; transition: opacity 1.2s ease-in; } /* a queda: a tela escurece e ele volta no checkpoint */
+.editor .vida-teste { position: absolute; left: 12px; top: 12px; z-index: 6; pointer-events: none; padding: 2px 10px; background: rgba(16, 14, 11, .7);
+  color: var(--amber); font-family: var(--display); font-size: 22px; letter-spacing: .06em; } /* a vida no Testar (o HUD de verdade vem depois) */
+.editor .vida-teste.perigo { color: var(--accent); }
 .editor .dica-teste { position: absolute; left: 50%; bottom: 90px; transform: translateX(-50%); z-index: 6; pointer-events: none;
   background: rgba(16, 14, 11, .85); border: 1px solid var(--brass); padding: 2px 14px; color: var(--amber);
   font-family: var(--display); font-size: 22px; letter-spacing: .04em; white-space: nowrap; }

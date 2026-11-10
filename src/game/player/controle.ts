@@ -1,6 +1,7 @@
 // O controle do agente (do laboratório): anda relativo à câmera, corre gastando fôlego, esquiva com uma cambalhota
 // para onde está apertando (sem direção, para trás), vira o corpo para onde anda, bate nas paredes e nos móveis e
 // acompanha o chão (escadas e andares). Mirando, anda devagar, não corre e vira para onde a câmera olha (como no RE4).
+// Caído (a queda), não responde a nada: só freia.
 // Os números ficam em numeros.ts.
 import { LEVEL_H } from '../../maps/types'
 import type { Acoes } from '../input/acoes'
@@ -18,10 +19,11 @@ export interface Jogador {
   esquivaRecarga: number
   velocidade: number // a velocidade real no chão (m/s), para a animação
   mira: boolean // mirando (quem joga diz, antes do passo)
+  caido: number // s desde que caiu (−1 = em pé): não anda, não corre, não esquiva
 }
 
 export function novoJogador(x: number, y: number, z: number, yaw = 0): Jogador {
-  return { x, y, z, vx: 0, vz: 0, vy: 0, yaw, folego: AGENTE.folego, folegoTravado: false, folegoParado: 0, corrida: 0, esquiva: -1, esquivaDir: [0, 1], esquivaRecarga: 0, velocidade: 0, mira: false }
+  return { x, y, z, vx: 0, vz: 0, vy: 0, yaw, folego: AGENTE.folego, folegoTravado: false, folegoParado: 0, corrida: 0, esquiva: -1, esquivaDir: [0, 1], esquivaRecarga: 0, velocidade: 0, mira: false, caido: -1 }
 }
 
 const ang = (a: number) => Math.atan2(Math.sin(a), Math.cos(a)) // −π..π
@@ -29,13 +31,13 @@ const amortece = (de: number, para: number, k: number, dt: number) => de + (para
 
 /** Um passo do controle. camYaw: para onde a câmera olha (a frente da câmera é (sin, cos)). */
 export function passoJogador(p: Jogador, a: Acoes, camYaw: number, m: Mundo, dt: number) {
-  const [ix, iz] = a.mover()
+  const [ix, iz] = p.caido >= 0 ? [0, 0] : a.mover()
   const fx = Math.sin(camYaw), fz = Math.cos(camYaw)
   // o desejo de andar no chão: frente da câmera × iz + direita da câmera × ix
   let wx = fx * iz - fz * ix, wz = fz * iz + fx * ix
   const wl = Math.hypot(wx, wz)
   if (wl > 1) { wx /= wl; wz /= wl }
-  const ocupado = p.esquiva >= 0
+  const ocupado = p.esquiva >= 0 || p.caido >= 0
 
   // correr gasta fôlego; acabou, trava até recuperar 2 s
   const corre = a.correr() && wl > 0.1 && !p.folegoTravado && p.folego > 0 && !ocupado && !p.mira
@@ -52,7 +54,7 @@ export function passoJogador(p: Jogador, a: Acoes, camYaw: number, m: Mundo, dt:
 
   // a esquiva: para onde está apertando; sem direção, para trás da câmera
   const E = AGENTE.esquiva
-  if (a.esquivar() && p.esquiva < 0 && p.esquivaRecarga <= 0 && p.folego >= 1.2) {
+  if (a.esquivar() && !ocupado && p.esquiva < 0 && p.esquivaRecarga <= 0 && p.folego >= 1.2) {
     const d = wl > 0.1 ? [wx / Math.max(wl, 1e-6), wz / Math.max(wl, 1e-6)] : [-fx, -fz]
     p.esquiva = 0; p.esquivaDir = [d[0], d[1]]; p.esquivaRecarga = E.recarga; p.folego = Math.max(0, p.folego - 1.2); p.folegoParado = 0
     p.yaw = Math.atan2(d[0], d[1])

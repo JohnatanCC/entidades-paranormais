@@ -108,7 +108,8 @@ src/game/                  (já existem: Testar.tsx, player/, input/, world/, we
   Testar.tsx               o Testar do editor: o agente andando no mapa aberto (câmera, colisão, luz do jogo)
   player/                  o agente: modelo.ts (liga modelos/agente.bbmodel no esqueleto), animacao.ts, maos.ts (os dedos),
                            arma.ts (a arma na mão; a escopeta com as duas mãos ou no ombro; o pêndulo da armadilha; Q troca
-                           no Testar), mira.ts (mirar: a pose, o coice, a bomba depois do tiro), parado.ts (a respiração, o
+                           no Testar), mira.ts (mirar: a pose, o coice, a bomba depois do tiro), queda.ts (cair sem violência), dano.ts (o tranco de um golpe,
+                           machucado), vida.ts (a vida, a invulnerabilidade, o kit), parado.ts (a respiração, o
                            peso e os gestos de parado), alcancar.ts (o braço alcança um ponto: IK de dois ossos),
                            rosto.ts (as expressões), cabelo.ts (as mechas com física), controle.ts (andar, correr, esquivar), numeros.ts
   weapons/                 tiro.ts (o gatilho e a cadência), clarao.ts (o clarão no cano), armadilha.ts (jogar: o voo em

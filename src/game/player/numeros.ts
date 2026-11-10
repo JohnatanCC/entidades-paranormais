@@ -8,6 +8,9 @@ export const AGENTE = {
   folegoVolta: 1.4, // quanto o fôlego volta por segundo
   esquiva: { dist: 2.7, dur: 0.5, recarga: 0.7 }, // a cambalhota: distância (m), duração e espera (s)
   raio: 0.3, // o corpo no chão (m)
+  vida: 200, // o HUD mostra em %
+  invulneravel: 0.9, // s sem tomar dano de novo depois de um golpe
+  kit: 60, // quanto o kit médico (F) cura
 }
 
 // A câmera por cima do ombro direito, como no RE4 remake; mirando, ela chega mais perto e fecha (mira)
@@ -53,8 +56,25 @@ export const ESCOPETA = {
 // Mirar (player/mira.ts): a arma levantada para onde a câmera mira. Pontos no espaço do peito (x = esquerda do agente)
 export const MIRA = {
   sobe: 12, desce: 7, // quão rápido a arma levanta e abaixa (por s)
-  andar: 1.1, // m/s: mirando, ele anda devagar e não corre (como no RE4)
+  andar: 1.45, // m/s: mirando, ele anda devagar e não corre (como no RE4; o número do docs/jogo.md)
   ombros: [-0.03, 0.42, 0], // de onde os braços saem para a pistola (entre os ombros, um pouco para a direita)
   pistola: { alcance: 0.45 }, // m do meio dos ombros até a empunhadura: os braços quase esticados, as duas mãos
   escopeta: { coronha: [-0.13, 0.4, 0.08], lado: -0.7 }, // a coronha no ombro direito; o corpo vira de lado (rad): a esquerda alcança a bomba
+}
+
+// A queda (player/queda.ts), sem violência: perde as forças, cai de joelhos e tomba de lado; desacordado (respira)
+export const QUEDA = {
+  cede: 0.3, // s: a cabeça cai, o tronco curva, os joelhos amolecem
+  joelhos: [0.22, 0.6], // s: de joelhos (do começo ao fim)
+  tomba: [0.65, 1.15], // s: tomba de lado
+  lado: -1, // para que lado tomba: −1 = a esquerda dele (a mão da arma fica por cima, à vista)
+  escurece: 1.5, // s: a tela começa a escurecer (o Testar)
+  volta: 2.9, // s: volta no checkpoint (com a tela escura)
+}
+
+// Tomar dano e ficar machucado (player/dano.ts): só a animação (decidido em 10/nov: machucado não muda a velocidade)
+export const DANO = {
+  tranco: 0.45, // s: o tranco de um golpe (vem da direção do golpe)
+  machucado: 0.3, // com a vida nesta fração ou menos, ele fica machucado (curvado, mancando, a mão livre no lado)
+  entra: 2, sai: 3, // quão rápido o corpo fica machucado e se recupera (por s)
 }
