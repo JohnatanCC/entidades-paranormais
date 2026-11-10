@@ -77,7 +77,8 @@ src/
   audio/musica.ts          a trilha: useMusica('menu') toca public/musica/<nome>.mp3 em laço, com o volume das configurações
   render/                  RetroRenderer (pós-processo PS1), psx.ts (tremor de vértice), materiais.ts (nome da textura -> material),
                            corte.ts (paredes altas / recortadas / baixas no editor), miniaturas.ts (fotos do catálogo de objetos),
-                           bbmodel.ts (lê um modelo do Blockbench: pastas = juntas, blocos = malhas; "luz_" brilha),
+                           bbmodel.ts (lê um modelo do Blockbench: pastas = juntas, blocos = malhas; "luz_" brilha; os
+                           personagens viram uma malha só com ossos: vestir),
                            objetos3d.ts (cada tipo de objeto, porta, janela e arma montado uma vez; o mapa usa cópias que dividem tudo)
   maps/                    types.ts (o formato v1), loader.ts (o jogo lê a pasta), storage.ts (o editor lê, grava,
                            exporta e importa; o pacote MapBundle), textures.ts (o catálogo: cada nome, o uso e a cor; a imagem é texturas/<nome>.png),
@@ -92,7 +93,8 @@ src/
                            historico.ts (desfazer e refazer)
 texturas/                  as texturas do cenário: <nome>.png, 32 × 32 px por bloco de 1 m, pintadas em pixel e sem costura
 modelos/                   os modelos do Blockbench (.bbmodel), lidos direto pelo jogo: agente.bbmodel, objetos/<tipo>.bbmodel,
-                           aberturas/<tipo>.bbmodel (as portas e janelas), armas/<nome>.bbmodel (pistola, escopeta, armadilha)
+                           aberturas/<tipo>.bbmodel (as portas e janelas), armas/<nome>.bbmodel (pistola, escopeta, armadilha),
+                           fantasmas/<nome>.bbmodel (a Mãe)
 public/musica/             as músicas do jogo (menu.mp3: o menu e o criador de mapas)
 reference/                 o laboratório antigo, só para consulta (não importar nada daqui); ost/ = as 4 músicas dele
 docs/                      o que está decidido
@@ -104,17 +106,20 @@ Cada coisa do jogo mora na sua pasta; nada de arquivo gigante como o laboratóri
 ficam num arquivo próprio de cada pasta, para ajustar sem caçar no código.
 
 ```
-src/game/                  (já existem: Testar.tsx, player/, input/, world/, weapons/ — o resto entra quando a etapa chegar)
+src/game/                  (já existem: Testar.tsx, player/, input/, world/, weapons/, corpo/, enemies/mae/ — o resto entra
+                           quando a etapa chegar)
+  corpo/                   o que serve a todo personagem: molas.ts (o que pendura e balança: cabelo, saia)
   Testar.tsx               o Testar do editor: o agente andando no mapa aberto (câmera, colisão, luz do jogo)
   player/                  o agente: modelo.ts (liga modelos/agente.bbmodel no esqueleto), animacao.ts, maos.ts (os dedos),
                            arma.ts (a arma na mão; a escopeta com as duas mãos ou no ombro; o pêndulo da armadilha; Q troca
                            no Testar), mira.ts (mirar: a pose, o coice, a bomba depois do tiro), queda.ts (cair sem violência), dano.ts (o tranco de um golpe,
                            machucado), vida.ts (a vida, a invulnerabilidade, o kit), parado.ts (a respiração, o
                            peso e os gestos de parado), alcancar.ts (o braço alcança um ponto: IK de dois ossos),
-                           rosto.ts (as expressões), cabelo.ts (as mechas com física), controle.ts (andar, correr, esquivar), numeros.ts
+                           rosto.ts (as expressões), controle.ts (andar, correr, esquivar), numeros.ts
   weapons/                 tiro.ts (o gatilho e a cadência), clarao.ts (o clarão no cano), armadilha.ts (jogar: o voo em
                            arco, grudar, chamar de volta, a linha do arco), numeros.ts; depois a bala e a sobrecarga
-  enemies/<nome>/          um fantasma por pasta (espectral/, glutao/, ...): IA, ataques, modelo, números
+  enemies/<nome>/          um fantasma por pasta (mae/, espectral/, glutao/): IA, ataques, modelo, números; a Mãe já tem
+                           modelo.ts (monta o modelo, a saia e o cabelo com molas) e numeros.ts
   capture/                 a poça e a captura
   allies/                  Lara e Nicolas
   hud/                     o HUD conceito C

@@ -1,5 +1,5 @@
 // Ver modelos (Modo desenvolvedor): um modelo sozinho na tela, para olhar de perto e decidir o que melhorar.
-// Não edita nada: o Matheus vem de modelos/agente.bbmodel, as armas de modelos/armas/<nome>.bbmodel e os objetos de
+// Não edita nada: o Matheus vem de modelos/agente.bbmodel, os fantasmas de modelos/fantasmas/<nome>.bbmodel (a Mãe), as armas de modelos/armas/<nome>.bbmodel e os objetos de
 // modelos/objetos/<tipo>.bbmodel (salvar no
 // Blockbench atualiza aqui no npm run dev). A câmera gira em volta (botão esquerdo gira, direito move, rodinha aproxima).
 // Para o Matheus o painel troca a animação, a expressão, a pose das mãos, a arma na mão e o ângulo, faz os gestos de
@@ -25,6 +25,7 @@ import { AGENTE, QUEDA } from '../game/player/numeros'
 import type { Expressao } from '../game/player/rosto'
 import { GRUPOS, OBJETOS } from '../maps/objetos'
 import { arma3d, caminhoObjeto, objeto3d } from '../render/objetos3d'
+import { animarMae, montarMae } from '../game/enemies/mae/modelo'
 
 type Anim = 'parado' | 'andando' | 'correndo' | 'esquiva' | 'queda'
 type Camera = 'corpo' | 'rosto' | 'maos' | 'pes' | 'costas'
@@ -32,6 +33,8 @@ type Luz = 'estudio' | 'jogo'
 
 const AGENTE_ID = 'agente'
 const ARMA = 'arma:' // o id de uma arma no seletor: arma:pistola
+const MAE = 'fantasma:mae'
+const ANIMS_MAE: [Anim, string][] = [['parado', 'Parada'], ['andando', 'Deslizando (a saia e o cabelo)']]
 const NA_MAO: [Arma | null, string][] = [[null, 'Nenhuma'], ...ARMAS.map(([k]): [Arma, string] => [k, k[0].toUpperCase() + k.slice(1)])]
 const ANIMS: [Anim, string][] = [['parado', 'Parado'], ['andando', 'Andando'], ['correndo', 'Correndo'], ['esquiva', 'Esquiva'], ['queda', 'Queda']]
 const EXPS: [Expressao | null, string][] = [[null, 'Automática'], ['neutra', 'Neutra'], ['esforco', 'Esforço'], ['medo', 'Medo'], ['dor', 'Dor'], ['raiva', 'Raiva'], ['surpresa', 'Surpresa'], ['desmaio', 'Desmaio']]
@@ -55,19 +58,19 @@ export function VerModelos({ go }: { go: Go }) {
   const [e, setE] = useState<Escolhas>({ qual: AGENTE_ID, anim: 'parado', exp: null, mao: null, arma: null, gesto: null, mirando: false, tiros: 0, golpes: 0, ferido: false, camera: 'corpo', luz: 'estudio', girar: false, grade: true })
   const [info, setInfo] = useState<Info | null>(null)
   const muda = (p: Partial<Escolhas>) => setE((v) => ({ ...v, ...p }))
-  const agente = e.qual === AGENTE_ID, arma = e.qual.startsWith(ARMA) ? e.qual.slice(ARMA.length) : null
+  const agente = e.qual === AGENTE_ID, arma = e.qual.startsWith(ARMA) ? e.qual.slice(ARMA.length) : null, mae = e.qual === MAE
   return (
     <div className="vermodelo">
       <header className="topo">
         <span className="titulo">Ver modelos</span>
-        <span className="nome">{agente ? 'Matheus Moura · modelos/agente.bbmodel' : arma ? `${ARMAS.find(([k]) => k === arma)?.[1]} · modelos/armas/${arma}.bbmodel` : `${OBJETOS[e.qual]?.nome} · modelos/${caminhoObjeto(e.qual)}.bbmodel`}</span>
+        <span className="nome">{agente ? 'Matheus Moura · modelos/agente.bbmodel' : mae ? 'A Mãe · modelos/fantasmas/mae.bbmodel' : arma ? `${ARMAS.find(([k]) => k === arma)?.[1]} · modelos/armas/${arma}.bbmodel` : `${OBJETOS[e.qual]?.nome} · modelos/${caminhoObjeto(e.qual)}.bbmodel`}</span>
         <span className="espaco" />
         <button className="bt" onClick={() => go('dev')}>Voltar</button>
       </header>
       <div className="vista">
         <Canvas camera={{ position: [1.4, 1.4, 3.6], fov: 35, near: 0.02, far: 100 }}>
           <Luzes luz={e.luz} />
-          {agente ? <CenaAgente e={e} onInfo={setInfo} /> : <CenaObjeto key={e.qual} qual={e.qual} girar={e.girar} onInfo={setInfo} />}
+          {agente ? <CenaAgente e={e} onInfo={setInfo} /> : mae ? <CenaMae e={e} onInfo={setInfo} /> : <CenaObjeto key={e.qual} qual={e.qual} girar={e.girar} onInfo={setInfo} />}
           {e.grade && <Grid args={[8, 8]} cellSize={0.5} cellThickness={0.6} cellColor="#6a5a40" sectionSize={1} sectionThickness={1.2} sectionColor="#c89b4a" fadeDistance={14} infiniteGrid />}
           <OrbitControls makeDefault target={[0, 0.95, 0]} minDistance={0.2} maxDistance={9} />
         </Canvas>
@@ -78,6 +81,7 @@ export function VerModelos({ go }: { go: Go }) {
           <b>Modelo</b>
           <select className="escolha" value={e.qual} onChange={(ev) => muda({ qual: ev.target.value })}>
             <option value={AGENTE_ID}>Matheus Moura (o agente)</option>
+            <optgroup label="Fantasmas"><option value={MAE}>A Mãe</option></optgroup>
             <optgroup label="Armas">{ARMAS.map(([k, nome]) => <option key={k} value={ARMA + k}>{nome}</option>)}</optgroup>
             {GRUPOS.map(([g, nome]) => (
               <optgroup key={g} label={`Objetos · ${nome}`}>
@@ -86,6 +90,7 @@ export function VerModelos({ go }: { go: Go }) {
             ))}
           </select>
         </section>
+        {mae && <Opcoes titulo="Animação" lista={ANIMS_MAE} valor={e.anim} onEscolher={(anim) => muda({ anim })} />}
         {agente && <>
           <Opcoes titulo="Animação" lista={ANIMS} valor={e.anim} onEscolher={(anim) => muda({ anim })} />
           <Opcoes titulo="Expressão" lista={EXPS} valor={e.exp} onEscolher={(exp) => muda({ exp })} />
@@ -225,6 +230,29 @@ function CenaAgente({ e, onInfo }: { e: Escolhas; onInfo: (i: Info) => void }) {
     if (e.girar) a.root.rotation.y += dt * 0.5
   })
   return <primitive object={a.root} />
+}
+
+function CenaMae({ e, onInfo }: { e: Escolhas; onInfo: (i: Info) => void }) {
+  // montarMae na lista: salvar o .bbmodel recarrega o módulo e ela é montada de novo
+  const m = useMemo(() => montarMae(), [montarMae])
+  const { pronto, voar } = useVoo()
+  const t = useRef(0)
+  useEffect(() => {
+    const c = contas(m.root)
+    m.root.updateMatrixWorld(true)
+    const b = new THREE.Box3().setFromObject(m.root)
+    onInfo({ linhas: [`Altura: ${b.max.y.toFixed(2)} m`, `${c.blocos} blocos em ${c.juntas} juntas`, `${c.desenhos} chamadas de desenho`] })
+  }, [m, onInfo])
+  useEffect(() => { if (pronto) voar(new THREE.Vector3(0, 1.2, 0), new THREE.Vector3(1.8, 1.7, 4.4)) }, [m, pronto])
+  useFrame((_, dtBruto) => {
+    const dt = Math.min(dtBruto, 0.05)
+    // deslizando: vai e volta de lado (até a etapa do andar), para a saia e o cabelo mostrarem o balanço
+    t.current += dt
+    m.root.position.x = e.anim === 'andando' ? Math.sin(t.current * 1.6) * 0.9 : 0
+    if (e.girar) m.root.rotation.y += dt * 0.5
+    animarMae(m, dt)
+  })
+  return <primitive object={m.root} />
 }
 
 function CenaObjeto({ qual, girar, onInfo }: { qual: string; girar: boolean; onInfo: (i: Info) => void }) {

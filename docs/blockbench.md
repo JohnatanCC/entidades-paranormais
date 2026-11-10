@@ -130,6 +130,20 @@ salvar no Blockbench atualiza o jogo (se o Testar estiver aberto, saia e entre d
    trás (S) e o agente vira de frente para a câmera. No Testar, as teclas **1 a 6** mostram as expressões (neutra, esforço,
    medo, dor, raiva, surpresa), **7 a 9** as mãos (punho, aberta, apontar) e **0** volta ao automático; **J** toma dano, **F** usa um kit, **K** faz ele cair; **Q** troca a arma na mão; o botão direito mira e o esquerdo atira (o clarão sai na pasta `cano`) ou joga a armadilha (um clique a chama de volta).
 
+## Os fantasmas
+
+- `modelos/fantasmas/<nome>.bbmodel`, com 64 px por metro (o rosto com 128), como os personagens. A primeira: a Mãe
+  (`mae.bbmodel`, nasceu de um gerador em 10/nov, para detalhar à mão).
+- As juntas pelos mesmos nomes do Matheus (quadril, tronco, pescoco, cabeca, braco/antebraco/mao, os dedos, coxa/canela/pe)
+  e a `boca` (abre no grito).
+- **O que balança:** toda pasta `mecha_...` (o cabelo, presa na cabeça) e `saia_...` (a saia, presa no quadril; a ponta
+  de cada painel numa pasta dentro dele, `saia_N_ponta`) balança com mola sozinha. Pasta nova com esses nomes já balança.
+- Por baixo da saia, a anágua: blocos fixos no `quadril` (`anagua_...`, sem física), entre os painéis, para não
+  aparecerem frestas quando a saia balança. As mechas da frente nascem na borda do rosto, não na frente dele.
+- Os olhos que brilham: blocos `luz_`.
+- Personagem (o Matheus, os fantasmas): o jogo junta tudo numa malha só com ossos (uma chamada de desenho). Para você não
+  muda nada: as pastas continuam sendo as juntas.
+
 ## O que vem depois
 
 1. ✅ **Ligar no jogo** (10/nov): o Testar lê `modelos/agente.bbmodel` e as animações do laboratório (andar, correr,
@@ -138,5 +152,6 @@ salvar no Blockbench atualiza o jogo (se o Testar estiver aberto, saia e entre d
    nuca, lados, topete) e 7 mechas com física (quatro na nuca até a gola e três na franja; as dos lados saíram em
    10/nov, a pedido); rosto com expressões; mãos com palma, polegar e quatro dedos de duas falanges (luva sem dedos);
    botas com cano, biqueira, salto e sola; gola, lapelas, bolsos, alças, cinto com bolsas, coldre e os frascos da mochila.
-3. **Os fantasmas no mesmo estilo:** a Mãe, o Espectral e o Glutão (ver "A identidade visual" em `docs/jogo.md`).
+3. **Os fantasmas no mesmo estilo:** ✅ a Mãe (o modelo, 10/nov; as animações em etapas), o Espectral e o Glutão (ver
+   "A identidade visual" em `docs/jogo.md`).
 4. **Lara e Nicolas**, quando a demo Intro for trazida.

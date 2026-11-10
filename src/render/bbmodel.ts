@@ -1,7 +1,8 @@
 // Lê um modelo do Blockbench (.bbmodel, modelo genérico) e monta os grupos e os blocos em three, sem exportar nada:
 // o desenvolvedor salva o .bbmodel em modelos/ e o jogo usa direto (no npm run dev, salvar já atualiza).
 // Cada pasta do Blockbench vira um THREE.Group com o nome dela, com o ponto de giro na junta; os blocos de cada pasta
-// viram uma malha só (o detalhe não multiplica as chamadas de desenho).
+// viram uma malha só (o detalhe não multiplica as chamadas de desenho). Os personagens (pele: true) vão além: o corpo
+// inteiro vira UMA malha com ossos (cada bloco preso à sua pasta; vestir), uma chamada de desenho por personagem.
 // Escala: 32 unidades do Blockbench = 1 m. Frente = +z. Os arquivos: modelos/<nome>.bbmodel (personagens) e
 // modelos/objetos/<tipo>.bbmodel (o catálogo de objetos), pedidos pelo caminho sem a extensão ("objetos/cadeira").
 // Bloco com nome começando em "luz_" (a chama, a lâmpada, a tela) brilha sozinho: vai numa malha "#luz" à parte.
@@ -76,7 +77,8 @@ function textura(src: string) {
  * inflar (unidades) engorda todos os blocos: é a "casca" do contorno de seleção do editor (sem textura nem luz).
  * corte: o material obedece o corte das paredes do editor (as portas e janelas, que ficam na parede).
  */
-export function montarBB(bb: BBModel, opc: { inflar?: number; corte?: boolean } = {}): { raiz: THREE.Group; pastas: Map<string, THREE.Group>; blocos: Map<string, THREE.Object3D> } {
+export interface MontadoBB { raiz: THREE.Group; pastas: Map<string, THREE.Group>; blocos: Map<string, THREE.Object3D>; material: THREE.Material; luz: THREE.Material }
+export function montarBB(bb: BBModel, opc: { inflar?: number; corte?: boolean; pele?: boolean } = {}): MontadoBB {
   const tex = bb.textures[0], mapa = tex && !opc.inflar ? textura(tex.source) : undefined
   const W = tex?.uv_width ?? bb.resolution.width, H = tex?.uv_height ?? bb.resolution.height
   const base = applyPsx(new THREE.MeshStandardMaterial({ color: '#ffffff', roughness: 0.9, ...(mapa ? { map: mapa } : {}) }))
@@ -132,6 +134,8 @@ export function montarBB(bb: BBModel, opc: { inflar?: number; corte?: boolean } 
       if (!lista.length) continue
       const junta = mergeGeometries(lista)
       lista.forEach((x) => x.dispose())
+      // personagem: a geometria fica guardada na pasta (no espaço dela) para vestir juntar tudo numa malha com ossos
+      if (opc.pele) { g.userData[nome === '#luz' ? 'geoLuz' : 'geo'] = junta; continue }
       const malha = new THREE.Mesh(junta, mat); malha.name = (nome === '#luz' ? '#luz' : p.name + nome)
       g.add(malha)
     }
@@ -139,5 +143,53 @@ export function montarBB(bb: BBModel, opc: { inflar?: number; corte?: boolean } 
   }
 
   const raiz = pasta({ uuid: 'raiz-arquivo', name: '', origin: [0, 0, 0], children: bb.outliner }, [0, 0, 0])
-  return { raiz, pastas, blocos }
+  return { raiz, pastas, blocos, material, luz }
+}
+
+/**
+ * Veste o personagem montado com pele: os blocos de todas as pastas debaixo de `corpo` viram uma malha com ossos (e
+ * outra para os blocos "luz_", que brilham), presas em `corpo`. Cada pasta é o osso dos próprios blocos, ou o que
+ * `ossoDe` disser (o Matheus prende o tronco no peito, que gira por dentro dele). Chame com o corpo na pose do arquivo.
+ */
+export function vestir(corpo: THREE.Object3D, m: MontadoBB, ossoDe: Record<string, THREE.Object3D> = {}): THREE.SkinnedMesh[] {
+  corpo.updateMatrixWorld(true)
+  const inv = new THREE.Matrix4().copy(corpo.matrixWorld).invert(), _mt = new THREE.Matrix4()
+  const ossos: THREE.Object3D[] = [], indice = new Map<THREE.Object3D, number>()
+  const partes: Record<'geo' | 'geoLuz', THREE.BufferGeometry[]> = { geo: [], geoLuz: [] }
+  corpo.traverse((g) => {
+    for (const k of ['geo', 'geoLuz'] as const) {
+      const geo = g.userData[k] as THREE.BufferGeometry | undefined
+      if (!geo) continue
+      const osso = ossoDe[g.name] ?? g
+      if (!indice.has(osso)) { indice.set(osso, ossos.length); ossos.push(osso) }
+      const i = indice.get(osso)!, n = geo.attributes.position.count
+      const c = geo.clone().applyMatrix4(_mt.multiplyMatrices(inv, g.matrixWorld)) // no espaço do corpo, na pose do arquivo
+      c.setAttribute('skinIndex', new THREE.Uint16BufferAttribute(new Uint16Array(n * 4).map((_, j) => (j % 4 === 0 ? i : 0)), 4))
+      c.setAttribute('skinWeight', new THREE.Float32BufferAttribute(new Float32Array(n * 4).map((_, j) => (j % 4 === 0 ? 1 : 0)), 4))
+      partes[k].push(c)
+      // a geometria solta já foi para a malha: fica só a caixa dela (caixaDaPasta)
+      if (k === 'geo') { geo.computeBoundingBox(); g.userData.caixa = geo.boundingBox!.clone() }
+      geo.dispose(); delete g.userData[k]
+    }
+  })
+  const esqueleto = new THREE.Skeleton(ossos as THREE.Bone[])
+  const malhas: THREE.SkinnedMesh[] = []
+  for (const [k, mat, nome] of [['geo', m.material, '#corpo'], ['geoLuz', m.luz, '#luz']] as const) {
+    if (!partes[k].length) continue
+    const s = new THREE.SkinnedMesh(mergeGeometries(partes[k]), mat)
+    partes[k].forEach((x) => x.dispose())
+    s.name = nome; s.frustumCulled = false // o corpo se mexe muito além da caixa da pose do arquivo
+    corpo.add(s); s.updateMatrixWorld(true); s.bind(esqueleto, s.matrixWorld)
+    malhas.push(s)
+  }
+  return malhas
+}
+
+/** A caixa dos blocos de uma pasta, no espaço dela (os personagens com pele não têm malha por pasta para medir). */
+export function caixaDaPasta(g: THREE.Object3D): THREE.Box3 | null {
+  if (g.userData.caixa) return (g.userData.caixa as THREE.Box3).clone()
+  const geo = g.userData.geo as THREE.BufferGeometry | undefined
+  if (!geo) return null
+  geo.computeBoundingBox()
+  return geo.boundingBox!.clone()
 }

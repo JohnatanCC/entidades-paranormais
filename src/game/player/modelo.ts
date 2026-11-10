@@ -2,15 +2,16 @@
 // (como fazer: docs/blockbench.md). Aqui as pastas do arquivo viram o esqueleto que a animação conhece:
 //   quadril -> pelvis; tronco -> spine (e um peito por dentro dele); pescoco, cabeca; braco, antebraco, mao e os dedos
 //   (indicador, medio, anelar, minimo, polegar, cada um com a _ponta); coxa, canela, pe; o rosto: olho, iris,
-//   sobrancelha e boca; as mechas do cabelo (toda pasta "mecha_..." balança com física, cabelo.ts).
+//   sobrancelha e boca; as mechas do cabelo (toda pasta "mecha_..." balança com física: corpo/molas.ts).
 //   _e = esquerdo (+x), _d = direito (−x).
 // Pasta que faltar no arquivo vira um grupo vazio (a parte só não anima) e aparece um aviso no console.
 // A origem do root fica no chão, entre os pés; a FRENTE é o +z do root. O modelo antigo (de caixas e cilindros) está no git.
 import * as THREE from 'three'
-import { arquivoModelo, montarBB } from '../../render/bbmodel'
+import { arquivoModelo, caixaDaPasta, montarBB, vestir } from '../../render/bbmodel'
 import { animarAgente } from './animacao'
 import { novaAnimArma, type AnimArma, type Arma } from './arma'
-import { novaFisicaCabelo, prepararMecha, type FisicaCabelo, type Mecha } from './cabelo'
+import { prepararMolas, type Molas } from '../corpo/molas'
+import { CABELO } from './numeros'
 import { novaMao, type AnimMao } from './maos'
 import { novoDano, type AnimDano } from './dano'
 import { novoParado, type AnimParado } from './parado'
@@ -30,7 +31,7 @@ export interface Rosto {
   base: { iris: THREE.Vector3[]; sobrancelhas: THREE.Vector3[] }
 }
 /** O que a animação lembra de um quadro para o outro. */
-export interface AnimAgente { fase: number; amp: number; corrida: number; tempo: number; maos: [AnimMao, AnimMao]; rosto: AnimRosto; cabelo: FisicaCabelo; parado: AnimParado; arma: AnimArma; dano: AnimDano }
+export interface AnimAgente { fase: number; amp: number; corrida: number; tempo: number; maos: [AnimMao, AnimMao]; rosto: AnimRosto; parado: AnimParado; arma: AnimArma; dano: AnimDano }
 
 export interface Agente {
   root: THREE.Group
@@ -45,7 +46,7 @@ export interface Agente {
   head: THREE.Group
   arms: [Braco, Braco] // [0] direito, [1] esquerdo
   rosto: Rosto
-  mechas: Mecha[] // as mechas do cabelo com física
+  cabelo: Molas | null // as mechas do cabelo com física (preparadas com o corpo na pose)
   sola: [THREE.Vector3, THREE.Vector3] // o calcanhar e a ponta da bota, no espaço do pé (para os pés ficarem no chão)
   arma: Arma | null // a arma na mão direita (arma.ts: pegarArma)
   anim: AnimAgente
@@ -54,7 +55,7 @@ export interface Agente {
 const DEDOS = ['indicador', 'medio', 'anelar', 'minimo']
 
 export function montarAgente(): Agente {
-  const { pastas, blocos } = montarBB(arquivoModelo('agente'))
+  const montado = montarBB(arquivoModelo('agente'), { pele: true }), { pastas, blocos } = montado
   const parte = (nome: string): THREE.Group => {
     const o = pastas.get(nome)
     if (o) return o
@@ -96,24 +97,21 @@ export function montarAgente(): Agente {
   }
 
   const a: Agente = {
-    root, roll, pelvis, legs, panels: [], spine, chest, pack: blocos.get('mochila') ?? chest, neck, head, arms, rosto, mechas: [],
-    sola: solaDe(legs[0].ft), arma: null, anim: { fase: 0, amp: 0, corrida: 0, tempo: 0, maos: [novaMao(), novaMao()], rosto: novoRosto(), cabelo: novaFisicaCabelo(), parado: novoParado(), arma: novaAnimArma(), dano: novoDano() },
+    root, roll, pelvis, legs, panels: [], spine, chest, pack: blocos.get('mochila') ?? chest, neck, head, arms, rosto, cabelo: null,
+    sola: solaDe(legs[0].ft), arma: null, anim: { fase: 0, amp: 0, corrida: 0, tempo: 0, maos: [novaMao(), novaMao()], rosto: novoRosto(), parado: novoParado(), arma: novaAnimArma(), dano: novoDano() },
   }
+  // o corpo inteiro numa malha com ossos (uma chamada de desenho); o tronco vai preso no peito, que gira por dentro dele
+  vestir(root, montado, { tronco: chest })
   animarAgente(a, { velocidade: 0, corrida: 0, esquiva: -1 }, 0) // a pose parada: os pés no chão desde o primeiro quadro
   // as mechas: com o corpo já na pose, cada uma sabe onde nasce na cabeça (e daí os limites dela)
   root.updateMatrixWorld(true)
-  a.mechas = [...pastas].filter(([nome]) => nome.startsWith('mecha')).map(([, g]) => prepararMecha(g, head))
+  a.cabelo = prepararMolas([...pastas].filter(([nome]) => nome.startsWith('mecha')).map(([, g]) => g), head, head, CABELO)
   return a
 }
 
-/** O calcanhar e a ponta da sola, no espaço do pé, medidos na malha dos blocos do pé (a bota). */
+/** O calcanhar e a ponta da sola, no espaço do pé, medidos nos blocos do pé (a bota). */
 function solaDe(pe: THREE.Group): [THREE.Vector3, THREE.Vector3] {
-  const caixa = new THREE.Box3(), b = new THREE.Box3()
-  for (const c of pe.children) {
-    if (!(c instanceof THREE.Mesh)) continue
-    c.geometry.computeBoundingBox()
-    caixa.union(b.copy(c.geometry.boundingBox!).translate(c.position))
-  }
-  if (caixa.isEmpty()) return [new THREE.Vector3(0, -0.07, -0.07), new THREE.Vector3(0, -0.07, 0.15)]
+  const caixa = caixaDaPasta(pe)
+  if (!caixa || caixa.isEmpty()) return [new THREE.Vector3(0, -0.07, -0.07), new THREE.Vector3(0, -0.07, 0.15)]
   return [new THREE.Vector3(0, caixa.min.y, caixa.min.z + 0.02), new THREE.Vector3(0, caixa.min.y, caixa.max.z - 0.02)]
 }

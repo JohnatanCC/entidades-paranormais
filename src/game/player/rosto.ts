@@ -44,6 +44,6 @@ export function animarRosto(a: Agente, exp: Expressao, dt: number) {
     g.rotation.z = -s * r.meio
   })
   // a peça da boca aberta: encolhida demais ela some (fica a boca fechada, pintada no rosto)
-  f.boca.visible = r.bocaY > 0.08
-  f.boca.scale.set(r.bocaX, Math.max(0.001, r.bocaY), 1)
+  // (encolhida a quase nada: num personagem com ossos, esconder o osso não esconderia a peça)
+  f.boca.scale.set(r.bocaX, r.bocaY > 0.08 ? r.bocaY : 0.0001, 1)
 }

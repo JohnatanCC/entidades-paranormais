@@ -19,13 +19,13 @@ a tiro e os prende com a armadilha. Cenário e personagens em blocos com textura
   rosto, roupa, sujeira; piscar e mudar a expressão é trocar um pedaço da textura.
 - **Proporções quase realistas** (cabeça só um pouco maior, mãos normais): o estilo em blocos puxa para o "fofo", e o
   terror compensa com a **ambientação mais tensa**: pouca luz, sombras, sons.
-- **Fantasmas com formas erradas:** a Mãe alta demais, braços longos, cabelo em mechas finas, o véu preto, olhos brancos
+- **Fantasmas com formas erradas:** a Mãe alta demais (2,26 m: maior que uma porta), braços longos, cabelo em mechas finas, sem véu, olhos brancos
   de cega, a cabeça virando sem suavizar; o Espectral translúcido, se desfazendo em cubos embaixo; o Glutão inchado,
   com a boca rasgando o tronco. Olhos que brilham no escuro.
 - **Animação:** partes rígidas que giram nas juntas (como no laboratório), feita em código, ligada às ações do jogo.
   Os dedos fecham por poses (solta, punho, aberta, segurar, guarda com o indicador fora do gatilho, apontar) e o rosto tem expressões (neutra, esforço, medo,
   dor, raiva, surpresa), com piscar e o olhar passeando; as mechas do cabelo balançam com física simples (a gravidade
-  e o tranco da cabeça, com limites para não entrar na cabeça) (`src/game/player/maos.ts`, `rosto.ts` e `cabelo.ts`).
+  e o tranco da cabeça, com limites para não entrar na cabeça) (`src/game/player/maos.ts`, `rosto.ts` e `src/game/corpo/molas.ts`).
 - **Parado** (`src/game/player/parado.ts`, os tempos em `numeros.ts`): a respiração mais funda e o peso passando de uma
   perna para a outra; depois de 8 a 15 s parado, um gesto sorteado (nunca o mesmo duas vezes seguidas): olhar em volta
   (os olhos chegam antes da cabeça), ajustar a alça da mochila, conferir a bolsa do cinto, abrir e fechar a mão.
@@ -199,6 +199,19 @@ Os fantasmas são de dois tipos:
 Os Espectrais são esqueléticos, de manto. O Glutão é gordo, esquelético e deformado, com núcleo brilhante na barriga.
 
 ## A Mãe (chefe, a luta do berçário)
+
+**O modelo (10/nov, `modelos/fantasmas/mae.bbmodel`, `src/game/enemies/mae/`):** em blocos, **2,26 m** (maior que as
+portas de 2,1 m), magra e pálida; o rosto cadavérico (órbitas fundas, olhos brancos de cega que brilham, lágrimas de
+Luto); o cabelo preto molhado repartido no meio, em 13 mechas com física; o vestido de linho creme com pregas, gola alta
+de babado, faixa marrom, punhos escuros e o Luto escorrendo; a saia em 10 painéis de dois pedaços com física (abrem para
+fora, não entram nas pernas), com a anágua por baixo (fixa, mais escura: pelas frestas aparece pano); dedos compridos com unhas em garra; pés descalços. Uma malha só com ossos (2 chamadas de
+desenho, com os olhos). Sem véu (o design final do laboratório e a imagem de referência).
+
+**As animações (uma etapa por vez):** 2. andar e a parada (a cabeça virando aos trancos, a pose em ritmo travado, 6 a
+22 quadros por segundo, como no laboratório, com o cabelo e a saia suaves) e **abaixar para passar pela porta** (ela é
+maior que a porta: o tronco curva, os joelhos dobram, a cabeça passa por baixo do batente); 3. os ataques (aviso,
+investida, garra, aproximar aos trancos, carga); 4. o Luto (mergulhar, surgir, finta); 5. os estados (grito, atordoada,
+cambaleio, enfraquecida, levanta, capturada). Fora: a cena de pegar o agente e a do armário (cenas do laboratório).
 
 Números da tabela `T` em `buildDemo()` do laboratório (linha ~7674); a lógica das fases na linha ~9623.
 

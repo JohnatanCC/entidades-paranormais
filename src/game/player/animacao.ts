@@ -4,7 +4,7 @@
 import * as THREE from 'three'
 import type { Agente } from './modelo'
 import { animarArma, maoNaBomba, POSE_DA_ARMA, posturaDaEscopeta } from './arma'
-import { animarCabelo } from './cabelo'
+import { animarMolas } from '../corpo/molas'
 import { animarMaos, type PoseMao } from './maos'
 import { AGENTE, PARADO, QUEDA } from './numeros'
 import { posturaDaMira } from './mira'
@@ -176,7 +176,7 @@ export function animarAgente(a: Agente, e: EstadoAnim, dt: number): void {
     pn.v += ((tg - pn.sw) * 120 - pn.v * 14) * dt; pn.sw += pn.v * dt; pn.g.rotation.x = pn.sw
   }
   // ---------- o cabelo: as mechas balançam com o movimento da cabeça (depois de tudo posto no lugar) ----------
-  animarCabelo(a, dt)
+  if (a.cabelo) animarMolas(a.cabelo, a.root, dt)
   // ---------- a armadilha balança pela alça (depois do braço no lugar) ----------
   animarArma(a, dt)
 }

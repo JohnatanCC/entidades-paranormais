@@ -13,6 +13,17 @@ export const AGENTE = {
   kit: 60, // quanto o kit médico (F) cura
 }
 
+// O cabelo (corpo/molas.ts): as mechas balançam com a gravidade e o tranco da cabeça
+export const CABELO = {
+  mola: 45, // quão rápido volta (mais = mais duro)
+  amortece: 5, // quanto acalma (menos = balança mais)
+  tranco: 0.45, // quanto o tranco da cabeça empurra (0 = só a gravidade)
+  trancoMax: 30, // m/s²: corta os saltos (teleporte, primeiro quadro)
+  solto: 0.9, // rad: o máximo que a mecha abre para fora
+  preso: 0.1, // rad: o máximo que ela vai para dentro (para o lado da cabeça)
+  zona: { tras: -0.06, frente: 0.07, lado: 0.11 }, // m em volta da cabeça: as da nuca, as da franja, as dos lados
+}
+
 // A câmera por cima do ombro direito, como no RE4 remake; mirando, ela chega mais perto e fecha (mira)
 export const CAMERA = {
   atras: 2.5, // m atrás do agente
