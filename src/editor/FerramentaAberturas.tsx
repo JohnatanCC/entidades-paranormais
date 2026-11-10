@@ -25,7 +25,7 @@ export function aberturaNova(tipo: TipoAbertura, s: Seg, inicio: { x: number; z:
   const t = TIPOS[tipo], width = tipo === 'vao' ? larguraVao : t.width
   const base = { level: s.level, axis: s.axis, x: inicio.x, z: inicio.z, width, kind: t.kind }
   return t.kind === 'porta'
-    ? { ...base, door: t.door, ...(t.door === 'vao' ? {} : { estado: 'fechada' as const, lado, tex: 'porta-madeira' }) }
+    ? { ...base, door: t.door, ...(t.door === 'vao' ? {} : { estado: 'fechada' as const, lado }) }
     : { ...base, window: t.window, light2d: true, lado }
 }
 
