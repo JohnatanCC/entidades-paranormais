@@ -113,7 +113,8 @@ function doLuto(g: Golpe, P: Pose, parada: Pose, dt: number, ctx: Contexto): { a
   if (g.nome === 'mergulhar') {
     const a = sm(t / 0.22), d = Math.min(1, Math.max(0, (t - 0.2) / 0.5)), up = sm((t - 0.1) / 0.3), fecha = sm((t - 0.62) / 0.25)
     P.hy = -0.17 * a * (1 - sm(d * 2)); P.lean = 0.62 + 0.3 * a - 0.75 * sm(d * 1.6); P.nx = 0.5 * a; P.jaw = 0.25 * a
-    for (const A of P.a) Object.assign(A, { x: lerp(-P.lean - 0.6, -Math.PI - P.lean + 0.15, up), z: lerp(0.55, 0.14, up), tw: 0.2, el: lerp(-0.9, -0.12, up), wr: 0.25, curl: 0.12 + 0.65 * fecha, sp: 1 - 0.7 * fecha })
+    // os braços sobem em V, abertos (passando da vertical com pouca abertura, cruzavam por cima da cabeça)
+    for (const A of P.a) Object.assign(A, { x: lerp(-P.lean - 0.6, -2.55 - 0.5 * P.lean, up), z: lerp(0.55, 0.65, up), tw: 0.2, el: lerp(-0.9, -0.12, up), wr: 0.25, curl: 0.12 + 0.65 * fecha, sp: 1 - 0.7 * fecha })
     uma(g, ctx, 'entra', 0.21, (L, o) => { respingo(L, o.x, o.z, 48, 1.5, 2.6); anel(L, o.x, o.z, 0.2, 1.5, 1.2, 0.7); anel(L, o.x, o.z, 0.1, 0.95, 0.85, 0.55) })
     uma(g, ctx, 'some', 0.62, (L, o) => { anel(L, o.x, o.z, 0.05, 0.7, 1.0, 0.45); respingo(L, o.x, o.z, 12, 0.6, 1.6) })
     return { avanca: 0, y: -LUTO.mergulhar.fundo * d * d } // acelera para baixo
@@ -157,8 +158,9 @@ function doLuto(g: Golpe, P: Pose, parada: Pose, dt: number, ctx: Contexto): { a
   S.a.forEach((A, k) => {
     const ph = t * 2.2 + k * 1.9, reach = Math.sin(ph) * 0.18, b = t * 2.1 + k * Math.PI
     // para cima, abertas, tateando → descem e agarram o chão à frente → soltas, balançando → abrem para trás no guincho
-    const cima = { x: -Math.PI - S.lean + 0.3 + reach, z: 0.28 + 0.08 * Math.sin(ph * 0.7), el: -0.3 - 0.2 * Math.max(0, Math.sin(ph + 1)), wr: 0.25 + 0.3 * Math.sin(ph - 0.8), curl: 0.1 + 0.25 * (0.5 + 0.5 * Math.sin(ph * 1.6)), sp: 1 }
-    const agarra = { x: -S.lean - 1.3, z: 0.46, el: -0.65, wr: 0.95, curl: 0.85, sp: 0.6 }
+    // (em V, um pouco à frente e abertos: passando da vertical, com pouca abertura, os braços cruzavam por cima da cabeça)
+    const cima = { x: -2.55 - 0.5 * S.lean + reach, z: 0.7 + 0.08 * Math.sin(ph * 0.7), el: -0.3 - 0.2 * Math.max(0, Math.sin(ph + 1)), wr: 0.25 + 0.3 * Math.sin(ph - 0.8), curl: 0.1 + 0.25 * (0.5 + 0.5 * Math.sin(ph * 1.6)), sp: 1 }
+    const agarra = { x: -S.lean - 1.3, z: 0.62, el: -0.65, wr: 0.95, curl: 0.85, sp: 0.6 }
     const solta = { x: -S.lean - 0.35 + Math.sin(b) * 0.22, z: 0.3, el: -0.25 - 0.2 * Math.max(0, Math.sin(b - 0.9)), wr: 0.2 + 0.25 * Math.sin(b - 0.9), curl: 0.35, sp: 0.4 }
     const grito = { x: -S.lean + 0.25, z: 0.62, el: -0.35, wr: 0.7, curl: 0.05, sp: 1 }
     for (const q of ['x', 'z', 'el', 'wr', 'curl', 'sp'] as const) A[q] = lerp(lerp(lerp(cima[q], agarra[q], e1), solta[q], e2), grito[q], e4)
