@@ -50,7 +50,7 @@ export function montarMundo(chunks: Chunk[], levels: number): Mundo {
     }
     for (const p of c.props) {
       const def = OBJETOS[p.type]
-      if (!def || def.apoio === 'teto' || def.tam[1] < 0.15) continue // lâmpada de teto e tapete não batem
+      if (!def || def.apoio === 'teto' || def.apoio === 'parede' || def.tam[1] < 0.15) continue // o que fica no teto, na parede e o tapete não batem
       caixas.push({ x: p.pos[0], z: p.pos[2], hx: def.tam[0] / 2, hz: def.tam[2] / 2, yaw: (p.rot[1] * Math.PI) / 180, level: p.level, y0: p.pos[1], y1: p.pos[1] + def.tam[1], vazado: def.vazado })
     }
     for (const f of c.floors) pisos.add(`${f.level}_${f.x}_${f.z}`)

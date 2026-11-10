@@ -8,9 +8,9 @@ import type { Chunk } from '../maps/types'
 import { materialDe } from '../render/materiais'
 import type { PortasVivas } from '../game/world/portas'
 import { floorGeometries, stairGeometries, wallGeometries } from './wallMesh'
-import { corrimaoGeometries } from './corrimaoMesh'
+import { corrimaoGeometries, materialCorrimao } from './corrimaoMesh'
 import { Aberturas } from './Aberturas'
-import { Objetos, materialObj } from './Objetos'
+import { Objetos } from './Objetos'
 
 interface Props { chunks: Record<string, Chunk>; maxLevel: number; ocultar?: string | null; portas?: PortasVivas | null }
 
@@ -29,7 +29,7 @@ export function MapView({ chunks, maxLevel, ocultar, portas }: Props) {
       {[...paredes].map(([tex, g]) => <mesh key={'p' + tex} geometry={g} material={materialDe(tex, true)} castShadow receiveShadow />)}
       {[...pisos].map(([tex, g]) => <mesh key={'f' + tex} geometry={g} material={materialDe(tex)} receiveShadow />)}
       {[...degraus].map(([tex, g]) => <mesh key={'e' + tex} geometry={g} material={materialDe(tex)} castShadow receiveShadow />)}
-      {[...corrimao].map(([m, g]) => <mesh key={'c' + m} geometry={g} material={materialObj(m)} castShadow receiveShadow />)}
+      {[...corrimao].map(([m, g]) => <mesh key={'c' + m} geometry={g} material={materialCorrimao(m)} castShadow receiveShadow />)}
       {/* a chave troca no começo e no fim do Testar: as folhas voltam para o ângulo do mapa */}
       <Aberturas key={portas ? 'jogo' : 'editor'} chunks={lista} maxLevel={maxLevel} portas={portas ?? undefined} />
       <Objetos chunks={lista} maxLevel={maxLevel} ocultar={ocultar} />

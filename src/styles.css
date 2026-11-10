@@ -52,6 +52,7 @@ button { font: inherit; color: inherit; }
 .vermodelo .opcoes button { background: var(--bg2); border: 1px solid var(--line); padding: 4px 9px; cursor: pointer; }
 .vermodelo .opcoes button:hover { border-color: var(--brass); }
 .vermodelo .opcoes button[aria-pressed='true'] { border-color: var(--amber); color: var(--amber); background: rgba(232, 183, 101, .1); }
+.vermodelo .escolha { background: var(--bg2); border: 1px solid var(--line); color: var(--fg); padding: 5px 8px; font: inherit; }
 .vermodelo .marcas label { display: flex; gap: 8px; align-items: center; cursor: pointer; }
 .vermodelo .info span { color: var(--muted); }
 
@@ -122,7 +123,7 @@ button { font: inherit; color: inherit; }
 .editor .ladrilho { width: 76px; flex: none; display: flex; flex-direction: column; align-items: center; gap: 2px; padding: 4px 2px 3px; background: #0e0d0b; border: 1px solid var(--line); color: var(--fg); }
 .editor .ladrilho:hover { border-color: var(--brass); }
 .editor .ladrilho[aria-pressed='true'] { border-color: var(--amber); color: var(--amber); background: rgba(232, 183, 101, .07); }
-.editor .ladrilho img, .editor .ladrilho .icone-l { width: 56px; height: 56px; display: flex; align-items: center; justify-content: center; }
+.editor .ladrilho img, .editor .ladrilho .icone-l, .editor .ladrilho .sem-foto { width: 56px; height: 56px; display: flex; align-items: center; justify-content: center; }
 .editor .ladrilho span { font-size: 11px; line-height: 1.15; text-align: center; height: 26px; overflow: hidden; }
 .editor .opcoes { display: flex; gap: 4px; flex-wrap: wrap; }
 .editor .marcar { display: flex; align-items: center; gap: 8px; font-size: 12px; cursor: pointer; }

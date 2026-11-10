@@ -1,7 +1,8 @@
 // A gaveta de baixo do editor: o catálogo e as opções da ferramenta escolhida (texturas, tipos de porta e janela,
 // objetos com miniatura). Só mostra e chama; o estado fica no MapEditor.
-import { useState } from 'react'
+import { useEffect, useReducer, useState } from 'react'
 import { GRUPOS, OBJETOS, type Grupo } from '../maps/objetos'
+import { quandoCarregar } from '../render/bbmodel'
 import { miniaturaDe } from '../render/miniaturas'
 import { TIPOS, type TipoAbertura } from './FerramentaAberturas'
 import { ICONES } from './Icones'
@@ -50,13 +51,16 @@ export function GavetaAberturas({ tipo, setTipo, larguraVao, setLarguraVao }: { 
 
 export function GavetaObjetos({ tipo, onEscolher }: { tipo: string | null; onEscolher: (t: string | null) => void }) {
   const [grupo, setGrupo] = useState<Grupo>(tipo ? OBJETOS[tipo]?.grupo ?? 'casa' : 'casa')
+  // as fotos esperam as texturas dos modelos: quando elas chegam, a gaveta se desenha de novo
+  const [, refaz] = useReducer((n: number) => n + 1, 0)
+  useEffect(() => quandoCarregar(refaz), [])
   return (
     <div className="bloco-g">
       <div className="abas-b">{GRUPOS.map(([g, nome]) => <button key={g} aria-pressed={grupo === g} onClick={() => setGrupo(g)}>{nome}</button>)}</div>
       <div className="ladrilhos">
         {Object.entries(OBJETOS).filter(([, o]) => o.grupo === grupo).map(([k, o]) => (
           <button key={k} className="ladrilho" aria-pressed={tipo === k} title={o.nome} onClick={() => onEscolher(tipo === k ? null : k)}>
-            <img src={miniaturaDe(k)} alt="" /><span>{o.nome}</span>
+            {(() => { const foto = miniaturaDe(k); return foto ? <img src={foto} alt="" /> : <i className="sem-foto" /> })()}<span>{o.nome}</span>
           </button>
         ))}
       </div>

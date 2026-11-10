@@ -2,10 +2,13 @@
 // o desenvolvedor salva o .bbmodel em modelos/ e o jogo usa direto (no npm run dev, salvar já atualiza).
 // Cada pasta do Blockbench vira um THREE.Group com o nome dela, com o ponto de giro na junta; os blocos de cada pasta
 // viram uma malha só (o detalhe não multiplica as chamadas de desenho).
-// Escala: 32 unidades do Blockbench = 1 m (a textura fica com 32 px por metro, como o cenário). Frente = +z.
-// Só o que os personagens usam: blocos (com giro e inflar), pastas (com giro) e a primeira textura.
+// Escala: 32 unidades do Blockbench = 1 m. Frente = +z. Os arquivos: modelos/<nome>.bbmodel (personagens) e
+// modelos/objetos/<tipo>.bbmodel (o catálogo de objetos), pedidos pelo caminho sem a extensão ("objetos/cadeira").
+// Bloco com nome começando em "luz_" (a chama, a lâmpada, a tela) brilha sozinho: vai numa malha "#luz" à parte.
+// Só o que os modelos usam: blocos (com giro e inflar), pastas (com giro) e a primeira textura.
 import * as THREE from 'three'
 import { mergeGeometries } from 'three/examples/jsm/utils/BufferGeometryUtils.js'
+import { aplicarCorte } from './corte'
 import { applyPsx } from './psx'
 
 export const UNIDADE = 1 / 32 // metros por unidade do Blockbench
@@ -22,12 +25,26 @@ export interface BBModel {
   textures: { source: string; uv_width?: number; uv_height?: number; width?: number; height?: number }[]
 }
 
-// os modelos da pasta modelos/ (o texto de cada arquivo; o Vite recarrega quando um muda)
-const ARQUIVOS = import.meta.glob('/modelos/*.bbmodel', { query: '?raw', import: 'default', eager: true }) as Record<string, string>
+// Os modelos da pasta modelos/ e das de dentro. No jogo publicado, cada arquivo é um pedaço separado do pacote, baixado
+// só quando uma tela que usa modelos abre (carregarModelos): o menu abre leve. No npm run dev vêm todos juntos, já
+// carregados, e salvar no Blockbench atualiza na hora (o Vite recarrega o módulo).
+const AO_VIVO = import.meta.env.DEV ? (import.meta.glob('/modelos/**/*.bbmodel', { query: '?raw', import: 'default', eager: true }) as Record<string, string>) : null
+const FONTES = import.meta.glob('/modelos/**/*.bbmodel', { query: '?raw', import: 'default' }) as Record<string, () => Promise<string>>
+const ARQUIVOS: Record<string, string> = AO_VIVO ? { ...AO_VIVO } : {}
+let baixando: Promise<void> | null = AO_VIVO ? Promise.resolve() : null
+
+/** Os modelos estão na memória? (no npm run dev, sempre) */
+export const modelosProntos = () => Object.keys(ARQUIVOS).length === Object.keys(FONTES).length
+/** Baixa os modelos que faltam (uma vez só; as próximas chamadas devolvem a mesma promessa). */
+export function carregarModelos(): Promise<void> {
+  return (baixando ??= Promise.all(Object.entries(FONTES).map(async ([k, f]) => { ARQUIVOS[k] = await f() })).then(() => undefined))
+}
+
+export const existeModelo = (nome: string) => `/modelos/${nome}.bbmodel` in FONTES
 
 export function arquivoModelo(nome: string): BBModel {
   const txt = ARQUIVOS[`/modelos/${nome}.bbmodel`]
-  if (!txt) throw new Error(`Não achei modelos/${nome}.bbmodel`)
+  if (!txt) throw new Error(`modelos/${nome}.bbmodel ${existeModelo(nome) ? 'ainda não foi carregado (carregarModelos)' : 'não existe'}`)
   return JSON.parse(txt) as BBModel
 }
 
@@ -36,27 +53,42 @@ const FACES = ['east', 'west', 'up', 'down', 'south', 'north']
 const rad = (v: number) => (v * Math.PI) / 180
 const vec = (v: V3) => new THREE.Vector3(v[0], v[1], v[2]).multiplyScalar(UNIDADE)
 
+// as texturas carregando: quem precisa delas prontas (a foto do catálogo) espera o aviso
+let carregando = 0
+const avisos = new Set<() => void>()
+export const texturasCarregando = () => carregando > 0
+/** Chama f quando todas as texturas que estavam carregando ficarem prontas. Devolve como desligar o aviso. */
+export function quandoCarregar(f: () => void) { avisos.add(f); return () => { avisos.delete(f) } }
+
 function textura(src: string) {
-  const img = new Image(); img.src = src
+  const img = new Image()
   const t = new THREE.Texture(img)
-  img.onload = () => { t.needsUpdate = true }
+  carregando++
+  img.onload = img.onerror = () => { t.needsUpdate = true; if (--carregando === 0) avisos.forEach((f) => f()) }
+  img.src = src
   // de perto o pixel duro; de longe as versões reduzidas (senão o desenho "formiga" com a câmera)
   t.magFilter = THREE.NearestFilter; t.minFilter = THREE.LinearMipmapLinearFilter; t.colorSpace = THREE.SRGBColorSpace
   return t
 }
 
-/** Monta o modelo: a raiz, as pastas (as juntas, pelo nome) e os blocos (um marcador no centro de cada um, pelo nome). */
-export function montarBB(bb: BBModel): { raiz: THREE.Group; pastas: Map<string, THREE.Group>; blocos: Map<string, THREE.Object3D>; material: THREE.Material } {
-  const tex = bb.textures[0]
+/**
+ * Monta o modelo: a raiz, as pastas (as juntas, pelo nome) e os blocos (um marcador no centro de cada um, pelo nome).
+ * inflar (unidades) engorda todos os blocos: é a "casca" do contorno de seleção do editor (sem textura nem luz).
+ * corte: o material obedece o corte das paredes do editor (as portas e janelas, que ficam na parede).
+ */
+export function montarBB(bb: BBModel, opc: { inflar?: number; corte?: boolean } = {}): { raiz: THREE.Group; pastas: Map<string, THREE.Group>; blocos: Map<string, THREE.Object3D> } {
+  const tex = bb.textures[0], mapa = tex && !opc.inflar ? textura(tex.source) : undefined
   const W = tex?.uv_width ?? bb.resolution.width, H = tex?.uv_height ?? bb.resolution.height
-  const material = applyPsx(new THREE.MeshStandardMaterial({ color: '#ffffff', roughness: 0.9, ...(tex ? { map: textura(tex.source) } : {}) }))
+  const base = applyPsx(new THREE.MeshStandardMaterial({ color: '#ffffff', roughness: 0.9, ...(mapa ? { map: mapa } : {}) }))
+  const material = opc.corte ? aplicarCorte(base) : base
+  const luz = new THREE.MeshBasicMaterial({ color: '#ffffff', ...(mapa ? { map: mapa } : {}) })
   const porId = new Map(bb.elements.map((e) => [e.uuid, e]))
   const pastas = new Map<string, THREE.Group>(), blocos = new Map<string, THREE.Object3D>()
 
   const _m = new THREE.Matrix4(), _r = new THREE.Matrix4()
   /** A geometria de um bloco já no espaço da pasta (pai = a origem da pasta), com o UV das faces. */
   function geoBloco(e: Bloco, pai: V3): THREE.BufferGeometry {
-    const inf = e.inflate ?? 0, o: V3 = e.origin ?? [0, 0, 0]
+    const inf = (e.inflate ?? 0) + (opc.inflar ?? 0), o: V3 = e.origin ?? [0, 0, 0]
     const tam: V3 = [e.to[0] - e.from[0] + 2 * inf, e.to[1] - e.from[1] + 2 * inf, e.to[2] - e.from[2] + 2 * inf]
     const geo = new THREE.BoxGeometry(tam[0] * UNIDADE, tam[1] * UNIDADE, tam[2] * UNIDADE)
     // cada face: o canto de cima à esquerda (visto de fora) recebe (u1, v1), como no Blockbench
@@ -84,27 +116,28 @@ export function montarBB(bb: BBModel): { raiz: THREE.Group; pastas: Map<string, 
     g.name = p.name
     g.position.copy(vec([p.origin[0] - pai[0], p.origin[1] - pai[1], p.origin[2] - pai[2]]))
     if (p.rotation) g.rotation.set(rad(p.rotation[0]), rad(p.rotation[1]), rad(p.rotation[2]), 'ZYX')
-    const geos: THREE.BufferGeometry[] = []
+    const geos: THREE.BufferGeometry[] = [], geosLuz: THREE.BufferGeometry[] = []
     for (const c of p.children) {
       const filho = typeof c === 'string' ? porId.get(c) : c
       if (!filho || filho.visibility === false) continue
       if (typeof c === 'string') {
         const e = filho as Bloco
-        geos.push(geoBloco(e, p.origin))
+        ;(e.name.startsWith('luz_') && !opc.inflar ? geosLuz : geos).push(geoBloco(e, p.origin))
         const marca = new THREE.Object3D(); marca.name = e.name
         marca.position.copy(vec([(e.from[0] + e.to[0]) / 2 - p.origin[0], (e.from[1] + e.to[1]) / 2 - p.origin[1], (e.from[2] + e.to[2]) / 2 - p.origin[2]]))
         g.add(marca); if (!blocos.has(e.name)) blocos.set(e.name, marca)
       } else { const o = pasta(filho as Pasta, p.origin); if (!pastas.has(o.name)) pastas.set(o.name, o); g.add(o) }
     }
-    if (geos.length) {
-      const junta = mergeGeometries(geos)
-      geos.forEach((x) => x.dispose())
-      const malha = new THREE.Mesh(junta, material); malha.name = p.name + '#malha'
+    for (const [lista, mat, nome] of [[geos, material, '#malha'], [geosLuz, luz, '#luz']] as const) {
+      if (!lista.length) continue
+      const junta = mergeGeometries(lista)
+      lista.forEach((x) => x.dispose())
+      const malha = new THREE.Mesh(junta, mat); malha.name = (nome === '#luz' ? '#luz' : p.name + nome)
       g.add(malha)
     }
     return g
   }
 
   const raiz = pasta({ uuid: 'raiz-arquivo', name: '', origin: [0, 0, 0], children: bb.outliner }, [0, 0, 0])
-  return { raiz, pastas, blocos, material }
+  return { raiz, pastas, blocos }
 }

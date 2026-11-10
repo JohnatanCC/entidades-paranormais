@@ -3,7 +3,7 @@
 // vai para o teto do andar. No modo livre (no painel) o objeto sai da grade: encaixa a cada 5 cm e gira em qualquer eixo.
 import { useEffect, useRef, useState } from 'react'
 import type { ThreeEvent } from '@react-three/fiber'
-import { OBJETOS } from '../maps/objetos'
+import { OBJETOS, alturaApoio } from '../maps/objetos'
 import { LEVEL_H, type Prop, type Vec3 } from '../maps/types'
 import { objetoNoRaio, objetos, type MapDoc } from './doc'
 import { COR_MIRA, Colocado, Contorno, Modelo } from './Objetos'
@@ -13,8 +13,8 @@ const noTeto = (t: string) => OBJETOS[t]?.apoio === 'teto'
 const GRADE = 0.25, GRADE_LIVRE = 0.05
 const encaixa = (v: number, g: number) => Math.round(v / g) * g
 
-/** A altura onde o objeto encosta: o chão do andar ou o teto (a lâmpada). */
-export const alturaBase = (type: string, andar: number) => andar * LEVEL_H + (OBJETOS[type]?.apoio === 'teto' ? LEVEL_H - 0.02 : 0)
+/** A altura onde o objeto encosta: o chão do andar, o teto (a lâmpada) ou a parede (a arandela). */
+export const alturaBase = (type: string, andar: number) => andar * LEVEL_H + alturaApoio(OBJETOS[type])
 
 interface Props {
   doc: MapDoc

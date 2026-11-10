@@ -1,6 +1,6 @@
 // As propriedades do objeto escolhido: girar, o modo livre (sai da grade: altura e inclinação em qualquer eixo),
 // as opções do tipo (a lâmpada: normal, falhando, apagada) e apagar.
-import { OBJETOS } from '../maps/objetos'
+import { OBJETOS, alturaApoio } from '../maps/objetos'
 import { LEVEL_H, type Prop } from '../maps/types'
 
 interface Props { p: Prop; onMudar: (patch: Partial<Prop>) => void; onApagar: () => void }
@@ -9,7 +9,7 @@ const NOMES_MODO: Record<string, string> = { normal: 'Normal', falhando: 'Falhan
 const gira = (v: number) => (((v % 360) + 540) % 360) - 180 // de −180 a 180
 
 export function PainelObjeto({ p, onMudar, onApagar }: Props) {
-  const def = OBJETOS[p.type], base = p.level * LEVEL_H + (def?.apoio === 'teto' ? LEVEL_H - 0.02 : 0)
+  const def = OBJETOS[p.type], base = p.level * LEVEL_H + alturaApoio(def)
   const girarY = (d: number) => onMudar({ rot: [p.rot[0], gira(p.rot[1] + d), p.rot[2]] })
   return (
     <div className="propriedades sem-borda">
