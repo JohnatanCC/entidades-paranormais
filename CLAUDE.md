@@ -75,6 +75,9 @@ src/
   screens/                 MainMenu, SettingsScreen, DevMenu, VerModelos (o personagem de perto: animação, expressão, mãos, luz)
   settings/settings.ts     configurações no localStorage (useSettings / setSettings)
   audio/musica.ts          a trilha: useMusica('menu') toca public/musica/<nome>.mp3 em laço, com o volume das configurações
+  audio/sintese.ts         os efeitos sintetizados na hora (do laboratório, sem arquivos): ruído, tom, estalos, a voz com
+                           vogais, o grito, o sussurro; liga no primeiro clique; o volume é Geral × Efeitos
+  audio/espaco.ts          o som 3D: a voz sai da boca do personagem, no mundo; o ouvido é a câmera (ouvinte, a cada quadro)
   render/                  RetroRenderer (pós-processo PS1), psx.ts (tremor de vértice), materiais.ts (nome da textura -> material),
                            corte.ts (paredes altas / recortadas / baixas no editor), miniaturas.ts (fotos do catálogo de objetos),
                            bbmodel.ts (lê um modelo do Blockbench: pastas = juntas, blocos = malhas; "luz_" brilha; os
@@ -122,7 +125,7 @@ src/game/                  (já existem: Testar.tsx, player/, input/, world/, we
                            modelo.ts (monta o modelo, a saia e o cabelo com molas), pose.ts (as molas da pose, do
                            laboratório), animacao.ts (parada, andar, passar pela porta), rosto.ts (as expressões, os
                            tiques e o brilho dos olhos), efeitos.ts (o rosto que escurece, as ondas do grito, a fase 4
-                           preta com partículas), golpes.ts (os ataques e os movimentos do Luto), estados.ts
+                           preta com partículas), sons.ts (a voz dela: a cantiga, a caça, a de cada golpe e estado), golpes.ts (os ataques e os movimentos do Luto), estados.ts
                            (grito, exausta, atordoada, cambaleio, enfraquecida, capturada), luto.ts (a poça, as ondas,
                            os respingos, o aviso) e numeros.ts
   capture/                 a poça e a captura

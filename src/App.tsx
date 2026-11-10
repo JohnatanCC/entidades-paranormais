@@ -11,8 +11,9 @@ import { carregarModelos, modelosProntos } from './render/bbmodel'
 export type Tela = 'menu' | 'config' | 'dev' | 'mapas' | 'modelos'
 export type Go = (t: Tela) => void
 
-// a música de cada tela: o menu e o criador de mapas tocam a mesma (sem recomeçar ao trocar de tela)
-const TRILHA: Record<Tela, Faixa | null> = { menu: 'menu', config: 'menu', dev: 'menu', mapas: 'menu', modelos: 'menu' }
+// a música de cada tela: o menu e o criador de mapas tocam a mesma (sem recomeçar ao trocar de tela); o Ver modelos
+// fica em silêncio, para ouvir as vozes dos personagens
+const TRILHA: Record<Tela, Faixa | null> = { menu: 'menu', config: 'menu', dev: 'menu', mapas: 'menu', modelos: null }
 
 export function App() {
   const [tela, setTela] = useState<Tela>('menu')

@@ -30,6 +30,8 @@ import { animarMae, golpear } from '../game/enemies/mae/animacao'
 import type { NomeGolpe } from '../game/enemies/mae/golpes'
 import { novoLuto, passoLuto } from '../game/enemies/mae/luto'
 import { EXPRESSOES_MAE, type ExpressaoMae } from '../game/enemies/mae/rosto'
+import { pararSonsMae } from '../game/enemies/mae/sons'
+import { ouvinte } from '../audio/espaco'
 import { abertura3d } from '../render/objetos3d'
 
 type Anim = 'parado' | 'andando' | 'correndo' | 'esquiva' | 'queda' | 'porta'
@@ -62,7 +64,7 @@ const MAOS: [PoseMao | null, string][] = [[null, 'Automática'], ['solta', 'Solt
 const CAMERAS: [Camera, string][] = [['corpo', 'Corpo'], ['rosto', 'Rosto'], ['maos', 'Mãos'], ['pes', 'Pés'], ['costas', 'Costas']]
 const LUZES: [Luz, string][] = [['estudio', 'Estúdio'], ['jogo', 'Jogo (lâmpada no escuro)']]
 
-interface Escolhas { qual: string; anim: Anim; exp: Expressao | null; mao: PoseMao | null; arma: Arma | null; gesto: { g: Gesto; n: number } | null; mirando: boolean; tiros: number; golpes: number; ferido: boolean; ataque: { nome: string; n: number } | null; rostoMae: ExpressaoMae | null; fase4: boolean; camera: Camera; luz: Luz; girar: boolean; grade: boolean }
+interface Escolhas { qual: string; anim: Anim; exp: Expressao | null; mao: PoseMao | null; arma: Arma | null; gesto: { g: Gesto; n: number } | null; mirando: boolean; tiros: number; golpes: number; ferido: boolean; ataque: { nome: string; n: number } | null; rostoMae: ExpressaoMae | null; fase4: boolean; caca: boolean; camera: Camera; luz: Luz; girar: boolean; grade: boolean }
 interface Info { linhas: string[] }
 
 function Opcoes<T>({ titulo, lista, valor, onEscolher }: { titulo: string; lista: [T, string][]; valor: T; onEscolher: (v: T) => void }) {
@@ -75,7 +77,7 @@ function Opcoes<T>({ titulo, lista, valor, onEscolher }: { titulo: string; lista
 }
 
 export function VerModelos({ go }: { go: Go }) {
-  const [e, setE] = useState<Escolhas>({ qual: AGENTE_ID, anim: 'parado', exp: null, mao: null, arma: null, gesto: null, mirando: false, tiros: 0, golpes: 0, ferido: false, ataque: null, rostoMae: null, fase4: false, camera: 'corpo', luz: 'estudio', girar: false, grade: true })
+  const [e, setE] = useState<Escolhas>({ qual: AGENTE_ID, anim: 'parado', exp: null, mao: null, arma: null, gesto: null, mirando: false, tiros: 0, golpes: 0, ferido: false, ataque: null, rostoMae: null, fase4: false, caca: false, camera: 'corpo', luz: 'estudio', girar: false, grade: true })
   const [info, setInfo] = useState<Info | null>(null)
   const muda = (p: Partial<Escolhas>) => setE((v) => ({ ...v, ...p }))
   const agente = e.qual === AGENTE_ID, arma = e.qual.startsWith(ARMA) ? e.qual.slice(ARMA.length) : null, mae = e.qual === MAE
@@ -112,6 +114,7 @@ export function VerModelos({ go }: { go: Go }) {
         </section>
         {mae && <Opcoes titulo="Animação" lista={ANIMS_MAE} valor={e.anim} onEscolher={(anim) => muda({ anim })} />}
         {mae && <Opcoes titulo="Expressão" lista={[[null, 'Automática'], ...EXPRESSOES_MAE] as [ExpressaoMae | null, string][]} valor={e.rostoMae} onEscolher={(rostoMae) => muda({ rostoMae })} />}
+        {mae && <Opcoes titulo="Ela está" lista={[[false, 'Patrulhando (cantarola)'], [true, 'Caçando (respira e guincha)']] as [boolean, string][]} valor={e.caca} onEscolher={(caca) => muda({ caca })} />}
         {mae && <Opcoes titulo="Fase" lista={[[false, 'Fases 1 a 3'], [true, 'Fase 4 (a última barra)']] as [boolean, string][]} valor={e.fase4} onEscolher={(fase4) => muda({ fase4 })} />}
         {mae && <section>
           <b>Ataques</b>
@@ -287,6 +290,8 @@ function CenaMae({ e, onInfo }: { e: Escolhas; onInfo: (i: Info) => void }) {
   // a porta comum (2,1 m), aberta, para ver ela abaixar: o vão de x −0,5 a 0,5, atravessando em z
   const porta = useMemo(() => { const o = abertura3d('porta-comum'); o.position.set(-0.5, 0, 0); const f = o.getObjectByName('folha_1'); if (f) f.rotation.y = -1.4; return o }, [abertura3d])
   const { pronto, voar, seguir } = useVoo()
+  const camera = useThree((s) => s.camera)
+  useEffect(() => () => pararSonsMae(m), [m]) // saindo da tela (ou trocando de modelo), ela se cala
   const ida = useRef({ t: 0, z: -2.4, dir: 1, vira: 0 })
   // o ataque: a fila de golpes, de onde ela sai e o alvo à frente; depois de terminar, espera e volta ao lugar
   const ALVO_Z = 2.6
@@ -334,7 +339,8 @@ function CenaMae({ e, onInfo }: { e: Escolhas; onInfo: (i: Info) => void }) {
       if (!m.anim.golpe && Aq.fila.length) { const [nome, dur] = Aq.fila.shift()!.split(':'); const g = golpear(m, nome as NomeGolpe); if (dur) g.dur = Number(dur) }
       else if (!m.anim.golpe && (Aq.espera += dt) > 1.2) { Aq.ativo = false; volta(0) }
     }
-    const saida = animarMae(m, { porta: k, perto: ALVO_Z - m.root.position.z, luto, fase4: e.fase4, expressao: e.rostoMae ?? undefined }, dt)
+    ouvinte(camera) // o ouvido é a câmera
+    const saida = animarMae(m, { porta: k, perto: ALVO_Z - m.root.position.z, luto, fase4: e.fase4, caca: e.caca, expressao: e.rostoMae ?? undefined }, dt)
     passoLuto(luto, dt)
     if (Aq.ativo) { m.root.position.z += saida.avanca * dt; m.root.position.y = saida.y }
   })

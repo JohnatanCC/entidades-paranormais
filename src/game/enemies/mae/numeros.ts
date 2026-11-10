@@ -50,6 +50,12 @@ export const ESTADO = {
   joelhos: { quadril: -0.58 }, // de joelhos: quanto o quadril desce (m; as canelas deitam no chão)
 }
 
+// a voz dela (sons.ts): de quanto em quanto tempo (s, de–até, sorteado) cada som que se repete volta
+export const SOM = {
+  respira: [0.42, 0.67], respiraCorrendo: [0.3, 0.42], guincho: [2.4, 4.8], // caçando
+  choroFraco: [1.6, 2.6], guinchoPresa: [0.45, 0.8], sussurro: [1.2, 2.6], // enfraquecida, capturada, fase 4
+} as const
+
 // os efeitos no corpo dela (efeitos.ts)
 export const EFEITOS = {
   // as ondas do grito: a cor, a velocidade (m/s), quanto duram (s), o raio ao sair e no fim (m), a força (opacidade)

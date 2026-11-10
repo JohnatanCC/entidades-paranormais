@@ -12,6 +12,7 @@ import type { Golpe } from './golpes'
 import { novasMolasDaPose, type MolasDaPose } from './pose'
 import { novoRostoMae, type AnimRostoMae } from './rosto'
 import { prepararEfeitos, type Efeitos } from './efeitos'
+import { novosSonsMae, type SonsMae } from './sons'
 import { CABELO_MAE, SAIA } from './numeros'
 
 export interface Dedo { base: THREE.Group; ponta: THREE.Group }
@@ -38,6 +39,7 @@ export interface Mae {
   expressao: AnimRostoMae // o rosto de agora (rosto.ts)
   /** as ondas do grito, a fase 4 e o rosto que escurece (efeitos.ts): ponha efeitos.grupo na cena, fora do root */
   efeitos: Efeitos
+  sons: SonsMae // a voz dela (sons.ts)
   /** o que a animação lembra (animacao.ts); preta = o quanto ela está na forma da fase 4 (0..1) */
   anim: { t: number; passo: number; andar: number; estalo: number; estaloT: number; ultimo: THREE.Vector3 | null; vel: THREE.Vector3; yaw: number; giro: number; golpe: Golpe | null; preta: number }
 }
@@ -75,7 +77,7 @@ export function montarMae(): Mae {
     // o comprimento das pernas: do quadril ao joelho e do joelho ao tornozelo (para os pés ficarem no chão quando ela abaixa)
     saiaRaiz: [...pastas].filter(([n]) => /^saia_[0-9]+$/.test(n) || n === 'anagua').map(([, g]) => g),
     base: { quadrilY: quadril.position.y, coxa: pernas[0].canela.position.length(), canela: pernas[0].pe.position.length(), cintura: quadril.position.y + osso('anagua').position.y },
-    saia: null!, cabelo: null!, pose: novasMolasDaPose(), expressao: novoRostoMae(), efeitos: null!,
+    saia: null!, cabelo: null!, pose: novasMolasDaPose(), expressao: novoRostoMae(), efeitos: null!, sons: novosSonsMae(),
     anim: { t: 0, passo: 0, andar: 0, estalo: 0, estaloT: 0, ultimo: null, vel: new THREE.Vector3(), yaw: 0, giro: 0, golpe: null, preta: 0 },
   }
   root.updateMatrixWorld(true)

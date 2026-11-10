@@ -9,7 +9,7 @@ O laboratório é só referência: nada no projeto importa de `reference/`.
 | Arquivo | O que tem | Linhas no laboratório (v130) |
 | --- | --- | --- |
 | `00-estilos-da-pagina.css` | Paleta, fontes, HUD, legendas, roda de armas, telas | 5–195 |
-| `01-som.js` | Sons sintetizados (WebAudio): passos, tiros, fantasmas, vozes (`SFX.voice`), músicas de tensão e do Glutão | 478–2246 |
+| `01-som.js` | Sons sintetizados (WebAudio): passos, tiros, fantasmas, vozes (`SFX.voice`), músicas de tensão e do Glutão. **Já portado (10/nov):** as peças (`src/audio/sintese.ts`), o som 3D da Mãe (`src/audio/espaco.ts`) e a voz dela (`src/game/enemies/mae/sons.ts`) | 478–2246 |
 | `02-visual-materiais-geometria.js` | Materiais (`mk`), texturas procedurais em canvas, geometrias e utilidades de cena | 2247–2763 |
 | `03-espectral-glutao.js` | Os modelos e a animação do Espectral e do Glutão (escala `S.sc`, `AR.hold`) | 5957–6872 |
 | `04-numeros-da-luta.js` | A tabela `T` (agente, kits, armas) | 7666–7692 |

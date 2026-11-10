@@ -23,6 +23,8 @@ export function SettingsScreen({ go }: { go: Go }) {
         <div><input id="vol" type="range" min={0} max={100} value={s.volume} onChange={(e) => setSettings({ volume: +e.target.value })} /><span className="valor">{s.volume}%</span></div>
         <label htmlFor="mus">Música</label>
         <div><input id="mus" type="range" min={0} max={100} value={s.musica} onChange={(e) => setSettings({ musica: +e.target.value })} /><span className="valor">{s.musica}%</span></div>
+        <label htmlFor="efe">Efeitos</label>
+        <div><input id="efe" type="range" min={0} max={100} value={s.efeitos} onChange={(e) => setSettings({ efeitos: +e.target.value })} /><span className="valor">{s.efeitos}%</span></div>
         <label htmlFor="sens">Mouse</label>
         <div><input id="sens" type="range" min={0.2} max={3} step={0.05} value={s.sensibilidade} onChange={(e) => setSettings({ sensibilidade: +e.target.value })} /><span className="valor">{s.sensibilidade.toFixed(2)}×</span></div>
       </div>

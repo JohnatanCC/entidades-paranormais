@@ -9,28 +9,30 @@
 //   os ataques (golpes.ts): golpear(m, nome) começa um; enquanto dura, ele manda na pose e diz quanto ela avança.
 // Quem move e gira o root é quem a controla (a inteligência, depois; o Ver modelos agora): aqui o andar é medido pelo
 // deslocamento do root, e animarMae devolve o quanto o golpe quer que ela avance e a altura do corpo (a investida sai de
-// baixo do chão). O rosto em rosto.ts; as ondas do grito e a fase 4 (preta, soltando partículas) em efeitos.ts. Os
-// números em numeros.ts (MOV, GOLPE, ESTADO, EFEITOS).
+// baixo do chão). O rosto em rosto.ts; as ondas do grito e a fase 4 (preta, soltando partículas) em efeitos.ts; a voz
+// em sons.ts. Os números em numeros.ts (MOV, GOLPE, ESTADO, EFEITOS, SOM).
 import * as THREE from 'three'
 import { animarMolas } from '../../corpo/molas'
 import type { Mae } from './modelo'
 import { EFEITOS, ESTADO, LUTO, MOV } from './numeros'
 import { animarRostoMae, type ExpressaoMae } from './rosto'
 import { ondaDoGrito, passoEfeitos } from './efeitos'
+import { passoSonsMae } from './sons'
 import { novoGolpe, quadroDoGolpe, type NomeGolpe, type SaidaGolpe } from './golpes'
 import { estufar, type Luto } from './luto'
 import { aplicarPose, misturar, pose0, seguirPose, type Pose } from './pose'
 
 /** porta: quanto ela está passando pela porta (0..1); perto: a distância até o alvo à frente dela (os golpes param ao
  *  chegar); luto: onde saem os efeitos do Luto (as ondas, os respingos, o chão estufando); fase4: a última barra (ela
- *  fica preta, soltando partículas brancas, os olhos maiores); expressao: força uma (o Ver modelos) */
-export interface EstadoMae { porta?: number; perto?: number; luto?: Luto; fase4?: boolean; expressao?: ExpressaoMae }
+ *  fica preta, soltando partículas brancas, os olhos maiores); caca: ela está caçando (o rosto da caça; respira
+ *  rasgado e guincha em vez de cantarolar); expressao: força uma (o Ver modelos) */
+export interface EstadoMae { porta?: number; perto?: number; luto?: Luto; fase4?: boolean; caca?: boolean; expressao?: ExpressaoMae }
 
 const EXPRESSAO_DO_ESTADO: Partial<Record<string, ExpressaoMae>> = { exausta: 'exausta', cambaleio: 'dor', enfraquecida: 'choro', capturada: 'terror' }
 /** A expressão de cada movimento: vazia procurando; caça quando viu você; fúria no ataque; e a de cada estado. */
-function expressaoDe(m: Mae): ExpressaoMae {
+function expressaoDe(m: Mae, caca: boolean): ExpressaoMae {
   const g = m.anim.golpe
-  if (!g) return 'vazia'
+  if (!g) return caca ? 'caca' : 'vazia'
   const n = g.nome
   if (n.startsWith('garra') || n === 'investida' || n === 'carga' || n === 'finta') return 'furia'
   if (n === 'aproximar' || n === 'mergulhar' || n === 'aviso' || n === 'levanta') return 'caca'
@@ -134,7 +136,7 @@ export function animarMae(m: Mae, e: EstadoMae, dt: number): { avanca: number; y
   A.estalo = A.estaloT > 0 ? E.giro : damp(A.estalo, 0, E.volta, dt)
   aplicarPose(m, m.pose, A.estalo)
   A.preta = damp(A.preta, e.fase4 ? 1 : 0, 3 / EFEITOS.fase4.escurece, dt)
-  animarRostoMae(m, e.expressao ?? expressaoDe(m), A.estaloT > 0, dt, A.preta)
+  animarRostoMae(m, e.expressao ?? expressaoDe(m, !!e.caca), A.estaloT > 0, dt, A.preta)
 
   // ---------- as pernas: dobram para os pés ficarem no chão quando o quadril desce; andando, passos curtos ----------
   const L1 = m.base.coxa, L2 = m.base.canela, h = Math.max(0.3, Math.min(L1 + L2 - 1e-4, L1 + L2 + m.pose.cur.hy))
@@ -169,6 +171,7 @@ export function animarMae(m: Mae, e: EstadoMae, dt: number): { avanca: number; y
   }
   animarMolas(m.cabelo, m.root, dt)
   passoEfeitos(m, A.preta, dt) // as ondas do grito, a fase 4
+  passoSonsMae(m, !!e.caca, dt) // a voz dela
   // o aviso acabou (ou foi cortado): o chão volta; embaixo do Luto, ela não desenha
   if (e.luto?.domo.visible && A.golpe?.nome !== 'aviso') estufar(e.luto, 0, 0, 0, 0)
   m.root.visible = saida.y > -2.35

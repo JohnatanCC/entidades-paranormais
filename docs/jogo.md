@@ -296,6 +296,34 @@ Números da tabela `T` em `buildDemo()` do laboratório (linha ~7674); a lógica
 - Barra zerada: **atordoada 6 s**. A última zerada: **enfraquecida 12 s**, a hora da armadilha.
 - Caiu: recomeça a partir da fase em que você caiu.
 
+## Os sons (decididos em 10/nov)
+
+- **Sintetizados na hora, como no laboratório** (Web Audio, sem arquivos; `src/audio/sintese.ts`): leves para baixar,
+  e cada som varia um pouco a cada vez. Os únicos arquivos são as músicas.
+- **Vêm de onde o personagem está** (`src/audio/espaco.ts`): a voz sai da boca dele, cai com a distância, e o eco do
+  cômodo diminui de longe; o ouvido é a câmera. No celular, um som 3D mais leve. (Abafar atrás da parede entra com o jogo.)
+- **O volume:** Geral × **Efeitos** (controle novo nas configurações), como a Música.
+- O som liga no primeiro clique ou tecla (o navegador exige). O Ver modelos fica sem música, para ouvir as vozes.
+- **A Mãe, em 3 etapas:**
+  - ✅ 1 (10/nov): **a voz** (`enemies/mae/sons.ts`).
+    - Patrulhando, ela **cantarola** a cantiga do laboratório (melodia original em lá menor), baixo, como de longe; nas
+      pausas, puxa o ar pelo nariz.
+    - **Caçando**, respira rasgado e guincha de tempos em tempos.
+    - **Cada golpe e cada estado tem a sua voz, no momento do movimento:**
+      - o rosnado do preparo e o grito da garra;
+      - o guincho do bote, da carga e da finta;
+      - o ar puxado e o guincho do surgir;
+      - o **grito**: o ar puxado, depois o grito com o peito por baixo, e a voz caindo no fim. É o som mais alto dela;
+      - o ofego da exausta;
+      - a atordoada: o golpe, o baque, o lamento, os soluços junto com os trancos do corpo e o ar rouco quando a
+        cabeça estala;
+      - o gemido do cambaleio, o choro fraco da enfraquecida e o desespero da capturada.
+    - Na **fase 4**, sussurros.
+    - No Ver modelos, "Ela está: Patrulhando / Caçando" (caçando, o rosto também fica o da caça).
+  - 2: **o corpo e o Luto** (os passos descalços com o vestido arrastando, os estalos do pescoço e dos dedos, o mergulho,
+    as bolhas, o chão estufando, o que escorre, o vento das garras);
+  - 3: **a luta** (o berço, o tornado, a chuva, a música de batalha `batalha_mae.mp3`), quando a luta existir.
+
 ## O HUD (conceito C, aprovado)
 
 - **Vida**: anel grande com o número em %, linha de ECG e o estado (bem / cuidado / perigo); o fôlego é um anel por dentro.
