@@ -3,7 +3,8 @@
 // do ponto e assentando. A "dureza" de cada movimento (rate) é a frequência das molas: quanto maior, mais seca a pose.
 // As chaves:
 //   hy = o quadril sobe/desce (m; as pernas dobram para os pés ficarem no chão) · hx, hry, hz = o giro do quadril
-//   lean, ly, lz = o tronco (para a frente, gira, tomba) · nx, ny, nz = o pescoço · jaw = a boca (0 fechada, 1 aberta)
+//   lean, ly, lz = o tronco (para a frente, gira, tomba: a cintura e o peito dividem, a coluna faz uma curva)
+//   nx, ny, nz = o pescoço (o pescoço e a cabeça dividem) · jaw = a boca (o queixo cai: 0 fechada, 1 escancarada)
 //   cada braço: x (para a frente < 0), z (para fora > 0), tw (gira para fora > 0), el (o cotovelo), wr (o pulso),
 //   curl (os dedos), sp (abrem)
 import type { Mae } from './modelo'
@@ -53,19 +54,31 @@ export function seguirPose(M: MolasDaPose, alvo: Pose, rate: number, dt: number)
   for (let i = 0; i < 2; i++) for (let f = 0; f < 4; f++) M.dedos[i][f] += (M.cur.a[i].curl - M.dedos[i][f]) * (1 - Math.exp(-DEDO_R[f] * dt))
 }
 
-/** Põe a pose nos ossos (o quadril, o tronco, o pescoço com o estalo, a boca, os braços com a mão chicoteando). */
+// como as dobras se dividem: a cintura e o peito (a curva da coluna); o pescoço e a cabeça
+const CINTURA = 0.55, PESCOCO = 0.6
+/** O quanto o queixo cai com a boca escancarada (rad; o rosto usa também). */
+export const QUEIXO = 0.85
+
+/** Põe a pose nos ossos (o quadril, a coluna em duas dobras, o pescoço e a cabeça com o estalo, o queixo, as clavículas,
+ *  os braços com a mão chicoteando). */
 export function aplicarPose(m: Mae, M: MolasDaPose, estalo: number) {
   const P = M.cur
   m.quadril.position.y = m.base.quadrilY + P.hy
   m.quadril.rotation.set(P.hx, P.hry, P.hz)
-  m.tronco.rotation.set(P.lean, P.ly, P.lz)
-  m.pescoco.rotation.set(P.nx, P.ny, P.nz + estalo)
-  m.boca.scale.y = P.jaw > 0.04 ? P.jaw : 0.0001 // fechada: a peça escura some (fica o risco pintado)
+  m.tronco.rotation.set(P.lean * CINTURA, P.ly * 0.5, P.lz * 0.5)
+  m.peito.rotation.set(P.lean * (1 - CINTURA), P.ly * 0.5, P.lz * 0.5)
+  const nz = P.nz + estalo
+  m.pescoco.rotation.set(P.nx * PESCOCO, P.ny * PESCOCO, nz * PESCOCO)
+  m.cabeca.rotation.set(P.nx * (1 - PESCOCO), P.ny * (1 - PESCOCO), nz * (1 - PESCOCO))
+  m.mandibula.rotation.x = Math.max(0, P.jaw) * QUEIXO
   m.bracos.forEach((b, k) => {
     const q = P.a[k], v = M.vel.a[k], s = b.s
     // a mão chicoteia: atrasa contra o giro do braço e do cotovelo (e volta)
     const wx = Math.max(-0.55, Math.min(0.55, -(v.x + v.el) * 0.018)), wz = Math.max(-0.4, Math.min(0.4, -v.z * 0.02))
-    b.up.rotation.set(q.x, s * q.tw, s * q.z, 'XZY') // z e tw positivos = para fora, nos dois lados
+    // a clavícula: o ombro sobe quando o braço passa da altura dele (e o braço desconta, para apontar para o mesmo lugar)
+    const ombro = Math.min(0.35, Math.max(0, (-q.x - 1.2) * 0.25))
+    b.om.rotation.set(0, 0, s * ombro)
+    b.up.rotation.set(q.x, s * q.tw, s * (q.z - ombro), 'XZY') // z e tw positivos = para fora, nos dois lados
     b.fo.rotation.set(q.el, 0, 0)
     b.hd.rotation.set(q.wr + wx, 0, wz)
     // os dedos fecham para a palma (que olha para dentro, para o corpo) e abrem em leque

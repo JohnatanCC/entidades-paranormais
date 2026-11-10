@@ -13,14 +13,31 @@
 import * as THREE from 'three'
 import { animarMolas } from '../../corpo/molas'
 import type { Mae } from './modelo'
-import { ESTADO, MOV } from './numeros'
+import { ESTADO, LUTO, MOV } from './numeros'
+import { animarRostoMae, type ExpressaoMae } from './rosto'
 import { novoGolpe, quadroDoGolpe, type NomeGolpe, type SaidaGolpe } from './golpes'
 import { estufar, type Luto } from './luto'
 import { aplicarPose, misturar, pose0, seguirPose, type Pose } from './pose'
 
 /** porta: quanto ela está passando pela porta (0..1); perto: a distância até o alvo à frente dela (os golpes param ao
  *  chegar); luto: onde saem os efeitos do Luto (as ondas, os respingos, o chão estufando) */
-export interface EstadoMae { porta?: number; perto?: number; luto?: Luto }
+export interface EstadoMae { porta?: number; perto?: number; luto?: Luto; expressao?: ExpressaoMae } // expressao: força uma (o Ver modelos)
+
+const EXPRESSAO_DO_ESTADO: Partial<Record<string, ExpressaoMae>> = { grito: 'grito', exausta: 'exausta', cambaleio: 'dor', enfraquecida: 'choro', capturada: 'terror' }
+/** A expressão de cada movimento: vazia procurando; caça quando viu você; fúria no ataque; e a de cada estado. */
+function expressaoDe(m: Mae): ExpressaoMae {
+  const g = m.anim.golpe
+  if (!g) return 'vazia'
+  const n = g.nome
+  if (n.startsWith('garra') || n === 'investida' || n === 'carga' || n === 'finta') return 'furia'
+  if (n === 'aproximar' || n === 'mergulhar' || n === 'aviso' || n === 'levanta') return 'caca'
+  // surgir: vazia enquanto sobe de cabeça baixa; o guincho arregalado; depois, a caça
+  if (n === 'surgir') { const u = g.t - LUTO.surgir.espera; return u < 2.95 ? 'vazia' : u < 3.8 ? 'grito' : 'caca' }
+  // atordoada: o grito, a dor de joelhos e, levantando, a caça de novo
+  if (n === 'atordoada') return g.t < 0.45 ? 'grito' : g.t > g.dur - 0.9 ? 'caca' : 'dor'
+  return EXPRESSAO_DO_ESTADO[n] ?? 'vazia'
+}
+
 const _onde = new THREE.Vector3(), _maos = [new THREE.Vector3(), new THREE.Vector3()], _olhos = [new THREE.Vector3(), new THREE.Vector3()]
 
 /** Começa um ataque (o que estava acontecendo acaba). */
@@ -111,6 +128,7 @@ export function animarMae(m: Mae, e: EstadoMae, dt: number): { avanca: number; y
   else if (wk < 0.3 && porta < 0.3 && !golpe && Math.random() < dt * E.chance) A.estaloT = E.dura
   A.estalo = A.estaloT > 0 ? E.giro : damp(A.estalo, 0, E.volta, dt)
   aplicarPose(m, m.pose, A.estalo)
+  animarRostoMae(m, e.expressao ?? expressaoDe(m), A.estaloT > 0, dt)
 
   // ---------- as pernas: dobram para os pés ficarem no chão quando o quadril desce; andando, passos curtos ----------
   const L1 = m.base.coxa, L2 = m.base.canela, h = Math.max(0.3, Math.min(L1 + L2 - 1e-4, L1 + L2 + m.pose.cur.hy))

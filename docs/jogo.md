@@ -201,8 +201,8 @@ Os Espectrais são esqueléticos, de manto. O Glutão é gordo, esquelético e d
 ## A Mãe (chefe, a luta do berçário)
 
 **O modelo (10/nov, `modelos/fantasmas/mae.bbmodel`, `src/game/enemies/mae/`):** em blocos, **2,26 m** (maior que as
-portas de 2,1 m), magra e pálida; o rosto cadavérico (órbitas fundas, olhos brancos de cega que brilham, lágrimas de
-Luto); o cabelo preto molhado repartido no meio, em 13 mechas com física; o vestido de linho creme com pregas, gola alta
+portas de 2,1 m), magra e pálida; o rosto cadavérico (órbitas fundas, olhos brancos de cega que brilham, sobrancelhas
+finas, lágrimas de Luto, o queixo solto que cai no grito); o cabelo preto molhado repartido no meio, em 13 mechas com física; o vestido de linho creme com pregas, gola alta
 de babado, faixa marrom, punhos escuros e o Luto escorrendo; a saia em 10 painéis de dois pedaços com física (abrem para
 fora, não entram nas pernas), com a anágua por baixo (fixa, mais escura: pelas frestas aparece pano); dedos compridos com unhas em garra; pés descalços. Uma malha só com ossos (2 chamadas de
 desenho, com os olhos). Sem véu (o design final do laboratório e a imagem de referência).
@@ -238,6 +238,23 @@ parada, de vez em quando ela tomba a cabeça de lado de uma vez (0,55 rad por 0,
   quase apagada, balançando, as mãos apoiadas no chão, o Luto escorrendo: a hora da armadilha), **levanta** (sai dos
   joelhos de volta à guarda) e **capturada** (se debate presa nos raios). De joelhos, as canelas deitam no chão (as
   pernas dela são mais longas que as do laboratório: só abaixar o quadril a deixaria agachada).
+
+**O refinamento (pedido em 10/nov: mais fluida, mais criativa e com expressões no rosto; em etapas):**
+- ✅ A (10/nov): **o rosto e o corpo mais flexível** (`rosto.ts`). Oito expressões, que cada movimento escolhe e que
+  trocam suave: **vazia** (procurando), **caça** (achou você: as sobrancelhas franzem, os olhos estreitam), **fúria** (o
+  ataque: os olhos em fenda, em brasa), **grito** (arregalada), **dor** e **choro** (o meio das sobrancelhas sobe, os
+  olhos se apertam), **exausta** (os olhos meio fechados) e **terror** (presa: arregalados ao máximo). Os olhos acendem
+  vermelhos na caça e no ataque (como no laboratório) e apagam quando ela cansa ou chora. Ela não pisca (cega e morta: um
+  rosto que nunca pisca incomoda mais); no lugar, tiques: um olho que se aperta sozinho por um instante, o queixo que
+  torce de leve; no estalo da cabeça, os olhos faíscam. O queixo é um osso: no grito ele despenca além do natural (a
+  boca por dentro é escura), e cada expressão garante a sua boca (escancarada no grito e no terror, entreaberta na dor,
+  no choro e exausta). A coluna dobra em dois lugares (a cintura e o peito) e o pescoço divide a dobra com a
+  cabeça: curvada, ela faz uma curva, não uma tábua; as clavículas sobem quando o braço passa da altura do ombro (a
+  garra erguida). No Ver modelos, **Expressão** força uma delas (a câmera vai para o rosto e acompanha a cabeça);
+- B: **a parada, o andar e a porta mais vivos** (a cabeça que segue você aos trancos, a boca cantarolando, os dedos
+  mexendo um de cada vez, arrepios, a cabeça entrando primeiro na porta);
+- C: **os ataques com antecipação e acompanhamento**;
+- D: **o Luto e os estados** (os soluços sacudindo os ombros, o peito estufando no grito, puxada aos trancos na captura).
 
 Com isso, todas as animações dela estão feitas. A inteligência e a luta (as fases, as quatro barras, o berço, o
 tornado, quando ela abaixa na porta) vêm depois, em `src/game/enemies/mae/`.

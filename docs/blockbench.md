@@ -134,13 +134,20 @@ salvar no Blockbench atualiza o jogo (se o Testar estiver aberto, saia e entre d
 
 - `modelos/fantasmas/<nome>.bbmodel`, com 64 px por metro (o rosto com 128), como os personagens. A primeira: a Mãe
   (`mae.bbmodel`, nasceu de um gerador em 10/nov, para detalhar à mão).
-- As juntas pelos mesmos nomes do Matheus (quadril, tronco, pescoco, cabeca, braco/antebraco/mao, os dedos, coxa/canela/pe)
-  e a `boca` (abre no grito).
+- As juntas pelos mesmos nomes do Matheus (quadril, tronco, pescoco, cabeca, braco/antebraco/mao, os dedos, coxa/canela/pe).
+  A Mãe tem mais algumas: o `peito` dentro do `tronco` (a coluna dobra em dois lugares) e as clavículas `ombro_d` e
+  `ombro_e` (os braços saem delas: o ombro sobe quando o braço passa da altura dele). O rosto também é feito de pastas
+  dentro da `cabeca`:
+  - `mandibula`: o queixo, preso atrás, perto das orelhas, que cai no grito. Em cima dele fica a `boca_dentro`, escura:
+    com a boca fechada ela some dentro da cabeça;
+  - `olho_d` e `olho_e`: os blocos `luz_` ficam dentro delas, e os olhos estreitam, arregalam e quase fecham;
+  - `sobrancelha_d` e `sobrancelha_e`: franzem e sobem.
 - **O que balança:** toda pasta `mecha_...` (o cabelo, presa na cabeça) e `saia_...` (a saia, presa no quadril; a ponta
   de cada painel numa pasta dentro dele, `saia_N_ponta`) balança com mola sozinha. Pasta nova com esses nomes já balança.
 - Por baixo da saia, a anágua: blocos fixos na pasta `anagua` (sem física), entre os painéis, para não
   aparecerem frestas quando a saia balança. As mechas da frente nascem na borda do rosto, não na frente dele.
-- Os olhos que brilham: blocos `luz_`.
+- Os olhos que brilham: blocos `luz_`. Na Mãe, a cor e a força do brilho mudam com a expressão: ficam vermelhos na caça
+  e no ataque e apagam quando ela está exausta.
 - Personagem (o Matheus, os fantasmas): o jogo junta tudo numa malha só com ossos (uma chamada de desenho). Para você não
   muda nada: as pastas continuam sendo as juntas.
 

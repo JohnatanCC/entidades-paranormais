@@ -29,6 +29,7 @@ import { montarMae } from '../game/enemies/mae/modelo'
 import { animarMae, golpear } from '../game/enemies/mae/animacao'
 import type { NomeGolpe } from '../game/enemies/mae/golpes'
 import { novoLuto, passoLuto } from '../game/enemies/mae/luto'
+import { EXPRESSOES_MAE, type ExpressaoMae } from '../game/enemies/mae/rosto'
 import { abertura3d } from '../render/objetos3d'
 
 type Anim = 'parado' | 'andando' | 'correndo' | 'esquiva' | 'queda' | 'porta'
@@ -61,7 +62,7 @@ const MAOS: [PoseMao | null, string][] = [[null, 'Automática'], ['solta', 'Solt
 const CAMERAS: [Camera, string][] = [['corpo', 'Corpo'], ['rosto', 'Rosto'], ['maos', 'Mãos'], ['pes', 'Pés'], ['costas', 'Costas']]
 const LUZES: [Luz, string][] = [['estudio', 'Estúdio'], ['jogo', 'Jogo (lâmpada no escuro)']]
 
-interface Escolhas { qual: string; anim: Anim; exp: Expressao | null; mao: PoseMao | null; arma: Arma | null; gesto: { g: Gesto; n: number } | null; mirando: boolean; tiros: number; golpes: number; ferido: boolean; ataque: { nome: string; n: number } | null; camera: Camera; luz: Luz; girar: boolean; grade: boolean }
+interface Escolhas { qual: string; anim: Anim; exp: Expressao | null; mao: PoseMao | null; arma: Arma | null; gesto: { g: Gesto; n: number } | null; mirando: boolean; tiros: number; golpes: number; ferido: boolean; ataque: { nome: string; n: number } | null; rostoMae: ExpressaoMae | null; camera: Camera; luz: Luz; girar: boolean; grade: boolean }
 interface Info { linhas: string[] }
 
 function Opcoes<T>({ titulo, lista, valor, onEscolher }: { titulo: string; lista: [T, string][]; valor: T; onEscolher: (v: T) => void }) {
@@ -74,7 +75,7 @@ function Opcoes<T>({ titulo, lista, valor, onEscolher }: { titulo: string; lista
 }
 
 export function VerModelos({ go }: { go: Go }) {
-  const [e, setE] = useState<Escolhas>({ qual: AGENTE_ID, anim: 'parado', exp: null, mao: null, arma: null, gesto: null, mirando: false, tiros: 0, golpes: 0, ferido: false, ataque: null, camera: 'corpo', luz: 'estudio', girar: false, grade: true })
+  const [e, setE] = useState<Escolhas>({ qual: AGENTE_ID, anim: 'parado', exp: null, mao: null, arma: null, gesto: null, mirando: false, tiros: 0, golpes: 0, ferido: false, ataque: null, rostoMae: null, camera: 'corpo', luz: 'estudio', girar: false, grade: true })
   const [info, setInfo] = useState<Info | null>(null)
   const muda = (p: Partial<Escolhas>) => setE((v) => ({ ...v, ...p }))
   const agente = e.qual === AGENTE_ID, arma = e.qual.startsWith(ARMA) ? e.qual.slice(ARMA.length) : null, mae = e.qual === MAE
@@ -110,6 +111,7 @@ export function VerModelos({ go }: { go: Go }) {
           </select>
         </section>
         {mae && <Opcoes titulo="Animação" lista={ANIMS_MAE} valor={e.anim} onEscolher={(anim) => muda({ anim })} />}
+        {mae && <Opcoes titulo="Expressão" lista={[[null, 'Automática'], ...EXPRESSOES_MAE] as [ExpressaoMae | null, string][]} valor={e.rostoMae} onEscolher={(rostoMae) => muda({ rostoMae })} />}
         {mae && <section>
           <b>Ataques</b>
           <div className="opcoes">{ATAQUES.map(([id, nome]) => <button key={id} onClick={() => muda({ anim: 'parado', girar: false, ataque: { nome: id, n: (e.ataque?.n ?? 0) + 1 } })}>{nome}</button>)}</div>
@@ -180,20 +182,32 @@ function Luzes({ luz }: { luz: Luz }) {
   </>
 }
 
-/** O voo curto da câmera até um enquadramento (alvo e de onde olha). */
+/** O voo curto da câmera até um enquadramento (alvo e de onde olha). seguir: depois do voo, a câmera acompanha um ponto
+ *  que se mexe (o rosto da Mãe), sem tirar o giro de quem olha. */
 function useVoo() {
   const { camera, controls } = useThree() as unknown as { camera: THREE.PerspectiveCamera; controls: { target: THREE.Vector3; update: () => void } | null }
   const voo = useRef<null | { de0: THREE.Vector3; alvo0: THREE.Vector3; de1: THREE.Vector3; alvo1: THREE.Vector3; k: number }>(null)
+  const segue = useRef<((p: THREE.Vector3) => THREE.Vector3) | null>(null)
   useFrame((_, dt) => {
-    const v = voo.current
-    if (!v || !controls) return
-    v.k = Math.min(1, v.k + Math.min(dt, 0.05) / 0.45)
-    const k = v.k * v.k * (3 - 2 * v.k)
-    camera.position.lerpVectors(v.de0, v.de1, k); controls.target.lerpVectors(v.alvo0, v.alvo1, k); controls.update()
-    if (v.k >= 1) voo.current = null
+    const v = voo.current, s = segue.current
+    if (!controls) return
+    if (v) {
+      v.k = Math.min(1, v.k + Math.min(dt, 0.05) / 0.45)
+      const k = v.k * v.k * (3 - 2 * v.k)
+      camera.position.lerpVectors(v.de0, v.de1, k); controls.target.lerpVectors(v.alvo0, v.alvo1, k); controls.update()
+      if (v.k >= 1) voo.current = null
+    } else if (s) { // o alvo e a câmera andam juntos até o ponto
+      const d = s(_ponto).sub(controls.target).multiplyScalar(1 - Math.exp(-6 * Math.min(dt, 0.05)))
+      controls.target.add(d); camera.position.add(d); controls.update()
+    }
   })
-  return { pronto: !!controls, voar: (alvo: THREE.Vector3, de: THREE.Vector3) => { if (controls) voo.current = { de0: camera.position.clone(), alvo0: controls.target.clone(), de1: de, alvo1: alvo, k: 0 } } }
+  return {
+    pronto: !!controls,
+    voar: (alvo: THREE.Vector3, de: THREE.Vector3) => { if (controls) voo.current = { de0: camera.position.clone(), alvo0: controls.target.clone(), de1: de, alvo1: alvo, k: 0 } },
+    seguir: (f: ((p: THREE.Vector3) => THREE.Vector3) | null) => { segue.current = f },
+  }
 }
+const _ponto = new THREE.Vector3()
 
 /** As contas de um modelo: as malhas (chamadas de desenho), os blocos (os marcadores) e as juntas. */
 function contas(o: THREE.Object3D) {
@@ -271,7 +285,7 @@ function CenaMae({ e, onInfo }: { e: Escolhas; onInfo: (i: Info) => void }) {
   const m = useMemo(() => montarMae(), [montarMae])
   // a porta comum (2,1 m), aberta, para ver ela abaixar: o vão de x −0,5 a 0,5, atravessando em z
   const porta = useMemo(() => { const o = abertura3d('porta-comum'); o.position.set(-0.5, 0, 0); const f = o.getObjectByName('folha_1'); if (f) f.rotation.y = -1.4; return o }, [abertura3d])
-  const { pronto, voar } = useVoo()
+  const { pronto, voar, seguir } = useVoo()
   const ida = useRef({ t: 0, z: -2.4, dir: 1, vira: 0 })
   // o ataque: a fila de golpes, de onde ela sai e o alvo à frente; depois de terminar, espera e volta ao lugar
   const ALVO_Z = 2.6
@@ -291,7 +305,14 @@ function CenaMae({ e, onInfo }: { e: Escolhas; onInfo: (i: Info) => void }) {
     const b = new THREE.Box3().setFromObject(m.root)
     onInfo({ linhas: [`Altura: ${b.max.y.toFixed(2)} m`, `${c.blocos} blocos em ${c.juntas} juntas`, `${c.desenhos} chamadas de desenho`] })
   }, [m, onInfo])
-  useEffect(() => { if (pronto) voar(new THREE.Vector3(0, 1.2, e.ataque ? 0.3 : 0), e.anim === 'porta' || e.ataque ? new THREE.Vector3(5.6, 2.0, 1.2) : new THREE.Vector3(1.8, 1.7, 4.4)) }, [m, pronto, e.anim, !!e.ataque])
+  useEffect(() => {
+    if (!pronto) return
+    // forçando uma expressão: de perto no rosto, e a câmera acompanha a cabeça (ela balança, curva, estala)
+    const rosto = (p: THREE.Vector3) => m.cabeca.localToWorld(p.set(0, 0.1, 0.1))
+    seguir(e.rostoMae ? rosto : null)
+    if (e.rostoMae) { m.root.updateMatrixWorld(true); const c = rosto(new THREE.Vector3()); voar(c.clone(), c.clone().add(new THREE.Vector3(0.25, 0.05, 0.95))); return }
+    voar(new THREE.Vector3(0, 1.2, e.ataque ? 0.3 : 0), e.anim === 'porta' || e.ataque ? new THREE.Vector3(5.6, 2.0, 1.2) : new THREE.Vector3(1.8, 1.7, 4.4))
+  }, [m, pronto, e.anim, !!e.ataque, !!e.rostoMae])
   useFrame((_, dtBruto) => {
     const dt = Math.min(dtBruto, 0.05), I = ida.current
     I.t += dt
@@ -312,7 +333,7 @@ function CenaMae({ e, onInfo }: { e: Escolhas; onInfo: (i: Info) => void }) {
       if (!m.anim.golpe && Aq.fila.length) { const [nome, dur] = Aq.fila.shift()!.split(':'); const g = golpear(m, nome as NomeGolpe); if (dur) g.dur = Number(dur) }
       else if (!m.anim.golpe && (Aq.espera += dt) > 1.2) { Aq.ativo = false; volta(0) }
     }
-    const saida = animarMae(m, { porta: k, perto: ALVO_Z - m.root.position.z, luto }, dt)
+    const saida = animarMae(m, { porta: k, perto: ALVO_Z - m.root.position.z, luto, expressao: e.rostoMae ?? undefined }, dt)
     passoLuto(luto, dt)
     if (Aq.ativo) { m.root.position.z += saida.avanca * dt; m.root.position.y = saida.y }
   })
