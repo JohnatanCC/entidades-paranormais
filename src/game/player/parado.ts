@@ -1,24 +1,26 @@
 // O agente parado: a base (a respiração, o peso passando de uma perna para a outra e, com a pistola, o balanço leve da
 // arma) e os gestos que ele faz sozinho depois de um tempo sem se mexer. Cada estado tem os seus gestos (sem arma, com
-// a pistola, com a armadilha; a escopeta vem depois). O pêndulo da armadilha e o vidro que respira ficam em arma.ts. Andar, esquivar ou trocar de arma corta o gesto na hora: a animação
-// nunca segura o controle. Os tempos ficam em numeros.ts (PARADO).
+// a pistola, a escopeta ou a armadilha). O pêndulo da armadilha, a escopeta no ombro e a mão esquerda na bomba ficam em
+// arma.ts. Andar, esquivar ou trocar de arma corta o gesto na hora: a animação nunca segura o controle.
+// Os tempos ficam em numeros.ts (PARADO).
 import * as THREE from 'three'
 import { alcancar } from './alcancar'
-import { maoParaArma, type Arma } from './arma'
+import { armaEm, giroPeloCano, POLO_D, type Arma } from './arma'
 import type { PoseMao } from './maos'
 import type { Agente } from './modelo'
 import { PARADO } from './numeros'
 
-export type Gesto = 'olhar' | 'alca' | 'bolsa' | 'mao' | 'frasco' | 'pulso' | 'rosto' | 'girar'
+export type Gesto = 'olhar' | 'alca' | 'bolsa' | 'mao' | 'frasco' | 'pulso' | 'rosto' | 'girar' | 'camara' | 'bomba'
 const NOMES: Record<Gesto, string> = {
   olhar: 'Olhar em volta', alca: 'Ajustar a alça', bolsa: 'Conferir a bolsa', mao: 'Abrir e fechar a mão',
   frasco: 'Conferir o frasco', pulso: 'Girar o pulso', rosto: 'Levantar até o rosto', girar: 'Girar a lanterna',
+  camara: 'Conferir a câmara de sal', bomba: 'Puxar a bomba',
 }
-// os gestos de cada estado (com a escopeta, ainda nenhum)
+// os gestos de cada estado
 const DO_ESTADO: Record<Arma | 'nenhuma', Gesto[]> = {
   nenhuma: ['olhar', 'alca', 'bolsa', 'mao'],
   pistola: ['olhar', 'frasco', 'pulso'],
-  escopeta: [],
+  escopeta: ['olhar', 'camara', 'bomba'],
   armadilha: ['olhar', 'rosto', 'girar'],
 }
 /** Os gestos (e os nomes) de quem está com esta arma na mão (null = mão vazia). */
@@ -58,8 +60,8 @@ export function balancoDaArma(a: Agente, quieto: number) {
 
 // ---------- os gestos: cada um mexe a cabeça e os braços por cima da pose (k = quanto, 0..1) ----------
 const V = (x: number, y: number, z: number) => new THREE.Vector3(x, y, z)
-const _alvo = new THREE.Vector3(), _x = new THREE.Vector3(), _y = new THREE.Vector3(), _z = new THREE.Vector3()
-const _m = new THREE.Matrix4(), _qArma = new THREE.Quaternion(), _qMao = new THREE.Quaternion(), _qPai = new THREE.Quaternion(), _qGira = new THREE.Quaternion()
+const _alvo = new THREE.Vector3(), _y = new THREE.Vector3(), _z = new THREE.Vector3()
+const _qArma = new THREE.Quaternion(), _qMao = new THREE.Quaternion(), _qPai = new THREE.Quaternion(), _qGira = new THREE.Quaternion()
 const EIXO_CANO = V(0, 0, 1)
 type Maos = [PoseMao | undefined, PoseMao | undefined]
 interface DefGesto { dur: number; fazer: (a: Agente, t: number, k: number) => Maos }
@@ -138,18 +140,11 @@ const GESTO: Record<Gesto, DefGesto> = {
   frasco: {
     dur: 3.6,
     fazer: (a, t, k) => {
-      const b = curva(t, [[0, 0], [0.8, 1], [2.8, 1], [3.6, 0]]) * k, braco = a.arms[0]
-      alcancar(braco, _alvo.set(-0.08, 0.22, 0.26), V(-1, -0.7, -0.2), b)
-      // o giro da arma no espaço do peito: o cano para a esquerda e para a frente, o topo (o frasco) para o rosto
-      _z.set(0.75, -0.1, 0.65).normalize()
-      _y.set(0.1, 0.75, -0.65); _y.addScaledVector(_z, -_y.dot(_z)).normalize()
-      _x.crossVectors(_y, _z)
-      _qArma.setFromRotationMatrix(_m.makeBasis(_x, _y, _z))
+      const b = curva(t, [[0, 0], [0.8, 1], [2.8, 1], [3.6, 0]]) * k
+      // no espaço do peito: o cano para a esquerda e para a frente, o topo (o frasco) para o rosto, girando um pouco
+      giroPeloCano(_z.set(0.75, -0.1, 0.65), _y.set(0.1, 0.75, -0.65), _qArma)
       _qArma.multiply(_qGira.setFromAxisAngle(EIXO_CANO, curva(t, [[0.8, 0], [1.6, 0.35], [2.3, -0.12], [2.8, 0]])))
-      // a mão que deixa a arma assim, vista do antebraço (o braço já está no lugar)
-      maoParaArma('pistola', _qArma, _qMao)
-      _qPai.copy(braco.up.quaternion).multiply(braco.fo.quaternion).invert()
-      braco.hd.quaternion.slerp(_qMao.premultiply(_qPai), b)
+      armaEm(a, _alvo.set(-0.02, 0.18, 0.28), _qArma, V(-1, -0.7, -0.2), b)
       cabeca(a, -0.15 * b, 0.4 * b)
       return [undefined, undefined]
     },
@@ -174,7 +169,7 @@ const GESTO: Record<Gesto, DefGesto> = {
       _qPai.copy(braco.up.quaternion).multiply(braco.fo.quaternion).invert()
       braco.hd.quaternion.slerp(_qMao.copy(_qMaoChao).premultiply(_qPai), b)
       cabeca(a, -0.12 * b, 0.22 * b)
-      a.anim.lanterna.brilho += 0.35 * curva(t, [[0.6, 0], [1.3, 1], [2.6, 1], [3.2, 0]]) * k
+      a.anim.arma.brilho += 0.35 * curva(t, [[0.6, 0], [1.3, 1], [2.6, 1], [3.2, 0]]) * k
       return [undefined, undefined]
     },
   },
@@ -184,9 +179,35 @@ const GESTO: Record<Gesto, DefGesto> = {
     fazer: (a, t, k) => {
       const b = curva(t, [[0, 0], [0.5, 1], [2.5, 1], [3.0, 0]]) * k
       a.arms[0].fo.rotation.x -= 0.6 * b; a.arms[0].up.rotation.x -= 0.15 * b
-      a.anim.lanterna.giro += curva(t, [[0.4, 0], [1.0, 1.3], [1.7, -0.7], [2.4, 0.4], [3.0, 0]]) * k
-      a.anim.lanterna.brilho += 0.12 * b
+      a.anim.arma.giro += curva(t, [[0.4, 0], [1.0, 1.3], [1.7, -0.7], [2.4, 0.4], [3.0, 0]]) * k
+      a.anim.arma.brilho += 0.12 * b
       cabeca(a, -0.15 * b, 0.35 * b)
+      return [undefined, undefined]
+    },
+  },
+  // tira a escopeta do ombro e traz deitada na frente do peito, de lado, com o vidro da câmara de sal virado para os
+  // olhos; a mão esquerda segura embaixo, na bomba; ele confere os cartuchos e devolve
+  camara: {
+    dur: 4.0,
+    fazer: (a, t, k) => {
+      const b = curva(t, [[0, 0], [0.9, 1], [3.1, 1], [4.0, 0]]) * k
+      giroPeloCano(_z.set(0.85, 0.05, 0.5), _y.set(-0.4, 0.51, 0.68), _qArma)
+      armaEm(a, _alvo.set(-0.12, 0.22, 0.3), _qArma, POLO_D, b)
+      a.anim.arma.esquerda = Math.max(a.anim.arma.esquerda, b)
+      cabeca(a, 0.1 * b, 0.38 * b)
+      return [undefined, undefined]
+    },
+  },
+  // tira do ombro para a frente, quase reta, e puxa a bomba até a metade e devolve (confere se está carregada); olha
+  bomba: {
+    dur: 2.8,
+    fazer: (a, t, k) => {
+      const b = curva(t, [[0, 0], [0.7, 1], [2.2, 1], [2.8, 0]]) * k, A = a.anim.arma
+      giroPeloCano(_z.set(0.5, -0.05, 0.85), _y.set(0, 1, 0), _qArma)
+      armaEm(a, _alvo.set(-0.14, 0.12, 0.24), _qArma, POLO_D, b)
+      A.esquerda = Math.max(A.esquerda, b)
+      A.bomba = Math.max(A.bomba, curva(t, [[0.8, 0], [1.1, 0.5], [1.5, 0.5], [1.8, 0]]) * k)
+      cabeca(a, 0.12 * b, 0.3 * b)
       return [undefined, undefined]
     },
   },

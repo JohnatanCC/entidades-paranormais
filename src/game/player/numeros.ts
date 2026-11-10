@@ -38,3 +38,12 @@ export const ARMADILHA = {
   pendulo: { comprimento: 0.1, amortece: 2.2, limite: 1.0 }, // m da alça ao peso; quanto acalma (por s); o máximo que abre (rad)
   brilho: { volta: 3.4, minimo: 0.7 }, // s de uma respiração do vidro; o mais fraco (1 = o brilho cheio)
 }
+
+// A escopeta na mão (player/arma.ts), pesada: com as duas mãos (a esquerda na bomba); parado um tempo, apoiada no ombro.
+// Pontos e direções no espaço do peito (x = esquerda do agente, y = cima, z = frente; a origem na cintura)
+export const ESCOPETA = {
+  guarda: { pega: [-0.15, 0.0, 0.22], cano: [0.85, -0.3, 0.45], sobe: 0.12, passo: 0.012 }, // a empunhadura, para onde o cano aponta; quanto sobe correndo e sacode no passo (m)
+  ombro: { pega: [-0.19, 0.3, 0.2], cano: [-0.12, 0.72, -0.68], cima: [0, -0.7, -0.7], espera: 1.2, vai: 2.5, volta: 9 }, // apoiada: o cano para cima e para trás; espera = s parado até apoiar
+  peso: 0.035, // quanto o peito vai para trás com a escopeta na frente (rad)
+  bomba: { curso: 0.07 }, // quanto a bomba corre para trás (m)
+}

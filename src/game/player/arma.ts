@@ -1,17 +1,19 @@
 // A arma na mão direita do agente: só o modelo e como a mão segura (atirar, a sobrecarga e a armadilha jogada vêm na
 // etapa das armas). O modelo é modelos/armas/<nome>.bbmodel; a pasta "empunhadura" dele é o ponto que vai na mão.
 // O espaço da mão direita (o do modelo do agente): os dedos para −y, a palma para +z, o polegar para −x.
-// A armadilha vai pendurada pela alça e balança (animarArma); os números em numeros.ts (ARMADILHA).
+// A escopeta, pesada, vai com as duas mãos (a esquerda na bomba); parado um tempo, ele apoia no ombro (posturaDaEscopeta).
+// A armadilha vai pendurada pela alça e balança (animarArma). Os números em numeros.ts (ESCOPETA, ARMADILHA).
 import * as THREE from 'three'
 import { arma3d } from '../../render/objetos3d'
+import { alcancar } from './alcancar'
 import type { PoseMao } from './maos'
-import type { Agente } from './modelo'
-import { ARMADILHA } from './numeros'
+import type { Agente, Braco } from './modelo'
+import { ARMADILHA, ESCOPETA } from './numeros'
 
 export type Arma = 'pistola' | 'escopeta' | 'armadilha'
 export const ARMAS: [Arma, string][] = [['pistola', 'Pistola de Demantino'], ['escopeta', 'Escopeta de sal grosso'], ['armadilha', 'Armadilha']]
-/** A pose da mão que segura cada uma: a pistola com o indicador fora do gatilho (a escopeta ganha o mesmo no parado dela). */
-export const POSE_DA_ARMA: Record<Arma, PoseMao> = { pistola: 'guarda', escopeta: 'segurar', armadilha: 'segurar' }
+/** A pose da mão que segura cada uma: pistola e escopeta com o indicador fora do gatilho. */
+export const POSE_DA_ARMA: Record<Arma, PoseMao> = { pistola: 'guarda', escopeta: 'guarda', armadilha: 'segurar' }
 
 const V = (x: number, y: number, z: number) => new THREE.Vector3(x, y, z)
 // como cada uma fica na mão: onde a empunhadura cai (no espaço da mão) e o giro da arma
@@ -34,7 +36,7 @@ export function pegarArma(a: Agente, nome: Arma | null) {
   const mao = a.arms[0].hd
   const velha = mao.getObjectByName(NOME)
   if (velha) { mao.remove(velha); (velha.userData.luz as THREE.Material | undefined)?.dispose() }
-  a.arma = nome; a.anim.lanterna.solta = true
+  a.arma = nome; a.anim.arma.solta = true
   if (!nome) return
   const obj = arma3d(nome), p = PEGA[nome]
   // a empunhadura do modelo vai para a origem do grupo (que fica no ponto da mão)
@@ -46,20 +48,106 @@ export function pegarArma(a: Agente, nome: Arma | null) {
   // o vidro da armadilha "respira": um material só desta cópia (os outros modelos da armadilha não piscam junto)
   const luz = nome === 'armadilha' ? (obj.getObjectByName('#luz') as THREE.Mesh | undefined) : undefined
   if (luz) { luz.material = (luz.material as THREE.MeshBasicMaterial).clone(); g.userData.luz = luz.material }
+  // a bomba da escopeta corre para trás no gesto (e, depois, no tiro): guarda a peça e onde ela fica parada
+  const bomba = obj.getObjectByName('bomba')
+  if (bomba) { g.userData.bomba = bomba; g.userData.bombaZ = bomba.position.z }
   g.add(obj); mao.add(g)
 }
 
+/** O que a arma na mão lembra de um quadro para o outro.
+ *  armadilha: a ponta (bob) é um peso solto no mundo, preso pela alça; giro e brilho vêm dos gestos (somam).
+ *  escopeta: ombro = quanto está apoiada no ombro (0..1) e parado = há quanto tempo está parado; esquerda = quanto a mão
+ *  esquerda vai na bomba e bomba = quanto a bomba corre (0..1): a postura escreve a base, os gestos somam. */
+export interface AnimArma {
+  bob: THREE.Vector3; ant: THREE.Vector3; solta: boolean; t: number; giro: number; brilho: number
+  ombro: number; parado: number; esquerda: number; bomba: number
+}
+export const novaAnimArma = (): AnimArma => ({ bob: new THREE.Vector3(), ant: new THREE.Vector3(), solta: true, t: 0, giro: 0, brilho: 0, ombro: 0, parado: 0, esquerda: 0, bomba: 0 })
+
+// ---------- levar a arma (e as mãos) até uma pose, no espaço do peito ----------
+const _w = new THREE.Vector3(), _x = new THREE.Vector3(), _y = new THREE.Vector3(), _z = new THREE.Vector3()
+const _m = new THREE.Matrix4(), _qa = new THREE.Quaternion(), _qh = new THREE.Quaternion(), _qp = new THREE.Quaternion(), _qc = new THREE.Quaternion()
+
+/** O giro de uma arma pelo cano (o z dela) e por para onde vai o "em cima" dela (o y), no espaço do peito. */
+export function giroPeloCano(cano: THREE.Vector3, cima: THREE.Vector3, out: THREE.Quaternion): THREE.Quaternion {
+  _z.copy(cano).normalize(); _y.copy(cima).addScaledVector(_z, -cima.dot(_z)).normalize(); _x.crossVectors(_y, _z)
+  return out.setFromRotationMatrix(_m.makeBasis(_x, _y, _z))
+}
+
+/** A mão vai até a pega (no peito) com o giro qMao (no peito); ponto = onde a pega fica no espaço da mão. k = quanto. */
+function maoEm(b: Braco, pega: THREE.Vector3, qMao: THREE.Quaternion, ponto: THREE.Vector3, polo: THREE.Vector3, k: number) {
+  if (k <= 0.001) return
+  _w.copy(ponto).applyQuaternion(qMao).negate().add(pega) // o pulso
+  alcancar(b, _w, polo, k)
+  _qp.copy(b.up.quaternion).multiply(b.fo.quaternion).invert()
+  b.hd.quaternion.slerp(_qh.copy(qMao).premultiply(_qp), k)
+}
+
+/** Leva a arma da mão direita até a pose: a empunhadura em pos e o giro qArma (os dois no peito); k = quanto. */
+export function armaEm(a: Agente, pos: THREE.Vector3, qArma: THREE.Quaternion, polo: THREE.Vector3, k: number) {
+  if (a.arma) maoEm(a.arms[0], pos, maoParaArma(a.arma, qArma, _qa), PEGA[a.arma].ponto, polo, k)
+}
+
+// ---------- a escopeta: as duas mãos (a esquerda na bomba); parado um tempo, no ombro ----------
+export const POLO_D = V(-0.6, -1, -0.3) // o cotovelo direito para baixo, para trás e para fora
+const POLO_E = V(0.6, -1, -0.3)
+const PONTO_E = V(0, -0.05, 0.025) // onde a bomba encosta na mão esquerda (na palma, perto da base dos dedos)
+const _pos = new THREE.Vector3(), _cano = new THREE.Vector3(), _cima = new THREE.Vector3(), _qe = new THREE.Quaternion()
+const _dedos = new THREE.Vector3(), _xh = new THREE.Vector3(), _yh = new THREE.Vector3(), _zh = new THREE.Vector3()
+
+/**
+ * A escopeta no corpo, depois dos braços: a guarda de duas mãos, atravessada na frente do corpo (mais alta correndo,
+ * sacudindo com o passo, o peito um pouco para trás com o peso), ou apoiada no ombro (parado um tempo).
+ * solto = 1 − o quanto está na cambalhota (a pegada solta para rolar).
+ */
+export function posturaDaEscopeta(a: Agente, e: { parado: boolean; amp: number; run: number; ph: number; solto: number }, dt: number) {
+  const A = a.anim.arma
+  A.esquerda = 0; A.bomba = 0
+  if (a.arma !== 'escopeta') { A.ombro = 0; A.parado = 0; return }
+  const E = ESCOPETA, G = E.guarda, O = E.ombro
+  A.parado = e.parado ? A.parado + dt : 0
+  const quer = A.parado > O.espera ? 1 : 0
+  A.ombro += (quer - A.ombro) * (1 - Math.exp(-(quer ? O.vai : O.volta) * dt))
+  // a guarda
+  _pos.fromArray(G.pega); _pos.y += G.sobe * e.run + G.passo * Math.sin(2 * e.ph) * e.amp
+  _cano.fromArray(G.cano); _cano.y += 0.35 * e.run
+  armaEm(a, _pos, giroPeloCano(_cano, _cima.set(0, 1, 0), _qe), POLO_D, e.solto)
+  // no ombro (por cima da guarda)
+  armaEm(a, _pos.fromArray(O.pega), giroPeloCano(_cano.fromArray(O.cano), _cima.fromArray(O.cima), _qe), POLO_D, A.ombro * e.solto)
+  a.spine.rotation.x -= E.peso * (1 - A.ombro) * e.solto
+  A.esquerda = (1 - A.ombro) * e.solto
+}
+
+/** A mão esquerda na bomba da escopeta, onde a arma estiver agora (guarda, gesto ou no meio do caminho), e a bomba
+ *  correndo para trás quando um gesto pede. Depois da postura e dos gestos. */
+export function maoNaBomba(a: Agente) {
+  const A = a.anim.arma, g = a.arms[0].hd.getObjectByName(NOME)
+  const bomba = g?.userData.bomba as THREE.Object3D | undefined
+  if (!g || !bomba) return
+  bomba.position.z = (g.userData.bombaZ as number) - ESCOPETA.bomba.curso * A.bomba
+  const k = Math.min(1, A.esquerda)
+  if (k <= 0.001) return
+  a.root.updateMatrixWorld(true)
+  // a pega: embaixo da bomba, um pouco para trás do meio; e o giro da arma, os dois no espaço do peito
+  a.chest.worldToLocal(bomba.localToWorld(_pos.set(0, -0.021, -0.02)))
+  a.chest.getWorldQuaternion(_qc).invert()
+  g.getWorldQuaternion(_qa).premultiply(_qc)
+  _z.set(0, 0, 1).applyQuaternion(_qa); _y.set(0, 1, 0).applyQuaternion(_qa)
+  // a mão esquerda: a palma virada para a arma, embaixo da bomba; os dedos atravessam para a frente (para longe do corpo)
+  _dedos.crossVectors(_z, _y); if (_dedos.z < 0) _dedos.negate()
+  _zh.copy(_y); _yh.copy(_dedos).negate(); _xh.crossVectors(_yh, _zh)
+  _qh.setFromRotationMatrix(_m.makeBasis(_xh, _yh, _zh))
+  maoEm(a.arms[1], _pos, _qh, PONTO_E, POLO_E, k)
+}
+
 // ---------- a armadilha na mão: o pêndulo e o vidro que respira ----------
-/** A lanterna pendurada: a ponta (bob) é um peso solto no mundo, preso pela alça; giro e brilho vêm dos gestos (somam). */
-export interface AnimLanterna { bob: THREE.Vector3; ant: THREE.Vector3; solta: boolean; t: number; giro: number; brilho: number }
-export const novaLanterna = (): AnimLanterna => ({ bob: new THREE.Vector3(), ant: new THREE.Vector3(), solta: true, t: 0, giro: 0, brilho: 0 })
 
 const _piv = new THREE.Vector3(), _dir = new THREE.Vector3(), _vel = new THREE.Vector3(), _qm = new THREE.Quaternion(), _qg = new THREE.Quaternion()
 const BAIXO = new THREE.Vector3(0, -1, 0), CIMA = new THREE.Vector3(0, 1, 0)
 
 /** Depois da pose do corpo: a armadilha balança pela alça (a gravidade e o tranco da mão) e o vidro respira. */
 export function animarArma(a: Agente, dt: number) {
-  const L = a.anim.lanterna
+  const L = a.anim.arma
   const g = a.arms[0].hd.getObjectByName(NOME)
   if (!g || a.arma !== 'armadilha' || dt <= 0) { L.giro = L.brilho = 0; return }
   const P = ARMADILHA.pendulo

@@ -38,8 +38,10 @@ a tiro e os prende com a armadilha. Cenário e personagens em blocos com textura
     virando) e o vidro aceso respira devagar; gestos: olhar em volta (a lanterna vai à frente, iluminando o caminho),
     levantar até o rosto (na altura do queixo, o vidro acende mais) e girar a lanterna pela alça. O vidro não ilumina
     o rosto: seria uma luz a mais na cena, pesada no celular (fica para quando o jogo tiver a luz dele).
-  Falta a escopeta (decidir antes: no ombro, com uma mão, ou na guarda baixa com as duas). O relicário do traje ainda não está no modelo:
-  quando entrar, ganha o gesto de tocar nele.
+  - **com a escopeta:** parado mais de 1,2 s, ele apoia a escopeta no ombro direito (o cano para cima e para trás, a
+    mão no cabo); andou, ela volta para as duas mãos em menos de meio segundo. Gestos: olhar em volta, conferir a
+    câmara de sal (traz a arma deitada na frente do peito, o vidro virado para os olhos) e puxar a bomba até a metade.
+  O relicário do traje ainda não está no modelo: quando entrar, ganha o gesto de tocar nele.
 - **Ver modelos** (Modo desenvolvedor): o personagem de perto, com animações, expressões, mãos, a arma na mão, os gestos
   de parado (botões para ver na hora) e a luz do jogo; e cada arma e objeto sozinho.
 - **Modelos no Blockbench**: o desenvolvedor modela e pinta; o jogo lê o `.bbmodel` direto. Passo a passo em
@@ -114,10 +116,14 @@ não colidem com ele, e só "lutam" nas cutscenes. Usam a mesma animação de an
 Trocar: 1/2/3, Q (alterna), rodinha do mouse, ou **Tab segurado = roda de armas**.
 Mirar: botão direito. Atirar: botão esquerdo. Correr: Shift. Interagir: E.
 
-Os modelos (10/nov) estão em `modelos/armas/` e o agente já segura cada uma (`src/game/player/arma.ts`): a pistola
-e a escopeta na guarda, a arma apontada para o chão na frente, numa mão só; a armadilha pendurada pela alça, balançando. No Testar,
-Q troca (pistola, escopeta, armadilha, mão vazia). Mirar, atirar, o coice, a outra mão na escopeta e jogar a armadilha
-vêm na etapa das armas. Quando ela chegar, 1/2/3 deixam de mostrar as expressões no Testar (isso fica no Ver modelos).
+Os modelos (10/nov) estão em `modelos/armas/` e o agente já segura cada uma (`src/game/player/arma.ts`):
+- a pistola numa mão, na guarda: a arma apontada para o chão na frente;
+- **a escopeta com as duas mãos** (decidido em 10/nov: é pesada e exige força): atravessada na frente do corpo, a mão
+  esquerda na bomba, o peito um pouco para trás com o peso; correndo, ela sobe; **mirar também vai ser com as duas**;
+- a armadilha pendurada pela alça, balançando.
+
+No Testar, Q troca (pistola, escopeta, armadilha, mão vazia). Mirar, atirar, o coice e jogar a armadilha vêm na etapa das
+armas. Quando ela chegar, 1/2/3 deixam de mostrar as expressões no Testar (isso fica no Ver modelos).
 
 ## Destruir ou capturar (decidido em 10/nov, vale em toda luta)
 
