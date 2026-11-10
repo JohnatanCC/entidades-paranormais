@@ -28,6 +28,7 @@ import { arma3d, caminhoObjeto, objeto3d } from '../render/objetos3d'
 import { montarMae } from '../game/enemies/mae/modelo'
 import { animarMae, golpear } from '../game/enemies/mae/animacao'
 import type { NomeGolpe } from '../game/enemies/mae/golpes'
+import { novoLuto, passoLuto } from '../game/enemies/mae/luto'
 import { abertura3d } from '../render/objetos3d'
 
 type Anim = 'parado' | 'andando' | 'correndo' | 'esquiva' | 'queda' | 'porta'
@@ -43,6 +44,11 @@ const ATAQUES: [string, string, NomeGolpe[]][] = [
   ['garra', 'Garra', ['garra_d']], ['garras', 'Duas garradas', ['garra_d', 'garra_ultima_e']], ['aproximar', 'Aproximar aos trancos', ['aproximar']],
   ['investida', 'Investida', ['investida']], ['carga', 'Carga', ['carga']],
 ]
+const DO_LUTO: [string, string, NomeGolpe[]][] = [
+  ['mergulha', 'Mergulhar e voltar', ['mergulhar', 'surgir']], ['finta', 'Finta e investida', ['mergulhar', 'finta', 'investida']],
+  ['aviso', 'Aviso e investida', ['mergulhar', 'aviso', 'investida']], ['surgir', 'Surgir (a apresentação)', ['surgir']],
+]
+const SEQUENCIAS = [...ATAQUES, ...DO_LUTO]
 const NA_MAO: [Arma | null, string][] = [[null, 'Nenhuma'], ...ARMAS.map(([k]): [Arma, string] => [k, k[0].toUpperCase() + k.slice(1)])]
 const ANIMS: [Anim, string][] = [['parado', 'Parado'], ['andando', 'Andando'], ['correndo', 'Correndo'], ['esquiva', 'Esquiva'], ['queda', 'Queda']]
 const EXPS: [Expressao | null, string][] = [[null, 'Automática'], ['neutra', 'Neutra'], ['esforco', 'Esforço'], ['medo', 'Medo'], ['dor', 'Dor'], ['raiva', 'Raiva'], ['surpresa', 'Surpresa'], ['desmaio', 'Desmaio']]
@@ -102,7 +108,12 @@ export function VerModelos({ go }: { go: Go }) {
         {mae && <section>
           <b>Ataques</b>
           <div className="opcoes">{ATAQUES.map(([id, nome]) => <button key={id} onClick={() => muda({ anim: 'parado', girar: false, ataque: { nome: id, n: (e.ataque?.n ?? 0) + 1 } })}>{nome}</button>)}</div>
-          <small>Ela sai de 2 m atrás contra o alvo marcado no chão (a 4,6 m) e volta ao lugar. O aviso (o chão que estufa) vem com o Luto.</small>
+          <small>Ela sai de 2 m atrás contra o alvo marcado no chão (a 4,6 m) e volta ao lugar.</small>
+        </section>}
+        {mae && <section>
+          <b>O Luto</b>
+          <div className="opcoes">{DO_LUTO.map(([id, nome]) => <button key={id} onClick={() => muda({ anim: 'parado', girar: false, ataque: { nome: id, n: (e.ataque?.n ?? 0) + 1 } })}>{nome}</button>)}</div>
+          <small>A poça embaixo dela. O aviso: o chão estufa, borbulha e brilha vermelho onde ela vai sair.</small>
         </section>}
         {agente && <>
           <Opcoes titulo="Animação" lista={ANIMS} valor={e.anim} onEscolher={(anim) => muda({ anim })} />
@@ -255,11 +266,12 @@ function CenaMae({ e, onInfo }: { e: Escolhas; onInfo: (i: Info) => void }) {
   // o ataque: a fila de golpes, de onde ela sai e o alvo à frente; depois de terminar, espera e volta ao lugar
   const ALVO_Z = 2.6
   const ataque = useRef<{ fila: NomeGolpe[]; espera: number; ativo: boolean }>({ fila: [], espera: 0, ativo: false })
+  const luto = useMemo(() => novoLuto(3.6), []) // a poça de Luto (também esconde ela quando mergulha)
   const alvo = useMemo(() => { const g = new THREE.Mesh(new THREE.RingGeometry(0.3, 0.38, 24).rotateX(-Math.PI / 2), new THREE.MeshBasicMaterial({ color: '#c2453a' })); g.position.set(0, 0.01, ALVO_Z); return g }, [])
   const volta = (z: number) => { m.root.position.set(0, 0, z); m.root.rotation.y = 0; m.saia.pos = m.cabelo.pos = null; m.anim.ultimo = null } // pula sem o tranco nas molas
   useEffect(() => {
     if (!e.ataque) return
-    const def = ATAQUES.find(([id]) => id === e.ataque!.nome)
+    const def = SEQUENCIAS.find(([id]) => id === e.ataque!.nome)
     if (!def) return
     volta(-2); ataque.current = { fila: [...def[2]], espera: 0, ativo: true }
   }, [e.ataque])
@@ -290,13 +302,15 @@ function CenaMae({ e, onInfo }: { e: Escolhas; onInfo: (i: Info) => void }) {
       if (!m.anim.golpe && Aq.fila.length) golpear(m, Aq.fila.shift()!)
       else if (!m.anim.golpe && (Aq.espera += dt) > 1.2) { Aq.ativo = false; volta(0) }
     }
-    const saida = animarMae(m, { porta: k, perto: ALVO_Z - m.root.position.z }, dt)
+    const saida = animarMae(m, { porta: k, perto: ALVO_Z - m.root.position.z, luto }, dt)
+    passoLuto(luto, dt)
     if (Aq.ativo) { m.root.position.z += saida.avanca * dt; m.root.position.y = saida.y }
   })
   return <>
     <primitive object={m.root} />
     {e.anim === 'porta' && <primitive object={porta} />}
     {e.anim === 'parado' && e.ataque && <primitive object={alvo} />}
+    {e.anim !== 'porta' && <primitive object={luto.grupo} />}
   </>
 }
 

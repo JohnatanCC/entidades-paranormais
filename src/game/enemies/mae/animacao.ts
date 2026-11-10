@@ -15,10 +15,13 @@ import { animarMolas } from '../../corpo/molas'
 import type { Mae } from './modelo'
 import { MOV } from './numeros'
 import { novoGolpe, quadroDoGolpe, type NomeGolpe } from './golpes'
+import { estufar, type Luto } from './luto'
 import { aplicarPose, misturar, pose0, seguirPose, type Pose } from './pose'
 
-/** porta: quanto ela está passando pela porta (0..1); perto: a distância até o alvo à frente dela (os golpes param ao chegar) */
-export interface EstadoMae { porta?: number; perto?: number }
+/** porta: quanto ela está passando pela porta (0..1); perto: a distância até o alvo à frente dela (os golpes param ao
+ *  chegar); luto: onde saem os efeitos do Luto (as ondas, os respingos, o chão estufando) */
+export interface EstadoMae { porta?: number; perto?: number; luto?: Luto }
+const _onde = new THREE.Vector3(), _maos = [new THREE.Vector3(), new THREE.Vector3()]
 
 /** Começa um ataque (o que estava acontecendo acaba). */
 export function golpear(m: Mae, nome: NomeGolpe) { m.anim.golpe = novoGolpe(nome) }
@@ -86,7 +89,8 @@ export function animarMae(m: Mae, e: EstadoMae, dt: number): { avanca: number; y
   let saida = { avanca: 0, y: 0 }
   if (golpe) {
     golpe.t += dt
-    saida = quadroDoGolpe(golpe, T, base, e.perto ?? 9, dt)
+    const maos = () => m.bracos.map((b, i) => b.hd.getWorldPosition(_maos[i]))
+    saida = quadroDoGolpe(golpe, T, base, e.perto ?? 9, dt, { luto: e.luto, onde: _onde.copy(_p).setY(0), maos })
     if (golpe.t >= golpe.dur) A.golpe = null
   }
   if (porta > 0.001 && !golpe) {
@@ -133,5 +137,8 @@ export function animarMae(m: Mae, e: EstadoMae, dt: number): { avanca: number; y
     s.g.rotation.x += empurra * (ponta ? MOV.andar.saiaPonta : MOV.andar.saia)
   }
   animarMolas(m.cabelo, m.root, dt)
+  // o aviso acabou (ou foi cortado): o chão volta; embaixo do Luto, ela não desenha
+  if (e.luto?.domo.visible && A.golpe?.nome !== 'aviso') estufar(e.luto, 0, 0, 0, 0)
+  m.root.visible = saida.y > -2.35
   return saida
 }

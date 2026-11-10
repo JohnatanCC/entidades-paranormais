@@ -21,3 +21,11 @@ export const GOLPE = {
   investida: { dur: 1.3, alcance: 9, fundo: 2.0, sobe: 0.3, voo: 0.62, rate: 26 }, // sai de baixo (m de fundo, s para subir) e voa baixo (s) até perto
   carga: { prepara: 0.75, corre: 1.15, derrapa: 0.5, vel: 8.6, perto: 0.95, rate: 18 }, // agacha e guincha; corre em linha reta (m/s); derrapa
 }
+
+// o Luto (golpes.ts, luto.ts): ela mergulha, sai, finge que sai; o aviso é o chão estufando onde ela vai sair
+export const LUTO = {
+  mergulhar: { dur: 1.05, fundo: 4.2, rate: 16 }, // afunda em pé, os braços erguidos somem por último
+  finta: { dur: 1.2, rate: 18 }, // surge até o peito, guincha e afunda de novo
+  surgir: { espera: 2.2, dur: 4.25, rate: 9 }, // a apresentação: bolhas por `espera` s, depois sobe (s)
+  aviso: { dur: 2.0, rate: 8 }, // por baixo: o chão estufa, borbulha e brilha vermelho (s; na fase 1)
+}

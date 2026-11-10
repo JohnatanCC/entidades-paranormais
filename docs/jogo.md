@@ -225,8 +225,13 @@ parada, de vez em quando ela tomba a cabeça de lado de uma vez (0,55 rad por 0,
   chão, voa baixo com as garras na frente e a boca escancarada, pousa derrapando a 0,9 m) e a **carga** (agacha tremendo
   e guincha, corre em linha reta a 8,6 m/s e passa derrapando). Cada golpe diz quanto ela avança; quem a move no mundo
   (com as paredes) é a inteligência, depois;
-- 4. o Luto (o **aviso**, que é o chão estufando e brilhando vermelho com ela embaixo; mergulhar, surgir, finta);
-  5. os estados (grito, exausta, atordoada, cambaleio, enfraquecida, levanta, capturada).
+- ✅ 4 (10/nov): **o Luto** (`golpes.ts`; os efeitos em `luto.ts`, leves: a poça, 10 ondas reaproveitadas, os respingos
+  numa chamada de desenho só, o domo do aviso; nenhuma luz nova): **mergulhar** (afunda em pé, os braços erguidos somem
+  por último), a **finta** (surge até o peito, guincha e afunda), **surgir** (a apresentação: bolhas; as mãos rompem o
+  Luto tateando, agarram o chão, ela se puxa para fora curvada, a coluna desenrola, a cabeça sobe, tomba, o pescoço
+  estala e ela guincha) e o **aviso** (com ela embaixo, o chão estufa, borbulha e brilha vermelho pulsando); a investida
+  sai do Luto com um respingo. Embaixo do Luto ela não desenha;
+- 5. os estados (grito, exausta, atordoada, cambaleio, enfraquecida, levanta, capturada).
 - Fora: a cena de pegar o agente e a do armário (cenas do laboratório).
 
 Números da tabela `T` em `buildDemo()` do laboratório (linha ~7674); a lógica das fases na linha ~9623.
