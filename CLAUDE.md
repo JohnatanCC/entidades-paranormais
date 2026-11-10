@@ -119,7 +119,8 @@ src/game/                  (já existem: Testar.tsx, player/, input/, world/, we
   weapons/                 tiro.ts (o gatilho e a cadência), clarao.ts (o clarão no cano), armadilha.ts (jogar: o voo em
                            arco, grudar, chamar de volta, a linha do arco), numeros.ts; depois a bala e a sobrecarga
   enemies/<nome>/          um fantasma por pasta (mae/, espectral/, glutao/): IA, ataques, modelo, números; a Mãe já tem
-                           modelo.ts (monta o modelo, a saia e o cabelo com molas) e numeros.ts
+                           modelo.ts (monta o modelo, a saia e o cabelo com molas), pose.ts (as molas da pose, do
+                           laboratório), animacao.ts (parada, andar, passar pela porta) e numeros.ts
   capture/                 a poça e a captura
   allies/                  Lara e Nicolas
   hud/                     o HUD conceito C

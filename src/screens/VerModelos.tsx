@@ -25,16 +25,18 @@ import { AGENTE, QUEDA } from '../game/player/numeros'
 import type { Expressao } from '../game/player/rosto'
 import { GRUPOS, OBJETOS } from '../maps/objetos'
 import { arma3d, caminhoObjeto, objeto3d } from '../render/objetos3d'
-import { animarMae, montarMae } from '../game/enemies/mae/modelo'
+import { montarMae } from '../game/enemies/mae/modelo'
+import { animarMae } from '../game/enemies/mae/animacao'
+import { abertura3d } from '../render/objetos3d'
 
-type Anim = 'parado' | 'andando' | 'correndo' | 'esquiva' | 'queda'
+type Anim = 'parado' | 'andando' | 'correndo' | 'esquiva' | 'queda' | 'porta'
 type Camera = 'corpo' | 'rosto' | 'maos' | 'pes' | 'costas'
 type Luz = 'estudio' | 'jogo'
 
 const AGENTE_ID = 'agente'
 const ARMA = 'arma:' // o id de uma arma no seletor: arma:pistola
 const MAE = 'fantasma:mae'
-const ANIMS_MAE: [Anim, string][] = [['parado', 'Parada'], ['andando', 'Deslizando (a saia e o cabelo)']]
+const ANIMS_MAE: [Anim, string][] = [['parado', 'Parada'], ['andando', 'Andando (em roda)'], ['porta', 'Passando pela porta']]
 const NA_MAO: [Arma | null, string][] = [[null, 'Nenhuma'], ...ARMAS.map(([k]): [Arma, string] => [k, k[0].toUpperCase() + k.slice(1)])]
 const ANIMS: [Anim, string][] = [['parado', 'Parado'], ['andando', 'Andando'], ['correndo', 'Correndo'], ['esquiva', 'Esquiva'], ['queda', 'Queda']]
 const EXPS: [Expressao | null, string][] = [[null, 'Automática'], ['neutra', 'Neutra'], ['esforco', 'Esforço'], ['medo', 'Medo'], ['dor', 'Dor'], ['raiva', 'Raiva'], ['surpresa', 'Surpresa'], ['desmaio', 'Desmaio']]
@@ -235,24 +237,37 @@ function CenaAgente({ e, onInfo }: { e: Escolhas; onInfo: (i: Info) => void }) {
 function CenaMae({ e, onInfo }: { e: Escolhas; onInfo: (i: Info) => void }) {
   // montarMae na lista: salvar o .bbmodel recarrega o módulo e ela é montada de novo
   const m = useMemo(() => montarMae(), [montarMae])
+  // a porta comum (2,1 m), aberta, para ver ela abaixar: o vão de x −0,5 a 0,5, atravessando em z
+  const porta = useMemo(() => { const o = abertura3d('porta-comum'); o.position.set(-0.5, 0, 0); const f = o.getObjectByName('folha_1'); if (f) f.rotation.y = -1.4; return o }, [abertura3d])
   const { pronto, voar } = useVoo()
-  const t = useRef(0)
+  const ida = useRef({ t: 0, z: -2.4, dir: 1, vira: 0 })
   useEffect(() => {
     const c = contas(m.root)
     m.root.updateMatrixWorld(true)
     const b = new THREE.Box3().setFromObject(m.root)
     onInfo({ linhas: [`Altura: ${b.max.y.toFixed(2)} m`, `${c.blocos} blocos em ${c.juntas} juntas`, `${c.desenhos} chamadas de desenho`] })
   }, [m, onInfo])
-  useEffect(() => { if (pronto) voar(new THREE.Vector3(0, 1.2, 0), new THREE.Vector3(1.8, 1.7, 4.4)) }, [m, pronto])
+  useEffect(() => { if (pronto) voar(new THREE.Vector3(0, 1.2, 0), e.anim === 'porta' ? new THREE.Vector3(4.2, 1.9, 2.2) : new THREE.Vector3(1.8, 1.7, 4.4)) }, [m, pronto, e.anim])
   useFrame((_, dtBruto) => {
-    const dt = Math.min(dtBruto, 0.05)
-    // deslizando: vai e volta de lado (até a etapa do andar), para a saia e o cabelo mostrarem o balanço
-    t.current += dt
-    m.root.position.x = e.anim === 'andando' ? Math.sin(t.current * 1.6) * 0.9 : 0
-    if (e.girar) m.root.rotation.y += dt * 0.5
-    animarMae(m, dt)
+    const dt = Math.min(dtBruto, 0.05), I = ida.current
+    I.t += dt
+    let k = 0 // o quanto ela está passando pela porta
+    if (e.anim === 'andando') { // em roda, 1,6 m de raio, a 0,95 m/s, de frente para onde vai
+      const a = I.t * (0.95 / 1.6)
+      m.root.position.set(Math.cos(a) * 1.6, 0, Math.sin(a) * 1.6); m.root.rotation.y = -a
+    } else if (e.anim === 'porta') { // vai e volta pela porta; nas pontas, vira devagar
+      if (I.vira > 0) { I.vira -= dt; const d = (I.dir > 0 ? 0 : Math.PI) - m.root.rotation.y; m.root.rotation.y += Math.sign(d) * Math.min(Math.abs(d), dt * 2.6) }
+      else { I.z += I.dir * 0.95 * dt; if (Math.abs(I.z) > 2.4) { I.z = Math.sign(I.z) * 2.4; I.dir = -I.dir; I.vira = 1.3 } }
+      m.root.position.set(0, 0, I.z)
+      k = 1 - Math.min(1, Math.max(0, (Math.abs(I.z) - 0.3) / 0.7)); k = k * k * (3 - 2 * k)
+    } else { m.root.position.set(0, 0, 0); if (!e.girar) m.root.rotation.y = 0 }
+    if (e.girar && e.anim === 'parado') m.root.rotation.y += dt * 0.5
+    animarMae(m, { porta: k }, dt)
   })
-  return <primitive object={m.root} />
+  return <>
+    <primitive object={m.root} />
+    {e.anim === 'porta' && <primitive object={porta} />}
+  </>
 }
 
 function CenaObjeto({ qual, girar, onInfo }: { qual: string; girar: boolean; onInfo: (i: Info) => void }) {

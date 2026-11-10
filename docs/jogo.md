@@ -207,11 +207,21 @@ de babado, faixa marrom, punhos escuros e o Luto escorrendo; a saia em 10 painé
 fora, não entram nas pernas), com a anágua por baixo (fixa, mais escura: pelas frestas aparece pano); dedos compridos com unhas em garra; pés descalços. Uma malha só com ossos (2 chamadas de
 desenho, com os olhos). Sem véu (o design final do laboratório e a imagem de referência).
 
-**As animações (uma etapa por vez):** 2. andar e a parada (a cabeça virando aos trancos, a pose em ritmo travado, 6 a
-22 quadros por segundo, como no laboratório, com o cabelo e a saia suaves) e **abaixar para passar pela porta** (ela é
-maior que a porta: o tronco curva, os joelhos dobram, a cabeça passa por baixo do batente); 3. os ataques (aviso,
-investida, garra, aproximar aos trancos, carga); 4. o Luto (mergulhar, surgir, finta); 5. os estados (grito, atordoada,
-cambaleio, enfraquecida, levanta, capturada). Fora: a cena de pegar o agente e a do armário (cenas do laboratório).
+**Como ela se mexe (do laboratório):** cada movimento dá uma pose-alvo e o corpo chega nela por molas de segunda ordem,
+cada parte no seu tempo (o quadril puxa, o tronco vem, o braço depois e a mão chicoteia por último), passando um pouco do
+ponto e assentando; a "dureza" de cada movimento é a frequência das molas. O ar travado vem dos **estalos da cabeça**:
+parada, de vez em quando ela tomba a cabeça de lado de uma vez (0,55 rad por 0,18 s) e volta (`pose.ts`, `animacao.ts`).
+
+**As animações (uma etapa por vez):**
+- ✅ 2 (10/nov): **a parada** (curvada, balançando, a cabeça tombada procurando, a boca entreaberta tremendo, as garras
+  abertas meio caídas, os estalos), **o andar** (0,95 m/s: os braços pendurados balançando com o cotovelo e a mão
+  atrasados, os ombros contra o quadril, a inércia ao arrancar, frear e virar; passos curtos por baixo da saia, que as
+  pernas empurram: a frente do vestido vai para a frente com a perna que avança, e a de trás vai para trás) e **abaixar para passar pela porta** (o quadril desce, o tronco curva, a cabeça levanta para olhar
+  e a mão direita segura o batente: a cabeça passa a 1,87 m, abaixo dos 2,1 m da porta; a saia encolhe a partir da
+  cintura e a barra amontoa no chão). Saber quando há porta em cima dela é da inteligência (depois);
+- 3. os ataques (aviso, investida, garra, aproximar aos trancos, carga); 4. o Luto (mergulhar, surgir, finta);
+  5. os estados (grito, atordoada, cambaleio, enfraquecida, levanta, capturada).
+- Fora: a cena de pegar o agente e a do armário (cenas do laboratório).
 
 Números da tabela `T` em `buildDemo()` do laboratório (linha ~7674); a lógica das fases na linha ~9623.
 

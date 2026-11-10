@@ -138,7 +138,7 @@ salvar no Blockbench atualiza o jogo (se o Testar estiver aberto, saia e entre d
   e a `boca` (abre no grito).
 - **O que balança:** toda pasta `mecha_...` (o cabelo, presa na cabeça) e `saia_...` (a saia, presa no quadril; a ponta
   de cada painel numa pasta dentro dele, `saia_N_ponta`) balança com mola sozinha. Pasta nova com esses nomes já balança.
-- Por baixo da saia, a anágua: blocos fixos no `quadril` (`anagua_...`, sem física), entre os painéis, para não
+- Por baixo da saia, a anágua: blocos fixos na pasta `anagua` (sem física), entre os painéis, para não
   aparecerem frestas quando a saia balança. As mechas da frente nascem na borda do rosto, não na frente dele.
 - Os olhos que brilham: blocos `luz_`.
 - Personagem (o Matheus, os fantasmas): o jogo junta tudo numa malha só com ossos (uma chamada de desenho). Para você não
