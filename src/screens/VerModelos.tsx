@@ -2,7 +2,8 @@
 // Não edita nada: o Matheus vem de modelos/agente.bbmodel, as armas de modelos/armas/<nome>.bbmodel e os objetos de
 // modelos/objetos/<tipo>.bbmodel (salvar no
 // Blockbench atualiza aqui no npm run dev). A câmera gira em volta (botão esquerdo gira, direito move, rodinha aproxima).
-// Para o Matheus o painel troca a animação, a expressão, a pose das mãos, a arma na mão e o ângulo; para todos, a luz (estúdio, ou uma
+// Para o Matheus o painel troca a animação, a expressão, a pose das mãos, a arma na mão e o ângulo, e faz os gestos de
+// parado na hora (sem esperar); para todos, a luz (estúdio, ou uma
 // lâmpada da mansão no escuro, como no jogo).
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { Canvas, useFrame, useThree } from '@react-three/fiber'
@@ -13,6 +14,7 @@ import { animarAgente } from '../game/player/animacao'
 import { ARMAS, pegarArma, type Arma } from '../game/player/arma'
 import type { PoseMao } from '../game/player/maos'
 import { montarAgente, type Agente } from '../game/player/modelo'
+import { fazerGesto, GESTOS, type Gesto } from '../game/player/parado'
 import { AGENTE } from '../game/player/numeros'
 import type { Expressao } from '../game/player/rosto'
 import { GRUPOS, OBJETOS } from '../maps/objetos'
@@ -31,7 +33,7 @@ const MAOS: [PoseMao | null, string][] = [[null, 'Automática'], ['solta', 'Solt
 const CAMERAS: [Camera, string][] = [['corpo', 'Corpo'], ['rosto', 'Rosto'], ['maos', 'Mãos'], ['pes', 'Pés'], ['costas', 'Costas']]
 const LUZES: [Luz, string][] = [['estudio', 'Estúdio'], ['jogo', 'Jogo (lâmpada no escuro)']]
 
-interface Escolhas { qual: string; anim: Anim; exp: Expressao | null; mao: PoseMao | null; arma: Arma | null; camera: Camera; luz: Luz; girar: boolean; grade: boolean }
+interface Escolhas { qual: string; anim: Anim; exp: Expressao | null; mao: PoseMao | null; arma: Arma | null; gesto: { g: Gesto; n: number } | null; camera: Camera; luz: Luz; girar: boolean; grade: boolean }
 interface Info { linhas: string[] }
 
 function Opcoes<T>({ titulo, lista, valor, onEscolher }: { titulo: string; lista: [T, string][]; valor: T; onEscolher: (v: T) => void }) {
@@ -44,7 +46,7 @@ function Opcoes<T>({ titulo, lista, valor, onEscolher }: { titulo: string; lista
 }
 
 export function VerModelos({ go }: { go: Go }) {
-  const [e, setE] = useState<Escolhas>({ qual: AGENTE_ID, anim: 'parado', exp: null, mao: null, arma: null, camera: 'corpo', luz: 'estudio', girar: false, grade: true })
+  const [e, setE] = useState<Escolhas>({ qual: AGENTE_ID, anim: 'parado', exp: null, mao: null, arma: null, gesto: null, camera: 'corpo', luz: 'estudio', girar: false, grade: true })
   const [info, setInfo] = useState<Info | null>(null)
   const muda = (p: Partial<Escolhas>) => setE((v) => ({ ...v, ...p }))
   const agente = e.qual === AGENTE_ID, arma = e.qual.startsWith(ARMA) ? e.qual.slice(ARMA.length) : null
@@ -83,6 +85,11 @@ export function VerModelos({ go }: { go: Go }) {
           <Opcoes titulo="Expressão" lista={EXPS} valor={e.exp} onEscolher={(exp) => muda({ exp })} />
           <Opcoes titulo="Mãos" lista={MAOS} valor={e.mao} onEscolher={(mao) => muda({ mao })} />
           <Opcoes titulo="Arma na mão" lista={NA_MAO} valor={e.arma} onEscolher={(arma) => muda({ arma })} />
+          <section>
+            <b>Gestos de parado</b>
+            <div className="opcoes">{GESTOS.map(([g, nome]) => <button key={g} disabled={!!e.arma} onClick={() => muda({ anim: 'parado', gesto: { g, n: (e.gesto?.n ?? 0) + 1 } })}>{nome}</button>)}</div>
+            <small>Parado, ele faz um sozinho a cada 8 a 15 s{e.arma ? ' (com arma, ainda não)' : ''}.</small>
+          </section>
           <Opcoes titulo="Câmera" lista={CAMERAS} valor={e.camera} onEscolher={(camera) => muda({ camera })} />
         </>}
         <Opcoes titulo="Luz" lista={LUZES} valor={e.luz} onEscolher={(luz) => muda({ luz })} />
@@ -159,6 +166,7 @@ function CenaAgente({ e, onInfo }: { e: Escolhas; onInfo: (i: Info) => void }) {
   }, [a, onInfo])
   useEffect(() => { if (pronto) { const { alvo, de } = enquadra(e.camera, a); voar(alvo, de) } }, [e.camera, a, pronto])
   useEffect(() => pegarArma(a, e.arma), [a, e.arma])
+  useEffect(() => { if (e.gesto) fazerGesto(a, e.gesto.g) }, [a, e.gesto])
 
   useFrame((_, dtBruto) => {
     const dt = Math.min(dtBruto, 0.05)

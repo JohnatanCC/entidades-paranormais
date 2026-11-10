@@ -5,7 +5,8 @@ import * as THREE from 'three'
 import type { Agente } from './modelo'
 import { animarCabelo } from './cabelo'
 import { animarMaos, type PoseMao } from './maos'
-import { AGENTE } from './numeros'
+import { AGENTE, PARADO } from './numeros'
+import { gestoParado, pesoParado } from './parado'
 import { animarRosto, type Expressao } from './rosto'
 
 export interface EstadoAnim {
@@ -58,27 +59,30 @@ export function animarAgente(a: Agente, e: EstadoAnim, dt: number): void {
   m.fase = (m.fase + (sp / passada) * VOLTA * dt) % VOLTA
   const amp = m.amp, run = m.corrida, ph = m.fase
   const thA = amp * lerp(0.42, 0.66, run), bend = amp * lerp(0.6, 1.4, run)
+  // parado: o peso passa devagar de uma perna para a outra (w > 0: a esquerda descansa, o quadril desce desse lado)
+  const quieto = rolando ? 0 : 1 - cl(amp), w = pesoParado(a, quieto, dt), P = PARADO.peso
   for (const L of a.legs) {
     const p = ph + (L.s > 0 ? Math.PI : 0), sw = Math.sin(p), cs = Math.cos(p)
-    const th = -thA * sw - 0.1 * run * amp
-    const kn = 0.06 + bend * Math.pow(Math.max(0, cs), 1.4) + 0.12 * run * amp
+    const solta = Math.max(0, w * L.s) // a perna que descansa dobra o joelho
+    const th = -thA * sw - 0.1 * run * amp - 0.5 * P.joelho * solta
+    const kn = 0.06 + bend * Math.pow(Math.max(0, cs), 1.4) + 0.12 * run * amp + P.joelho * solta
     const toe = amp * (0.3 * Math.max(0, Math.sin(p + 2.0)) - 0.22 * Math.max(0, Math.sin(p - 0.25)) * (1 - run * 0.5))
-    L.th.rotation.set(th, 0, L.s * (0.045 + 0.025 * (1 - Math.min(1, amp))))
+    L.th.rotation.set(th, 0, L.s * (0.045 + 0.025 * (1 - Math.min(1, amp))) + w * P.quadril)
     L.kn.rotation.set(kn, 0, 0)
     L.ft.rotation.set(-(th + kn) + toe, 0, -L.s * 0.035)
   }
   const osc = 0.11 * amp * Math.sin(ph) * (0.7 + 0.3 * run) // o quadril gira com a perna que vai à frente
   a.roll.rotation.set(0, 0, 0); a.roll.position.set(0, 0.5, 0)
   a.pelvis.position.set(0, STAND, 0)
-  a.pelvis.rotation.set(0.05 * run * amp, rolando ? 0 : osc, 0.045 * amp * Math.cos(ph))
+  a.pelvis.rotation.set(0.05 * run * amp, rolando ? 0 : osc, 0.045 * amp * Math.cos(ph) - w * P.quadril)
   // o pé de apoio fica no chão: mede as solas e acerta a altura do quadril
   let lo = Infinity
   for (const L of a.legs) for (const q of a.sola) { const y = naRaiz(L.ft, a.root, _p.copy(q)).y; if (y < lo) lo = y }
   a.pelvis.position.y = STAND - lo + 0.03 * run * amp * Math.max(0, Math.sin(2 * ph - 0.4)) // correndo: o voo entre os passos
 
-  // ---------- o tronco: desfaz o giro do quadril; parado, respira ----------
-  const breath = Math.sin(m.tempo * 1.9) * 0.012 * (1 - Math.min(1, amp) * 0.5)
-  a.spine.rotation.set(0.04 + 0.07 * run * amp, -osc * 0.9, -0.03 * amp * Math.cos(ph))
+  // ---------- o tronco: desfaz o giro do quadril (e a inclinação do peso); parado, respira mais fundo ----------
+  const breath = Math.sin(m.tempo * 1.9) * (0.012 * (1 - Math.min(1, amp) * 0.5) + PARADO.respira * quieto)
+  a.spine.rotation.set(0.04 + 0.07 * run * amp, -osc * 0.9, -0.03 * amp * Math.cos(ph) + 1.2 * w * P.quadril)
   a.chest.rotation.set(breath + 0.05 * run * amp, -osc * 0.35, 0)
 
   // ---------- a cambalhota: encolhe e gira inteiro em volta do meio do corpo ----------
@@ -117,10 +121,13 @@ export function animarAgente(a: Agente, e: EstadoAnim, dt: number): void {
   // no laboratório a cabeça e os pés afundavam até 24 cm no chão no meio da cambalhota: o pivô sobe o que faltar
   if (rolando) a.roll.position.y += Math.max(0, -maisBaixo(a))
 
+  // ---------- os gestos de parado (olhar em volta, a alça, a bolsa, a mão): por cima da pose ----------
+  const gesto = gestoParado(a, quieto > 0.97 && sp < 0.05, dt)
+
   // ---------- as mãos e o rosto ----------
-  const segura = a.arma ? 'segurar' : undefined // a mão da arma fica fechada nela
-  if (e.mao) animarMaos(a, e.mao, 1, dt, m.tempo, segura)
-  else animarMaos(a, 'punho', rolando ? 1 : 0.6 * run * Math.min(1, amp), dt, m.tempo, segura)
+  const forca: typeof gesto = [a.arma ? 'segurar' : gesto[0], gesto[1]] // a mão da arma fica fechada nela
+  if (e.mao) animarMaos(a, e.mao, 1, dt, m.tempo, forca)
+  else animarMaos(a, 'punho', rolando ? 1 : 0.6 * run * Math.min(1, amp), dt, m.tempo, forca)
   animarRosto(a, e.expressao ?? (rolando || run > 0.5 ? 'esforco' : 'neutra'), dt)
 
   // ---------- a barra da jaqueta: as da frente seguem as coxas, a de trás abre correndo (uma mola) ----------

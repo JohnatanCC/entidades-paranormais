@@ -124,7 +124,7 @@ salvar no Blockbench atualiza o jogo (se o Testar estiver aberto, saia e entre d
    vai para Downloads: copie para `modelos/` no lugar do antigo.
 7. **Ver de perto:** Modo desenvolvedor → **Ver modelos**. O personagem sozinho, com a câmera girando em volta, a luz
    de estúdio ou a do jogo (uma lâmpada no escuro), e botões para a animação (parado, andando, correndo, esquiva), a
-   expressão, a pose das mãos, a arma na mão e o ângulo (corpo, rosto, mãos, pés, costas). As armas e os objetos
+   expressão, a pose das mãos, a arma na mão, os gestos de parado e o ângulo (corpo, rosto, mãos, pés, costas). As armas e os objetos
    também aparecem sozinhos (escolha no seletor Modelo). Mostra também a altura e o peso do modelo.
 8. **Ver no jogo:** no criador de mapas, aperte **Testar (T)**. Não precisa exportar nada. Para ver o rosto, ande para
    trás (S) e o agente vira de frente para a câmera. No Testar, as teclas **1 a 6** mostram as expressões (neutra, esforço,

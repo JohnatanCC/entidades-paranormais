@@ -23,3 +23,11 @@ export const CAMERA = {
   pitchMin: -0.95,
   pitchMax: 0.8,
 }
+
+// Parado (player/parado.ts): a respiração, o peso trocando de perna e os gestos sozinhos
+export const PARADO = {
+  espera: [8, 15], // segundos parado até o próximo gesto (sorteado entre os dois)
+  respira: 0.012, // quanto o peito sobe a mais quando está parado (rad)
+  peso: { volta: 7.5, quadril: 0.05, joelho: 0.22 }, // o peso vai e volta de uma perna para a outra em `volta` s
+  sai: 9, // quão rápido o gesto some quando é cortado (andar, esquivar, trocar de arma)
+}

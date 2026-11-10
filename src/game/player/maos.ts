@@ -21,13 +21,13 @@ export const novaMao = (): AnimMao => ({ dedos: [...POSES.solta.dedos], polegar:
 
 const damp = (cur: number, alvo: number, k: number, dt: number) => cur + (alvo - cur) * (1 - Math.exp(-k * dt))
 
-/** Leva as duas mãos para a pose (k = quanto da pose, 0..1, sobre a "solta"). direita: uma pose inteira só para a mão
- *  direita (a que segura a arma). */
-export function animarMaos(a: Agente, pose: PoseMao, k: number, dt: number, tempo: number, direita?: PoseMao) {
+/** Leva as duas mãos para a pose (k = quanto da pose, 0..1, sobre a "solta"). forca: uma pose inteira para cada mão
+ *  ([direita, esquerda]; a mão da arma, a de um gesto), por cima da pose geral. */
+export function animarMaos(a: Agente, pose: PoseMao, k: number, dt: number, tempo: number, forca: [PoseMao?, PoseMao?] = []) {
   const base = POSES.solta
   a.arms.forEach((b, lado) => {
     const m = a.anim.maos[lado]
-    const alvo = POSES[lado === 0 && direita ? direita : pose], kk = lado === 0 && direita ? 1 : k
+    const f = forca[lado], alvo = POSES[f ?? pose], kk = f ? 1 : k
     for (let i = 0; i < 4; i++) {
       // parada e solta, cada dedo mexe um pouco, cada um no seu ritmo
       const vivo = alvo === base ? 0.05 * Math.sin(tempo * (1.3 + i * 0.37) + lado * 2 + i) : 0
