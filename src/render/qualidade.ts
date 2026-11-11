@@ -2,12 +2,13 @@
 // "Automático", que escolhe pelo aparelho (toque, memória, núcleos, a placa de vídeo) e, se mesmo assim os quadros
 // ficarem lentos no começo do jogo, desce um nível sozinho (só desce: subir e descer sem parar seria pior).
 // Os números de cada nível ficam aqui. O que cada etapa da iluminação acrescenta:
-//   etapa 1 (esta): a resolução, o passe final (a correção de cor, a vinheta) e a suavização das bordas;
-//   etapa 2: o bloom entra no passe final (Médio e Alto; o Baixo não tem passe);
+//   etapa 1: a resolução, o passe final (a correção de cor, a vinheta) e a suavização das bordas;
+//   etapa 2: o bloom, dentro do passe final (Médio e Alto; o Baixo não tem passe);
 //   etapa 3: a luz assada no mapa vale para os três níveis (é dado da malha, não custa por quadro);
 //   etapa 4: as sombras em tempo real, só no Alto.
 import { useSyncExternalStore } from 'react'
 import { getSettings, useSettings } from '../settings/settings'
+import type { Bloom } from './passeFinal'
 
 export type Nivel = 'baixo' | 'medio' | 'alto'
 export type Qualidade = 'auto' | Nivel
@@ -17,12 +18,13 @@ export interface NivelDef {
   dpr: number // o máximo de pixels desenhados por pixel da tela (o celular tem 2 a 3: desenhar tudo isso é o que mais pesa)
   passe: boolean // o passe final de tela cheia: a correção de cor e a vinheta (sem ele, o tom vem só das luzes e da neblina)
   amostras: number // a suavização das bordas no passe final (MSAA); sem o passe, vale a da própria tela
+  bloom: Bloom // o brilho em volta do que é claro (só com o passe): o tamanho da maior textura dele e quantas reduções
 }
 
 export const NIVEIS: Record<Nivel, NivelDef> = {
-  baixo: { nome: 'Baixo', dpr: 1, passe: false, amostras: 0 },
-  medio: { nome: 'Médio', dpr: 1.5, passe: true, amostras: 2 },
-  alto: { nome: 'Alto', dpr: 2, passe: true, amostras: 4 },
+  baixo: { nome: 'Baixo', dpr: 1, passe: false, amostras: 0, bloom: { de: 0, niveis: 0 } },
+  medio: { nome: 'Médio', dpr: 1.5, passe: true, amostras: 2, bloom: { de: 4, niveis: 4 } },
+  alto: { nome: 'Alto', dpr: 2, passe: true, amostras: 4, bloom: { de: 2, niveis: 5 } },
 }
 const ORDEM: Nivel[] = ['baixo', 'medio', 'alto']
 

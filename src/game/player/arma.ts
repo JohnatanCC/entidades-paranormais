@@ -4,6 +4,7 @@
 // A escopeta, pesada, vai com as duas mãos (a esquerda na bomba); parado um tempo, ele apoia no ombro (posturaDaEscopeta).
 // A armadilha vai pendurada pela alça e balança (animarArma). Os números em numeros.ts (ESCOPETA, ARMADILHA).
 import * as THREE from 'three'
+import { aplicarBrilho } from '../../render/brilho'
 import { arma3d } from '../../render/objetos3d'
 import { alcancar } from './alcancar'
 import type { PoseMao } from './maos'
@@ -49,7 +50,7 @@ export function pegarArma(a: Agente, nome: Arma | null) {
   g.position.copy(p.ponto); g.quaternion.copy(p.giro)
   // o vidro da armadilha "respira": um material só desta cópia (os outros modelos da armadilha não piscam junto)
   const luz = nome === 'armadilha' ? (obj.getObjectByName('#luz') as THREE.Mesh | undefined) : undefined
-  if (luz) { luz.material = (luz.material as THREE.MeshBasicMaterial).clone(); g.userData.luz = luz.material }
+  if (luz) { luz.material = aplicarBrilho((luz.material as THREE.MeshBasicMaterial).clone()); g.userData.luz = luz.material }
   // a bomba da escopeta corre para trás no gesto (e, depois, no tiro): guarda a peça e onde ela fica parada
   const bomba = obj.getObjectByName('bomba')
   if (bomba) { g.userData.bomba = bomba; g.userData.bombaZ = bomba.position.z }

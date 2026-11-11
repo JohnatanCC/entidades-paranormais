@@ -1,11 +1,10 @@
 // A iluminação de uma cena de jogo (dentro do <Canvas>): a luz ambiente, o preenchimento que vem de trás da câmera, o
 // luar de fora, a neblina com cor, o contorno dos personagens e a imagem final (a exposição, o tonemapping e, no Médio
-// e no Alto, o passe com a correção de cor e a vinheta). Tudo sai da ambientação de onde o agente está
+// e no Alto, o passe com o bloom, a correção de cor e a vinheta). Tudo sai da ambientação de onde o agente está
 // (maps/ambientes.ts), com troca suave entre as áreas do mapa e os momentos por cima (luz.ts). As lâmpadas e o luar das
 // janelas são do mapa (editor/Objetos, editor/Luar): aqui fica só o que é do lugar.
 // O nível de qualidade (render/qualidade.ts) muda a resolução e liga o passe final; no automático, os primeiros
 // segundos medem os quadros e descem um nível se o aparelho não der conta.
-//   etapa 2 (bloom): entra no passe final (render/passeFinal.ts);
 //   etapa 3 (a luz assada no mapa): quando chegar, a luz ambiente daqui baixa, porque a malha já traz a luz dos cantos;
 //   etapa 4 (sombras em tempo real, só no Alto): o luar e as lâmpadas ganham sombra aqui e em editor/Objetos.
 import { useEffect, useMemo, useRef } from 'react'
@@ -13,8 +12,9 @@ import { useFrame, useThree } from '@react-three/fiber'
 import * as THREE from 'three'
 import { ambienteDe } from '../../maps/ambientes'
 import type { AreaAmbiente } from '../../maps/types'
+import { BRILHO, FORCA_COM_BLOOM } from '../../render/brilho'
 import { CONTORNO } from '../../render/contorno'
-import { novoPasseFinal, type PasseFinal } from '../../render/passeFinal'
+import { novoPasseFinal, type Bloom, type PasseFinal } from '../../render/passeFinal'
 import { MEDICAO, NIVEIS, descerNivel, useNivel } from '../../render/qualidade'
 import { ambienteEm, novaLuzViva, passoLuz, type Luz } from './luz'
 
@@ -79,13 +79,15 @@ export function Iluminacao({ ambiente, areas = SEM_AREAS, em }: Props) {
     }
   })
 
-  return N.passe ? <Passe key={N.amostras} amostras={N.amostras} luz={c.viva.agora} /> : null
+  return N.passe ? <Passe amostras={N.amostras} bloom={N.bloom} luz={c.viva.agora} /> : null
 }
 
 /** O passe final (Médio e Alto): assume o desenho da cena enquanto está montado. */
-function Passe({ amostras, luz }: { amostras: number; luz: Luz }) {
-  const passe = useMemo<PasseFinal>(() => novoPasseFinal(amostras), [amostras])
+function Passe({ amostras, bloom, luz }: { amostras: number; bloom: Bloom; luz: Luz }) {
+  const passe = useMemo<PasseFinal>(() => novoPasseFinal(amostras, bloom), [amostras, bloom])
   useEffect(() => () => passe.descartar(), [passe])
+  // com o bloom, o que acende sozinho (as lâmpadas, os olhos) passa do branco: é o que faz o halo
+  useEffect(() => { BRILHO.value = FORCA_COM_BLOOM; return () => { BRILHO.value = 1 } }, [])
   useFrame(({ gl, scene, camera, clock }) => passe.desenhar(gl, scene, camera, luz, clock.elapsedTime), 1)
   return null
 }

@@ -88,8 +88,8 @@ src/
                            provas.ir(x, z, yaw) leva o agente a um ponto no Testar (dev/ganchos.ts), provas.qualidade() diz o nível
   audio/espaco.ts          o som 3D: a voz sai da boca do personagem, no mundo; o ouvido é a câmera (ouvinte, a cada quadro)
   render/                  qualidade.ts (os níveis Baixo, Médio e Alto e o automático por aparelho), passeFinal.ts (a passada de
-                           tela cheia do Médio e do Alto: tonemapping, correção de cor, vinheta), contorno.ts (o contorno de luz
-                           dos personagens), materiais.ts (nome da textura -> material),
+                           tela cheia do Médio e do Alto: bloom, tonemapping, correção de cor, vinheta), contorno.ts (o contorno de luz
+                           dos personagens), brilho.ts (os blocos "luz_" mais fortes que o branco quando o bloom está ligado), materiais.ts (nome da textura -> material),
                            corte.ts (paredes altas / recortadas / baixas no editor), miniaturas.ts (fotos do catálogo de objetos),
                            bbmodel.ts (lê um modelo do Blockbench: pastas = juntas, blocos = malhas; "luz_" brilha; os
                            personagens viram uma malha só com ossos: vestir),

@@ -13,12 +13,12 @@ O que está decidido sobre a luz, como ela é feita e as etapas. Os números fic
 | Como o mapa marca | Uma ambientação padrão do mapa e **áreas retangulares** por andar, cada uma com o nome de uma predefinição (o formato 2 do mapa: `docs/criador-de-mapas.md`). O mapa guarda só o nome |
 | Celular | O que pesa é preencher a tela: no máximo **uma** passada de tela cheia, e o nível Baixo não tem nenhuma |
 
-## Como funciona (a etapa 1)
+## Como funciona
 
 - **A ambientação** (`src/maps/ambientes.ts`): o catálogo, com os números de cada lugar. Hoje: `mansao` (interior
   quente e escuro), `corredor` (mais fechado e frio, a neblina mais perto) e `exterior` (a noite azul, o luar de cima).
   Cada uma diz: a neblina (cor e densidade; a cor é também a do fundo), a luz ambiente (de cima e de baixo), o
-  preenchimento, o luar direto, o contorno dos personagens, a exposição e a correção de cor (o tom das sombras e das
+  preenchimento, o luar direto, o contorno dos personagens, a exposição, o brilho (a força do bloom) e a correção de cor (o tom das sombras e das
   luzes, o contraste, a saturação, a vinheta). Para criar outra, acrescente uma entrada: ela aparece sozinha no editor.
 - **A luz ambiente** nunca é zero: é o que mantém a cena legível. **O preenchimento** é uma luz fraca que vem de trás
   da câmera (de cima e um pouco de lado): o que o jogador olha tem sempre volume, sem custar uma sombra.
@@ -31,17 +31,23 @@ O que está decidido sobre a luz, como ela é feita e as etapas. Os números fic
 - **Os momentos** (`MOMENTOS`, no mesmo catálogo): uma mudança por alguns segundos, por cima da ambientação do lugar,
   com tempo de entrar, durar e sair. O jogo chama `momento('mae-chegando')`. No Testar, a tecla **M** toca esse.
 - **A imagem final**: o tonemapping é o ACES. No nível Baixo é o do próprio three, sem passada nenhuma (o tom vem das
-  luzes e da neblina). No Médio e no Alto a cena é desenhada numa textura e **uma** passada faz a exposição, o ACES, a
-  correção de cor, a vinheta e um pontilhado mínimo contra as faixas no escuro (`src/render/passeFinal.ts`).
+  luzes e da neblina). No Médio e no Alto a cena é desenhada numa textura e **uma** passada soma o bloom e faz a
+  exposição, o ACES, a correção de cor, a vinheta e um pontilhado mínimo contra as faixas no escuro (`src/render/passeFinal.ts`).
+- **O bloom** (etapa 2, só no Médio e no Alto): o que é claro na cena vaza em volta. A cena é reduzida várias vezes (cada
+  nível com a metade do anterior) e somada de volta do menor para o maior; tudo em texturas pequenas (a maior tem 1/4 da
+  tela no Médio e 1/2 no Alto), então de tela cheia continua sendo uma passada só. O que acende sozinho (os blocos
+  `luz_` dos modelos: lâmpadas, chamas, os olhos da Mãe, a luz da armadilha) fica 3× mais forte que o branco enquanto o
+  bloom está ligado (`src/render/brilho.ts`): é isso que dá o halo. O luar das janelas e as paredes bem perto de uma
+  lâmpada também vazam um pouco. A força é o `brilho` de cada ambientação (o momento "a Mãe chegando" aumenta).
 - **Toda cena de jogo usa `<Iluminacao />`** (`src/game/luz/Iluminacao.tsx`): o Testar e a luz "Jogo" do Ver modelos.
 
 ## Os níveis de qualidade (`src/render/qualidade.ts`)
 
-| Nível | Resolução (pixels por ponto da tela) | Passada final (cor, vinheta) | Suavização das bordas |
-| --- | --- | --- | --- |
-| Baixo (celular) | até 1 | não | a da tela |
-| Médio | até 1,5 | sim | 2 amostras |
-| Alto | até 2 | sim | 4 amostras |
+| Nível | Resolução (pixels por ponto da tela) | Passada final (cor, vinheta) | Bloom | Suavização das bordas |
+| --- | --- | --- | --- | --- |
+| Baixo (celular) | até 1 | não | não | a da tela |
+| Médio | até 1,5 | sim | a partir de 1/4 da tela, 4 níveis | 2 amostras |
+| Alto | até 2 | sim | a partir de 1/2 da tela, 5 níveis | 4 amostras |
 
 Nas configurações: **Automático** (o padrão; mostra qual nível escolheu), Baixo, Médio e Alto. O automático olha o
 aparelho (tela de toque, memória, núcleos, o nome da placa de vídeo) e, nos primeiros segundos de uma cena de jogo, mede
@@ -53,13 +59,14 @@ vale até recarregar a página.
 1. **Tonemapping, correção de cor e neblina, com níveis de qualidade.** ✅ (11/nov) O que está acima, mais a
    ferramenta **Ambientação (9)** do criador de mapas e o mapa `maps/teste-iluminacao` (uma sala com uma lâmpada, uma
    janela com luar e um canto escuro; um corredor; o quintal).
-2. **Bloom**: as lâmpadas, o luar, os olhos e os efeitos brilham. Entra na passada final (Médio e Alto).
+2. **Bloom.** ✅ (11/nov) As lâmpadas, o luar das janelas, os olhos e as luzes dos modelos brilham, no Médio e no Alto.
+   No Baixo nada muda (sem passada, sem bloom).
 3. **Luz e sombra de canto "assadas" no mapa** (o smooth lighting do Minecraft), calculadas no criador de mapas e
    guardadas na malha: valem para os três níveis e não custam por quadro. Quando chegar, a luz ambiente das ambientações
    baixa (a malha já traz a luz de cada canto) e a luz de fora deixa de clarear o que está dentro.
 4. **Sombras em tempo real**, só no nível Alto.
 
-## Limites conhecidos da etapa 1
+## Limites conhecidos
 
 - A ambientação é uma só para a tela inteira (a de onde o agente está): olhando de fora para dentro por uma porta, o
   interior aparece com a luz de fora, e o contrário. A etapa 3 resolve o grosso disso.
@@ -67,4 +74,6 @@ vale até recarregar a página.
 - O feixe de luar das janelas tem a neblina dele, fixa: não acompanha a densidade da ambientação.
 - O editor e o Testar dividem a mesma tela, criada com a suavização de bordas do navegador ligada; no Médio e no Alto ela
   fica sem uso durante o teste. A tela própria do jogo, quando existir, nasce sem ela.
+- O bloom não tem limiar por objeto: qualquer coisa bem clara vaza (uma parede branca colada numa lâmpada, por exemplo).
+  Se algo brilhar demais, baixe o `brilho` da ambientação ou a força da lâmpada.
 - O nível Baixo ainda não foi medido num celular de verdade: os números dele são o ponto de partida.

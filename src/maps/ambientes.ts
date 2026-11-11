@@ -27,6 +27,7 @@ export interface Ambiente {
   contorno: string
   forcaContorno: number
   exposicao: number // o quanto a imagem toda clareia antes do tonemapping (1 = normal)
+  brilho: number // o bloom: o quanto o que é claro vaza em volta (0 = nada; só no Médio e no Alto)
   // a correção de cor (só com o passe final: Médio e Alto)
   sombras: string // o tom das partes escuras
   luzes: string // o tom das partes claras
@@ -44,7 +45,7 @@ export const AMBIENTES: Record<string, Ambiente> = {
     preenchimento: '#9fb0d8', forcaPreenchimento: 1.2,
     luar: '#9fb8e8', forcaLuar: 0,
     contorno: '#c8d4ff', forcaContorno: 0.9,
-    exposicao: 1.3,
+    exposicao: 1.3, brilho: 0.5,
     sombras: '#e2e8ff', luzes: '#fff2de', contraste: 1.1, saturacao: 1.05, vinheta: 0.4,
   },
   // corredores e lugares de passagem: mais fechado e mais frio, a neblina mais perto
@@ -55,7 +56,7 @@ export const AMBIENTES: Record<string, Ambiente> = {
     preenchimento: '#8fa4d0', forcaPreenchimento: 1.4,
     luar: '#9fb8e8', forcaLuar: 0,
     contorno: '#c8d4ff', forcaContorno: 1.0,
-    exposicao: 1.25,
+    exposicao: 1.25, brilho: 0.6,
     sombras: '#dbe6ff', luzes: '#f4eee6', contraste: 1.14, saturacao: 0.9, vinheta: 0.55,
   },
   // fora de casa, à noite: o luar azul de cima, o horizonte que some na neblina
@@ -66,7 +67,7 @@ export const AMBIENTES: Record<string, Ambiente> = {
     preenchimento: '#8aa2d0', forcaPreenchimento: 0.8,
     luar: '#a9c2f0', forcaLuar: 2.4,
     contorno: '#d0dcff', forcaContorno: 0.8,
-    exposicao: 1.25,
+    exposicao: 1.25, brilho: 0.6,
     sombras: '#d6e2ff', luzes: '#eef3ff', contraste: 1.08, saturacao: 0.92, vinheta: 0.3,
   },
 }
@@ -84,9 +85,9 @@ export const TROCA = 1.6
  */
 export interface Momento { entra: number; dura: number; sai: number; muda: Partial<Omit<Ambiente, 'nome' | 'cor'>> }
 export const MOMENTOS: Record<string, Momento> = {
-  // a Mãe chegando: tudo esfria e perde a cor, a neblina fecha, os cantos da tela pesam
+  // a Mãe chegando: tudo esfria e perde a cor, a neblina fecha, os cantos da tela pesam, as luzes estouram
   'mae-chegando': {
     entra: 0.5, dura: 4, sai: 2.5,
-    muda: { neblina: '#060a12', densidade: 0.08, ceu: '#5f78b0', forca: 1.5, forcaPreenchimento: 0.6, forcaContorno: 1.4, sombras: '#c8d8ff', luzes: '#dfe8ff', saturacao: 0.45, contraste: 1.25, vinheta: 0.85 },
+    muda: { neblina: '#060a12', densidade: 0.08, ceu: '#5f78b0', forca: 1.5, forcaPreenchimento: 0.6, forcaContorno: 1.4, brilho: 1.2, sombras: '#c8d8ff', luzes: '#dfe8ff', saturacao: 0.45, contraste: 1.25, vinheta: 0.85 },
   },
 }
