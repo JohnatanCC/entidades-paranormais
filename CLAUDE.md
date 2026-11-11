@@ -125,7 +125,7 @@ ficam num arquivo próprio de cada pasta, para ajustar sem caçar no código.
 src/game/                  (já existem: Testar.tsx, player/, input/, world/, weapons/, corpo/, luz/, enemies/mae/ — o resto entra
                            quando a etapa chegar)
   luz/                     a luz do jogo: Iluminacao.tsx (a luz ambiente, o preenchimento, o luar, a neblina, a imagem final; entra
-                           em toda cena de jogo), luz.ts (a ambientação de onde o agente está, a troca suave, os momentos:
+                           em toda cena de jogo), ceu.ts (o céu da noite: a cúpula com o degradê, as estrelas e a lua), luz.ts (a ambientação de onde o agente está, a troca suave, os momentos:
                            momento('mae-chegando'))
   corpo/                   o que serve a todo personagem: molas.ts (o que pendura e balança: cabelo, saia)
   Testar.tsx               o Testar do editor: o agente andando no mapa aberto (câmera, colisão, luz do jogo)

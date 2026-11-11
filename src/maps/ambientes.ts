@@ -13,6 +13,10 @@ export interface Ambiente {
   // a neblina: esconde o fundo e dá profundidade (o que está longe puxa para a cor dela); a cor é também a do "céu"
   neblina: string
   densidade: number // 0 = sem neblina; 0,03 já some com o que está a ~40 m
+  // o céu da noite (game/luz/ceu.ts): o horizonte é a cor da neblina; aqui, o alto do céu, as estrelas e a lua
+  zenite: string
+  estrelas: number // 0 = sem estrelas; 1 = normal
+  lua: number // a força da lua (0 = sem lua; acima de 1 ela ganha halo com o bloom; muito acima, as manchas somem)
   // a luz ambiente: de cima (o céu, o teto) e de baixo (o que o chão devolve)
   ceu: string
   chao: string
@@ -41,6 +45,7 @@ export const AMBIENTES: Record<string, Ambiente> = {
   mansao: {
     nome: 'Mansão (interior)', cor: '#e0a050',
     neblina: '#0d0b0e', densidade: 0.03,
+    zenite: '#05070f', estrelas: 0.8, lua: 1.5, // o céu que aparece pela janela e pela porta aberta
     ceu: '#a79cc0', chao: '#4a3828', forca: 2.6,
     preenchimento: '#9fb0d8', forcaPreenchimento: 1.2,
     luar: '#9fb8e8', forcaLuar: 0,
@@ -52,6 +57,7 @@ export const AMBIENTES: Record<string, Ambiente> = {
   corredor: {
     nome: 'Corredor', cor: '#7f6fa8',
     neblina: '#08090d', densidade: 0.045,
+    zenite: '#04060c', estrelas: 0.6, lua: 1.4,
     ceu: '#8a92b8', chao: '#34292a', forca: 3.3,
     preenchimento: '#8fa4d0', forcaPreenchimento: 1.4,
     luar: '#9fb8e8', forcaLuar: 0,
@@ -63,6 +69,7 @@ export const AMBIENTES: Record<string, Ambiente> = {
   exterior: {
     nome: 'Exterior (noite)', cor: '#6f9ae0',
     neblina: '#0e1626', densidade: 0.024,
+    zenite: '#03060f', estrelas: 1, lua: 1.7,
     ceu: '#7f9fe0', chao: '#202a3a', forca: 2.8,
     preenchimento: '#8aa2d0', forcaPreenchimento: 0.8,
     luar: '#a9c2f0', forcaLuar: 2.4,
@@ -76,6 +83,9 @@ export const AMBIENTES: Record<string, Ambiente> = {
 export const AMBIENTE_PADRAO = 'mansao'
 export const ambienteDe = (nome: string): Ambiente => AMBIENTES[nome] ?? AMBIENTES[AMBIENTE_PADRAO]
 
+/** Onde a lua está no céu (a direção até ela, do chão: x, y para cima, z). O luar de fora vem de lá. */
+export const LUA: [number, number, number] = [-0.45, 0.62, -0.64]
+
 /** A troca suave entre duas ambientações: o tempo (s) para chegar a ~95% da nova. */
 export const TROCA = 1.6
 
@@ -88,6 +98,6 @@ export const MOMENTOS: Record<string, Momento> = {
   // a Mãe chegando: tudo esfria e perde a cor, a neblina fecha, os cantos da tela pesam, as luzes estouram
   'mae-chegando': {
     entra: 0.5, dura: 4, sai: 2.5,
-    muda: { neblina: '#060a12', densidade: 0.08, ceu: '#5f78b0', forca: 1.5, forcaPreenchimento: 0.6, forcaContorno: 1.4, brilho: 1.2, sombras: '#c8d8ff', luzes: '#dfe8ff', saturacao: 0.45, contraste: 1.25, vinheta: 0.85 },
+    muda: { neblina: '#060a12', densidade: 0.08, estrelas: 0.2, ceu: '#5f78b0', forca: 1.5, forcaPreenchimento: 0.6, forcaContorno: 1.4, brilho: 1.2, sombras: '#c8d8ff', luzes: '#dfe8ff', saturacao: 0.45, contraste: 1.25, vinheta: 0.85 },
   },
 }

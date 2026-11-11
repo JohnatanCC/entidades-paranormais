@@ -180,7 +180,7 @@ function Luzes({ luz }: { luz: Luz }) {
       <directionalLight position={[-2.5, 2, -2]} intensity={0.6} color="#bcd0ff" />
     </> : <>
       {/* como no Testar: a luz da mansão, e uma lâmpada de teto acesa por perto */}
-      <Iluminacao ambiente="mansao" />
+      <Iluminacao ambiente="mansao" semCeu />
       <pointLight position={[1.2, 3.1, 1.2]} color="#e0a050" intensity={6} distance={7} decay={1.6} />
     </>}
   </>

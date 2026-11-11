@@ -25,6 +25,11 @@ O que está decidido sobre a luz, como ela é feita e as etapas. Os números fic
 - **O contorno dos personagens** (`src/render/contorno.ts`): as faces do agente e dos fantasmas viradas de lado para a
   câmera acendem um pouco, e o corpo todo tem um mínimo de luz própria. É feito no material deles (nenhuma luz a mais).
 - **A neblina** tem cor e esconde o fundo (depois ajuda o carregamento por blocos: o que está longe some nela).
+- **O céu da noite** (11/nov, nos três níveis; `src/game/luz/ceu.ts`): uma cúpula em volta da câmera com o degradê do
+  alto até o horizonte, as estrelas (quadradinhos que cintilam) e a lua em pixels. Uma malha e um material (uma chamada
+  de desenho), desenhada por último e no fundo: só gasta nos pixels onde o céu aparece. O horizonte é a cor da neblina,
+  então o chão que some ao longe some na cor do céu. Cada ambientação diz o `zenite`, as `estrelas` e a `lua`; a lua
+  passa do branco e ganha halo com o bloom. A posição da lua é `LUA` (no catálogo), e o luar de fora vem de lá.
 - **As lâmpadas e o luar das janelas** continuam sendo do mapa (os objetos de luz e as janelas com luar).
 - **A troca entre áreas** (`src/game/luz/luz.ts`): a ambientação é a da menor área que contém o agente (no andar
   dele), ou a padrão do mapa. A luz anda até a nova em ~1,6 s (`TROCA`).
@@ -75,13 +80,19 @@ vale até recarregar a página.
      fora deixa de clarear o que está dentro. Mexe em como os personagens e a lâmpada "falhando" são iluminados (hoje
      cada lâmpada é uma luz de verdade): decidir isso antes de construir.
 4. **Sombras em tempo real**, só no nível Alto.
+5. **Materiais** (proposta de 11/nov, depois da 4): **5a** o brilho de cada textura (mármore reflete, tapete não), em
+   todos os níveis; **5b** o relevo de luz gerado da própria textura, no Alto, com a criação do nível **Ultra**;
+   **5c** o relevo de verdade (parallax), só no Ultra, como experimento.
+
+Fora da numeração, já feito: **o céu da noite** ✅ (11/nov). Ficaram para depois: a aurora, as nuvens e as silhuetas no horizonte.
 
 ## Limites conhecidos
 
 - A ambientação é uma só para a tela inteira (a de onde o agente está): olhando de fora para dentro por uma porta, o
   interior aparece com a luz de fora, e o contrário. A etapa 3 resolve o grosso disso.
 - As luzes não fazem sombra: a lâmpada de um cômodo clareia o cômodo vizinho através da parede (etapas 3b e 4).
-- O feixe de luar das janelas tem a neblina dele, fixa: não acompanha a densidade da ambientação.
+- O feixe de luar das janelas tem a neblina dele, fixa: não acompanha a densidade da ambientação. E a direção dele é
+  própria de cada janela: não segue a posição da lua no céu (toda janela com luar tem feixe, de qualquer lado da casa).
 - O editor e o Testar dividem a mesma tela, criada com a suavização de bordas do navegador ligada; no Médio e no Alto ela
   fica sem uso durante o teste. A tela própria do jogo, quando existir, nasce sem ela.
 - O bloom não tem limiar por objeto: qualquer coisa bem clara vaza (uma parede branca colada numa lâmpada, por exemplo).

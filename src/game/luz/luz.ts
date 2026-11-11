@@ -6,8 +6,8 @@ import { MOMENTOS, TROCA, ambienteDe, type Ambiente, type Momento } from '../../
 import type { AreaAmbiente } from '../../maps/types'
 import { andarDe } from '../world/colisao'
 
-const CORES = ['neblina', 'ceu', 'chao', 'preenchimento', 'luar', 'contorno', 'sombras', 'luzes'] as const
-const NUMEROS = ['densidade', 'forca', 'forcaPreenchimento', 'forcaLuar', 'forcaContorno', 'exposicao', 'brilho', 'contraste', 'saturacao', 'vinheta'] as const
+const CORES = ['neblina', 'zenite', 'ceu', 'chao', 'preenchimento', 'luar', 'contorno', 'sombras', 'luzes'] as const
+const NUMEROS = ['densidade', 'estrelas', 'lua', 'forca', 'forcaPreenchimento', 'forcaLuar', 'forcaContorno', 'exposicao', 'brilho', 'contraste', 'saturacao', 'vinheta'] as const
 export type Luz = Record<(typeof CORES)[number], THREE.Color> & Record<(typeof NUMEROS)[number], number>
 
 function luzDe(a: Partial<Ambiente>): Partial<Luz> {
