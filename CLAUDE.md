@@ -19,6 +19,11 @@ e captura entidades. Este projeto começa pelo **Modo desenvolvedor → Criador 
 - **Limite o escopo e diga o que é viável.** Se um pedido for grande ou arriscado, proponha uma versão menor e diga o que fica para depois.
 - **Pergunte antes** quando a decisão mudar o que será construído (formato do mapa, controles, regras). Detalhes de implementação, decida e conte.
 - Ele prefere **instruções passo a passo** para o que ele mesmo tem que fazer (rodar, testar, configurar), em vez de você operar o computador dele.
+- **Conferir no navegador:** no `npm run dev`, use `window.provas` (`src/dev/provas.ts`) pelo console em vez de montar
+  o teste à mão: `provas.mae(golpe, t)` monta a Mãe num instante, `provas.fotos([...])` tira fotos de vários ângulos,
+  `provas.medidas(c)` dá as mãos, a cabeça e as mechas, `provas.som([...])` mede o volume de cada trecho. Recarregue a
+  página antes; o som só liga depois de um clique de verdade; com o painel escondido a página não desenha (as provas
+  funcionam mesmo assim).
 - Ao terminar uma etapa: rode `npm run build`, teste no navegador, marque a etapa como feita em `docs/criador-de-mapas.md` e diga em poucas linhas o que testar.
 - Commits pequenos, com mensagem em português dizendo o que mudou ("Criador de mapas: paredes automáticas").
 - **Ao terminar qualquer coisa, revise tudo o que mudou** (pedido em 10/nov): a estrutura de pastas, as regras do jogo, o
@@ -77,6 +82,7 @@ src/
   audio/musica.ts          a trilha: useMusica('menu') toca public/musica/<nome>.mp3 em laço, com o volume das configurações
   audio/sintese.ts         os efeitos sintetizados na hora (do laboratório, sem arquivos): ruído, tom, estalos, a voz com
                            vogais, o grito, o sussurro; liga no primeiro clique; o volume é Geral × Efeitos
+  dev/provas.ts            só no npm run dev (window.provas): fotos, medidas e o volume da Mãe, para conferir pelo console
   audio/espaco.ts          o som 3D: a voz sai da boca do personagem, no mundo; o ouvido é a câmera (ouvinte, a cada quadro)
   render/                  RetroRenderer (pós-processo PS1), psx.ts (tremor de vértice), materiais.ts (nome da textura -> material),
                            corte.ts (paredes altas / recortadas / baixas no editor), miniaturas.ts (fotos do catálogo de objetos),
