@@ -9,6 +9,8 @@
 //   provas.sombras()                                         quantas lâmpadas na cena e quantas fazem sombra agora
 //   provas.cena()                                            a cena do Testar aberto (luzes, malhas), para inspecionar
 //   provas.qualidade()                                       o nível de qualidade valendo agora (baixo, medio, alto)
+//   provas.passo('agente', 2.4, { corrida, arma, frente, mover })   o andar (ou a corrida) em 8 quadros de um ciclo
+//   provas.escorrega('lara', 2.4)                           o quanto o pé de apoio escorrega, a folga do pé no ar, o sobe e desce
 // Câmeras: 'frente', 'lado', 'tras', '34', 'agente' (o olho dele, a 1,6 m), 'rosto' (de perto, pela frente da cabeça),
 // ou { de: [x, y, z], alvo: [x, y, z] }. O som só toca depois de um clique de verdade na página.
 import * as THREE from 'three'
@@ -21,6 +23,9 @@ import { som } from '../audio/sintese'
 import { ganchos } from './ganchos'
 import { nivelAtual } from '../render/qualidade'
 import { contarSombras } from '../render/sombras'
+import { montarAgente, type Agente, type ModeloAgente } from '../game/player/modelo'
+import { animarAgente } from '../game/player/animacao'
+import { pegarArma, type Arma } from '../game/player/arma'
 
 export interface Cena { m: Mae; sc: THREE.Scene }
 type Camera = 'frente' | 'lado' | 'tras' | '34' | 'agente' | 'rosto' | { de: number[]; alvo: number[]; fov?: number }
@@ -114,6 +119,67 @@ async function som_(roteiro: [string, number, EstadoMae & { golpe?: NomeGolpe; a
   return linhas.join('\n')
 }
 
+// ---------- o andar e a corrida ----------
+interface OpcPasso { corrida?: number; arma?: Arma; frente?: boolean; mover?: [number, number] } // mover: de lado ou de costas (no espaço dele)
+const PASSO_DT = 1 / 240
+/** Um personagem andando a vel (m/s) por 3 s, com o calcanhar direito chegando ao chão (o começo do ciclo). */
+function andando(modelo: ModeloAgente, vel: number, o: OpcPasso): Agente {
+  const a = montarAgente(modelo), e = { velocidade: vel, corrida: o.corrida ?? 0, esquiva: -1, mover: o.mover }
+  if (o.arma) pegarArma(a, o.arma)
+  for (let i = 0; i < 720; i++) animarAgente(a, e, PASSO_DT)
+  for (let g = 0; a.anim.fase / (Math.PI * 2) > 0.01 && g < 3000; g++) animarAgente(a, e, PASSO_DT)
+  return a
+}
+/** O andar em 8 quadros de um ciclo (um passo de cada perna), de lado ou de frente, num quadro por cima da tela. */
+function passo(modelo: ModeloAgente = 'agente', vel = 2.4, o: OpcPasso = {}) {
+  const W = 1600, H = 900, cw = W / 4, ch = H / 2, R = new THREE.WebGLRenderer({ antialias: true, preserveDrawingBuffer: true })
+  R.setSize(W, H); R.setClearColor('#2a2a30')
+  const sc = new THREE.Scene(); sc.overrideMaterial = new THREE.MeshLambertMaterial({ color: '#c8b49a' }) // cor de barro: a forma aparece
+  sc.add(new THREE.HemisphereLight('#ffffff', '#555555', 2.2))
+  const d = new THREE.DirectionalLight('#ffffff', 1.6); d.position.set(4, 5, 2); sc.add(d)
+  const cam = new THREE.OrthographicCamera(-1.03 * cw / ch, 1.03 * cw / ch, 1.02, -1.03, 0.1, 50)
+  cam.position.set(o.frente ? 0 : 4, 0.95, o.frente ? 4 : 0); cam.lookAt(0, 0.95, 0)
+  const a = andando(modelo, vel, o), e = { velocidade: vel, corrida: o.corrida ?? 0, esquiva: -1, mover: o.mover }
+  sc.add(a.root)
+  // um ciclo: a fase dá uma volta; 8 quadros iguais
+  let antes = a.anim.fase, volta = 0, k = 0
+  R.setScissorTest(true)
+  while (k < 8) {
+    if (volta >= (k * Math.PI * 2) / 8) {
+      const x = cw * (k % 4), y = k < 4 ? ch : 0
+      R.setViewport(x, y, cw, ch); R.setScissor(x, y, cw, ch); a.root.updateMatrixWorld(true); R.render(sc, cam); k++
+    }
+    animarAgente(a, e, PASSO_DT)
+    volta += (a.anim.fase - antes + Math.PI * 2) % (Math.PI * 2); antes = a.anim.fase
+  }
+  limpar()
+  const img = document.createElement('img'); img.id = 'provas'; img.src = R.domElement.toDataURL()
+  img.style.cssText = 'position:fixed;inset:0;width:100vw;height:100vh;object-fit:contain;z-index:99999;background:#111'
+  document.body.appendChild(img); R.dispose()
+  return `${modelo} a ${vel} m/s: um ciclo em 8 quadros (o calcanhar direito toca no primeiro)`
+}
+/** O pé de apoio: a velocidade dele para trás (tem que ser a do corpo: senão escorrega), a menor folga do pé no ar no
+ *  meio do balanço e o quanto o quadril sobe e desce. */
+function escorrega(modelo: ModeloAgente = 'agente', vel = 2.4, o: OpcPasso = {}) {
+  const a = andando(modelo, vel, o), e = { velocidade: vel, corrida: o.corrida ?? 0, esquiva: -1, mover: o.mover }, p = new THREE.Vector3()
+  const antes: ({ j: number; y: number; z: number } | null)[] = [null, null]
+  let soma = 0, n = 0, folga = 1, alto = -1, baixo = 9
+  for (let i = 0; i < 720; i++) {
+    animarAgente(a, e, PASSO_DT); a.root.updateMatrixWorld(true)
+    const u = a.anim.fase / (Math.PI * 2)
+    alto = Math.max(alto, a.pelvis.position.y); baixo = Math.min(baixo, a.pelvis.position.y)
+    a.legs.forEach((L, k) => {
+      const pts = a.sola.map((q) => L.ft.localToWorld(p.copy(q)).clone()), j = pts[0].y < pts[1].y ? 0 : 1, lo = pts[j], b = antes[k]
+      if (lo.y < 0.008 && b && b.j === j && b.y < 0.008) { soma += (b.z - lo.z) / PASSO_DT; n++ } // o mesmo ponto no chão
+      const v = (u + (k ? 0.5 : 0)) % 1
+      if (v > 0.68 && v < 0.92) folga = Math.min(folga, lo.y)
+      antes[k] = { j, y: lo.y, z: lo.z }
+    })
+  }
+  const pe = soma / Math.max(1, n)
+  return `${modelo} a ${vel} m/s: o pé no chão vai para trás a ${pe.toFixed(2)} m/s (escorrega ${Math.round(Math.abs(1 - pe / vel) * 100)}%), folga do pé no ar ${(folga * 100).toFixed(1)} cm, o quadril sobe e desce ${((alto - baixo) * 100).toFixed(1)} cm`
+}
+
 /** No Testar aberto: o agente vai para (x, z), olhando para yaw (rad; 0 = +z) e pitch. */
 function ir(x: number, z: number, yaw: number, pitch?: number, andar?: number) {
   if (!ganchos.ir) return 'abra o Testar do criador de mapas primeiro'
@@ -121,4 +187,4 @@ function ir(x: number, z: number, yaw: number, pitch?: number, andar?: number) {
   return 'ok'
 }
 
-export const provas = { mae, fotos, limpar, medidas, som: som_, ir, qualidade: nivelAtual, sombras: contarSombras, cena: () => ganchos.cena, gl: () => ganchos.gl }
+export const provas = { mae, fotos, limpar, medidas, som: som_, ir, passo, escorrega, qualidade: nivelAtual, sombras: contarSombras, cena: () => ganchos.cena, gl: () => ganchos.gl }

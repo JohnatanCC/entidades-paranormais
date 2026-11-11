@@ -26,6 +26,32 @@ a tiro e os prende com a armadilha. Cenário e personagens em blocos com textura
   Os dedos fecham por poses (solta, punho, aberta, segurar, guarda com o indicador fora do gatilho, apontar) e o rosto tem expressões (neutra, esforço, medo,
   dor, raiva, surpresa), com piscar e o olhar passeando; as mechas do cabelo balançam com física simples (a gravidade
   e o tranco da cabeça, com limites para não entrar na cabeça) (`src/game/player/maos.ts`, `rosto.ts` e `src/game/corpo/molas.ts`).
+- **Andar e correr** (refeitos em etapas, a partir de 11/nov):
+  - **A. O andar ✅ (11/nov)** (`src/game/player/passada.ts`, os números em `ANDAR`, `numeros.ts`): no lugar das ondas
+    simples do laboratório, as curvas de uma passada de verdade, da biomecânica, para o quadril, o joelho e o tornozelo:
+    o calcanhar toca com a ponta para cima, o joelho dobra um pouco recebendo o peso, o pé assenta, o calcanhar sobe e a
+    ponta empurra; no ar o joelho dobra bastante e a ponta sobe (o pé não raspa). O quadril gira com a perna da frente,
+    cai do lado da perna no ar e vai para o lado do pé de apoio; o tronco desfaz o giro e a queda. Os braços vão com a
+    perna do outro lado, um pouco atrasados, o cotovelo dobrando mais na frente. O tamanho do passo foi medido para o pé
+    de apoio não escorregar (de 0 a 3%; antes, 25 a 50%) e acompanha o comprimento da perna de cada personagem. Como o
+    andar do jogo é rápido (2,4 m/s), o passo é largo: quase 3 passos por segundo.
+  - **B. A corrida ✅ (11/nov)** (as curvas em `passada.ts`, os números em `CORRER`): o pé toca com o joelho já
+    dobrado, que dobra mais recebendo o peso e estica empurrando; o voo, com os dois pés no ar; no balanço o calcanhar
+    sobe perto do glúteo e o joelho vem alto. O corpo inclinado para a frente, os braços bombeando com o cotovelo perto
+    de 90°, os ombros girando contra o quadril. A altura do corpo é desenhada: desce um pouco no meio do apoio, sobe no
+    voo (7 cm de sobe e desce, sem trancos). A passagem do andar para a corrida mistura as duas curvas.
+  - **Os pés presos no chão ✅ (11/nov, adiantado da etapa C, porque sem ele a corrida escorregava 60%)** (`pes.ts`):
+    o ponto da sola que toca o chão (o calcanhar, depois a ponta) fica onde tocou, e a perna se ajusta (IK de dois
+    ossos, como a mão na arma). Medido: o pé de apoio escorrega 2% andando e correndo, e a sola fica no chão (afunda
+    0,3 cm). Vale para todos os personagens com o esqueleto do agente.
+  - **C. As transições ✅ (11/nov)** (os números em `TRANSICAO`, `numeros.ts`): o corpo inclina para a frente ao
+    arrancar (até uns 7°) e para trás ao frear; correndo numa curva, deita para dentro dela (13° numa curva fechada).
+    Parando, a perna no ar termina o passo até tocar o chão: ele para com os dois pés juntos, em qualquer ponto do passo.
+    **Andando de lado e de costas** (só mirando: o corpo olha para a câmera): de costas, a passada roda ao contrário; de
+    lado, as pernas dão o passo virado até 34° para o lado do movimento, e o resto o pé preso acompanha abrindo a coxa;
+    no balanço, o pé sai de onde ficou preso e vai até onde a curva quer, num arco por cima. Medido: o pé de apoio
+    escorrega de 0 a 0,05 m/s em qualquer direção. De lado as pernas cruzam um pouco no passo (como num passo de lado
+    com cruzada).
 - **Parado** (`src/game/player/parado.ts`, os tempos em `numeros.ts`): a respiração mais funda e o peso passando de uma
   perna para a outra; depois de 8 a 15 s parado, um gesto sorteado (nunca o mesmo duas vezes seguidas): olhar em volta
   (os olhos chegam antes da cabeça), ajustar a alça da mochila, conferir a bolsa do cinto, abrir e fechar a mão.
@@ -87,9 +113,26 @@ Os textos longos de design (história, mansão, intro) estão em `docs/design/` 
 | Quem | Papel |
 | --- | --- |
 | Matheus Moura | O agente (jogador). Traje "Selado": runas que acendem com a sobrecarga, relicário, frascos, cartuchos de sal |
-| Lara | Agente da C.R.O.S., vai na frente com a lanterna. Mesmo modelo do agente, outras cores e cabelo |
-| Nicolas | Agente da C.R.O.S., fala pelo rádio. Mesmo modelo do agente, outras cores e cabelo |
+| Lara | Agente da C.R.O.S., a batedora: vai na frente com a lanterna. Modelo próprio (`modelos/lara.bbmodel`, ver `docs/blockbench.md`), com o esqueleto do agente |
+| Nicolas | Agente da C.R.O.S., o novato: confiante demais, decide sozinho, fala pelo rádio. Modelo próprio (`modelos/nicolas.bbmodel`, ver `docs/blockbench.md`), com o esqueleto do agente |
+| Victor | Personagem secundário, para mais tarde: o ocultista da C.R.O.S. (35 anos), sente e bane fantasmas com magia, sem armas. Modelo em `modelos/victor.bbmodel` |
 | A central | Voz no rádio, com chiado |
+
+**O Victor** (11/nov, só o modelo): o que ele faz no jogo ainda não está decidido. Os pontos que precisam de
+resposta antes, porque mexem no que já está decidido:
+- **Banir e capturar:** o fantasma menor estoura e o maior vira poça e é capturado. Se o Victor banir um chefe, ele
+  pula a captura, que é o coração do jogo. Uma saída: banir vale só para os menores, e nos maiores ele ajuda (prende,
+  enfraquece, segura a poça), mas quem captura é a armadilha.
+- **Sentir fantasmas:** cabe como mostrar o que está escondido (um fantasma invisível, o caminho de um que fugiu).
+- **Sem armas:** se ele for jogável, precisa de controles e de um HUD próprios (o de hoje é das armas). Como aliado,
+  sem IA de combate, como a Lara e o Nicolas, só os gestos e os efeitos nas cenas.
+
+**A farda da C.R.O.S.** (decidido em 11/nov): os agentes vestem o mesmo corte, o do Matheus (a jaqueta fechada de
+gola alta com lapelas, as alças pela frente, o cinto com bolsas, as joelheiras, as botas altas, a faixa dourada no
+punho); **a cor e o equipamento mudam com a função**. O Matheus (captura): azul, os frascos e os cartuchos. O Nicolas
+(comunicação e mecânica): vermelho-escuro desbotado, o rádio de campanha, o monofone, o medidor, as ferramentas e as
+luvas de trabalho. A Lara (batedora) fica com a roupa própria (o colete de lona e a gola alta), fora da farda
+(decidido em 11/nov): quem vai na frente se veste mais leve.
 
 Lara e Nicolas **não têm IA de combate**: seguem uma rota marcada 4–6 m à frente, param nas portas virados para o jogador,
 não colidem com ele, e só "lutam" nas cutscenes. Usam a mesma animação de andar do agente (pés plantados, braços, cabeça).

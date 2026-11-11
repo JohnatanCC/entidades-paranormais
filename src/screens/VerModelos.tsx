@@ -1,5 +1,5 @@
 // Ver modelos (Modo desenvolvedor): um modelo sozinho na tela, para olhar de perto e decidir o que melhorar.
-// Não edita nada: o Matheus vem de modelos/agente.bbmodel, os fantasmas de modelos/fantasmas/<nome>.bbmodel (a Mãe), as armas de modelos/armas/<nome>.bbmodel e os objetos de
+// Não edita nada: o Matheus vem de modelos/agente.bbmodel, a Lara, o Nicolas e o Victor de modelos/lara.bbmodel, nicolas.bbmodel e victor.bbmodel (o mesmo esqueleto), os fantasmas de modelos/fantasmas/<nome>.bbmodel (a Mãe), as armas de modelos/armas/<nome>.bbmodel e os objetos de
 // modelos/objetos/<tipo>.bbmodel (salvar no
 // Blockbench atualiza aqui no npm run dev). A câmera gira em volta (botão esquerdo gira, direito move, rodinha aproxima).
 // Para o Matheus o painel troca a animação, a expressão, a pose das mãos, a arma na mão e o ângulo, faz os gestos de
@@ -14,7 +14,7 @@ import type { Go } from '../App'
 import { animarAgente } from '../game/player/animacao'
 import { ARMAS, pegarArma, type Arma } from '../game/player/arma'
 import type { PoseMao } from '../game/player/maos'
-import { montarAgente, type Agente } from '../game/player/modelo'
+import { montarAgente, type Agente, type ModeloAgente } from '../game/player/modelo'
 import { fazerGesto, gestosDe, type Gesto } from '../game/player/parado'
 import { tranco } from '../game/player/dano'
 import { gatilho } from '../game/weapons/tiro'
@@ -39,6 +39,8 @@ type Anim = 'parado' | 'andando' | 'correndo' | 'esquiva' | 'queda' | 'porta'
 type Camera = 'corpo' | 'rosto' | 'maos' | 'pes' | 'costas'
 type Luz = 'estudio' | 'jogo'
 
+// os humanos com o esqueleto do agente (o mesmo painel): o id é o nome do arquivo em modelos/
+const HUMANOS: [ModeloAgente, string][] = [['agente', 'Matheus Moura'], ['lara', 'Lara'], ['nicolas', 'Nicolas'], ['victor', 'Victor']]
 const AGENTE_ID = 'agente'
 const ARMA = 'arma:' // o id de uma arma no seletor: arma:pistola
 const MAE = 'fantasma:mae'
@@ -81,19 +83,19 @@ export function VerModelos({ go }: { go: Go }) {
   const [e, setE] = useState<Escolhas>({ qual: AGENTE_ID, anim: 'parado', exp: null, mao: null, arma: null, gesto: null, mirando: false, tiros: 0, golpes: 0, ferido: false, ataque: null, rostoMae: null, fase4: false, caca: false, camera: 'corpo', luz: 'estudio', girar: false, grade: true })
   const [info, setInfo] = useState<Info | null>(null)
   const muda = (p: Partial<Escolhas>) => setE((v) => ({ ...v, ...p }))
-  const agente = e.qual === AGENTE_ID, arma = e.qual.startsWith(ARMA) ? e.qual.slice(ARMA.length) : null, mae = e.qual === MAE
+  const humano = HUMANOS.find(([id]) => id === e.qual), agente = !!humano, arma = e.qual.startsWith(ARMA) ? e.qual.slice(ARMA.length) : null, mae = e.qual === MAE
   return (
     <div className="vermodelo">
       <header className="topo">
         <span className="titulo">Ver modelos</span>
-        <span className="nome">{agente ? 'Matheus Moura · modelos/agente.bbmodel' : mae ? 'A Mãe · modelos/fantasmas/mae.bbmodel' : arma ? `${ARMAS.find(([k]) => k === arma)?.[1]} · modelos/armas/${arma}.bbmodel` : `${OBJETOS[e.qual]?.nome} · modelos/${caminhoObjeto(e.qual)}.bbmodel`}</span>
+        <span className="nome">{humano ? `${humano[1]} · modelos/${e.qual}.bbmodel` : mae ? 'A Mãe · modelos/fantasmas/mae.bbmodel' : arma ? `${ARMAS.find(([k]) => k === arma)?.[1]} · modelos/armas/${arma}.bbmodel` : `${OBJETOS[e.qual]?.nome} · modelos/${caminhoObjeto(e.qual)}.bbmodel`}</span>
         <span className="espaco" />
         <button className="bt" onClick={() => go('dev')}>Voltar</button>
       </header>
       <div className="vista">
         <Canvas camera={{ position: [1.4, 1.4, 3.6], fov: 35, near: 0.02, far: 100 }}>
           <Luzes luz={e.luz} />
-          {agente ? <CenaAgente e={e} onInfo={setInfo} /> : mae ? <CenaMae e={e} onInfo={setInfo} /> : <CenaObjeto key={e.qual} qual={e.qual} girar={e.girar} onInfo={setInfo} />}
+          {agente ? <CenaAgente key={e.qual} modelo={e.qual as ModeloAgente} e={e} onInfo={setInfo} /> : mae ? <CenaMae e={e} onInfo={setInfo} /> : <CenaObjeto key={e.qual} qual={e.qual} girar={e.girar} onInfo={setInfo} />}
           {e.grade && <Grid args={[8, 8]} cellSize={0.5} cellThickness={0.6} cellColor="#6a5a40" sectionSize={1} sectionThickness={1.2} sectionColor="#c89b4a" fadeDistance={14} infiniteGrid />}
           <OrbitControls makeDefault target={[0, 0.95, 0]} minDistance={0.2} maxDistance={9} />
         </Canvas>
@@ -104,6 +106,7 @@ export function VerModelos({ go }: { go: Go }) {
           <b>Modelo</b>
           <select className="escolha" value={e.qual} onChange={(ev) => muda({ qual: ev.target.value })}>
             <option value={AGENTE_ID}>Matheus Moura (o agente)</option>
+            <optgroup label="Personagens">{HUMANOS.slice(1).map(([id, nome]) => <option key={id} value={id}>{nome}</option>)}</optgroup>
             <optgroup label="Fantasmas"><option value={MAE}>A Mãe</option></optgroup>
             <optgroup label="Armas">{ARMAS.map(([k, nome]) => <option key={k} value={ARMA + k}>{nome}</option>)}</optgroup>
             {GRUPOS.map(([g, nome]) => (
@@ -231,9 +234,9 @@ function enquadra(c: Camera, a: Agente): { alvo: THREE.Vector3; de: THREE.Vector
   return { alvo: new THREE.Vector3(0, 0.95, 0), de: new THREE.Vector3(1.4, 1.4, 3.6) }
 }
 
-function CenaAgente({ e, onInfo }: { e: Escolhas; onInfo: (i: Info) => void }) {
+function CenaAgente({ modelo, e, onInfo }: { modelo: ModeloAgente; e: Escolhas; onInfo: (i: Info) => void }) {
   // montarAgente na lista: salvar o .bbmodel recarrega o módulo e o modelo é montado de novo
-  const a = useMemo(() => montarAgente(), [montarAgente])
+  const a = useMemo(() => montarAgente(modelo), [montarAgente, modelo])
   const { pronto, voar } = useVoo()
   const esq = useRef(0)
   const tiros = useRef(e.tiros) // os tiros pedidos que já saíram

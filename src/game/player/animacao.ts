@@ -6,7 +6,9 @@ import type { Agente } from './modelo'
 import { animarArma, maoNaBomba, POSE_DA_ARMA, posturaDaEscopeta } from './arma'
 import { animarMolas } from '../corpo/molas'
 import { animarMaos, type PoseMao } from './maos'
-import { AGENTE, PARADO, QUEDA } from './numeros'
+import { AGENTE, ANDAR, CORRER, PARADO, QUEDA, TRANSICAO } from './numeros'
+import { pernaNaCorrida, pernaNaPassada } from './passada'
+import { prenderPes } from './pes'
 import { posturaDaMira } from './mira'
 import { balancoDaArma, gestoParado, pesoParado } from './parado'
 import { pesoDaQueda, poseDaQueda } from './queda'
@@ -22,10 +24,11 @@ export interface EstadoAnim {
   mira?: { quer: boolean; alvo: THREE.Vector3 | null } // mirando (ou atirando): a arma levanta para o alvo (no mundo)
   queda?: number // s desde que caiu (sem = em pé)
   ferido?: boolean // machucado (30% da vida ou menos): curvado, mancando, a mão no lado (o tranco de um golpe: dano.ts, tranco)
+  mover?: [number, number] // a velocidade no espaço dele (m/s): x para a esquerda, z para a frente; sem = para a frente
 }
 
 const STAND = 0.42 // a altura do quadril dentro do pivô da cambalhota, antes de acertar os pés no chão
-const VOLTA = Math.PI * 2
+const VOLTA = Math.PI * 2, RAD = Math.PI / 180
 
 const cl = (x: number, a = 0, b = 1) => Math.max(a, Math.min(b, x))
 const sm = (x: number) => { const k = cl(x); return k * k * (3 - 2 * k) }
@@ -68,37 +71,83 @@ export function animarAgente(a: Agente, e: EstadoAnim, dt: number): void {
   m.tempo = (m.tempo + dt) % (VOLTA / 1.9)
   m.corrida = damp(m.corrida, cl(e.corrida), 6, dt)
   m.amp = damp(m.amp, cl(sp / AGENTE.andar, 0, 1.3), 7, dt) // 1 andando; correndo passa um pouco
-  // ---------- a passada: a fase anda com a distância (uma volta = uma passada de cada perna) ----------
-  const passada = lerp(1.45, 2.5, m.corrida) // metros por volta
-  m.fase = (m.fase + (sp / passada) * VOLTA * dt) % VOLTA
-  const amp = m.amp, run = m.corrida, ph = m.fase
-  const thA = amp * lerp(0.42, 0.66, run), bend = amp * lerp(0.6, 1.4, run)
+  // para onde ele anda, no espaço dele: de frente; mirando, também de lado e de costas
+  const mx = e.mover && sp > 0 ? e.mover[0] : 0, mz = e.mover && sp > 0 ? e.mover[1] : sp, mv = Math.hypot(mx, mz)
+  const frente = mv > 0.05 ? mz / mv : 1 // 1 = de frente, 0 = de lado, −1 = de costas
+  const costas = frente < -0.3 // de costas, a passada roda ao contrário
+  // as pernas dão o passo na direção em que ele anda (de lado, até ANDAR.virar; de costas, a direção de trás); o que
+  // passa disso, o passo encolhe e o pé preso acompanha abrindo a coxa (pes.ts)
+  const rumo = mv > 0.05 ? Math.atan2(mx, mz) : 0, rumoPasso = costas ? Math.atan2(-mx, -mz) : rumo
+  m.pernas = damp(m.pernas, cl(rumoPasso, -ANDAR.virar, ANDAR.virar) * (1 - m.corrida), 10, dt)
+  const deFrente = Math.max(0.3, Math.cos(rumoPasso - m.pernas))
+
+  // ---------- as transições: inclina ao acelerar e ao frear; deita para dentro da curva ----------
+  const T = TRANSICAO, parou = rolando || q >= 0
+  const acel = (mz - m.vel) / Math.max(dt, 1e-3); m.vel = mz
+  const yaw = a.root.rotation.y, dYaw = Math.atan2(Math.sin(yaw - m.yaw), Math.cos(yaw - m.yaw)); m.yaw = yaw
+  const giroVel = Math.abs(dYaw) > 1 ? 0 : dYaw / Math.max(dt, 1e-3) // um salto grande é teletransporte, não curva
+  m.inclina = damp(m.inclina, parou ? 0 : cl(acel * T.acelera, -T.inclinaMax, T.inclinaMax), T.suave, dt)
+  m.deita = damp(m.deita, parou ? 0 : cl(giroVel * mv * T.curva, -T.curvaMax, T.curvaMax), T.suave, dt)
+
+  // ---------- a passada: a fase anda com a distância (uma volta = um passo de cada perna) ----------
+  // as curvas de uma passada de verdade (passada.ts): as do andar e as da corrida, misturadas pelo quanto ele corre
+  const esc = lerp(ANDAR.curto, 1, Math.min(1, m.amp)) // devagar, o passo encolhe junto com as curvas (o pé não escorrega)
+  const perna = a.perna / ANDAR.perna // perna mais comprida, passo maior
+  const passada = lerp(ANDAR.passada * esc * Math.max(0.5, deFrente), CORRER.passada, m.corrida) * perna // metros por volta
+  let avanca = (sp / passada) * dt // em voltas
+  // parando: a perna no ar termina o passo até tocar o chão (não fica com as pernas abertas)
+  if (sp < 0.3 && m.amp > 0.08 && !parou && !costas) {
+    const falta = 0.5 - ((m.fase / VOLTA) % 0.5)
+    if (falta < 0.48) avanca = Math.max(avanca, Math.min(falta, T.termina * dt))
+  }
+  m.fase = (m.fase + (costas ? -avanca : avanca) * VOLTA + VOLTA) % VOLTA
+  const amp = m.amp, run = m.corrida, ph = m.fase, u = ph / VOLTA // u: 0 = o pé direito tocando o chão
+  const anda = sm(amp / 0.35) * esc // o quanto da passada de andar vale agora (parado, nada)
   // parado: o peso passa devagar de uma perna para a outra (w > 0: a esquerda descansa, o quadril desce desse lado)
   const quieto = rolando ? 0 : 1 - cl(amp), w = pesoParado(a, quieto, dt), P = PARADO.peso
   for (const L of a.legs) {
-    const p = ph + (L.s > 0 ? Math.PI : 0), sw = Math.sin(p), cs = Math.cos(p)
     const solta = Math.max(0, w * L.s) // a perna que descansa dobra o joelho
     const manca = L.s < 0 ? 1 - 0.4 * fk : 1 // a perna que dói dá o passo mais curto e dobra menos
-    const th = -thA * sw * manca - 0.1 * run * amp - 0.5 * P.joelho * solta
-    const kn = 0.06 + bend * manca * Math.pow(Math.max(0, cs), 1.4) + 0.12 * run * amp + P.joelho * solta
-    const toe = amp * (0.3 * Math.max(0, Math.sin(p + 2.0)) - 0.22 * Math.max(0, Math.sin(p - 0.25)) * (1 - run * 0.5))
-    L.th.rotation.set(th, 0, L.s * (0.045 + 0.025 * (1 - Math.min(1, amp))) + w * P.quadril)
+    // a curva da perna (a esquerda meio ciclo depois da direita); o pé segue a canela mais o tornozelo
+    const v = u + (L.s > 0 ? 0.5 : 0), W = pernaNaPassada(v), C = pernaNaCorrida(v), k = anda * manca * RAD, kc = manca * RAD
+    const thW = -W.quadril * ANDAR.quadril * deFrente * k, knW = W.joelho * ANDAR.joelho * k, peW = thW + knW - W.tornozelo * ANDAR.tornozelo * k // pe: o ângulo do pé com o chão
+    const thC = -C.quadril * CORRER.quadril * kc, knC = C.joelho * CORRER.joelho * kc, peC = thC + knC - C.tornozelo * CORRER.tornozelo * kc
+    const th = lerp(thW, thC, run) - 0.5 * P.joelho * solta
+    const kn = lerp(0.04 + knW, knC, run) + P.joelho * solta
+    L.th.rotation.set(th, m.pernas, L.s * (0.045 + 0.025 * (1 - Math.min(1, amp))) + w * P.quadril)
     L.kn.rotation.set(kn, 0, 0)
-    L.ft.rotation.set(-(th + kn) + toe, 0, -L.s * 0.035)
+    L.ft.rotation.set(-(th + kn) + lerp(peW, peC, run), 0, -L.s * 0.035)
   }
-  const osc = 0.11 * amp * Math.sin(ph) * (0.7 + 0.3 * run) // o quadril gira com a perna que vai à frente
+  // o quadril: gira levando à frente o lado da perna da frente, cai do lado da perna no ar e vai para o lado do pé de
+  // apoio; correndo, o corpo inclina para a frente
+  const onda = Math.cos(VOLTA * u), lado = Math.sin(VOLTA * u)
+  const giro = lerp(ANDAR.giro * anda, CORRER.giro, run) * onda
+  const queda = -lerp(ANDAR.queda * anda, CORRER.queda, run) * lado
   a.roll.rotation.set(0, 0, 0); a.roll.position.set(0, 0.5, 0)
-  a.pelvis.position.set(0, STAND, 0)
-  a.pelvis.rotation.set(0.05 * run * amp, rolando ? 0 : osc, 0.045 * amp * Math.cos(ph) - w * P.quadril + 0.06 * fk * amp * Math.sin(ph))
-  // o pé de apoio fica no chão: mede as solas e acerta a altura do quadril
-  let lo = Infinity
-  for (const L of a.legs) for (const q of a.sola) { const y = naRaiz(L.ft, a.root, _p.copy(q)).y; if (y < lo) lo = y }
-  a.pelvis.position.y = STAND - lo + 0.03 * run * amp * Math.max(0, Math.sin(2 * ph - 0.4)) // correndo: o voo entre os passos
+  a.pelvis.position.set(-lerp(ANDAR.lado * anda, CORRER.lado, run) * lado, STAND, 0)
+  a.pelvis.rotation.set(0.4 * CORRER.inclina * run + 0.02 * anda + 0.35 * m.inclina, rolando ? 0 : giro, queda - w * P.quadril + 0.06 * fk * amp * lado - 0.3 * m.deita)
+  // a altura do quadril (o sobe e desce do passo sai daqui). Andando (e parado), o pé mais baixo dos dois fica no chão.
+  // Correndo, a altura é desenhada: parte da de quando o pé tocou, desce um pouco no meio do apoio (a perna é a mola),
+  // sobe no voo e chega na de quando o outro pé vai tocar (a perna de trás esticada não serve de medida: o corpo
+  // afundaria no fim do apoio). Quem põe a sola no chão no apoio é o pé preso (pes.ts)
+  const apoio = lerp(0.6, CORRER.apoio, run), passo = u % 0.5 // passo: o meio ciclo desde que um pé tocou
+  const solaDe = (L: (typeof a.legs)[number]) => { let y = Infinity; for (const q of a.sola) y = Math.min(y, naRaiz(L.ft, a.root, _p.copy(q)).y); return y }
+  const andandoY = STAND - Math.min(solaDe(a.legs[0]), solaDe(a.legs[1]))
+  const vem = a.legs.find((L) => (u + (L.s > 0 ? 0.5 : 0)) % 1 >= 0.5)! // a perna no balanço (a próxima a tocar)
+  if (passo < m.passo) m.chao = STAND - solaDe(a.legs.find((L) => L !== vem)!) // um pé acabou de tocar: a altura dele
+  m.passo = passo
+  const f = cl((passo - apoio) / (0.5 - apoio)) // no voo, de 0 (o pé saiu) a 1 (o outro toca)
+  const correndoY = passo < apoio
+    ? m.chao - CORRER.desce * Math.sin((Math.PI * passo) / apoio)
+    : lerp(m.chao, STAND - solaDe(vem), f) + CORRER.voo * Math.sin(Math.PI * f)
+  a.pelvis.position.y = lerp(andandoY, correndoY, sm((run - 0.15) / 0.35))
+  // o pé de apoio preso onde tocou o chão (não escorrega); parado, rolando ou caindo, solto
+  prenderPes(a, u, apoio, [mx, mz], parou ? 0 : sm(amp / 0.3), dt)
 
-  // ---------- o tronco: desfaz o giro do quadril (e a inclinação do peso); parado, respira mais fundo ----------
+  // ---------- o tronco: desfaz o giro e a queda do quadril (os ombros ficam quase parados); parado, respira mais fundo ----------
   const breath = Math.sin(m.tempo * 1.9) * (0.012 * (1 - Math.min(1, amp) * 0.5) + PARADO.respira * quieto)
-  a.spine.rotation.set(0.04 + 0.07 * run * amp, -osc * 0.9, -0.03 * amp * Math.cos(ph) + 1.2 * w * P.quadril)
-  a.chest.rotation.set(breath + 0.05 * run * amp, -osc * 0.35, 0)
+  a.spine.rotation.set(0.04 + 0.6 * CORRER.inclina * run + 0.65 * m.inclina, -giro * 0.9, -queda * 0.7 + 1.2 * w * P.quadril - 0.7 * m.deita)
+  a.chest.rotation.set(breath, -giro * lerp(0.35, 0.6, run), -queda * 0.15) // correndo, os ombros giram mais contra o quadril
 
   // ---------- a cambalhota: encolhe e gira inteiro em volta do meio do corpo ----------
   let tuck = 0
@@ -126,8 +175,16 @@ export function animarAgente(a: Agente, e: EstadoAnim, dt: number): void {
   // pendurada, o braço balança
   const guarda = a.arma === 'pistola' || a.arma === 'escopeta'
   for (const b of a.arms) {
-    let x = -b.s * 0.38 * amp * Math.sin(ph) * (1 + 0.5 * run) + 0.06
-    let el = -0.22 - 1.0 * run * amp - 0.1 * amp
+    // o braço vai à frente quando a perna do mesmo lado vai para trás, um pouco atrasado; o cotovelo dobra mais na
+    // frente, atrasado mais um pouco (o antebraço vem solto). Andando, soltos; correndo, bombeando com o cotovelo dobrado
+    const v = u + (b.s > 0 ? 0.5 : 0)
+    const braco = (B: typeof ANDAR.braco, E: typeof ANDAR.cotovelo, tras: number) => {
+      const frente = Math.cos(VOLTA * (v - tras - B.atraso)), dobra = 0.5 + 0.5 * Math.cos(VOLTA * (v - tras - B.atraso - E.atraso))
+      return [-(frente > 0 ? B.frente : B.tras) * frente * RAD, -(E.base + E.balanco * dobra)]
+    }
+    const [xW, elW] = braco(ANDAR.braco, ANDAR.cotovelo, 0.55), [xC, elC] = braco(CORRER.braco, CORRER.cotovelo, 0.4)
+    let x = lerp(xW * anda, xC, run) + 0.06
+    let el = lerp(-0.22 + elW * anda, elC, run)
     if (guarda && b.s < 0) { x = -0.3 - 0.05 * amp * Math.sin(ph) - 0.25 * run * amp; el = -0.95 - 0.3 * run * amp }
     if (tuck > 0) { x = lerp(x, -0.7, tuck); el = lerp(el, -1.7, tuck) } // agarrado às pernas
     b.up.rotation.set(x, 0, b.s * (0.1 + 0.06 * run), 'XZY')

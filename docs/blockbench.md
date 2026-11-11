@@ -7,7 +7,7 @@ feito para modelos em blocos com textura em pixel. O desenvolvedor modela e pint
 
 | Onde | O quê |
 | --- | --- |
-| `modelos/<nome>.bbmodel` | Um personagem (o agente: `agente.bbmodel`). A textura vai dentro do arquivo; o jogo lê este mesmo arquivo (`src/render/bbmodel.ts`) |
+| `modelos/<nome>.bbmodel` | Um personagem (o agente: `agente.bbmodel`; a Lara: `lara.bbmodel`; o Nicolas: `nicolas.bbmodel`; o Victor: `victor.bbmodel`). A textura vai dentro do arquivo; o jogo lê este mesmo arquivo (`src/render/bbmodel.ts`) |
 | `modelos/objetos/<tipo>.bbmodel` | Um objeto do catálogo do criador de mapas, com o nome do tipo (`cadeira.bbmodel`) |
 | `modelos/aberturas/<tipo>.bbmodel` | As portas e janelas: `porta-comum`, `porta-dupla`, `porta-grande`, `janela`, `janela-grande` |
 
@@ -61,7 +61,9 @@ e inclinadas. Os objetos, as portas e as armas continuam simples. O Matheus (214
 - **As peças inclinadas** dão o que o bloco reto não dá: o trapézio, o topo do ombro, o peitoral, a orelha, o nariz, o
   peito do pé, os tufos do cabelo; na Mãe, o busto, as clavículas, as escápulas, a espinha saltada.
 - **A cabeça não é um cubo:** o meio com o rosto pintado, as têmporas recuadas, as bochechas e o queixo mais estreitos; o
-  nariz e as orelhas são blocos por cima da pintura. No Matheus ela tem 84% da largura antiga. Na Mãe o rosto recua
+  nariz e as orelhas são blocos por cima da pintura. O rosto do Matheus foi refeito em 11/nov no jeito
+  dos outros (os olhos amendoados, o nariz, a boca e a barba por fazer pintados pela posição; a pintura antiga, apertada a
+  84% da largura, deixava o rosto estranho); as alças dele vão do cinto ao ombro e descem atrás até a mochila. Na Mãe o rosto recua
   em dois degraus para os lados, o queixo afina em três até a ponta, as maçãs do rosto são peças inclinadas e o topo
   do cabelo é uma cúpula chanfrada (pedido em 11/nov: o rosto estava quadrado).
 - **Não pesa:** o detalhe vai **dentro das pastas que já existem**. O jogo junta tudo numa malha só (uma chamada de
@@ -69,6 +71,68 @@ e inclinadas. Os objetos, as portas e as armas continuam simples. O Matheus (214
   como eram** (cada painel é uma junta com física) e as mechas dela só afinam até a ponta, sem pasta nova.
 - **A pintura** de cada peça nova nasceu da projeção da pintura do bloco antigo (os botões, as costuras e o rosto
   ficaram no lugar): nos degraus entre os trechos ela é aproximada e pede retoque à mão.
+
+## A Lara (11/nov)
+
+`modelos/lara.bbmodel`: a batedora da C.R.O.S., a que vai na frente para ver o caminho (corajosa, rápida, um pouco
+impulsiva: é ela que corre atrás do Espectral na Intro). Negra, 1,66 m (1,76 com o coque), mais baixa e mais magra que o
+Matheus, com o quadril mais largo que os ombros. O desenho (decidido em 11/nov, com uma referência do desenvolvedor):
+
+- **O rosto:** maçãs altas, nariz fino com sardas (algumas douradas), lábios cheios, olhos amendoados cor de âmbar.
+- **O cabelo:** cacheado, preso num coque alto com uma faixa dourada, e dois cachos soltos na frente das orelhas (as
+  pastas `mecha_cacho_e` e `mecha_cacho_d`, que balançam). Brincos dourados de gota.
+- **A roupa:** camisa de gola alta cinza-chumbo com o zíper dourado, as mangas arregaçadas; colete curto de lona
+  verde-oliva com o debrum mostarda, zíper, bolsos e o rádio preso no peito; mochila pequena; calça cargo com bolsos nas
+  coxas e joelheiras; luvas sem dedos; botas de cano baixo com cadarço. O verde e o mostarda separam ela do azul do
+  Matheus de longe, no escuro.
+- **As pastas são as do Matheus** (as mesmas juntas, os mesmos nomes): andar, mãos, expressões e armas funcionam sem
+  mudar nada. A mão é a dele, um pouco menor. O jogo monta com `montarAgente('lara')`.
+- **A textura** (512 × 256) nasceu de um gerador, como os objetos: cada face tem o seu retângulo, pintado pela posição no
+  corpo (o desenho continua de um bloco para o outro). O rosto tem 128 px por metro, os olhos e o nariz 256. É o ponto de
+  partida para repintar à mão.
+- **Falta:** a lanterna na mão (um modelo em `modelos/armas/`, com a empunhadura e o ponto de onde sai a luz), a rota, as
+  falas e a cena do escritório: vêm com a Intro.
+
+## O Nicolas (11/nov)
+
+`modelos/nicolas.bbmodel`: o novato da C.R.O.S. Não é tímido: é confiante demais, não sabe trabalhar em equipe e
+gosta de decidir por conta própria. Branco, 1,83 m, o mais alto dos três. O desenho (decidido em 11/nov, com uma
+referência do desenvolvedor; os traços, não o personagem dela):
+
+- **O rosto:** nariz comprido, olhos verdes de pálpebra pesada (o olhar de quem já sabe), sobrancelhas grossas,
+  bochechas coradas, orelhas de abano e o bigode de guidão com as pontas enroladas para cima. A boca fechada é um
+  sorriso de canto; aberta, mostra os dentes.
+- **O cabelo:** castanho e liso, repartido à direita, com um topete que cai de lado na testa (as pastas
+  `mecha_franja_1` e `mecha_franja_2` balançam) e costeletas.
+- **A roupa:** a farda da C.R.O.S. (o corte do Matheus, ver "A farda" em `docs/jogo.md`) na cor e com o equipamento da
+  função dele, **comunicação e mecânica**: a jaqueta fechada de gola alta e lapelas em vermelho-escuro desbotado, com a
+  carcela de botões dourados e a faixa dourada no punho; as alças de couro do rádio pela frente, com o monofone na
+  esquerda e um medidor de mostrador verde na direita; o rádio de campanha nas costas, com os botões e a antena (o
+  ponto mais alto: 1,92 m, abaixo das portas); o cinto com as bolsas, a chave inglesa pendurada, a chave de fenda e um
+  rolo de cabo; luvas de trabalho; a calça cinza com o vinco de nova, joelheiras e botas altas engraxadas. O distintivo
+  da C.R.O.S. no ombro esquerdo (ele tem orgulho) e o fone num ouvido só, com o microfone.
+- **As cores:** o vermelho-escuro separa ele do azul do Matheus e do verde e mostarda da Lara.
+- **As pastas são as do Matheus**, como na Lara; a mão é a dele, sem luva. O jogo monta com `montarAgente('nicolas')`.
+- **A textura** nasceu do mesmo gerador da Lara: o ponto de partida para repintar à mão.
+
+## O Victor (11/nov)
+
+`modelos/victor.bbmodel`: um personagem secundário, para usar mais tarde. O ocultista da C.R.O.S., 35 anos (eram 45: mudado em 11/nov, a pedido): sente os
+fantasmas e consegue bani-los, com magia, sem armas. Branco, magro, 1,84 m. O desenho (com uma referência do
+desenvolvedor; os traços, não o personagem dela):
+
+- **O rosto:** magro, as maçãs saltadas, olheiras leves de quem dorme pouco, a barba por fazer, sobrancelhas grossas e
+  baixas (o olhar duro), olhos cinza-azulados, a boca séria de cantos caídos.
+- **O cabelo:** grisalho cedo (escuro com fios brancos), em mechas grossas penteadas para trás, de alturas diferentes,
+  com uma ponta levantada na frente, mais branca; os lados curtos e a nuca mais escuros. Sem mecha com física.
+- **A roupa:** sobretudo preto de lã até o joelho, aberto, com lapelas largas; por baixo, o moletom cinza com o capuz
+  caído em volta do pescoço e o punho aparecendo na manga; camisa cinza-escura com a gravata preta de listras finas;
+  calça e botas pretas; anéis de prata no anelar esquerdo e no médio direito.
+- **A barra do sobretudo** fica em três pastas dentro do `quadril`: `casaco_d` e `casaco_e` (a frente e o lado de cada
+  perna, o ponto de giro na cintura) seguem as coxas, e `casaco_tras` abre quando ele corre
+  (`src/game/player/animacao.ts`). Qualquer personagem com essas pastas ganha a barra que mexe.
+- **As pastas são as do Matheus**, como na Lara e no Nicolas (sem as mechas `mecha_`). O jogo monta com `montarAgente('victor')`.
+- **Falta (quando ele entrar no jogo):** a magia (os gestos, os efeitos), sentir e banir; ver "O Victor" em `docs/jogo.md`.
 
 ## Os objetos (móveis, máquinas, lâmpadas)
 
@@ -183,4 +247,4 @@ e inclinadas. Os objetos, as portas e as armas continuam simples. O Matheus (214
    botas com cano, biqueira, salto e sola; gola, lapelas, bolsos, alças, cinto com bolsas, coldre e os frascos da mochila.
 3. **Os fantasmas no mesmo estilo:** ✅ a Mãe (o modelo, 10/nov; as animações em etapas), o Espectral e o Glutão (ver
    "A identidade visual" em `docs/jogo.md`).
-4. **Lara e Nicolas**, quando a demo Intro for trazida.
+4. **Lara e Nicolas**: ✅ os modelos (11/nov, acima); a lanterna da Lara, as rotas, as falas e as cenas quando a demo Intro for trazida.

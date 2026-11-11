@@ -91,7 +91,8 @@ src/
                            vogais, o grito, o sussurro; liga no primeiro clique; o volume é Geral × Efeitos
   dev/provas.ts            só no npm run dev (window.provas): fotos, medidas e o volume da Mãe, para conferir pelo console;
                            provas.ir(x, z, yaw) leva o agente a um ponto no Testar (dev/ganchos.ts), provas.qualidade() diz o nível,
-                           provas.sombras() conta as lâmpadas com sombra, provas.cena() dá a cena do Testar para inspecionar
+                           provas.sombras() conta as lâmpadas com sombra, provas.cena() dá a cena do Testar para inspecionar,
+                           provas.passo() mostra um ciclo do andar em 8 quadros (também de lado e de costas), provas.escorrega() mede o pé de apoio
   audio/espaco.ts          o som 3D: a voz sai da boca do personagem, no mundo; o ouvido é a câmera (ouvinte, a cada quadro)
   render/                  qualidade.ts (os níveis Baixo, Médio, Alto e Ultra, os recursos ajustáveis um a um e o automático), passeFinal.ts (a passada de
                            tela cheia do Médio e do Alto: bloom, tonemapping, correção de cor, vinheta), contorno.ts (o contorno de luz
@@ -119,7 +120,8 @@ src/
                            Aberturas (portas, janelas) + Luar (feixe macio, brilho, poeira), Paleta, doc.ts (o documento e as operações),
                            historico.ts (desfazer e refazer)
 texturas/                  as texturas do cenário: <nome>.png, 32 × 32 px por bloco de 1 m, pintadas em pixel e sem costura
-modelos/                   os modelos do Blockbench (.bbmodel), lidos direto pelo jogo: agente.bbmodel, objetos/<tipo>.bbmodel,
+modelos/                   os modelos do Blockbench (.bbmodel), lidos direto pelo jogo: agente.bbmodel, lara.bbmodel,
+                           nicolas.bbmodel e victor.bbmodel (o mesmo esqueleto do agente), objetos/<tipo>.bbmodel,
                            aberturas/<tipo>.bbmodel (as portas e janelas), armas/<nome>.bbmodel (pistola, escopeta, armadilha),
                            fantasmas/<nome>.bbmodel (a Mãe)
 public/musica/             as músicas do jogo (menu.mp3: o menu e o criador de mapas)
@@ -148,7 +150,9 @@ src/game/                  (já existem: Testar.tsx, player/, input/, world/, we
                            no Testar), mira.ts (mirar: a pose, o coice, a bomba depois do tiro), queda.ts (cair sem violência), dano.ts (o tranco de um golpe,
                            machucado), vida.ts (a vida, a invulnerabilidade, o kit), parado.ts (a respiração, o
                            peso e os gestos de parado), alcancar.ts (o braço alcança um ponto: IK de dois ossos),
-                           rosto.ts (as expressões), controle.ts (andar, correr, esquivar), numeros.ts
+                           rosto.ts (as expressões), passada.ts (as curvas de uma passada de verdade: andar e correr),
+                           pes.ts (o pé de apoio preso no chão, em qualquer direção: IK da perna), controle.ts
+                           (andar, correr, esquivar), numeros.ts
   weapons/                 tiro.ts (o gatilho e a cadência), clarao.ts (o clarão no cano), armadilha.ts (jogar: o voo em
                            arco, grudar, chamar de volta, a linha do arco), numeros.ts; depois a bala e a sobrecarga
   enemies/<nome>/          um fantasma por pasta (mae/, espectral/, glutao/): IA, ataques, modelo, números; a Mãe já tem

@@ -195,7 +195,10 @@ export function Testar({ chunks, levels, ambiente, areas, inicio, yaw, portas, o
     // a arma aponta para o ponto que a câmera mira (de onde a câmera estava no quadro anterior: ela anda depois)
     v.f.set(Math.sin(s.camYaw) * Math.cos(s.pitch), Math.sin(s.pitch), Math.cos(s.camYaw) * Math.cos(s.pitch))
     v.alvo.copy(cam.position).addScaledVector(v.f, CAMERA.alcanceMira)
-    animarAgente(agente, { velocidade: j.velocidade, corrida: j.corrida, esquiva: j.esquiva >= 0 ? Math.min(1, j.esquiva / 0.5) : -1, expressao: ver.current.exp, mao: ver.current.mao, mira: { quer, alvo: v.alvo }, queda: caido ? j.caido : undefined, ferido: machucado(vida) }, dt)
+    // a velocidade no espaço do agente (x para a esquerda dele, z para a frente): mirando, ele anda de lado e de costas
+    const vl = Math.hypot(j.vx, j.vz) > 1e-3 ? j.velocidade / Math.hypot(j.vx, j.vz) : 0
+    const mover: [number, number] = [(j.vx * Math.cos(j.yaw) - j.vz * Math.sin(j.yaw)) * vl, (j.vx * Math.sin(j.yaw) + j.vz * Math.cos(j.yaw)) * vl]
+    animarAgente(agente, { mover, velocidade: j.velocidade, corrida: j.corrida, esquiva: j.esquiva >= 0 ? Math.min(1, j.esquiva / 0.5) : -1, expressao: ver.current.exp, mao: ver.current.mao, mira: { quer, alvo: v.alvo }, queda: caido ? j.caido : undefined, ferido: machucado(vida) }, dt)
     const atira = acoes.atirar() && j.esquiva < 0 && !caido
     gatilho(agente, atira, dt)
     // a armadilha: o arremesso solta ela no meio da animação; fora, um clique chama de volta; voltando, chega na mão

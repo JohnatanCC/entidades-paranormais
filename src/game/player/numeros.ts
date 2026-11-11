@@ -40,6 +40,45 @@ export const CAMERA = {
   alcanceMira: 25, // m: o ponto para onde a arma aponta, na frente da câmera
 }
 
+// O andar (player/passada.ts e animacao.ts): o tamanho do passo e quanto o quadril, o tronco e os braços acompanham.
+// Depois cada personagem ganha os seus (a Lara mais leve, o Victor mais lento)
+export const ANDAR = {
+  passada: 1.69, // m andados num ciclo (um passo de cada perna), na velocidade de andar: medido para o pé não escorregar
+  perna: 0.875, // m: a perna do Matheus, com que a passada foi medida (outra perna, o passo cresce ou encolhe junto)
+  curto: 0.68, // devagar (mirando), o passo encolhe até esta fração, e as curvas junto (medido: o pé não escorrega)
+  virar: 0.6, // rad: andando de lado (mirando), as pernas dão o passo virado até aqui para o lado do movimento
+  quadril: 1.45, joelho: 1.1, tornozelo: 1, // quanto das curvas da passada cada junta faz (o andar do jogo é rápido: passo largo)
+  giro: 0.09, // rad: o quadril gira levando à frente o lado da perna da frente (o tronco desfaz)
+  queda: 0.05, // rad: o quadril cai do lado da perna que está no ar
+  lado: 0.022, // m: o quadril vai para o lado do pé de apoio
+  braco: { frente: 18, tras: 10, atraso: 0.06 }, // graus para a frente e para trás; o atraso (fração do ciclo) atrás da perna
+  cotovelo: { base: 0.08, balanco: 0.26, atraso: 0.08 }, // rad: o cotovelo dobra mais quando o braço vem à frente, um pouco depois
+}
+
+// A corrida (player/passada.ts e animacao.ts): como o andar, mais o voo e o corpo inclinado
+export const CORRER = {
+  passada: 2.9, // m corridos num ciclo (um passo de cada perna), com a perna do Matheus: medido para o pé não escorregar
+  quadril: 1, joelho: 1, tornozelo: 1, // quanto das curvas da corrida cada junta faz
+  apoio: 0.35, // a fração do ciclo com o pé no chão (o que passa disso até o outro pé tocar é o voo)
+  voo: 0.05, // m: o quanto o corpo sobe no voo
+  desce: 0.03, // m: o quanto ele desce no meio do apoio (a perna dobra recebendo o peso)
+  inclina: 0.2, // rad: o corpo inclinado para a frente (um pouco no quadril, o resto na coluna)
+  giro: 0.07, queda: 0.06, lado: 0.008, // o quadril: como no andar (o tronco desfaz)
+  braco: { frente: 30, tras: 40, atraso: 0.03 }, // graus; bombeando: mais para trás que para a frente
+  cotovelo: { base: 1.3, balanco: 0.35, atraso: 0.05 }, // rad: dobrado perto de 90°, fecha mais na frente
+}
+
+// As transições (animacao.ts): o corpo inclina ao acelerar e ao frear, deita para dentro da curva e, parando, termina
+// o passo até o próximo pé tocar o chão
+export const TRANSICAO = {
+  acelera: 0.03, // rad por m/s²: o quanto inclina para a frente acelerando (para trás freando)
+  inclinaMax: 0.2, // rad: o máximo dessa inclinação
+  curva: 0.04, // rad por (rad/s × m/s): o quanto deita para dentro da curva (mais rápido e mais fechada, mais)
+  curvaMax: 0.22, // rad: o máximo
+  suave: 7, // quão depressa as inclinações chegam e somem
+  termina: 1.8, // ciclos por segundo: parando, a perna no ar termina o passo até tocar
+}
+
 // Parado (player/parado.ts): a respiração, o peso trocando de perna, o balanço da arma e os gestos sozinhos
 export const PARADO = {
   espera: [8, 15], // segundos parado até o próximo gesto (sorteado entre os dois)
