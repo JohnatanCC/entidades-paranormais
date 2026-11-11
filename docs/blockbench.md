@@ -39,14 +39,36 @@ salvar no Blockbench atualiza o jogo (se o Testar estiver aberto, saia e entre d
   espaço de UV, então cada unidade tem 2 × 2 px para pintar. A frente e os lados da cabeça (`cranio`) e as peças do rosto (olhos,
   íris, sobrancelhas, boca) têm UV próprio, com 4 × 4 px por unidade: o rosto, o nariz, as orelhas e a barba são pintados ali, e as
   peças finas dão a expressão. Deixe essas oito sem Box UV.
-- **Equilibrado, não super-realista** (pedido em 10/nov): a cabeça é um bloco só, sem mandíbula separada; o nariz e as
-  orelhas são pintura (sprites), não blocos.
-- O modelo tem bastante peça (88 blocos), mas o jogo junta os blocos de cada pasta numa malha só: o peso vem do número
+- **Equilibrado, não super-realista** (pedido em 10/nov; refinado em 11/nov, ver "Os personagens em blocos refinados"):
+  o rosto continua pintado na frente da cabeça, sem mandíbula separada no Matheus; o nariz e as orelhas são blocos
+  pequenos por cima da pintura.
+- O modelo tem bastante peça (214 blocos), mas o jogo junta os blocos de cada pasta numa malha só: o peso vem do número
   de pastas, não de blocos. Detalhe à vontade dentro das pastas que já existem.
 - **Proporções quase realistas:** cabeça só um pouco maior, mãos normais. O terror vem da ambientação e dos fantasmas.
 - Peça nova (um coldre, óculos, o cabelo com mais volume): ponha dentro da pasta que deve levá-la junto (óculos na
   `cabeca`, coldre na `coxa_d`). A bota fica na pasta do pé (`pe_e`): é por ela que o jogo acha a sola e põe os pés no chão.
 - Uma textura só por modelo (a primeira da lista é a que vale).
+
+## Os personagens em blocos refinados (decidido em 11/nov)
+
+As pessoas e os fantasmas são **menos "Minecraft"** que o cenário: o corpo é feito de muitas peças pequenas, chanfradas
+e inclinadas. Os objetos, as portas e as armas continuam simples. O Matheus (214 blocos; eram 89) e a Mãe (259; eram
+118) já estão assim; o Espectral, o Glutão, Lara e Nicolas nascem assim. Os modelos antigos estão no git.
+
+- **O trecho chanfrado:** um braço, uma coxa ou a cintura não é um bloco só: são três blocos cruzados na mesma altura
+  (um largo e raso, um médio, um estreito e fundo), e o corte fica um octógono. Vários trechos empilhados, cada um um
+  pouco mais fino, fazem o membro afinar (bíceps, pulso, coxa, panturrilha).
+- **As peças inclinadas** dão o que o bloco reto não dá: o trapézio, o topo do ombro, o peitoral, a orelha, o nariz, o
+  peito do pé, os tufos do cabelo; na Mãe, o busto, as clavículas, as escápulas, a espinha saltada.
+- **A cabeça não é um cubo:** o meio com o rosto pintado, as têmporas recuadas, as bochechas e o queixo mais estreitos; o
+  nariz e as orelhas são blocos por cima da pintura. No Matheus ela tem 84% da largura antiga. Na Mãe o rosto recua
+  em dois degraus para os lados, o queixo afina em três até a ponta, as maçãs do rosto são peças inclinadas e o topo
+  do cabelo é uma cúpula chanfrada (pedido em 11/nov: o rosto estava quadrado).
+- **Não pesa:** o detalhe vai **dentro das pastas que já existem**. O jogo junta tudo numa malha só (uma chamada de
+  desenho por personagem); o que custa é pasta nova (junta), não bloco. Por isso **a saia e a anágua da Mãe ficaram
+  como eram** (cada painel é uma junta com física) e as mechas dela só afinam até a ponta, sem pasta nova.
+- **A pintura** de cada peça nova nasceu da projeção da pintura do bloco antigo (os botões, as costuras e o rosto
+  ficaram no lugar): nos degraus entre os trechos ela é aproximada e pede retoque à mão.
 
 ## Os objetos (móveis, máquinas, lâmpadas)
 

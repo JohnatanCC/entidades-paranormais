@@ -51,7 +51,8 @@ e captura entidades. Este projeto começa pelo **Modo desenvolvedor → Criador 
   Observador, Reflexo, Amigo), a demo da casa como fase, a demo "O Bando", a fatia, o círculo de velas, o orbe, o pé de cabra.
   Fora agora não quer dizer fora para sempre: se o desenvolvedor trouxer de volta, atualize esta lista.
 - **A identidade visual** (decidida em 10/nov): cenário e personagens em **blocos com textura pintada em pixel** (cenário
-  com 32 px por metro, personagens com 64 e o rosto com 128), com **proporções quase realistas** (nada de cabeça e mãos grandes). O terror vem da ambientação: pouca luz,
+  com 32 px por metro, personagens com 64 e o rosto com 128), com **proporções quase realistas** (nada de cabeça e mãos grandes). As pessoas e os fantasmas são em **blocos refinados**
+  (decidido em 11/nov): muitas peças pequenas, chanfradas e inclinadas, dentro das mesmas juntas; os objetos continuam simples. O terror vem da ambientação: pouca luz,
   fantasmas com formas erradas, olhos que brilham, movimentos travados. O estilo é parecido com o do Hytale, mas os
   personagens são nossos: não copiar os deles.
 - Os modelos dos personagens, dos objetos e (quando chegarem) das armas são feitos no **Blockbench** (o passo a passo
