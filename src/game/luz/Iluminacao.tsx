@@ -63,7 +63,7 @@ export function Iluminacao({ ambiente, areas = SEM_AREAS, em, semCeu, definicao 
   useEffect(() => () => { if (c.cupula) descartarCeu(c.cupula) }, [c])
 
   // as texturas do nível: o reflexo dos materiais e a nitidez ao longe (ao sair, voltam a ser as do editor)
-  useEffect(() => { ajustarMateriais(N.recursos.brilho, N.recursos.filtro); return () => ajustarMateriais(true, 4) }, [N.recursos.brilho, N.recursos.filtro])
+  useEffect(() => { ajustarMateriais(N.recursos.brilho, N.recursos.filtro, N.recursos.relevo); return () => ajustarMateriais(true, 4, 'nao') }, [N.recursos.brilho, N.recursos.filtro, N.recursos.relevo])
 
   // a luz indireta do mapa (o recurso do Ultra): com ela, a luz ambiente geral baixa (o mapa é que diz onde tem luz)
   const indireta = N.recursos.indireta

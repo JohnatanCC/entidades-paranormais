@@ -10,10 +10,11 @@
 //   etapa 2: o bloom, dentro do passe final;
 //   etapa 3: a sombra de canto e a luz assada valem sempre (são da malha, não custam por quadro);
 //   etapa 4: as sombras em tempo real (render/sombras.ts);
-//   etapa 5: o brilho das texturas (5a); o relevo entra aqui como recurso do Ultra (5b).
+//   etapa 5: o brilho das texturas (5a); o relevo das texturas, recurso do Ultra (5b e 5c).
 import { useMemo, useSyncExternalStore } from 'react'
 import { getSettings, useSettings } from '../settings/settings'
 import type { Bloom } from './passeFinal'
+import type { Relevo } from './relevo'
 
 export type Nivel = 'baixo' | 'medio' | 'alto' | 'ultra'
 export type Qualidade = 'auto' | Nivel
@@ -31,14 +32,15 @@ export interface Recursos {
   sombraRitmo: 1 | 2 // de quantos em quantos quadros cada sombra é refeita (2 = metade do custo, um quadro de atraso)
   indireta: boolean // a luz indireta do mapa (maps/luzAssada.ts): o escuro fica escuro de verdade, a luz se espalha pelos cômodos
   brilho: boolean // as texturas refletem a luz conforme o material (mármore brilha, tapete não)
+  relevo: Relevo // o relevo das texturas: 'luz' = cada pixel pega a luz como se tivesse volume; 'fundo' = também se desloca com a câmera (render/relevo.ts)
   filtro: 1 | 4 | 8 // a nitidez das texturas vistas de lado (o chão ao longe)
 }
 
 export const NIVEIS: Record<Nivel, Recursos & { nome: string }> = {
-  baixo: { nome: 'Baixo', resolucao: 1, passe: false, bordas: 0, bloom: 'nao', sombraLampadas: 0, sombraDetalhe: 512, sombraLua: 0, sombraMacia: false, sombraRitmo: 2, indireta: false, brilho: true, filtro: 1 },
-  medio: { nome: 'Médio', resolucao: 1.5, passe: true, bordas: 2, bloom: 'leve', sombraLampadas: 1, sombraDetalhe: 512, sombraLua: 1024, sombraMacia: false, sombraRitmo: 2, indireta: false, brilho: true, filtro: 4 },
-  alto: { nome: 'Alto', resolucao: 2, passe: true, bordas: 4, bloom: 'cheio', sombraLampadas: 3, sombraDetalhe: 512, sombraLua: 2048, sombraMacia: true, sombraRitmo: 1, indireta: false, brilho: true, filtro: 4 },
-  ultra: { nome: 'Ultra', resolucao: 2, passe: true, bordas: 4, bloom: 'cheio', sombraLampadas: 3, sombraDetalhe: 1024, sombraLua: 4096, sombraMacia: true, sombraRitmo: 1, indireta: true, brilho: true, filtro: 8 },
+  baixo: { nome: 'Baixo', resolucao: 1, passe: false, bordas: 0, bloom: 'nao', sombraLampadas: 0, sombraDetalhe: 512, sombraLua: 0, sombraMacia: false, sombraRitmo: 2, indireta: false, brilho: true, relevo: 'nao', filtro: 1 },
+  medio: { nome: 'Médio', resolucao: 1.5, passe: true, bordas: 2, bloom: 'leve', sombraLampadas: 1, sombraDetalhe: 512, sombraLua: 1024, sombraMacia: false, sombraRitmo: 2, indireta: false, brilho: true, relevo: 'nao', filtro: 4 },
+  alto: { nome: 'Alto', resolucao: 2, passe: true, bordas: 4, bloom: 'cheio', sombraLampadas: 3, sombraDetalhe: 512, sombraLua: 2048, sombraMacia: true, sombraRitmo: 1, indireta: false, brilho: true, relevo: 'nao', filtro: 4 },
+  ultra: { nome: 'Ultra', resolucao: 2, passe: true, bordas: 4, bloom: 'cheio', sombraLampadas: 3, sombraDetalhe: 1024, sombraLua: 4096, sombraMacia: true, sombraRitmo: 1, indireta: true, brilho: true, relevo: 'fundo', filtro: 8 },
 }
 const ORDEM: Nivel[] = ['baixo', 'medio', 'alto', 'ultra']
 
@@ -57,6 +59,7 @@ export const OPCOES: Opcao[] = [
   opcao({ chave: 'sombraMacia', grupo: 'Luz e sombra', nome: 'Borda da sombra', ajuda: 'A borda esfumada custa bem mais em cada pixel.', valores: [[false, 'Dura'], [true, 'Macia']] }),
   opcao({ chave: 'sombraRitmo', grupo: 'Luz e sombra', nome: 'Sombra refeita', ajuda: 'Quadro sim, quadro não: metade do custo, com um quadro de atraso.', valores: [[2, 'Quadro sim, quadro não'], [1, 'Todo quadro']] }),
   opcao({ chave: 'brilho', grupo: 'Texturas', nome: 'Reflexo dos materiais', ajuda: 'Mármore e azulejo refletem a luz; tapete e reboco, não.', valores: [[false, 'Desligado'], [true, 'Ligado']] }),
+  opcao({ chave: 'relevo', grupo: 'Texturas', nome: 'Relevo', ajuda: 'O rejunte afunda, o veio da madeira aparece: cada pixel pega a luz como se tivesse volume. "De verdade" também desloca a textura conforme o ângulo da câmera: o mais pesado em cada pixel.', valores: [['nao', 'Não'], ['luz', 'Na luz'], ['fundo', 'De verdade']] }),
   opcao({ chave: 'filtro', grupo: 'Texturas', nome: 'Nitidez ao longe', ajuda: 'O chão e as paredes vistos de lado ficam mais nítidos.', valores: [[1, 'Baixa'], [4, 'Normal'], [8, 'Alta']] }),
 ]
 

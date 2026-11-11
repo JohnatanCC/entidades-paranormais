@@ -95,9 +95,9 @@ O que está decidido sobre a luz, como ela é feita e as etapas. Os números fic
 recursos; nas configurações o jogador escolhe o nível e pode mudar qualquer recurso por cima dele (os ajustes ficam
 guardados junto; trocar de nível desfaz). Os recursos de hoje: resolução, correção de cor, bordas suaves, brilho das
 luzes (bloom), sombra das lâmpadas (0, 1 ou 3), detalhe da sombra, sombra da lua, borda da sombra, ritmo da sombra,
-reflexo dos materiais e nitidez das texturas ao longe. **O Ultra é o mais pesado: tudo o que melhora luz e sombra entra
-nele primeiro** (decisão do desenvolvedor); hoje ele é o Alto com a sombra das lâmpadas em 1024, a da lua em 4096 e as
-texturas mais nítidas ao longe. O Automático nunca escolhe o Ultra. Um recurso novo: o campo em `Recursos`, o valor em
+reflexo dos materiais, relevo das texturas e nitidez das texturas ao longe. **O Ultra é o mais pesado: tudo o que melhora luz e sombra entra
+nele primeiro** (decisão do desenvolvedor); hoje ele é o Alto com a sombra das lâmpadas em 1024, a da lua em 4096, a luz
+indireta, o relevo das texturas e as texturas mais nítidas ao longe. O Automático nunca escolhe o Ultra. Um recurso novo: o campo em `Recursos`, o valor em
 cada nível e a linha em `OPCOES` (ela aparece sozinha nas configurações). A tabela abaixo é a dos três primeiros níveis.
 
 | Nível | Resolução (pixels por ponto da tela) | Passada final (cor, vinheta) | Bloom | Suavização das bordas | Lâmpadas no cenário | Sombras |
@@ -128,7 +128,7 @@ botão "usar". Os números ficam em `TESTE`. Sem a mansão na pasta, usa o mapa 
 
 **Medido com o teste no PC do desenvolvedor** (11/nov, 1920 × 919, tela de 60 quadros por segundo; média e mínimo): Baixo 59 e
 56, Médio 60 e 57, Alto 42 e 32, Ultra 29 e 23. As metas estão cumpridas. O Baixo e o Médio batem no teto da tela: para
-comparar mudanças neles, vale o mínimo. Os 45 do Médio vistos antes eram de um ponto só do salão, o mais pesado da casa.
+comparar mudanças neles, vale o mínimo. O Ultra foi medido antes do relevo das texturas (etapas 5b e 5c): falta medir de novo. Os 45 do Médio vistos antes eram de um ponto só do salão, o mais pesado da casa.
 
 Nas configurações: **Automático** (o padrão; mostra qual nível escolheu), Baixo, Médio e Alto. O automático olha o
 aparelho (tela de toque, memória, núcleos, o nome da placa de vídeo) e, nos primeiros segundos de uma cena de jogo, mede
@@ -150,8 +150,17 @@ vale até recarregar a página.
 5. **Materiais.** **5a ✅ (11/nov)** o brilho de cada textura: o catálogo (`src/maps/textures.ts`) diz o `brilho` de 0
    (fosca) a 1 (polida) e se é `metal`; mármore, azulejo e ladrilho refletem a luz, tapete, reboco e grama não. Sem
    custo (é um número do material). Só as luzes de verdade fazem reflexo (o luar, o preenchimento e as lâmpadas com
-   sombra): aparece no Médio e no Alto, quase nada no Baixo. Os móveis e os personagens não entraram. **5b** o relevo de luz gerado da própria textura, como recurso do Ultra (o nível já existe);
-   **5c** o relevo de verdade (parallax), só no Ultra, como experimento.
+   sombra): aparece no Médio e no Alto, quase nada no Baixo. Os móveis e os personagens não entraram.
+   **5b e 5c ✅ (11/nov)** o relevo das texturas do cenário (`src/render/relevo.ts`), o recurso "Relevo" das
+   configurações: Não, Na luz ou De verdade. O Ultra vem com "De verdade"; os outros níveis, sem (ajustável em qualquer
+   um). Ninguém pinta nada: o relevo sai da própria imagem quando ela carrega (o claro sobe, o escuro afunda: o
+   rejunte, o veio da madeira, o desenho do papel). **Na luz (5b)**: um mapa de normais, cada pixel pega a luz como se
+   tivesse volume; só as luzes de verdade mostram (o luar, o preenchimento, as lâmpadas com sombra). **De verdade
+   (5c, experimento)**: além disso a textura se desloca conforme o ângulo da câmera (parallax em degraus, com cara de
+   bloco), e o que afunda some atrás do que sobe; a profundidade é de `RELEVO.fundo` (3,5 cm, um pixel da textura) e
+   só vale até `RELEVO.longe` (9 m), porque custa de 6 a 14 leituras de textura por pixel. Limites: os móveis, as
+   portas e os personagens não têm relevo; o relevo não faz sombra nele mesmo; a silhueta das quinas continua reta.
+   Se o "De verdade" pesar demais no Ultra ou não agradar, é trocar o valor do nível para `'luz'` em `NIVEIS`.
 
 **A luz indireta ✅ (11/nov; o recurso "Luz indireta", ligado no Ultra e ajustável em qualquer nível).** Antes a luz
 ambiente era igual em todo lugar, e um salão sem lâmpada ficava com o piso claro por igual. Agora o mapa calcula a luz

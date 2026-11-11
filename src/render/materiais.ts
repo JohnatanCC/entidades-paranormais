@@ -6,6 +6,7 @@ import * as THREE from 'three'
 import { BRILHO_PADRAO, TEXTURAS } from '../maps/textures'
 import { aplicarAssada } from './assada'
 import { aplicarCorte } from './corte'
+import { aplicarRelevo, comFundo, novoRelevo, type Relevo } from './relevo'
 
 export const TOPO = '#topo' // o corte da parede (topo e a parte de baixo das vergas)
 export const BATENTE = '#batente' // a madeira do batente, por dentro da espessura da parede (o resto da porta vem do modelo)
@@ -25,13 +26,27 @@ export function texturaDe(nome: string): THREE.Texture | null {
   if (!t) {
     const url = urlDe(nome)
     if (!url || !TEXTURAS[nome]) return null
-    t = carregador.load(url)
+    t = carregador.load(url, () => aoCarregar.get(nome)?.())
     t.magFilter = THREE.NearestFilter; t.minFilter = THREE.LinearMipmapLinearFilter; t.generateMipmaps = true; t.anisotropy = filtroAtual
     t.colorSpace = THREE.SRGBColorSpace
     t.wrapS = t.wrapT = THREE.RepeatWrapping
     texturas.set(nome, t)
   }
   return t
+}
+
+// o relevo de cada textura (render/relevo.ts): gerado da imagem quando ela chega
+const relevos = new Map<string, THREE.Texture>(), aoCarregar = new Map<string, () => void>()
+
+function relevoDe(nome: string): THREE.Texture | null {
+  let r = relevos.get(nome)
+  if (r) return r
+  const t = texturaDe(nome)
+  if (!t) return null
+  const novo = novoRelevo(filtroAtual), pintar = () => { if (t.image) novo.pintar(t.image as HTMLImageElement) }
+  aoCarregar.set(nome, pintar); pintar()
+  relevos.set(nome, (r = novo.textura))
+  return r
 }
 
 /** O material de um nome do catálogo (magenta se o nome não existe; TOPO e BATENTE são só cor).
@@ -45,20 +60,27 @@ export function materialDe(nome: string, corte = false): THREE.MeshStandardMater
     // e a luz assada das lâmpadas, que o Baixo e o Médio usam no lugar das de verdade (render/assada.ts)
     // o brilho da textura (o catálogo diz): quanto mais brilho, menos áspera a superfície e mais nítido o reflexo da luz
     const def = TEXTURAS[nome]
-    m = aplicarAssada(new THREE.MeshStandardMaterial({ map, color: cor ?? (map ? '#ffffff' : '#ff00ff'), roughness: asperezaDe(nome), metalness: def?.metal ? 0.6 : 0, vertexColors: true }))
+    m = aplicarRelevo(aplicarAssada(new THREE.MeshStandardMaterial({ map, color: cor ?? (map ? '#ffffff' : '#ff00ff'), roughness: asperezaDe(nome), metalness: def?.metal ? 0.6 : 0, vertexColors: true })))
     if (corte) aplicarCorte(m)
+    if (relevoAtual !== 'nao' && map) { m.normalMap = relevoDe(nome); comFundo(m, relevoAtual === 'fundo') }
     materiais.set(chave, m)
   }
   return m
 }
 
 /** As texturas no nível de qualidade: brilho = os materiais refletem a luz conforme o catálogo (sem ele, tudo quase
- *  fosco); filtro = a nitidez das texturas vistas de lado. Vale para os materiais já criados e para os próximos. */
-let comBrilho = true, filtroAtual = 4
-export function ajustarMateriais(brilho: boolean, filtro: number) {
-  comBrilho = brilho; filtroAtual = filtro
-  for (const [chave, m] of materiais) m.roughness = asperezaDe(chave.split('|')[0])
-  for (const t of texturas.values()) if (t.anisotropy !== filtro) { t.anisotropy = filtro; t.needsUpdate = true }
+ *  fosco); filtro = a nitidez das texturas vistas de lado; relevo = o relevo das texturas (render/relevo.ts). Vale para os materiais já criados
+ *  e para os próximos. */
+let comBrilho = true, filtroAtual = 4, relevoAtual: Relevo = 'nao'
+export function ajustarMateriais(brilho: boolean, filtro: number, relevo: Relevo) {
+  comBrilho = brilho; filtroAtual = filtro; relevoAtual = relevo
+  for (const [chave, m] of materiais) {
+    const nome = chave.split('|')[0], normal = relevo !== 'nao' && m.map ? relevoDe(nome) : null
+    m.roughness = asperezaDe(nome)
+    if (m.normalMap !== normal) { m.normalMap = normal; m.needsUpdate = true } // o programa muda (com e sem relevo)
+    comFundo(m, relevo === 'fundo' && !!normal)
+  }
+  for (const t of [...texturas.values(), ...relevos.values()]) if (t.anisotropy !== filtro) { t.anisotropy = filtro; t.needsUpdate = true }
 }
 const asperezaDe = (nome: string) => 1 - 0.8 * (comBrilho ? TEXTURAS[nome]?.brilho ?? BRILHO_PADRAO : BRILHO_PADRAO)
 
