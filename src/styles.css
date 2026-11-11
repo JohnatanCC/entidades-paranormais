@@ -40,6 +40,12 @@ button { font: inherit; color: inherit; }
 .previa.vazia { display: flex; align-items: center; justify-content: center; padding: 24px; color: var(--muted); font-size: 13px; text-align: center; }
 .previa-fps { position: absolute; right: 12px; top: 12px; margin: 0; padding: 4px 10px; background: rgba(16, 14, 11, .7); font: 12px/1.5 var(--body); color: var(--fg); text-align: right; white-space: pre; pointer-events: none; }
 .previa-fps:empty { display: none; }
+.teste-form { display: flex; flex-direction: column; gap: 8px; }
+.resultado-teste { border-collapse: collapse; font-size: 13px; }
+.resultado-teste th { text-align: left; font-weight: 400; color: var(--muted); font-size: 11px; letter-spacing: .08em; text-transform: uppercase; padding: 2px 14px 4px 0; }
+.resultado-teste td { padding: 3px 14px 3px 0; }
+.resultado-teste tr.indicado td { color: var(--amber); }
+.resultado-teste .link { background: none; border: 0; padding: 0; color: var(--amber); text-decoration: underline; cursor: pointer; }
 .previa-dica { position: absolute; left: 12px; bottom: 10px; font-size: 11px; letter-spacing: .08em; color: var(--muted); pointer-events: none; }
 @media (max-width: 900px) { .config { grid-template-columns: 1fr; grid-template-rows: 38vh minmax(0, 1fr); } .previa { order: -1; border-left: 0; border-bottom: 1px solid var(--brass); } }
 .form .nota-form { font-size: 12px; color: var(--muted); line-height: 1.5; max-width: 560px; }

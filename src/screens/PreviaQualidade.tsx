@@ -22,8 +22,8 @@ const MAPA = 'teste-iluminacao'
 const AGENTE: [number, number, number] = [7, 0, 6] // no meio da sala, entre a lâmpada e a janela
 const OLHO = new THREE.Vector3(10.6, 1.75, 9.2), ALVO = new THREE.Vector3(6, 1.1, 4.4)
 
-/** Os blocos do mapa da prévia (ou null enquanto carregam; vazio se o mapa não existe). */
-function useSala() {
+/** Os blocos de um mapa da pasta (ou null enquanto carregam; vazio se o mapa não existe). */
+export function useMapa(MAPA: string) {
   const [chunks, setChunks] = useState<Record<string, Chunk> | null>(null)
   useEffect(() => {
     const meta = getMap(MAPA)
@@ -33,7 +33,7 @@ function useSala() {
       if (vivo) setChunks(Object.fromEntries(cs.filter((c): c is Chunk => !!c).map((c) => [`${c.cx}_${c.cz}`, c])))
     })
     return () => { vivo = false }
-  }, [])
+  }, [MAPA])
   return chunks
 }
 
@@ -65,7 +65,7 @@ function Cena({ chunks }: { chunks: Record<string, Chunk> }) {
 }
 
 export function PreviaQualidade() {
-  const chunks = useSala(), definicao = useDefinicao()
+  const chunks = useMapa(MAPA), definicao = useDefinicao()
   const fps = useRef<HTMLPreElement>(null)
   if (chunks && !Object.keys(chunks).length) return <div className="previa vazia">A sala de prévia (o mapa {MAPA}) não está na pasta maps/.</div>
   return (

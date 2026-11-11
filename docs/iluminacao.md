@@ -119,6 +119,17 @@ medidas de quadros feitas antes desse conserto não valem: parte delas foi com a
 lâmpada, a janela com luar, os móveis, o agente parado) desenhada com a qualidade escolhida, com os quadros por segundo
 (F3 mostra o detalhe). Mudar o nível ou um recurso muda a cena na hora. Se o mapa sair da pasta, a prévia avisa e some.
 
+**O teste de desempenho** (11/nov; `src/screens/TesteDesempenho.tsx`): nas configurações, "Testar todos os níveis" (ou só
+o escolhido) troca a prévia pela mansão inteira: o agente vai a seis paradas (o salão, o vestíbulo, cômodos com
+lâmpada, o andar de cima), a câmera gira em volta dele em cada uma, e o teste mede os quadros de cada nível: a média e o
+mínimo (o 1% mais lento). O primeiro segundo de cada parada não conta. Cada nível é medido puro, sem os ajustes. A
+tabela diz "liso" (50 ou mais), "jogável" (30 ou mais) ou "pesado", indica o melhor nível liso (ou jogável) e tem o
+botão "usar". Os números ficam em `TESTE`. Sem a mansão na pasta, usa o mapa de teste da iluminação.
+
+**Medido com o teste no PC do desenvolvedor** (11/nov, 1920 × 919, tela de 60 quadros por segundo; média e mínimo): Baixo 59 e
+56, Médio 60 e 57, Alto 42 e 32, Ultra 29 e 23. As metas estão cumpridas. O Baixo e o Médio batem no teto da tela: para
+comparar mudanças neles, vale o mínimo. Os 45 do Médio vistos antes eram de um ponto só do salão, o mais pesado da casa.
+
 Nas configurações: **Automático** (o padrão; mostra qual nível escolheu), Baixo, Médio e Alto. O automático olha o
 aparelho (tela de toque, memória, núcleos, o nome da placa de vídeo) e, nos primeiros segundos de uma cena de jogo, mede
 os quadros: se a média passar de 24 ms, desce um nível e mede de novo. Só desce (subir e descer sem parar seria pior), e

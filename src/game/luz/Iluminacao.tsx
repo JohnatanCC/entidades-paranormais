@@ -20,7 +20,7 @@ import { BRILHO, FORCA_COM_BLOOM } from '../../render/brilho'
 import { CONTORNO } from '../../render/contorno'
 import { novoPasseFinal, type Bloom, type PasseFinal } from '../../render/passeFinal'
 import { ajustarMateriais } from '../../render/materiais'
-import { MEDICAO, descerNivel, useDefinicao } from '../../render/qualidade'
+import { MEDICAO, descerNivel, useDefinicao, type Definicao } from '../../render/qualidade'
 import { descartarCeu, novoCeu } from './ceu'
 import { escolherSombras, refazerSombras, semSombras } from '../../render/sombras'
 import { ambienteEm, novaLuzViva, passoLuz, type Luz } from './luz'
@@ -29,6 +29,7 @@ interface Props {
   ambiente: string // a ambientação padrão do mapa (ou a única, numa cena sem áreas)
   areas?: AreaAmbiente[] // as áreas do mapa com outra ambientação
   em?: THREE.Vector3 // onde o agente está (lido a cada quadro); sem ele, vale a padrão
+  definicao?: Definicao // a qualidade a usar no lugar da das configurações (o teste de desempenho); com ela, o automático não mede
   semCeu?: boolean // sem a cúpula do céu (o Ver modelos: o fundo fica liso)
 }
 
@@ -36,9 +37,9 @@ const SEM_AREAS: AreaAmbiente[] = []
 const _f = new THREE.Vector3(), _a = new THREE.Vector3()
 const LONGE = 45 // a que distância do agente a lua "fica" para fazer a sombra (m)
 
-export function Iluminacao({ ambiente, areas = SEM_AREAS, em, semCeu }: Props) {
+export function Iluminacao({ ambiente, areas = SEM_AREAS, em, semCeu, definicao }: Props) {
   const gl = useThree((s) => s.gl), scene = useThree((s) => s.scene)
-  const N = useDefinicao()
+  const daConfig = useDefinicao(), N = definicao ?? daConfig
   const lugar = () => (em ? ambienteEm(ambiente, areas, em.x, em.y, em.z) : ambienteDe(ambiente))
   const c = useMemo(() => {
     const viva = novaLuzViva(lugar())
@@ -116,7 +117,7 @@ export function Iluminacao({ ambiente, areas = SEM_AREAS, em, semCeu }: Props) {
     gl.toneMappingExposure = L.exposicao // sem o passe final, o tonemapping é o do próprio three
     // o automático: mede os quadros do começo e desce um nível se estiverem lentos (e mede de novo no nível novo)
     const m = medida.current
-    if (!m.feita && dt < 0.25 && (m.t += dt) > MEDICAO.espera) {
+    if (!definicao && !m.feita && dt < 0.25 && (m.t += dt) > MEDICAO.espera) {
       m.soma += dt; m.n++
       if (m.soma >= MEDICAO.janela) {
         if ((m.soma / m.n) * 1000 > MEDICAO.lento && descerNivel()) Object.assign(m, { t: 0, soma: 0, n: 0 })
