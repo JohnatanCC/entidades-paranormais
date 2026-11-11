@@ -39,6 +39,13 @@ O que está decidido sobre a luz, como ela é feita e as etapas. Os números fic
   `luz_` dos modelos: lâmpadas, chamas, os olhos da Mãe, a luz da armadilha) fica 3× mais forte que o branco enquanto o
   bloom está ligado (`src/render/brilho.ts`): é isso que dá o halo. O luar das janelas e as paredes bem perto de uma
   lâmpada também vazam um pouco. A força é o `brilho` de cada ambientação (o momento "a Mãe chegando" aumenta).
+- **A sombra de canto** (etapa 3a, nos três níveis; `src/editor/wallMesh.ts`): onde a parede encontra o chão, o teto ou
+  outra parede, a malha escurece macio (o "smooth lighting" do Minecraft). Cada vértice das paredes, dos pisos e dos
+  tetos guarda o quanto está encostado num canto, e o material multiplica a cor por isso. **Não fica gravado no mapa**
+  (decidido em 11/nov): é calculado das paredes e dos pisos toda vez que a malha é montada, como o corrimão automático;
+  o formato do mapa não mudou. Não custa nada por quadro. Aparece também no editor. Os números: `SOMBRA` (a força de
+  cada encosto e até onde a sombra sobe na parede). A porta e o vão não escurecem o chão; os móveis e as escadas não
+  entram na conta.
 - **Toda cena de jogo usa `<Iluminacao />`** (`src/game/luz/Iluminacao.tsx`): o Testar e a luz "Jogo" do Ver modelos.
 
 ## Os níveis de qualidade (`src/render/qualidade.ts`)
@@ -61,16 +68,19 @@ vale até recarregar a página.
    janela com luar e um canto escuro; um corredor; o quintal).
 2. **Bloom.** ✅ (11/nov) As lâmpadas, o luar das janelas, os olhos e as luzes dos modelos brilham, no Médio e no Alto.
    No Baixo nada muda (sem passada, sem bloom).
-3. **Luz e sombra de canto "assadas" no mapa** (o smooth lighting do Minecraft), calculadas no criador de mapas e
-   guardadas na malha: valem para os três níveis e não custam por quadro. Quando chegar, a luz ambiente das ambientações
-   baixa (a malha já traz a luz de cada canto) e a luz de fora deixa de clarear o que está dentro.
+3. **Luz e sombra "assadas" na malha do mapa**, nos três níveis, sem custo por quadro. Dividida em duas versões
+   (decidido em 11/nov):
+   - **3a. A sombra de canto.** ✅ (11/nov) O escurecimento macio dos cantos, calculado ao montar a malha.
+   - **3b. A luz das lâmpadas assada**, com as paredes bloqueando: a lâmpada para de clarear o cômodo vizinho e a luz de
+     fora deixa de clarear o que está dentro. Mexe em como os personagens e a lâmpada "falhando" são iluminados (hoje
+     cada lâmpada é uma luz de verdade): decidir isso antes de construir.
 4. **Sombras em tempo real**, só no nível Alto.
 
 ## Limites conhecidos
 
 - A ambientação é uma só para a tela inteira (a de onde o agente está): olhando de fora para dentro por uma porta, o
   interior aparece com a luz de fora, e o contrário. A etapa 3 resolve o grosso disso.
-- As luzes não fazem sombra: a lâmpada de um cômodo clareia o cômodo vizinho através da parede (etapas 3 e 4).
+- As luzes não fazem sombra: a lâmpada de um cômodo clareia o cômodo vizinho através da parede (etapas 3b e 4).
 - O feixe de luar das janelas tem a neblina dele, fixa: não acompanha a densidade da ambientação.
 - O editor e o Testar dividem a mesma tela, criada com a suavização de bordas do navegador ligada; no Médio e no Alto ela
   fica sem uso durante o teste. A tela própria do jogo, quando existir, nasce sem ela.

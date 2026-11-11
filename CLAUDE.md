@@ -101,7 +101,7 @@ src/
                            corrimao.ts (o corrimão automático das escadas, calculado do mapa; o editor desenha em editor/corrimaoMesh.ts)
   editor/                  MapEditor (a tela, conceito B), Gaveta (o catálogo embaixo), Icones, Inspetor (a janela flutuante),
                            Medida (a etiqueta ao construir), FerramentaContaGotas, MapManager (o gerenciador de mapas), MapView + wallMesh (desenha;
-                           paredes juntadas por textura, cantos fechados), EditorCamera, FerramentaParedes,
+                           paredes juntadas por textura, cantos fechados, a sombra de canto em cada vértice), EditorCamera, FerramentaParedes,
                            FerramentaPiso, FerramentaPincel, FerramentaAberturas + PainelAbertura, FerramentaEscadas + PainelEscada,
                            FerramentaObjetos + PainelObjeto, FerramentaAmbiente + PainelArea (as áreas de ambientação),
                            Objetos (monta o catálogo; a lâmpada acende),

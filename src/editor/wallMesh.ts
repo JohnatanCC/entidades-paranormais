@@ -4,6 +4,10 @@
 //   - encontra uma parede de lado (canto em L, T ou cruz): as faces avançam meia espessura e fecham o canto
 //     (o que avança para dentro da outra parede fica escondido nela);
 //   - ponta solta: uma tampa fecha a ponta.
+// A sombra de canto (a etapa 3a da iluminação, o "smooth lighting" do Minecraft): cada vértice das paredes, dos pisos e
+// dos tetos guarda o quanto ele está encostado num canto (parede com chão, com teto, com outra parede), e a malha escurece
+// macio ali. Não fica gravado no mapa: sai das paredes e dos pisos toda vez que a malha é montada, e não custa nada por
+// quadro (é uma cor por vértice; vale para os três níveis de qualidade).
 import * as THREE from 'three'
 import { LEVEL_H, type Axis, type Chunk, type Opening, type Wall, type WallSide } from '../maps/types'
 import { BATENTE, TOPO } from '../render/materiais' // o corte da parede (topo e vergas) e a madeira do batente
@@ -11,21 +15,29 @@ import { BATENTE, TOPO } from '../render/materiais' // o corte da parede (topo e
 export const ESPESSURA = 0.12 // a espessura da parede (m)
 const PORTA_H = 2.1, GRANDE_H = 2.8, JANELA_Y0 = 0.9, JANELA_Y1 = 2.1
 const T2 = ESPESSURA / 2
+/** A sombra de canto: forca = o quanto cada encosto escurece (dois encostos, duas vezes); alcance = até onde ela sobe na parede (m). */
+export const SOMBRA = { forca: 0.45, alcance: 0.7 }
+const sombra = (encostos: number) => (1 - SOMBRA.forca) ** encostos
 
-interface Buf { p: number[]; n: number[]; uv: number[]; i: number[] }
+interface Buf { p: number[]; n: number[]; uv: number[]; c: number[]; i: number[] }
+const novoBuf = (): Buf => ({ p: [], n: [], uv: [], c: [], i: [] })
 type V3 = [number, number, number]
 
 const k = (level: number, axis: Axis, x: number, z: number) => `${level}|${axis}|${x}|${z}`
 
-/** Um retângulo de 4 cantos na ordem da volta; a ordem é corrigida para a face olhar para o lado da normal. */
-function quad(b: Buf, c: V3[], n: V3, uv: [number, number][]) {
+/** Um retângulo de 4 cantos na ordem da volta; a ordem é corrigida para a face olhar para o lado da normal.
+ *  luz = a sombra de canto de cada canto (1 = sem sombra). */
+function quad(b: Buf, c: V3[], n: V3, uv: [number, number][], luz: number[] = SEM_SOMBRA) {
   const e1 = [c[1][0] - c[0][0], c[1][1] - c[0][1], c[1][2] - c[0][2]], e2 = [c[2][0] - c[0][0], c[2][1] - c[0][1], c[2][2] - c[0][2]]
   const cr = [e1[1] * e2[2] - e1[2] * e2[1], e1[2] * e2[0] - e1[0] * e2[2], e1[0] * e2[1] - e1[1] * e2[0]]
   const ordem = cr[0] * n[0] + cr[1] * n[1] + cr[2] * n[2] >= 0 ? [0, 1, 2, 3] : [0, 3, 2, 1]
   const v0 = b.p.length / 3
-  for (const j of ordem) { b.p.push(...c[j]); b.n.push(...n); b.uv.push(...uv[j]) }
-  b.i.push(v0, v0 + 1, v0 + 2, v0, v0 + 2, v0 + 3)
+  for (const j of ordem) { b.p.push(...c[j]); b.n.push(...n); b.uv.push(...uv[j]); b.c.push(luz[j], luz[j], luz[j]) }
+  // a diagonal liga os dois cantos mais claros: com um canto só escuro, o degradê não "quebra" no meio do quadrado
+  if (luz[1] + luz[3] > luz[0] + luz[2]) b.i.push(v0, v0 + 1, v0 + 3, v0 + 1, v0 + 2, v0 + 3)
+  else b.i.push(v0, v0 + 1, v0 + 2, v0, v0 + 2, v0 + 3)
 }
+const SEM_SOMBRA = [1, 1, 1, 1]
 
 /** Os trechos de altura que ficam de pé: a porta tira de baixo, a janela tira do meio. */
 function trechos(op?: Opening): [number, number][] {
@@ -42,12 +54,14 @@ export function buraco(op: Opening): [number, number] {
 /** As geometrias das paredes até o andar maxLevel, uma por nome de textura (e TOPO para os cortes). */
 export function wallGeometries(chunks: Chunk[], maxLevel: number): Map<string, THREE.BufferGeometry> {
   const tem = new Set<string>(), aberturas = new Map<string, Opening>(), walls: Wall[] = []
+  const pisos = new Set<string>() // os quadrados com piso (de todos os andares: o piso de cima é o teto, que faz sombra no alto da parede)
   for (const c of chunks) {
+    for (const f of c.floors) pisos.add(`${f.level}_${f.x}_${f.z}`)
     for (const w of c.walls) if (w.level <= maxLevel) { tem.add(k(w.level, w.axis, w.x, w.z)); walls.push(w) }
     for (const o of c.openings) for (let i = 0; i < o.width; i++) aberturas.set(k(o.level, o.axis, o.axis === 'x' ? o.x + i : o.x, o.axis === 'z' ? o.z + i : o.z), o)
   }
   const bufs = new Map<string, Buf>()
-  const buf = (tex: string) => { let b = bufs.get(tex); if (!b) bufs.set(tex, (b = { p: [], n: [], uv: [], i: [] })); return b }
+  const buf = (tex: string) => { let b = bufs.get(tex); if (!b) bufs.set(tex, (b = novoBuf())); return b }
 
   for (const w of walls) {
     const L = w.level, y0 = L * LEVEL_H, ax = w.axis
@@ -71,7 +85,22 @@ export function wallGeometries(chunks: Chunk[], maxLevel: number): Map<string, T
       if (side.base && ya < hb) faixas.push([ya, Math.min(yb, hb), side.base.tex])
       if (yb > Math.max(ya, hb)) faixas.push([Math.max(ya, hb), yb, side.tex])
       const d = sinal * T2
-      for (const [fa, fb, tex] of faixas) quad(buf(tex), [P(u0, d, fa), P(u1, d, fa), P(u1, d, fb), P(u0, d, fb)], nLado(sinal), [[u0, fa], [u1, fa], [u1, fb], [u0, fb]])
+      // a sombra de canto deste lado: no pé (o chão), no alto (se tem teto sobre o quadrado deste lado) e nas pontas
+      // onde outra parede sai para este lado (o canto de dentro de uma sala)
+      const b = sinal > 0 ? 0 : -1
+      const teto = pisos.has(ax === 'x' ? `${L + 1}_${w.x}_${w.z + b}` : `${L + 1}_${w.x + b}_${w.z}`)
+      const canto = (fim: number) => (tem.has(ax === 'x' ? k(L, 'z', w.x + fim, w.z + b) : k(L, 'x', w.x + b, w.z + fim)) ? 1 : 0)
+      const c0 = canto(0), c1 = canto(1)
+      const emY = (y: number) => (y <= 0 ? 1 : y >= LEVEL_H && teto ? 1 : 0)
+      for (const [fa, fb, tex] of faixas) {
+        // a faixa é cortada onde a sombra acaba, para o degradê ter o alcance dela e não a altura da parede
+        const ys = [fa, ...[SOMBRA.alcance, LEVEL_H - SOMBRA.alcance].filter((y) => y > fa && y < fb), fb]
+        for (let i = 0; i < ys.length - 1; i++) {
+          const ya2 = ys[i], yb2 = ys[i + 1], ea = emY(ya2), eb = emY(yb2)
+          quad(buf(tex), [P(u0, d, ya2), P(u1, d, ya2), P(u1, d, yb2), P(u0, d, yb2)], nLado(sinal), [[u0, ya2], [u1, ya2], [u1, yb2], [u0, yb2]],
+            [sombra(c0 + ea), sombra(c1 + ea), sombra(c1 + eb), sombra(c0 + eb)])
+        }
+      }
     }
 
     // o batente: nas pontas do vão (onde o pedaço vizinho não é da mesma abertura), a madeira por dentro da espessura
@@ -98,7 +127,19 @@ export function wallGeometries(chunks: Chunk[], maxLevel: number): Map<string, T
 /** Os pisos até o andar maxLevel, juntados por textura: a face de cima (o chão) e a de baixo (o teto do andar de baixo). */
 export function floorGeometries(chunks: Chunk[], maxLevel: number): Map<string, THREE.BufferGeometry> {
   const bufs = new Map<string, Buf>()
-  const buf = (tex: string) => { let b = bufs.get(tex); if (!b) bufs.set(tex, (b = { p: [], n: [], uv: [], i: [] })); return b }
+  const buf = (tex: string) => { let b = bufs.get(tex); if (!b) bufs.set(tex, (b = novoBuf())); return b }
+  // a sombra de canto: em cada ponto da grade, as paredes que chegam nele (num eixo, no outro). A porta e o vão não
+  // contam (não tem parede no chão ali); a janela conta.
+  const portas = new Set<string>(), noX = new Set<string>(), noZ = new Set<string>()
+  for (const c of chunks) for (const o of c.openings) if (o.kind === 'porta') for (let i = 0; i < o.width; i++) portas.add(k(o.level, o.axis, o.axis === 'x' ? o.x + i : o.x, o.axis === 'z' ? o.z + i : o.z))
+  for (const c of chunks) for (const w of c.walls) {
+    if (portas.has(k(w.level, w.axis, w.x, w.z))) continue
+    const nos = w.axis === 'x' ? noX : noZ
+    nos.add(`${w.level}_${w.x}_${w.z}`); nos.add(w.axis === 'x' ? `${w.level}_${w.x + 1}_${w.z}` : `${w.level}_${w.x}_${w.z + 1}`)
+  }
+  // um ponto encostado numa parede escurece; num canto de duas paredes, duas vezes
+  const luzEm = (L: number, x: number, z: number) => sombra((noX.has(`${L}_${x}_${z}`) ? 1 : 0) + (noZ.has(`${L}_${x}_${z}`) ? 1 : 0))
+  const luzes = (L: number, x: number, z: number) => [luzEm(L, x, z), luzEm(L, x + 1, z), luzEm(L, x + 1, z + 1), luzEm(L, x, z + 1)]
   // o buraco: o piso de cima some sobre a escada do andar de baixo (o dado do piso fica; quem corta é a escada)
   const buraco = new Set<string>()
   for (const c of chunks) for (const st of c.stairs) for (let x = st.x; x < st.x + st.w; x++) for (let z = st.z; z < st.z + st.d; z++) buraco.add(`${st.level + 1}_${x}_${z}`)
@@ -106,8 +147,9 @@ export function floorGeometries(chunks: Chunk[], maxLevel: number): Map<string, 
     if (f.level > maxLevel || buraco.has(`${f.level}_${f.x}_${f.z}`)) continue
     const y = f.level * LEVEL_H, x0 = f.x, x1 = f.x + 1, z0 = f.z, z1 = f.z + 1
     const uv: [number, number][] = [[x0, z0], [x1, z0], [x1, z1], [x0, z1]]
-    quad(buf(f.top), [[x0, y, z0], [x1, y, z0], [x1, y, z1], [x0, y, z1]], [0, 1, 0], uv)
-    if (f.level > 0) quad(buf(f.bottom), [[x0, y - TETO, z0], [x1, y - TETO, z0], [x1, y - TETO, z1], [x0, y - TETO, z1]], [0, -1, 0], uv)
+    quad(buf(f.top), [[x0, y, z0], [x1, y, z0], [x1, y, z1], [x0, y, z1]], [0, 1, 0], uv, luzes(f.level, f.x, f.z))
+    // o teto é do andar de baixo: quem faz sombra nele são as paredes de lá
+    if (f.level > 0) quad(buf(f.bottom), [[x0, y - TETO, z0], [x1, y - TETO, z0], [x1, y - TETO, z1], [x0, y - TETO, z1]], [0, -1, 0], uv, luzes(f.level - 1, f.x, f.z))
   }
   return geometrias(bufs)
 }
@@ -122,7 +164,7 @@ export const degrausDe = (rise: number) => Math.max(2, Math.round(rise / 0.18))
  */
 export function stairGeometries(chunks: Chunk[], maxLevel: number): Map<string, THREE.BufferGeometry> {
   const bufs = new Map<string, Buf>()
-  const buf = (tex: string) => { let b = bufs.get(tex); if (!b) bufs.set(tex, (b = { p: [], n: [], uv: [], i: [] })); return b }
+  const buf = (tex: string) => { let b = bufs.get(tex); if (!b) bufs.set(tex, (b = novoBuf())); return b }
   for (const c of chunks) for (const st of c.stairs) {
     if (st.level > maxLevel) continue
     const y0 = st.level * LEVEL_H, ns = st.dir === 'norte' || st.dir === 'sul'
@@ -157,6 +199,7 @@ function geometrias(bufs: Map<string, Buf>) {
     g.setAttribute('position', new THREE.Float32BufferAttribute(b.p, 3))
     g.setAttribute('normal', new THREE.Float32BufferAttribute(b.n, 3))
     g.setAttribute('uv', new THREE.Float32BufferAttribute(b.uv, 2))
+    g.setAttribute('color', new THREE.Float32BufferAttribute(b.c, 3)) // a sombra de canto (o material multiplica)
     g.setIndex(b.i)
     out.set(tex, g)
   }

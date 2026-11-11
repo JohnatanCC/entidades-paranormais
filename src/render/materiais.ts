@@ -40,7 +40,8 @@ export function materialDe(nome: string, corte = false): THREE.MeshStandardMater
   let m = materiais.get(chave)
   if (!m) {
     const cor = CORES[nome], map = cor ? null : texturaDe(nome)
-    m = new THREE.MeshStandardMaterial({ map, color: cor ?? (map ? '#ffffff' : '#ff00ff'), roughness: 0.92 })
+    // vertexColors: a sombra de canto que a malha do mapa traz em cada vértice (editor/wallMesh.ts)
+    m = new THREE.MeshStandardMaterial({ map, color: cor ?? (map ? '#ffffff' : '#ff00ff'), roughness: 0.92, vertexColors: true })
     if (corte) aplicarCorte(m)
     materiais.set(chave, m)
   }
