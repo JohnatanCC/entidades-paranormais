@@ -7,6 +7,11 @@
 //     número de cada uma (idLampada), e o resto somado. O número negativo marca a lâmpada "falhando" (pisca).
 //   - as janelas com luar: iluminam o cômodo de verdade (o feixe e a mancha de editor/Luar.tsx são só o desenho);
 //     valem em todos os níveis.
+//   - a luz indireta (o recurso "Luz indireta", do Ultra): a luz que sobra depois de bater nas coisas. É calculada
+//     como a luz dos blocos do Minecraft: cada quadrado de piso com uma lâmpada, uma janela ou o céu por cima começa
+//     com um tanto de luz, e ela se espalha de quadrado em quadrado perdendo força, passa pelas portas e pelo vão da
+//     escada e para nas paredes. Com ela ligada a luz ambiente geral baixa (INDIRETA.ambiente): o cômodo vizinho de um
+//     cômodo aceso fica na penumbra e o que está longe de qualquer luz fica escuro de verdade.
 // A conta é a mesma da luz pontual do three, para os caminhos ficarem parecidos.
 // O que passa e o que bloqueia: parede bloqueia (a janela também); porta e vão deixam passar só pelo buraco deles (a
 // parede em cima da porta bloqueia), com a porta aberta ou fechada (ela muda durante o jogo e a malha não é refeita);
@@ -22,14 +27,20 @@ interface Fonte { x: number; y: number; z: number; level: number; r: number; g: 
 const DECAIMENTO = 1.6 // o mesmo das lâmpadas de verdade (editor/Objetos.tsx)
 /** A luz de uma janela com luar: a cor, a força por metro de largura, o alcance e a que altura fica o meio dela (m). */
 export const JANELA = { cor: '#a9c2f0', forca: 5, alcance: 8, altura: 1.5 }
+/** A luz indireta: rebote = quanto da força de uma lâmpada ou janela vira luz no quadrado dela; queda = o que sobra a
+ *  cada metro; branco = o quanto a cor da fonte perde ao rebater (a luz que volta das paredes é mais neutra que a
+ *  da lâmpada); ceu = a luz dos quadrados a céu aberto (a cor e a força); ambiente = o quanto sobra da luz ambiente
+ *  geral das ambientações quando a indireta está ligada. */
+export const INDIRETA = { rebote: 0.08, branco: 0.55, queda: 0.74, ceu: '#7f9fe0', forcaCeu: 1.5, ambiente: 0.45 }
 const rad = (v: number) => (v * Math.PI) / 180
 
 /** O número de uma lâmpada pela posição dela no mundo (o mesmo aqui e na lâmpada de verdade: editor/Objetos.tsx). */
 export const idLampada = (x: number, y: number, z: number) => 1 + ((((Math.round(x * 20) * 73856093) ^ (Math.round(y * 20) * 19349663) ^ (Math.round(z * 20) * 83492791)) >>> 0) % 60000)
 
-/** A luz de um vértice: as duas lâmpadas mais fortes (r, g, b, número), o resto das lâmpadas somado e a das janelas. */
-export interface LuzVertice { a: V4; b: V4; resto: V3; janela: V3 }
-export const novaLuzVertice = (): LuzVertice => ({ a: [0, 0, 0, 0], b: [0, 0, 0, 0], resto: [0, 0, 0], janela: [0, 0, 0] })
+/** A luz de um vértice: as duas lâmpadas mais fortes (r, g, b, número), o resto das lâmpadas somado, a das janelas e
+ *  a indireta. */
+export interface LuzVertice { a: V4; b: V4; resto: V3; janela: V3; indireta: V3 }
+export const novaLuzVertice = (): LuzVertice => ({ a: [0, 0, 0, 0], b: [0, 0, 0, 0], resto: [0, 0, 0], janela: [0, 0, 0], indireta: [0, 0, 0] })
 
 /** Calcula em `out` a luz que chega no ponto p, de normal n. `de` = um ponto um pouco para dentro da face (é dele que
  *  se olha para a fonte: o vértice mesmo fica em cima da linha da parede).
@@ -78,8 +89,61 @@ export function assadorDe(chunks: Chunk[]): Assador {
     return false
   }
 
+  // ---------- a luz indireta: a luz de cada quadrado de piso, espalhada de quadrado em quadrado ----------
+  const ind = new Map<string, V3>()
+  let topo = 0
+  for (const k of pisos) { ind.set(k, [0, 0, 0]); topo = Math.max(topo, +k.split('|')[0]) }
+  // entre dois quadrados vizinhos do andar L: sem parede no meio? (a porta e o vão deixam passar)
+  const livre = (L: number, x: number, z: number, nx: number, nz: number) => !paredes.has(nx !== x ? `${L}|z|${Math.max(x, nx)}|${z}` : `${L}|x|${x}|${Math.max(z, nz)}`)
+  // o quadrado de piso embaixo de um ponto (descendo os andares: no pé-direito duplo e no vão da escada é o de baixo)
+  const quadradoDe = (L: number, x: number, z: number) => { for (let l = Math.min(L, topo); l >= 0; l--) if (pisos.has(`${l}|${x}|${z}`)) return l; return -1 }
+  const aberto = (L: number, x: number, z: number) => { for (let l = L + 1; l <= topo; l++) if (pisos.has(`${l}|${x}|${z}`)) return false; return true }
+  const fila: string[] = []
+  const semear = (k: string, r: number, g: number, b: number) => { const c = ind.get(k); if (!c) return; c[0] = Math.max(c[0], r); c[1] = Math.max(c[1], g); c[2] = Math.max(c[2], b); fila.push(k) }
+  cor.set(INDIRETA.ceu).multiplyScalar(INDIRETA.forcaCeu)
+  for (const k of pisos) { const [L, x, z] = k.split('|').map(Number); if (aberto(L, x, z)) semear(k, cor.r, cor.g, cor.b) }
+  for (const l of fontes) {
+    const x = Math.floor(l.x), z = Math.floor(l.z), L = quadradoDe(l.level, x, z)
+    if (L < 0) continue
+    // a fonte muito acima do chão (a lâmpada do teto alto do salão) rebate menos nele; e a cor volta mais neutra
+    const c = ind.get(`${L}|${x}|${z}`)!, k = INDIRETA.rebote * Math.min(1, 3 / Math.max(l.y - L * LEVEL_H, 0.5)), m = ((l.r + l.g + l.b) / 3) * INDIRETA.branco, q = 1 - INDIRETA.branco
+    semear(`${L}|${x}|${z}`, c[0] + (l.r * q + m) * k, c[1] + (l.g * q + m) * k, c[2] + (l.b * q + m) * k)
+  }
+  const LADOS = [[1, 0], [-1, 0], [0, 1], [0, -1]]
+  while (fila.length) {
+    const k = fila.pop()!, c = ind.get(k)!, [L, x, z] = k.split('|').map(Number)
+    const r = c[0] * INDIRETA.queda, g = c[1] * INDIRETA.queda, b = c[2] * INDIRETA.queda
+    if (r + g + b < 0.01) continue
+    const passar = (kn: string) => { const v = ind.get(kn); if (v && (r > v[0] + 0.002 || g > v[1] + 0.002 || b > v[2] + 0.002)) semear(kn, r, g, b) }
+    for (const [dx, dz] of LADOS) {
+      const nx = x + dx, nz = z + dz
+      if (!livre(L, x, z, nx, nz)) continue
+      if (pisos.has(`${L}|${nx}|${nz}`)) passar(`${L}|${nx}|${nz}`)
+      else if (L > 0) { const lb = quadradoDe(L - 1, nx, nz); if (lb >= 0) passar(`${lb}|${nx}|${nz}`) } // a borda de um vão: desce
+      // e sobe: o vizinho do andar de cima, se este quadrado está embaixo de um vão (sem piso em cima) e não há parede lá
+      if (L < topo && !pisos.has(`${L + 1}|${x}|${z}`) && pisos.has(`${L + 1}|${nx}|${nz}`) && livre(L + 1, x, z, nx, nz)) passar(`${L + 1}|${nx}|${nz}`)
+    }
+  }
+  /** A luz indireta num ponto: a média dos quadrados em volta do canto da grade mais perto dele, só os que não têm
+   *  parede no meio (o degradê fica macio dentro do cômodo e não vaza para o vizinho). */
+  function indiretaEm(p: V3, de: V3, level: number, out: V3) {
+    const bx = Math.floor(de[0]), bz = Math.floor(de[2]), L = quadradoDe(level, bx, bz)
+    if (L < 0) { if (aberto(level, bx, bz)) { cor.set(INDIRETA.ceu).multiplyScalar(INDIRETA.forcaCeu); out[0] = cor.r; out[1] = cor.g; out[2] = cor.b } else out.fill(0); return }
+    const base = ind.get(`${L}|${bx}|${bz}`)!, gx = Math.round(p[0]), gz = Math.round(p[2])
+    let r = base[0], g = base[1], b = base[2], n = 1
+    const soma = (x: number, z: number) => { const v = ind.get(`${L}|${x}|${z}`); if (v) { r += v[0]; g += v[1]; b += v[2]; n++ } return !!v }
+    // os outros três quadrados em volta do canto: os dois de lado (se não há parede) e o da diagonal (se um dos de lado passou)
+    const ox = bx === gx ? gx - 1 : gx, oz = bz === gz ? gz - 1 : gz
+    if (Math.abs(bx - gx + 0.5) <= 0.5 && Math.abs(bz - gz + 0.5) <= 0.5) {
+      const a = livre(L, bx, bz, ox, bz) && soma(ox, bz), c = livre(L, bx, bz, bx, oz) && soma(bx, oz)
+      if ((a && livre(L, ox, bz, ox, oz)) || (c && livre(L, bx, oz, ox, oz))) soma(ox, oz)
+    }
+    out[0] = r / n; out[1] = g / n; out[2] = b / n
+  }
+
   return (p, n, de, level, out) => {
     out.a.fill(0); out.b.fill(0); out.resto.fill(0); out.janela.fill(0)
+    indiretaEm(p, de, level, out.indireta)
     let fa = 0, fb = 0 // a força das duas lâmpadas guardadas
     for (const l of fontes) {
       const lx = l.x - p[0], ly = l.y - p[1], lz = l.z - p[2], d2 = lx * lx + ly * ly + lz * lz

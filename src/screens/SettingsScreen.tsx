@@ -1,9 +1,11 @@
 // As configurações: a qualidade da imagem (um nível pronto, ou o automático) com os ajustes de cada recurso por cima,
 // os volumes e o mouse. Os níveis e os recursos vêm de render/qualidade.ts (NIVEIS e OPCOES): um recurso novo lá
-// aparece aqui sozinho.
+// aparece aqui sozinho. Ao lado, a prévia ao vivo (PreviaQualidade): uma sala com luz, desenhada com a qualidade
+// escolhida, com os quadros por segundo.
 import type { Go } from '../App'
 import { NIVEIS, OPCOES, useNivel, useNivelAuto, type Nivel, type Qualidade, type Recursos } from '../render/qualidade'
 import { resetSettings, setSettings, useSettings } from '../settings/settings'
+import { PreviaQualidade } from './PreviaQualidade'
 
 const QUALIDADES: Qualidade[] = ['auto', 'baixo', 'medio', 'alto', 'ultra']
 const GRUPOS = ['Imagem', 'Luz e sombra', 'Texturas'] as const
@@ -18,7 +20,8 @@ export function SettingsScreen({ go }: { go: Go }) {
     setSettings({ ajustes })
   }
   return (
-    <div className="tela rolavel">
+    <div className="config">
+      <div className="config-lado">
       <h2>Configurações</h2>
       <div className="form">
         <label>Qualidade</label>
@@ -69,6 +72,8 @@ export function SettingsScreen({ go }: { go: Go }) {
         <button onClick={resetSettings}>Restaurar padrão</button>
         <button onClick={() => go('menu')}>Voltar</button>
       </nav>
+      </div>
+      <PreviaQualidade />
     </div>
   )
 }

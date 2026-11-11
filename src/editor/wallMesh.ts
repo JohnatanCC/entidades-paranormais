@@ -24,8 +24,8 @@ const sombra = (encostos: number) => (1 - SOMBRA.forca) ** encostos
 const PASSO_LUZ = 0.5 // de quanto em quanto a parede ganha vértices para a luz assada (m)
 const PASSOS_Y = Array.from({ length: Math.ceil(LEVEL_H / PASSO_LUZ) - 1 }, (_, i) => (i + 1) * PASSO_LUZ)
 
-interface Buf { p: number[]; n: number[]; uv: number[]; c: number[]; la: number[]; lb: number[]; lr: number[]; lj: number[]; i: number[] }
-const novoBuf = (): Buf => ({ p: [], n: [], uv: [], c: [], la: [], lb: [], lr: [], lj: [], i: [] })
+interface Buf { p: number[]; n: number[]; uv: number[]; c: number[]; la: number[]; lb: number[]; lr: number[]; lj: number[]; li: number[]; i: number[] }
+const novoBuf = (): Buf => ({ p: [], n: [], uv: [], c: [], la: [], lb: [], lr: [], lj: [], li: [], i: [] })
 // a luz assada da malha sendo montada agora: quem calcula e o andar do que está sendo desenhado (quad lê daqui)
 let assa: Assador | null = null, andar = 0
 const _luz = novaLuzVertice(), SEM_LUZ = novaLuzVertice()
@@ -49,7 +49,7 @@ function quad(b: Buf, c: V3[], n: V3, uv: [number, number][], luz: number[] = SE
       assa(c[j], n, [c[j][0] + dx * k + n[0] * 0.05, c[j][1] + dy * k + n[1] * 0.05, c[j][2] + dz * k + n[2] * 0.05], andar, _luz)
     }
     const L = assa ? _luz : SEM_LUZ
-    b.la.push(...L.a); b.lb.push(...L.b); b.lr.push(...L.resto); b.lj.push(...L.janela)
+    b.la.push(...L.a); b.lb.push(...L.b); b.lr.push(...L.resto); b.lj.push(...L.janela); b.li.push(...L.indireta)
   }
   // a diagonal liga os dois cantos mais claros: com um canto só escuro, o degradê não "quebra" no meio do quadrado
   if (luz[1] + luz[3] > luz[0] + luz[2]) b.i.push(v0, v0 + 1, v0 + 3, v0 + 1, v0 + 2, v0 + 3)
@@ -234,6 +234,7 @@ function geometrias(bufs: Map<string, Buf>) {
     // a luz assada: as duas lâmpadas mais fortes (com o número de cada uma), o resto delas e a das janelas
     g.setAttribute('luzA', new THREE.Float32BufferAttribute(b.la, 4)); g.setAttribute('luzB', new THREE.Float32BufferAttribute(b.lb, 4))
     g.setAttribute('luzResto', new THREE.Float32BufferAttribute(b.lr, 3)); g.setAttribute('luzJanela', new THREE.Float32BufferAttribute(b.lj, 3))
+    g.setAttribute('luzIndireta', new THREE.Float32BufferAttribute(b.li, 3)) // a luz indireta (o recurso do Ultra)
     g.setIndex(b.i)
     out.set(tex, g)
   }

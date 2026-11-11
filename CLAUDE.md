@@ -80,7 +80,8 @@ maps/<id>/                 os mapas (JSON). map.json = cabeçalho; chunks/<cx>_<
 src/
   main.tsx, App.tsx        as telas (menu → configurações | modo desenvolvedor → criador de mapas)
   styles.css               a paleta e as telas
-  screens/                 MainMenu, SettingsScreen, DevMenu, VerModelos (o personagem de perto: animação, expressão, mãos, luz)
+  screens/                 MainMenu, SettingsScreen (com PreviaQualidade ao lado: a sala do mapa teste-iluminacao com a
+                           qualidade escolhida, ao vivo, e o fps), DevMenu, VerModelos (o personagem de perto: animação, expressão, mãos, luz)
   settings/settings.ts     configurações no localStorage (useSettings / setSettings): a qualidade da imagem (o nível e os
                            ajustes de cada recurso), os volumes, o mouse
   audio/musica.ts          a trilha: useMusica('menu') toca public/musica/<nome>.mp3 em laço, com o volume das configurações

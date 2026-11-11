@@ -2863,21 +2863,6 @@
    ]
   },
   {
-   "id": "relogio-canto",
-   "type": "relogio-de-pe",
-   "level": 0,
-   "pos": [
-    11.5,
-    0,
-    9
-   ],
-   "rot": [
-    0,
-    -90,
-    0
-   ]
-  },
-  {
    "id": "espelho-canto",
    "type": "espelho-coberto",
    "level": 0,
@@ -2906,6 +2891,21 @@
     30,
     0
    ]
+  },
+  {
+   "type": "relogio-de-pe",
+   "level": 0,
+   "pos": [
+    7,
+    0,
+    2.25
+   ],
+   "rot": [
+    0,
+    0,
+    0
+   ],
+   "id": "relogio-de-pe-acov2"
   }
  ],
  "decals": [],

@@ -14,7 +14,8 @@ import type { LuzVertice } from '../maps/luzAssada'
 import { anotar, clonar } from './remendos'
 
 export type ModoAssada = 'nao' | 'assada' | 'mista'
-export const ASSADA = { modo: 'nao' as ModoAssada, pisca: { value: 1 }, comSombra: { value: new Vector3() } }
+// indireta: 1 = o cenário e os objetos somam a luz indireta do mapa (o recurso "Luz indireta"); 0 = não
+export const ASSADA = { modo: 'nao' as ModoAssada, pisca: { value: 1 }, comSombra: { value: new Vector3() }, indireta: { value: 0 } }
 const DEFINE: Record<ModoAssada, string | null> = { nao: null, assada: 'LUZ_ASSADA', mista: 'LUZ_MISTA' }
 const materiais = new Set<Material>()
 
@@ -32,10 +33,10 @@ if (!LUZES.includes('LUZ_ASSADA') || !LUZES.includes('LUZ_MISTA')) console.error
 
 // uma das duas lâmpadas mais fortes (do vértice ou do objeto): fora da conta se ela é de verdade agora (tem sombra);
 // pisca se está falhando
-const LAMPADA = `uniform float uPisca; uniform vec3 uComSombra; varying vec3 vLuzMalha;
+const LAMPADA = `uniform float uPisca; uniform float uIndireta; uniform vec3 uComSombra; varying vec3 vLuzMalha; varying vec3 vLuzIndireta;
 vec3 lampadaDaMalha( vec4 l ) { float id = abs( l.a ); return ( id == uComSombra.x || id == uComSombra.y || id == uComSombra.z ) ? vec3( 0.0 ) : l.rgb * ( l.a < 0.0 ? uPisca : 1.0 ); }
 `
-interface LuzObjeto { a: { value: Vector4 }; b: { value: Vector4 }; resto: { value: Vector3 } }
+interface LuzObjeto { a: { value: Vector4 }; b: { value: Vector4 }; resto: { value: Vector3 }; indireta: { value: Vector3 } }
 const doObjeto = new WeakMap<Material, LuzObjeto>()
 
 function remendar(mat: Material, objeto: LuzObjeto | null) {
@@ -44,15 +45,16 @@ function remendar(mat: Material, objeto: LuzObjeto | null) {
     prev?.call(mat, s, r)
     s.uniforms.uPisca = ASSADA.pisca
     s.uniforms.uComSombra = ASSADA.comSombra
-    if (objeto) { s.uniforms.uObjA = objeto.a; s.uniforms.uObjB = objeto.b; s.uniforms.uObjResto = objeto.resto }
-    const dados = objeto ? 'uniform vec4 uObjA; uniform vec4 uObjB; uniform vec3 uObjResto;\n' : 'attribute vec4 luzA; attribute vec4 luzB; attribute vec3 luzResto; attribute vec3 luzJanela;\n'
+    s.uniforms.uIndireta = ASSADA.indireta
+    if (objeto) { s.uniforms.uObjA = objeto.a; s.uniforms.uObjB = objeto.b; s.uniforms.uObjResto = objeto.resto; s.uniforms.uObjIndireta = objeto.indireta }
+    const dados = objeto ? 'uniform vec4 uObjA; uniform vec4 uObjB; uniform vec3 uObjResto; uniform vec3 uObjIndireta;\n' : 'attribute vec4 luzA; attribute vec4 luzB; attribute vec3 luzResto; attribute vec3 luzJanela; attribute vec3 luzIndireta;\n'
     const soma = objeto
-      ? 'vLuzMalha = vec3( 0.0 );\n#if defined( LUZ_ASSADA ) || defined( LUZ_MISTA )\nvLuzMalha = uObjResto + lampadaDaMalha( uObjA ) + lampadaDaMalha( uObjB );\n#endif'
-      : 'vLuzMalha = luzJanela;\n#if defined( LUZ_ASSADA ) || defined( LUZ_MISTA )\nvLuzMalha += luzResto + lampadaDaMalha( luzA ) + lampadaDaMalha( luzB );\n#endif'
+      ? 'vLuzIndireta = uObjIndireta * uIndireta;\nvLuzMalha = vec3( 0.0 );\n#if defined( LUZ_ASSADA ) || defined( LUZ_MISTA )\nvLuzMalha = uObjResto + lampadaDaMalha( uObjA ) + lampadaDaMalha( uObjB );\n#endif'
+      : 'vLuzIndireta = luzIndireta * uIndireta;\nvLuzMalha = luzJanela;\n#if defined( LUZ_ASSADA ) || defined( LUZ_MISTA )\nvLuzMalha += luzResto + lampadaDaMalha( luzA ) + lampadaDaMalha( luzB );\n#endif'
     s.vertexShader = dados + LAMPADA + s.vertexShader.replace('#include <begin_vertex>', '#include <begin_vertex>\n' + soma)
-    s.fragmentShader = 'varying vec3 vLuzMalha;\n' + s.fragmentShader
+    s.fragmentShader = 'varying vec3 vLuzMalha; varying vec3 vLuzIndireta;\n' + s.fragmentShader
       .replace('#include <lights_fragment_begin>', LUZES)
-      .replace('#include <lights_fragment_end>', '#include <lights_fragment_end>\nreflectedLight.directDiffuse += vLuzMalha * BRDF_Lambert( material.diffuseColor );')
+      .replace('#include <lights_fragment_end>', '#include <lights_fragment_end>\nreflectedLight.directDiffuse += vLuzMalha * BRDF_Lambert( material.diffuseColor );\nreflectedLight.indirectDiffuse += vLuzIndireta * BRDF_Lambert( material.diffuseColor );')
   }
   mat.customProgramCacheKey = () => (objeto ? 'assada-objeto' : 'assada')
   const d = DEFINE[ASSADA.modo]
@@ -68,7 +70,7 @@ export function aplicarAssada<M extends Material>(mat: M): M {
 
 /** Ensina um material de objeto (móvel, porta, personagem) a usar a luz assada do lugar dele (iluminarObjeto diz qual). */
 export function aplicarLuzObjeto<M extends Material>(mat: M): M {
-  const luz: LuzObjeto = { a: { value: new Vector4() }, b: { value: new Vector4() }, resto: { value: new Vector3() } }
+  const luz: LuzObjeto = { a: { value: new Vector4() }, b: { value: new Vector4() }, resto: { value: new Vector3() }, indireta: { value: new Vector3() } }
   doObjeto.set(mat, luz)
   remendar(mat, luz)
   return anotar(mat, aplicarLuzObjeto as (m: Material) => unknown)
@@ -95,6 +97,7 @@ export function iluminarObjeto(raiz: Object3D, luz: LuzVertice) {
     if (!u) return
     u.a.value.fromArray(luz.a); u.b.value.fromArray(luz.b)
     u.resto.value.set(luz.resto[0] + luz.janela[0], luz.resto[1] + luz.janela[1], luz.resto[2] + luz.janela[2])
+    u.indireta.value.fromArray(luz.indireta)
   })
 }
 

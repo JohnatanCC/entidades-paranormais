@@ -114,6 +114,10 @@ Three Fiber repõe as duas a cada redesenho da tela, então ligar por dentro da 
 as sombras desligavam sozinhas no meio do teste e as lâmpadas com sombra sumiam (o salão ficava preto no Alto). As
 medidas de quadros feitas antes desse conserto não valem: parte delas foi com as sombras desligadas.
 
+**A prévia ao vivo** (11/nov): ao lado dos ajustes, as configurações mostram a sala do mapa `teste-iluminacao` (a
+lâmpada, a janela com luar, os móveis, o agente parado) desenhada com a qualidade escolhida, com os quadros por segundo
+(F3 mostra o detalhe). Mudar o nível ou um recurso muda a cena na hora. Se o mapa sair da pasta, a prévia avisa e some.
+
 Nas configurações: **Automático** (o padrão; mostra qual nível escolheu), Baixo, Médio e Alto. O automático olha o
 aparelho (tela de toque, memória, núcleos, o nome da placa de vídeo) e, nos primeiros segundos de uma cena de jogo, mede
 os quadros: se a média passar de 24 ms, desce um nível e mede de novo. Só desce (subir e descer sem parar seria pior), e
@@ -137,10 +141,15 @@ vale até recarregar a página.
    sombra): aparece no Médio e no Alto, quase nada no Baixo. Os móveis e os personagens não entraram. **5b** o relevo de luz gerado da própria textura, como recurso do Ultra (o nível já existe);
    **5c** o relevo de verdade (parallax), só no Ultra, como experimento.
 
-**A seguir (pedido em 11/nov): o escuro realista.** Hoje a luz ambiente é igual em todo lugar, então um salão sem lâmpada
-fica com o piso claro por igual. A ideia: a luz **indireta** calculada no mapa (a luz das lâmpadas e das janelas se
-espalha pelos cômodos, perde força a cada metro e para nas paredes, como a luz dos blocos do Minecraft), com a luz
-ambiente geral bem mais baixa. Recurso do Ultra, ajustável.
+**A luz indireta ✅ (11/nov; o recurso "Luz indireta", ligado no Ultra e ajustável em qualquer nível).** Antes a luz
+ambiente era igual em todo lugar, e um salão sem lâmpada ficava com o piso claro por igual. Agora o mapa calcula a luz
+que sobra depois de bater nas coisas, como a luz dos blocos do Minecraft (`src/maps/luzAssada.ts`): cada quadrado de
+piso com uma lâmpada, uma janela ou o céu por cima começa com um tanto de luz, e ela se espalha de quadrado em
+quadrado perdendo força (`queda` por metro), passa pelas portas, pelo vão da escada e pelo pé-direito duplo, e para
+nas paredes. Com o recurso ligado a luz ambiente geral das ambientações cai para `INDIRETA.ambiente` (25%). O cômodo
+vizinho de um cômodo aceso fica na penumbra; longe de qualquer luz, escuro de verdade. É uma cor a mais por vértice e
+uma amostra por objeto: não pesa por quadro. Os números: `INDIRETA` (rebote, branco, queda, céu, ambiente).
+Limites: a lâmpada "falhando" entra como acesa (a luz indireta não pisca); fora de casa só vale onde há piso no mapa.
 
 Fora da numeração, já feito: **o céu da noite** ✅ (11/nov). Ficaram para depois: a aurora, as nuvens e as silhuetas no horizonte.
 

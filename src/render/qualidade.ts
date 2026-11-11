@@ -29,15 +29,16 @@ export interface Recursos {
   sombraLua: 0 | 1024 | 2048 | 4096 // o tamanho da textura da sombra da lua (0 = sem)
   sombraMacia: boolean // a borda da sombra suavizada (17 leituras de textura por pixel para a lua e 9 por lâmpada; dura, 1 cada)
   sombraRitmo: 1 | 2 // de quantos em quantos quadros cada sombra é refeita (2 = metade do custo, um quadro de atraso)
+  indireta: boolean // a luz indireta do mapa (maps/luzAssada.ts): o escuro fica escuro de verdade, a luz se espalha pelos cômodos
   brilho: boolean // as texturas refletem a luz conforme o material (mármore brilha, tapete não)
   filtro: 1 | 4 | 8 // a nitidez das texturas vistas de lado (o chão ao longe)
 }
 
 export const NIVEIS: Record<Nivel, Recursos & { nome: string }> = {
-  baixo: { nome: 'Baixo', resolucao: 1, passe: false, bordas: 0, bloom: 'nao', sombraLampadas: 0, sombraDetalhe: 512, sombraLua: 0, sombraMacia: false, sombraRitmo: 2, brilho: true, filtro: 1 },
-  medio: { nome: 'Médio', resolucao: 1.5, passe: true, bordas: 2, bloom: 'leve', sombraLampadas: 1, sombraDetalhe: 512, sombraLua: 1024, sombraMacia: false, sombraRitmo: 2, brilho: true, filtro: 4 },
-  alto: { nome: 'Alto', resolucao: 2, passe: true, bordas: 4, bloom: 'cheio', sombraLampadas: 3, sombraDetalhe: 512, sombraLua: 2048, sombraMacia: true, sombraRitmo: 1, brilho: true, filtro: 4 },
-  ultra: { nome: 'Ultra', resolucao: 2, passe: true, bordas: 4, bloom: 'cheio', sombraLampadas: 3, sombraDetalhe: 1024, sombraLua: 4096, sombraMacia: true, sombraRitmo: 1, brilho: true, filtro: 8 },
+  baixo: { nome: 'Baixo', resolucao: 1, passe: false, bordas: 0, bloom: 'nao', sombraLampadas: 0, sombraDetalhe: 512, sombraLua: 0, sombraMacia: false, sombraRitmo: 2, indireta: false, brilho: true, filtro: 1 },
+  medio: { nome: 'Médio', resolucao: 1.5, passe: true, bordas: 2, bloom: 'leve', sombraLampadas: 1, sombraDetalhe: 512, sombraLua: 1024, sombraMacia: false, sombraRitmo: 2, indireta: false, brilho: true, filtro: 4 },
+  alto: { nome: 'Alto', resolucao: 2, passe: true, bordas: 4, bloom: 'cheio', sombraLampadas: 3, sombraDetalhe: 512, sombraLua: 2048, sombraMacia: true, sombraRitmo: 1, indireta: false, brilho: true, filtro: 4 },
+  ultra: { nome: 'Ultra', resolucao: 2, passe: true, bordas: 4, bloom: 'cheio', sombraLampadas: 3, sombraDetalhe: 1024, sombraLua: 4096, sombraMacia: true, sombraRitmo: 1, indireta: true, brilho: true, filtro: 8 },
 }
 const ORDEM: Nivel[] = ['baixo', 'medio', 'alto', 'ultra']
 
@@ -48,6 +49,7 @@ export const OPCOES: Opcao[] = [
   opcao({ chave: 'resolucao', grupo: 'Imagem', nome: 'Resolução', ajuda: 'Quantos pixels são desenhados. É o que mais pesa em telas de celular e 4K.', valores: [[0.75, '75%'], [1, 'Normal'], [1.5, 'Alta'], [2, 'Máxima']] }),
   opcao({ chave: 'passe', grupo: 'Imagem', nome: 'Correção de cor', ajuda: 'O tom das sombras e das luzes, o contraste e a vinheta. As bordas suaves e o brilho dependem dela.', valores: [[false, 'Desligada'], [true, 'Ligada']] }),
   opcao({ chave: 'bordas', grupo: 'Imagem', nome: 'Bordas suaves', ajuda: 'Tira o serrilhado das bordas.', valores: [[0, 'Não'], [2, '2×'], [4, '4×']] }),
+  opcao({ chave: 'indireta', grupo: 'Luz e sombra', nome: 'Luz indireta', ajuda: 'A luz se espalha pelos cômodos e o que está longe dela fica escuro de verdade. Não pesa por quadro.', valores: [[false, 'Desligada'], [true, 'Ligada']] }),
   opcao({ chave: 'bloom', grupo: 'Luz e sombra', nome: 'Brilho das luzes', ajuda: 'O halo em volta das lâmpadas, do luar e dos olhos.', valores: [['nao', 'Não'], ['leve', 'Leve'], ['cheio', 'Completo']] }),
   opcao({ chave: 'sombraLampadas', grupo: 'Luz e sombra', nome: 'Sombra das lâmpadas', ajuda: 'Quantas lâmpadas perto de você fazem sombra. Cada uma desenha a cena seis vezes.', valores: [[0, 'Nenhuma'], [1, '1'], [3, '3']] }),
   opcao({ chave: 'sombraDetalhe', grupo: 'Luz e sombra', nome: 'Detalhe da sombra', ajuda: 'A nitidez da sombra das lâmpadas.', valores: [[512, 'Normal'], [1024, 'Alto']] }),

@@ -1,19 +1,5 @@
 {
  "formato": 2,
- "id": "teste-iluminacao",
- "nome": "Teste de iluminação",
- "levels": 2,
- "levelH": 3.5,
- "chunkSize": 16,
- "spawn": {
-  "pos": [
-   7,
-   0,
-   6
-  ],
-  "yaw": 0,
-  "level": 0
- },
  "ambiente": "exterior",
  "areas": [
   {
@@ -35,6 +21,20 @@
    "ambiente": "corredor"
   }
  ],
+ "id": "teste-iluminacao",
+ "nome": "Teste de iluminação",
+ "levels": 2,
+ "levelH": 3.5,
+ "chunkSize": 16,
+ "spawn": {
+  "pos": [
+   7,
+   0,
+   6
+  ],
+  "yaw": 0,
+  "level": 0
+ },
  "chunks": [
   "0_0",
   "1_0",

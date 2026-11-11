@@ -13,6 +13,7 @@ import { useFrame, useThree } from '@react-three/fiber'
 import * as THREE from 'three'
 import { forcaDoLuar } from '../../editor/Luar'
 import { LUA, LUAR_NO_JOGO, ambienteDe } from '../../maps/ambientes'
+import { INDIRETA } from '../../maps/luzAssada'
 import type { AreaAmbiente } from '../../maps/types'
 import { ASSADA, luzAssada, piscaEm } from '../../render/assada'
 import { BRILHO, FORCA_COM_BLOOM } from '../../render/brilho'
@@ -63,6 +64,10 @@ export function Iluminacao({ ambiente, areas = SEM_AREAS, em, semCeu }: Props) {
   // as texturas do nível: o reflexo dos materiais e a nitidez ao longe (ao sair, voltam a ser as do editor)
   useEffect(() => { ajustarMateriais(N.recursos.brilho, N.recursos.filtro); return () => ajustarMateriais(true, 4) }, [N.recursos.brilho, N.recursos.filtro])
 
+  // a luz indireta do mapa (o recurso do Ultra): com ela, a luz ambiente geral baixa (o mapa é que diz onde tem luz)
+  const indireta = N.recursos.indireta
+  useEffect(() => { ASSADA.indireta.value = indireta ? 1 : 0; return () => { ASSADA.indireta.value = 0 } }, [indireta])
+
   // o desenho do luar das janelas é mais sutil no jogo
   useEffect(() => { forcaDoLuar(LUAR_NO_JOGO); return () => forcaDoLuar(1) }, [])
 
@@ -84,11 +89,12 @@ export function Iluminacao({ ambiente, areas = SEM_AREAS, em, semCeu }: Props) {
   useFrame(({ camera, clock }, dt) => {
     passoLuz(c.viva, lugar(), Math.min(dt, 0.1))
     const L = c.viva.agora
-    c.ceu.color.copy(L.ceu); c.ceu.groundColor.copy(L.chao); c.ceu.intensity = L.forca
+    const amb = indireta ? INDIRETA.ambiente : 1
+    c.ceu.color.copy(L.ceu); c.ceu.groundColor.copy(L.chao); c.ceu.intensity = L.forca * amb
     // o preenchimento vem de trás da câmera, de cima e um pouco de lado: o que o jogador olha tem sempre volume
     camera.getWorldDirection(_f)
     c.preenchimento.position.set(-_f.x + _f.z * 0.5, 0.9, -_f.z - _f.x * 0.5)
-    c.preenchimento.color.copy(L.preenchimento); c.preenchimento.intensity = L.forcaPreenchimento
+    c.preenchimento.color.copy(L.preenchimento); c.preenchimento.intensity = L.forcaPreenchimento * amb
     c.luar.color.copy(L.luar); c.luar.intensity = L.forcaLuar
     // a lua acompanha o agente (de metro em metro, para a sombra não tremer); dentro de casa o luar é zero e a sombra dela não é refeita
     _a.set(em ? Math.round(em.x) : 0, 0, em ? Math.round(em.z) : 0)
