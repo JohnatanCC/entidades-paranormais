@@ -8,6 +8,7 @@ import { Vector3 as V3 } from 'three'
 import { ASSADA } from './assada'
 
 const lampadas = new Set<PointLight>()
+let ordem: PointLight[] = [] // as que fazem sombra agora, da mais perto do agente para a mais longe
 const _p = new V3()
 
 /** Uma lâmpada do mapa entrou na cena (devolve como tirar). */
@@ -25,6 +26,7 @@ export function escolherSombras(de: Vector3, quantas: number, tamanho: number) {
     .map((l) => ({ l, d: l.getWorldPosition(_p).distanceToSquared(de) })).sort((a, b) => a.d - b.d).slice(0, Math.min(quantas, 3)).map((x) => x.l)
   // o cenário tira da luz assada as lâmpadas que agora são de verdade (até 3: render/assada.ts)
   ASSADA.comSombra.value.set(perto[0]?.userData.id ?? 0, perto[1]?.userData.id ?? 0, perto[2]?.userData.id ?? 0)
+  ordem = perto
   for (const l of lampadas) {
     if (!perto.includes(l)) { soltar(l); continue }
     if (l.castShadow) continue
@@ -36,14 +38,16 @@ export function escolherSombras(de: Vector3, quantas: number, tamanho: number) {
   }
 }
 
-/** Um quadro: as lâmpadas com sombra refazem a delas de `cada` em `cada` quadros (nos quadros pares, se cada = 2). */
+/** Um quadro: a lâmpada mais perto refaz a sombra dela de `cada` em `cada` quadros; as outras, na metade desse ritmo e
+ *  em quadros alternados entre si (a sombra de quem está mais longe pode atrasar um quadro sem ninguém notar). */
 export function refazerSombras(quadro: number, cada: number) {
   if (quadro % cada !== 0) return
-  for (const l of lampadas) if (l.castShadow) l.shadow.needsUpdate = true
+  const vez = quadro / cada
+  ordem.forEach((l, i) => { if (l.castShadow && (i === 0 || (vez + i) % 2 === 0)) l.shadow.needsUpdate = true })
 }
 
 /** Nenhuma lâmpada faz sombra (saindo do jogo, ou o nível deixou de ter sombras). */
-export function semSombras() { for (const l of lampadas) soltar(l); ASSADA.comSombra.value.set(0, 0, 0) }
+export function semSombras() { ordem = []; for (const l of lampadas) soltar(l); ASSADA.comSombra.value.set(0, 0, 0) }
 
 /** Para as provas: quantas lâmpadas estão na cena e quantas fazem sombra agora. */
 export const contarSombras = () => ({ lampadas: lampadas.size, comSombra: [...lampadas].filter((l) => l.castShadow).length })

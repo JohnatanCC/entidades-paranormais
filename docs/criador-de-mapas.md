@@ -200,6 +200,14 @@ Ajudas de construção propostas para depois (uma de cada vez, se aprovadas): **
      resolução, quantos desenhos e triângulos o quadro inteiro fez (com as sombras e o bloom), o que está na memória
      da placa, as lâmpadas (e quantas com sombra) e a memória do jogo. O código: `src/game/Desempenho.tsx`.
    - **7b. Os blocos.** O jogo carrega só os blocos perto do agente e junta as malhas por bloco (desempenho da mansão e do celular).
+     **A parte das malhas está feita (11/nov):** as paredes, os pisos e as escadas saem numa malha por textura em cada
+     bloco de 16 m (antes era uma malha por textura para o mapa inteiro), então o three descarta os blocos que a câmera
+     não vê. E quem faz sombra é uma malha só por bloco, sem textura, desenhada apenas dentro da sombra
+     (`sombraGeometries`): cada sombra de lâmpada desenha só os blocos ao alcance dela, com uma chamada por bloco.
+     Medido no salão da mansão, no Alto: de 677 para 388 chamadas de desenho e de 876 mil para 442 mil triângulos por
+     quadro. As contas que olham os vizinhos (os cantos, a sombra de canto, a luz assada) continuam vendo o mapa todo.
+     **Falta:** carregar do disco só os blocos perto do agente (hoje o Testar tem o mapa inteiro na memória; isso entra
+     com o carregador do jogo) e juntar as texturas do cenário numa só para cair ainda mais o número de chamadas.
      Os modelos do Blockbench já vêm em pedaços (10/nov): no jogo publicado, cada .bbmodel é um arquivo à parte, baixado
      quando abre uma tela que usa modelos (o pacote principal ficou em 1,1 MB, 328 KB comprimido). Falta, nesta etapa,
      baixar só os modelos do capítulo (hoje a tela baixa todos).

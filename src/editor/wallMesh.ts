@@ -11,7 +11,7 @@
 // A luz das lâmpadas assada (a etapa 3b): cada vértice guarda também a luz que chega nele de cada lâmpada do mapa, com
 // as paredes bloqueando (maps/luzAssada.ts); o Baixo e o Médio usam isso no lugar das lâmpadas de verdade (render/assada.ts).
 import * as THREE from 'three'
-import { LEVEL_H, PORTA_GRANDE_H as GRANDE_H, PORTA_H, type Axis, type Chunk, type Opening, type Wall, type WallSide } from '../maps/types'
+import { CHUNK, LEVEL_H, PORTA_GRANDE_H as GRANDE_H, PORTA_H, type Axis, type Chunk, type Opening, type Wall, type WallSide } from '../maps/types'
 import { assadorDe, novaLuzVertice, type Assador } from '../maps/luzAssada'
 import { BATENTE, TOPO } from '../render/materiais' // o corte da parede (topo e vergas) e a madeira do batente
 
@@ -26,6 +26,14 @@ const PASSOS_Y = Array.from({ length: Math.ceil(LEVEL_H / PASSO_LUZ) - 1 }, (_, 
 
 interface Buf { p: number[]; n: number[]; uv: number[]; c: number[]; la: number[]; lb: number[]; lr: number[]; lj: number[]; li: number[]; i: number[] }
 const novoBuf = (): Buf => ({ p: [], n: [], uv: [], c: [], la: [], lb: [], lr: [], lj: [], li: [], i: [] })
+// As malhas saem por bloco de 16 m (a etapa 7b): uma por textura em cada bloco, com a chave "cx_cz|textura". Assim o
+// three descarta os blocos que a câmera não vê, e a sombra de uma lâmpada só desenha os blocos ao alcance dela (antes
+// cada sombra desenhava o mapa inteiro). As contas que olham os vizinhos (os cantos, a sombra de canto, a luz assada)
+// continuam vendo o mapa todo: só a malha é que sai separada.
+let bloco = '' // o bloco do que está sendo desenhado agora ("cx_cz|")
+const blocoDe = (x: number, z: number) => `${Math.floor(x / CHUNK)}_${Math.floor(z / CHUNK)}|`
+/** A textura de uma chave "cx_cz|textura" das malhas do mapa. */
+export const texturaDaChave = (k: string) => k.slice(k.indexOf('|') + 1)
 // a luz assada da malha sendo montada agora: quem calcula e o andar do que está sendo desenhado (quad lê daqui)
 let assa: Assador | null = null, andar = 0
 const _luz = novaLuzVertice(), SEM_LUZ = novaLuzVertice()
@@ -69,7 +77,7 @@ export function buraco(op: Opening): [number, number] {
   return op.kind === 'porta' ? [0, op.door === 'grande' ? GRANDE_H : PORTA_H] : [JANELA_Y0, JANELA_Y1]
 }
 
-/** As geometrias das paredes até o andar maxLevel, uma por nome de textura (e TOPO para os cortes). */
+/** As geometrias das paredes até o andar maxLevel, uma por bloco e textura (e TOPO para os cortes): "cx_cz|textura". */
 export function wallGeometries(chunks: Chunk[], maxLevel: number): Map<string, THREE.BufferGeometry> {
   const tem = new Set<string>(), aberturas = new Map<string, Opening>(), walls: Wall[] = []
   const pisos = new Set<string>() // os quadrados com piso (de todos os andares: o piso de cima é o teto, que faz sombra no alto da parede)
@@ -79,11 +87,11 @@ export function wallGeometries(chunks: Chunk[], maxLevel: number): Map<string, T
     for (const o of c.openings) for (let i = 0; i < o.width; i++) aberturas.set(k(o.level, o.axis, o.axis === 'x' ? o.x + i : o.x, o.axis === 'z' ? o.z + i : o.z), o)
   }
   const bufs = new Map<string, Buf>()
-  const buf = (tex: string) => { let b = bufs.get(tex); if (!b) bufs.set(tex, (b = novoBuf())); return b }
+  const buf = (tex: string) => { const k = bloco + tex; let b = bufs.get(k); if (!b) bufs.set(k, (b = novoBuf())); return b }
   assa = assadorDe(chunks)
 
   for (const w of walls) {
-    andar = w.level
+    andar = w.level; bloco = blocoDe(w.x, w.z)
     const L = w.level, y0 = L * LEVEL_H, ax = w.axis
     // a ponta em (vx, vz): continua reto? encontra parede de lado?
     const ponta = (vx: number, vz: number, inicio: boolean) => {
@@ -152,7 +160,7 @@ export function wallGeometries(chunks: Chunk[], maxLevel: number): Map<string, T
 /** Os pisos até o andar maxLevel, juntados por textura: a face de cima (o chão) e a de baixo (o teto do andar de baixo). */
 export function floorGeometries(chunks: Chunk[], maxLevel: number): Map<string, THREE.BufferGeometry> {
   const bufs = new Map<string, Buf>()
-  const buf = (tex: string) => { let b = bufs.get(tex); if (!b) bufs.set(tex, (b = novoBuf())); return b }
+  const buf = (tex: string) => { const k = bloco + tex; let b = bufs.get(k); if (!b) bufs.set(k, (b = novoBuf())); return b }
   // a sombra de canto: em cada ponto da grade, as paredes que chegam nele (num eixo, no outro). A porta e o vão não
   // contam (não tem parede no chão ali); a janela conta.
   const portas = new Set<string>(), noX = new Set<string>(), noZ = new Set<string>()
@@ -173,7 +181,7 @@ export function floorGeometries(chunks: Chunk[], maxLevel: number): Map<string, 
     if (f.level > maxLevel || buraco.has(`${f.level}_${f.x}_${f.z}`)) continue
     const y = f.level * LEVEL_H, x0 = f.x, x1 = f.x + 1, z0 = f.z, z1 = f.z + 1
     const uv: [number, number][] = [[x0, z0], [x1, z0], [x1, z1], [x0, z1]]
-    andar = f.level
+    andar = f.level; bloco = blocoDe(f.x, f.z)
     quad(buf(f.top), [[x0, y, z0], [x1, y, z0], [x1, y, z1], [x0, y, z1]], [0, 1, 0], uv, luzes(f.level, f.x, f.z))
     // o teto é do andar de baixo: quem faz sombra nele são as paredes de lá (e as lâmpadas de lá é que iluminam)
     andar = f.level - 1
@@ -192,11 +200,11 @@ export const degrausDe = (rise: number) => Math.max(2, Math.round(rise / 0.18))
  */
 export function stairGeometries(chunks: Chunk[], maxLevel: number): Map<string, THREE.BufferGeometry> {
   const bufs = new Map<string, Buf>()
-  const buf = (tex: string) => { let b = bufs.get(tex); if (!b) bufs.set(tex, (b = novoBuf())); return b }
+  const buf = (tex: string) => { const k = bloco + tex; let b = bufs.get(k); if (!b) bufs.set(k, (b = novoBuf())); return b }
   assa = assadorDe(chunks)
   for (const c of chunks) for (const st of c.stairs) {
     if (st.level > maxLevel) continue
-    andar = st.level
+    andar = st.level; bloco = blocoDe(st.x, st.z)
     const y0 = st.level * LEVEL_H, ns = st.dir === 'norte' || st.dir === 'sul'
     const comp = ns ? st.d : st.w, larg = ns ? st.w : st.d, n = degrausDe(st.rise), t = comp / n
     // (a ao longo da subida a partir do pé, c atravessando) -> (x, z) no mundo
@@ -237,6 +245,31 @@ function geometrias(bufs: Map<string, Buf>) {
     g.setAttribute('luzIndireta', new THREE.Float32BufferAttribute(b.li, 3)) // a luz indireta (o recurso do Ultra)
     g.setIndex(b.i)
     out.set(tex, g)
+  }
+  return out
+}
+
+/**
+ * A malha de sombra de cada bloco: as paredes, os pisos e as escadas do bloco juntos numa geometria só, sem textura.
+ * É ela que faz sombra (uma chamada de desenho por bloco em cada sombra, no lugar de uma por textura); as malhas com
+ * textura só recebem. Fora da sombra ela não desenha nada (MapView liga e desliga pelo intervalo de desenho).
+ */
+export function sombraGeometries(...mapas: Map<string, THREE.BufferGeometry>[]): Map<string, THREE.BufferGeometry> {
+  const porBloco = new Map<string, { p: number[]; i: number[] }>()
+  for (const mapa of mapas) for (const [k, g] of mapa) {
+    const chave = k.slice(0, k.indexOf('|'))
+    let b = porBloco.get(chave)
+    if (!b) porBloco.set(chave, (b = { p: [], i: [] }))
+    const base = b.p.length / 3, pos = g.attributes.position.array, ind = g.index!.array
+    for (let n = 0; n < pos.length; n++) b.p.push(pos[n])
+    for (let n = 0; n < ind.length; n++) b.i.push(ind[n] + base)
+  }
+  const out = new Map<string, THREE.BufferGeometry>()
+  for (const [chave, b] of porBloco) {
+    const g = new THREE.BufferGeometry()
+    g.setAttribute('position', new THREE.Float32BufferAttribute(b.p, 3))
+    g.setIndex(b.i); g.computeBoundingSphere(); g.setDrawRange(0, 0)
+    out.set(chave, g)
   }
   return out
 }

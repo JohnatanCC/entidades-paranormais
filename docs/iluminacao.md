@@ -82,7 +82,8 @@ O que está decidido sobre a luz, como ela é feita e as etapas. Os números fic
   agente** fazem sombra (512 cada): 3 no Alto e 1 no Médio (a pedido, 11/nov: no começo era só no Alto). Sombra de lâmpada é cara: cada uma desenha a cena seis vezes por quadro; por isso só as mais perto, escolhidas
   de novo a cada 0,4 s. Paredes, pisos, escadas, corrimão, portas, móveis e personagens fazem e recebem sombra; o que
   acende (os blocos `luz_`) e a peça que tem a lâmpada dentro não fazem (a cúpula do abajur taparia a própria luz).
-  Dentro de casa o luar é zero: a lua deixa de fazer sombra e o cenário nem faz a conta dela (a troca, ao entrar e
+  **A lâmpada mais perto refaz a sombra em todo quadro do ritmo do nível; as outras, na metade, alternadas entre si**
+  (11/nov: no Alto são 12 passadas de sombra por quadro em vez de 18). Dentro de casa o luar é zero: a lua deixa de fazer sombra e o cenário nem faz a conta dela (a troca, ao entrar e
   sair, refaz os programas uma vez; depois ficam guardados). **No Médio a borda da sombra é dura** (uma leitura de
   textura por pixel, no lugar de 17 para a lua e 9 por lâmpada); no Alto é suavizada. **No Médio cada sombra é refeita quadro sim, quadro
   não** (a da lua e a da lâmpada em quadros alternados): metade do custo, com um quadro de atraso que não se nota. Os números: `sombras` de cada nível em `qualidade.ts`.
