@@ -12,6 +12,7 @@ import { mergeGeometries } from 'three/examples/jsm/utils/BufferGeometryUtils.js
 import { aplicarCorte } from './corte'
 import { aplicarContorno } from './contorno'
 import { aplicarBrilho } from './brilho'
+import { aplicarLuzObjeto } from './assada'
 
 export const UNIDADE = 1 / 32 // metros por unidade do Blockbench
 
@@ -82,7 +83,9 @@ export interface MontadoBB { raiz: THREE.Group; pastas: Map<string, THREE.Group>
 export function montarBB(bb: BBModel, opc: { inflar?: number; corte?: boolean; pele?: boolean } = {}): MontadoBB {
   const tex = bb.textures[0], mapa = tex && !opc.inflar ? textura(tex.source) : undefined
   const W = tex?.uv_width ?? bb.resolution.width, H = tex?.uv_height ?? bb.resolution.height
-  const base = new THREE.MeshStandardMaterial({ color: '#ffffff', roughness: 0.9, ...(mapa ? { map: mapa } : {}) })
+  // todo modelo usa a luz assada do lugar onde está (render/assada.ts); a casca do contorno do editor não tem luz
+  const cru = new THREE.MeshStandardMaterial({ color: '#ffffff', roughness: 0.9, ...(mapa ? { map: mapa } : {}) })
+  const base = opc.inflar ? cru : aplicarLuzObjeto(cru)
   // os personagens (pele) ganham o contorno de luz do jogo; as portas e janelas, o corte das paredes do editor
   const material = opc.corte ? aplicarCorte(base) : opc.pele ? aplicarContorno(base) : base
   const luz = aplicarBrilho(new THREE.MeshBasicMaterial({ color: '#ffffff', ...(mapa ? { map: mapa } : {}) }))
@@ -139,6 +142,7 @@ export function montarBB(bb: BBModel, opc: { inflar?: number; corte?: boolean; p
       // personagem: a geometria fica guardada na pasta (no espaço dela) para vestir juntar tudo numa malha com ossos
       if (opc.pele) { g.userData[nome === '#luz' ? 'geoLuz' : 'geo'] = junta; continue }
       const malha = new THREE.Mesh(junta, mat); malha.name = (nome === '#luz' ? '#luz' : p.name + nome)
+      malha.castShadow = malha.receiveShadow = nome !== '#luz' && !opc.inflar // as sombras do nível Alto (o que acende não faz nem recebe)
       g.add(malha)
     }
     return g
@@ -181,6 +185,7 @@ export function vestir(corpo: THREE.Object3D, m: MontadoBB, ossoDe: Record<strin
     const s = new THREE.SkinnedMesh(mergeGeometries(partes[k]), mat)
     partes[k].forEach((x) => x.dispose())
     s.name = nome; s.frustumCulled = false // o corpo se mexe muito além da caixa da pose do arquivo
+    s.castShadow = s.receiveShadow = nome !== '#luz'
     corpo.add(s); s.updateMatrixWorld(true); s.bind(esqueleto, s.matrixWorld)
     malhas.push(s)
   }

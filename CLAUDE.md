@@ -58,7 +58,8 @@ e captura entidades. Este projeto começa pelo **Modo desenvolvedor → Criador 
   está em `docs/blockbench.md`): personagens e armas com 64 px por metro, objetos do cenário com 32, com sombra e desgaste
   pintados em pixel.
 - A imagem é **limpa**: o filtro PS1 e o "suave" saíram do projeto (11/nov). O clima vem da iluminação (`docs/iluminacao.md`):
-  a cena é sempre legível (ação, não breu) e o terror vem do contraste, o âmbar das lâmpadas e o luar frio contra os cantos escuros.
+  o terror vem do contraste, o âmbar das lâmpadas e o luar frio das janelas contra o escuro. A luz ambiente é baixa (a pedido, 11/nov):
+  quem ilumina são as fontes de luz, e o contorno de luz mantém o agente e os fantasmas visíveis.
 
 ## Comandos
 
@@ -85,19 +86,22 @@ src/
   audio/sintese.ts         os efeitos sintetizados na hora (do laboratório, sem arquivos): ruído, tom, estalos, a voz com
                            vogais, o grito, o sussurro; liga no primeiro clique; o volume é Geral × Efeitos
   dev/provas.ts            só no npm run dev (window.provas): fotos, medidas e o volume da Mãe, para conferir pelo console;
-                           provas.ir(x, z, yaw) leva o agente a um ponto no Testar (dev/ganchos.ts), provas.qualidade() diz o nível
+                           provas.ir(x, z, yaw) leva o agente a um ponto no Testar (dev/ganchos.ts), provas.qualidade() diz o nível,
+                           provas.sombras() conta as lâmpadas com sombra, provas.cena() dá a cena do Testar para inspecionar
   audio/espaco.ts          o som 3D: a voz sai da boca do personagem, no mundo; o ouvido é a câmera (ouvinte, a cada quadro)
   render/                  qualidade.ts (os níveis Baixo, Médio e Alto e o automático por aparelho), passeFinal.ts (a passada de
                            tela cheia do Médio e do Alto: bloom, tonemapping, correção de cor, vinheta), contorno.ts (o contorno de luz
                            dos personagens), brilho.ts (os blocos "luz_" mais fortes que o branco quando o bloom está ligado),
-                           assada.ts (o Baixo e o Médio trocam as lâmpadas de verdade do cenário pela luz assada na malha), materiais.ts (nome da textura -> material),
+                           assada.ts (o cenário e os objetos usam a luz assada: todas as lâmpadas no Baixo; no Médio e no Alto, as que não fazem
+                           sombra), remendos.ts (anota as mudanças de shader de cada material, para a cópia levar junto),
+                           sombras.ts (as sombras do nível Alto: quais lâmpadas fazem sombra), materiais.ts (nome da textura -> material),
                            corte.ts (paredes altas / recortadas / baixas no editor), miniaturas.ts (fotos do catálogo de objetos),
                            bbmodel.ts (lê um modelo do Blockbench: pastas = juntas, blocos = malhas; "luz_" brilha; os
                            personagens viram uma malha só com ossos: vestir),
                            objetos3d.ts (cada tipo de objeto, porta, janela e arma montado uma vez; o mapa usa cópias que dividem tudo)
   maps/                    types.ts (o formato v2), formato.ts (a conversão dos mapas antigos), ambientes.ts (o catálogo das
                            ambientações e dos momentos de luz: os números de cada uma), luzAssada.ts (a luz de cada lâmpada
-                           num ponto, com as paredes bloqueando), loader.ts (o jogo lê a pasta), storage.ts (o editor lê, grava,
+                           e de cada janela num ponto, com as paredes bloqueando), loader.ts (o jogo lê a pasta), storage.ts (o editor lê, grava,
                            exporta e importa; o pacote MapBundle), textures.ts (o catálogo: cada nome, o uso e a cor; a imagem é texturas/<nome>.png),
                            objetos.ts (o catálogo de móveis e lâmpadas, em dados: nome, tamanho, apoio; a forma vem do modelo),
                            corrimao.ts (o corrimão automático das escadas, calculado do mapa; o editor desenha em editor/corrimaoMesh.ts)
@@ -129,7 +133,8 @@ src/game/                  (já existem: Testar.tsx, player/, input/, world/, we
   luz/                     a luz do jogo: Iluminacao.tsx (a luz ambiente, o preenchimento, o luar, a neblina, a imagem final; entra
                            em toda cena de jogo), ceu.ts (o céu da noite: a cúpula com o degradê, as estrelas e a lua), luz.ts (a ambientação de onde o agente está, a troca suave, os momentos:
                            momento('mae-chegando'))
-  corpo/                   o que serve a todo personagem: molas.ts (o que pendura e balança: cabelo, saia)
+  corpo/                   o que serve a todo personagem: molas.ts (o que pendura e balança: cabelo, saia), sombraDeChao.ts
+                           (o círculo escuro embaixo dele)
   Testar.tsx               o Testar do editor: o agente andando no mapa aberto (câmera, colisão, luz do jogo)
   player/                  o agente: modelo.ts (liga modelos/agente.bbmodel no esqueleto), animacao.ts, maos.ts (os dedos),
                            arma.ts (a arma na mão; a escopeta com as duas mãos ou no ombro; o pêndulo da armadilha; Q troca

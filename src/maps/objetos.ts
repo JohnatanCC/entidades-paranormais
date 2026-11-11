@@ -24,6 +24,8 @@ export const ALTURA_PAREDE = 1.8 // m: onde fica o que é preso na parede (a ara
 export const alturaApoio = (def?: ObjDef) => (def?.apoio === 'teto' ? LEVEL_H - 0.02 : def?.apoio === 'parede' ? ALTURA_PAREDE : 0)
 
 const MODO = { modo: ['normal', 'falhando', 'apagada'] } // o modo de toda luz
+/** A luz de um objeto que não diz a sua: a cor, a força e o alcance (m). */
+export const FORCA_LUZ = { cor: '#e0a050', forca: 11, alcance: 7 }
 
 /** As medidas do guarda-corpo (o objeto e o corrimão automático das escadas usam as mesmas, para se emendarem). */
 export const GUARDA = { altura: 1.05, corrimao: 0.985, passo: 0.2 }
@@ -65,12 +67,12 @@ export const OBJETOS: Record<string, ObjDef> = {
   'monitor': { nome: 'Monitor', grupo: 'intro', tam: [0.44, 0.4, 0.4] },
   // --- a luz ---
   'lampada-teto': { nome: 'Lâmpada de teto', grupo: 'luz', tam: [0.56, 0.32, 0.56], apoio: 'teto', params: MODO, luz: { pos: [0, -0.4, 0] } },
-  'lustre': { nome: 'Lustre', grupo: 'luz', tam: [0.95, 0.62, 0.95], apoio: 'teto', params: MODO, luz: { pos: [0, -0.45, 0], forca: 7, alcance: 9 } },
-  'arandela': { nome: 'Arandela (parede)', grupo: 'luz', tam: [0.14, 0.3, 0.18], apoio: 'parede', params: MODO, luz: { pos: [0, 0.2, 0.12], forca: 3.5, alcance: 5 } },
-  'abajur': { nome: 'Abajur', grupo: 'luz', tam: [0.3, 0.5, 0.3], params: MODO, luz: { pos: [0, 0.34, 0], forca: 3, alcance: 5 } },
-  'luminaria-pe': { nome: 'Luminária de pé', grupo: 'luz', tam: [0.45, 1.7, 0.45], params: MODO, luz: { pos: [0, 1.45, 0], forca: 4, alcance: 6 } },
-  'castical': { nome: 'Castiçal', grupo: 'luz', tam: [0.36, 0.5, 0.12], params: MODO, luz: { pos: [0, 0.44, 0], cor: '#ffb060', forca: 2, alcance: 4 } },
-  'lamparina': { nome: 'Lamparina', grupo: 'luz', tam: [0.16, 0.45, 0.16], params: MODO, luz: { pos: [0, 0.29, 0], cor: '#ffb060', forca: 1.5, alcance: 3.5 } },
+  'lustre': { nome: 'Lustre', grupo: 'luz', tam: [0.95, 0.62, 0.95], apoio: 'teto', params: MODO, luz: { pos: [0, -0.45, 0], forca: 13, alcance: 9 } },
+  'arandela': { nome: 'Arandela (parede)', grupo: 'luz', tam: [0.14, 0.3, 0.18], apoio: 'parede', params: MODO, luz: { pos: [0, 0.2, 0.12], forca: 6, alcance: 5 } },
+  'abajur': { nome: 'Abajur', grupo: 'luz', tam: [0.3, 0.5, 0.3], params: MODO, luz: { pos: [0, 0.34, 0], forca: 5.5, alcance: 5 } },
+  'luminaria-pe': { nome: 'Luminária de pé', grupo: 'luz', tam: [0.45, 1.7, 0.45], params: MODO, luz: { pos: [0, 1.45, 0], forca: 7, alcance: 6 } },
+  'castical': { nome: 'Castiçal', grupo: 'luz', tam: [0.36, 0.5, 0.12], params: MODO, luz: { pos: [0, 0.44, 0], cor: '#ffb060', forca: 3.5, alcance: 4 } },
+  'lamparina': { nome: 'Lamparina', grupo: 'luz', tam: [0.16, 0.45, 0.16], params: MODO, luz: { pos: [0, 0.29, 0], cor: '#ffb060', forca: 2.6, alcance: 3.5 } },
 }
 
 export const GRUPOS: [Grupo, string][] = [['casa', 'A casa'], ['intro', 'A Intro'], ['luz', 'Luz']]

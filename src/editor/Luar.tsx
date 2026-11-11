@@ -48,6 +48,12 @@ const manchaMat = new THREE.MeshBasicMaterial({ map: esfumado, color: '#8fb0e8',
 const brilhoMat = new THREE.SpriteMaterial({ map: redondo, color: '#9fb8e0', transparent: true, opacity: 0.22, blending: THREE.AdditiveBlending, depthWrite: false })
 const poeiraMat = new THREE.PointsMaterial({ map: redondo, color: '#dfe8ff', size: 0.05, sizeAttenuation: true, transparent: true, opacity: 0.6, blending: THREE.AdditiveBlending, depthWrite: false })
 
+/** A força do desenho do luar (o feixe, a mancha, o brilho do vidro, a poeira): 1 no editor; o jogo usa menos, porque
+ *  lá a janela já ilumina o cômodo de verdade e o bloom ainda soma por cima (game/luz). */
+export function forcaDoLuar(k: number) {
+  LUAR.k.value = k; manchaMat.opacity = 0.3 * k; brilhoMat.opacity = 0.22 * k; poeiraMat.opacity = 0.6 * Math.sqrt(k)
+}
+
 type V3 = [number, number, number]
 interface Caixa { a: V3[]; f: V3[] } // os cantos de um vidro e onde o luar deles toca o chão
 

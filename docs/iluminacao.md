@@ -7,7 +7,7 @@ O que está decidido sobre a luz, como ela é feita e as etapas. Os números fic
 | Tema | Decisão |
 | --- | --- |
 | Shaders do Minecraft | Não dá para importar (o pipeline é outro e as licenças não deixam). As técnicas são refeitas no three.js |
-| A estética | **Ação, não breu**: a cena é sempre legível (o agente e os fantasmas aparecem). O terror vem do contraste: as poças de luz quente das lâmpadas e o luar frio das janelas contra os cantos escuros, e de momentos que mudam a luz por alguns segundos |
+| A estética | O terror vem do contraste: as poças de luz quente das lâmpadas e o luar frio das janelas contra o escuro, e de momentos que mudam a luz por alguns segundos. **Desde 11/nov (a pedido): a luz ambiente é baixa**, onde não chega lâmpada nem janela é escuro de verdade, e quem ilumina são as fontes de luz. O agente e os fantasmas continuam visíveis pelo contorno de luz deles |
 | O filtro PS1 | Saiu do projeto inteiro (o pós-processo, o tremor de vértice, a opção "Imagem" das configurações e o "suave", que só existia por causa dele) |
 | A luz não é fixa | Cada lugar tem a sua **ambientação**; dentro e fora da mansão têm tons diferentes; a troca é suave |
 | Como o mapa marca | Uma ambientação padrão do mapa e **áreas retangulares** por andar, cada uma com o nome de uma predefinição (o formato 2 do mapa: `docs/criador-de-mapas.md`). O mapa guarda só o nome |
@@ -20,7 +20,7 @@ O que está decidido sobre a luz, como ela é feita e as etapas. Os números fic
   Cada uma diz: a neblina (cor e densidade; a cor é também a do fundo), a luz ambiente (de cima e de baixo), o
   preenchimento, o luar direto, o contorno dos personagens, a exposição, o brilho (a força do bloom) e a correção de cor (o tom das sombras e das
   luzes, o contraste, a saturação, a vinheta). Para criar outra, acrescente uma entrada: ela aparece sozinha no editor.
-- **A luz ambiente** nunca é zero: é o que mantém a cena legível. **O preenchimento** é uma luz fraca que vem de trás
+- **A luz ambiente** é baixa mas nunca zero (o jogador precisa enxergar por onde anda). **O preenchimento** é uma luz fraca que vem de trás
   da câmera (de cima e um pouco de lado): o que o jogador olha tem sempre volume, sem custar uma sombra.
 - **O contorno dos personagens** (`src/render/contorno.ts`): as faces do agente e dos fantasmas viradas de lado para a
   câmera acendem um pouco, e o corpo todo tem um mínimo de luz própria. É feito no material deles (nenhuma luz a mais).
@@ -30,7 +30,14 @@ O que está decidido sobre a luz, como ela é feita e as etapas. Os números fic
   de desenho), desenhada por último e no fundo: só gasta nos pixels onde o céu aparece. O horizonte é a cor da neblina,
   então o chão que some ao longe some na cor do céu. Cada ambientação diz o `zenite`, as `estrelas` e a `lua`; a lua
   passa do branco e ganha halo com o bloom. A posição da lua é `LUA` (no catálogo), e o luar de fora vem de lá.
-- **As lâmpadas e o luar das janelas** continuam sendo do mapa (os objetos de luz e as janelas com luar).
+- **As lâmpadas e o luar das janelas** são do mapa (os objetos de luz e as janelas com luar). A força padrão das
+  lâmpadas é `FORCA_LUZ` em `src/maps/objetos.ts` (reforçadas em 11/nov). **A janela com luar ilumina o cômodo de
+  verdade** (11/nov): uma luz fria no meio dela, só para dentro, calculada na malha em todos os níveis (`JANELA` em
+  `src/maps/luzAssada.ts`); o feixe e a mancha no chão continuam sendo o desenho por cima, **mais sutil no jogo** que
+  no editor (`LUAR_NO_JOGO` em `src/maps/ambientes.ts`: lá o bloom ainda soma por cima do feixe).
+- **A sombra de chão** (11/nov, nos três níveis; `src/game/corpo/sombraDeChao.ts`): um círculo escuro e macio embaixo
+  do agente. É o que cola ele no chão onde não há sombra projetada (o Baixo inteiro, e qualquer lugar sem lâmpada com
+  sombra nem lua). Os fantasmas ganham a deles quando entrarem no jogo.
 - **A troca entre áreas** (`src/game/luz/luz.ts`): a ambientação é a da menor área que contém o agente (no andar
   dele), ou a padrão do mapa. A luz anda até a nova em ~1,6 s (`TROCA`).
 - **Os momentos** (`MOMENTOS`, no mesmo catálogo): uma mudança por alguns segundos, por cima da ambientação do lugar,
@@ -51,26 +58,40 @@ O que está decidido sobre a luz, como ela é feita e as etapas. Os números fic
   o formato do mapa não mudou. Não custa nada por quadro. Aparece também no editor. Os números: `SOMBRA` (a força de
   cada encosto e até onde a sombra sobe na parede). A porta e o vão não escurecem o chão; os móveis e as escadas não
   entram na conta.
-- **A luz das lâmpadas assada** (etapa 3b, no Baixo e no Médio; `src/maps/luzAssada.ts`, `src/render/assada.ts`): cada
+- **A luz das lâmpadas assada** (etapa 3b; `src/maps/luzAssada.ts`, `src/render/assada.ts`): cada
   vértice de paredes, pisos, tetos e escadas guarda a luz que chega nele de cada lâmpada do mapa, com as paredes e os
-  pisos bloqueando. Nesses dois níveis o cenário usa essa cor no lugar das lâmpadas de verdade: a lâmpada não clareia
+  pisos bloqueando. No Baixo o cenário usa essa cor no lugar de todas as lâmpadas de verdade: a lâmpada não clareia
   mais o cômodo vizinho, e o cenário deixa de fazer a conta de todas as lâmpadas em cada pixel (o maior ganho do
-  celular). **No Alto as lâmpadas continuam de verdade** (decidido em 11/nov): é o que o brilho e o relevo da etapa 5
-  precisam; lá o vazamento se resolve com as sombras da etapa 4. Os personagens e os móveis usam as lâmpadas de verdade
-  em todos os níveis. Também não fica gravada no mapa: é calculada ao montar a malha.
-  - Porta e vão deixam a luz passar (aberta ou fechada); parede e janela bloqueiam; o piso bloqueia entre andares.
-  - As lâmpadas **falhando** vão numa segunda cor da malha e **piscam todas juntas** (decidido em 11/nov).
+  celular). **No Médio e no Alto o modo é misto**: só as lâmpadas que fazem sombra (a mais perto do agente no Médio, as
+  3 mais perto no Alto) são de verdade no cenário, que é o que o brilho e o relevo da etapa 5 precisam; todas as outras vêm da malha. Assim nenhuma lâmpada
+  vaza pela parede: ou tem sombra, ou é assada. Para isso cada vértice guarda as duas lâmpadas mais fortes nele com o
+  número de cada uma (o jogo tira da conta a que virou luz de verdade) e o resto somado. Também não fica gravada no
+  mapa: é calculada ao montar a malha.
+  - **Os objetos seguem a mesma regra** (11/nov): móveis, portas, janelas, personagens e armas só recebem de verdade
+    as lâmpadas com sombra; o resto vem de **uma amostra da luz assada no lugar onde o objeto está** (sem direção: o
+    objeto clareia por igual). Móveis e portas tiram a amostra uma vez; o agente, a cada 4 quadros. Para isso cada
+    objeto do mapa tem um material só dele (a geometria e a textura continuam divididas; `src/render/remendos.ts`
+    refaz na cópia as mudanças de shader). A porta usa a média dos dois lados da parede.
+  - Porta e vão deixam a luz passar só pelo buraco deles (aberta ou fechada; a parede em cima bloqueia); parede e
+    janela bloqueiam; o piso bloqueia entre andares, menos no buraco da escada.
+  - As lâmpadas **falhando** **piscam todas juntas** no jogo, nos três níveis (decidido em 11/nov).
   - As paredes têm vértices a cada 0,5 m para a luz ter onde cair; os pisos e tetos, a cada 1 m. A poça de luz fica
     mais macia e em losangos, no estilo do Minecraft.
+- **As sombras em tempo real** (etapa 4, no Médio e no Alto; `src/render/sombras.ts`): a **lua** faz uma sombra para
+  tudo em volta do agente (48 × 48 m; textura de 2048 no Alto e 1024 no Médio), e as **lâmpadas acesas mais perto do
+  agente** fazem sombra (512 cada): 3 no Alto e 1 no Médio (a pedido, 11/nov: no começo era só no Alto). Sombra de lâmpada é cara: cada uma desenha a cena seis vezes por quadro; por isso só as mais perto, escolhidas
+  de novo a cada 0,4 s. Paredes, pisos, escadas, corrimão, portas, móveis e personagens fazem e recebem sombra; o que
+  acende (os blocos `luz_`) e a peça que tem a lâmpada dentro não fazem (a cúpula do abajur taparia a própria luz).
+  Dentro de casa o luar é zero e a sombra da lua não é refeita. Os números: `sombras` de cada nível em `qualidade.ts`.
 - **Toda cena de jogo usa `<Iluminacao />`** (`src/game/luz/Iluminacao.tsx`): o Testar e a luz "Jogo" do Ver modelos.
 
 ## Os níveis de qualidade (`src/render/qualidade.ts`)
 
-| Nível | Resolução (pixels por ponto da tela) | Passada final (cor, vinheta) | Bloom | Suavização das bordas | Lâmpadas no cenário |
-| --- | --- | --- | --- | --- | --- |
-| Baixo (celular) | até 1 | não | não | a da tela | assadas |
-| Médio | até 1,5 | sim | a partir de 1/4 da tela, 4 níveis | 2 amostras | assadas |
-| Alto | até 2 | sim | a partir de 1/2 da tela, 5 níveis | 4 amostras | de verdade |
+| Nível | Resolução (pixels por ponto da tela) | Passada final (cor, vinheta) | Bloom | Suavização das bordas | Lâmpadas no cenário | Sombras |
+| --- | --- | --- | --- | --- | --- | --- |
+| Baixo (celular) | até 1 | não | não | a da tela | assadas | não |
+| Médio | até 1,5 | sim | a partir de 1/4 da tela, 4 níveis | 2 amostras | mistas (de verdade a 1 com sombra) | a lua e 1 lâmpada |
+| Alto | até 2 | sim | a partir de 1/2 da tela, 5 níveis | 4 amostras | mistas (de verdade as 3 com sombra) | a lua e 3 lâmpadas |
 
 Nas configurações: **Automático** (o padrão; mostra qual nível escolheu), Baixo, Médio e Alto. O automático olha o
 aparelho (tela de toque, memória, núcleos, o nome da placa de vídeo) e, nos primeiros segundos de uma cena de jogo, mede
@@ -88,7 +109,7 @@ vale até recarregar a página.
    (decidido em 11/nov):
    - **3a. A sombra de canto.** ✅ (11/nov) O escurecimento macio dos cantos, calculado ao montar a malha.
    - **3b. A luz das lâmpadas assada.** ✅ (11/nov) No Baixo e no Médio, com as paredes bloqueando.
-4. **Sombras em tempo real**, só no nível Alto.
+4. **Sombras em tempo real.** ✅ (11/nov) No Médio (a lua e 1 lâmpada) e no Alto (a lua e 3 lâmpadas).
 5. **Materiais** (proposta de 11/nov, depois da 4): **5a** o brilho de cada textura (mármore reflete, tapete não), em
    todos os níveis; **5b** o relevo de luz gerado da própria textura, no Alto, com a criação do nível **Ultra**;
    **5c** o relevo de verdade (parallax), só no Ultra, como experimento.
@@ -99,7 +120,16 @@ Fora da numeração, já feito: **o céu da noite** ✅ (11/nov). Ficaram para d
 
 - A ambientação é uma só para a tela inteira (a de onde o agente está): olhando de fora para dentro por uma porta, o
   interior aparece com a luz de fora, e o contrário. A etapa 3 resolve o grosso disso.
-- As luzes não fazem sombra: a lâmpada de um cômodo clareia o cômodo vizinho através da parede no nível Alto (etapa 4), e sobre os personagens e os móveis em todos os níveis.
+- **Em aberto: a lâmpada "falhando" do andar de baixo vaza para o andar de cima** (visto pelo desenvolvedor em 11/nov, só
+  com as que piscam, mesmo depois de recarregar a página). Não foi reproduzido: no corredor de cima da mansão, sobre a
+  `lampada-corredor-fundos`, a página recém-carregada fica limpa nos três níveis. Deixado de lado por decisão dele; por
+  enquanto, evitar o modo "falhando" em lâmpadas que tenham cômodo em cima.
+- A luz assada de um objeto é uma amostra só, no meio dele: um móvel comprido entre a luz e o escuro clareia inteiro
+  por igual, e a porta entre um cômodo aceso e um escuro fica com a média dos dois.
+- No Baixo os objetos e os personagens não recebem nenhuma lâmpada de verdade: só a amostra, sem lado claro e escuro.
+- Um vértice guarda só as duas lâmpadas mais fortes com número: uma terceira lâmpada fraca num ponto, se virar luz de
+  verdade no Alto, conta duas vezes ali (fica um pouco mais claro). Só acontece onde três lâmpadas se cruzam.
+- A luz da janela não chega nos personagens nem nos móveis (só no cenário), e não muda com a ambientação.
 - O feixe de luar das janelas tem a neblina dele, fixa: não acompanha a densidade da ambientação. E a direção dele é
   própria de cada janela: não segue a posição da lua no céu (toda janela com luar tem feixe, de qualquer lado da casa).
 - O editor e o Testar dividem a mesma tela, criada com a suavização de bordas do navegador ligada; no Médio e no Alto ela

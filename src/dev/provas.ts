@@ -6,6 +6,8 @@
 //   provas.medidas(c)                                        mãos, cabeça, quadril; o ângulo de cada mecha
 //   await provas.som([['andando', 4000, { anda: 0.95 }], ['grito', 2000, { golpe: 'grito' }]])   o volume de cada trecho
 //   provas.ir(x, z, yaw, pitch?, andar?)                    no Testar aberto: leva o agente a um ponto (fotos do mesmo lugar)
+//   provas.sombras()                                         quantas lâmpadas na cena e quantas fazem sombra agora
+//   provas.cena()                                            a cena do Testar aberto (luzes, malhas), para inspecionar
 //   provas.qualidade()                                       o nível de qualidade valendo agora (baixo, medio, alto)
 // Câmeras: 'frente', 'lado', 'tras', '34', 'agente' (o olho dele, a 1,6 m), 'rosto' (de perto, pela frente da cabeça),
 // ou { de: [x, y, z], alvo: [x, y, z] }. O som só toca depois de um clique de verdade na página.
@@ -18,6 +20,7 @@ import { ouvinte } from '../audio/espaco'
 import { som } from '../audio/sintese'
 import { ganchos } from './ganchos'
 import { nivelAtual } from '../render/qualidade'
+import { contarSombras } from '../render/sombras'
 
 export interface Cena { m: Mae; sc: THREE.Scene }
 type Camera = 'frente' | 'lado' | 'tras' | '34' | 'agente' | 'rosto' | { de: number[]; alvo: number[]; fov?: number }
@@ -118,4 +121,4 @@ function ir(x: number, z: number, yaw: number, pitch?: number, andar?: number) {
   return 'ok'
 }
 
-export const provas = { mae, fotos, limpar, medidas, som: som_, ir, qualidade: nivelAtual }
+export const provas = { mae, fotos, limpar, medidas, som: som_, ir, qualidade: nivelAtual, sombras: contarSombras, cena: () => ganchos.cena }

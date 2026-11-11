@@ -9,7 +9,9 @@ import { useEffect, useMemo } from 'react'
 import { useFrame } from '@react-three/fiber'
 import * as THREE from 'three'
 import type { PortaViva, PortasVivas } from '../game/world/portas'
+import { assadorDe, novaLuzVertice, type Assador } from '../maps/luzAssada'
 import { LEVEL_H, type Chunk, type Opening } from '../maps/types'
+import { iluminarObjeto, materiaisDoObjeto } from '../render/assada'
 import { aplicarCorte } from '../render/corte'
 import { abertura3d } from '../render/objetos3d'
 import { buraco } from './wallMesh'
@@ -20,7 +22,8 @@ const cadeado = aplicarCorte(new THREE.MeshBasicMaterial({ color: '#c2453a' }))
 
 export function Aberturas({ chunks, maxLevel, portas }: { chunks: Chunk[]; maxLevel: number; portas?: PortasVivas }) {
   const lista = useMemo(() => chunks.flatMap((c) => c.openings).filter((o) => o.level <= maxLevel), [chunks, maxLevel])
-  return <group>{lista.map((o) => <Abertura key={o.id} o={o} viva={portas?.get(o.id)} />)}</group>
+  const assa = useMemo(() => assadorDe(chunks), [chunks])
+  return <group>{lista.map((o) => <Abertura key={o.id} o={o} viva={portas?.get(o.id)} assa={assa} />)}</group>
 }
 
 /** O referencial da abertura: origem no começo do vão, no chão do andar; u = +x local. sb = o sinal de z local do lado b. */
@@ -33,12 +36,24 @@ const tipoDe = (o: Opening) => (o.kind === 'janela' ? (o.window === 'grande' ? '
 /** As divisões da janela (onde o luar se parte): as mesmas do modelo. */
 const verticaisDe = (o: Opening) => (o.window === 'grande' ? [o.width * 0.25, o.width * 0.5, o.width * 0.75] : [o.width / 2])
 
-function Abertura({ o, viva }: { o: Opening; viva?: PortaViva }) {
+function Abertura({ o, viva, assa }: { o: Opening; viva?: PortaViva; assa: Assador }) {
   const { pos, rotY, sb } = referencial(o)
   const tipo = tipoDe(o)
   // abertura3d na lista: salvar o .bbmodel recarrega o módulo e a cópia é feita de novo
   const obj = useMemo(() => (tipo ? abertura3d(tipo) : null), [tipo, abertura3d])
   const folhas = useMemo(() => (obj ? [obj.getObjectByName('folha_1'), obj.getObjectByName('folha_2')] : []), [obj])
+  // a luz assada do lugar: a média das amostras dos dois lados da parede (a porta é uma peça só para os dois cômodos)
+  useEffect(() => {
+    if (!obj) return
+    const descartar = materiaisDoObjeto(obj), soma = novaLuzVertice(), lado = novaLuzVertice(), m = o.width / 2
+    for (const s of [-0.4, 0.4]) {
+      const p: [number, number, number] = o.axis === 'x' ? [o.x + m, o.level * LEVEL_H + 1.2, o.z + s] : [o.x + s, o.level * LEVEL_H + 1.2, o.z + m]
+      assa(p, null, p, o.level, lado)
+      for (const k of ['a', 'b', 'resto', 'janela'] as const) for (let i = 0; i < 3; i++) soma[k][i] += lado[k][i] / 2
+    }
+    iluminarObjeto(obj, soma)
+    return descartar
+  }, [obj, assa, o.x, o.z, o.axis, o.level, o.width])
 
   // gira as folhas: a 1 sai da dobradiça em u = 0 para +u, a 2 de u = W para −u; abre para o lado escolhido (z local)
   const girar = (ang: number, lado: 'a' | 'b') => {

@@ -12,6 +12,8 @@ export const SNAP_OBJ = 0.25 // os objetos encaixam a cada (m)
 export const ROT_STEP = 15 // a rotação encaixa a cada (graus); com Shift, 45 e 90
 export const LEVEL_H = 3.5 // a altura de cada andar (m), fixa por enquanto
 export const CHUNK = 16 // o lado do bloco (m)
+export const PORTA_H = 2.1 // a altura do vão da porta comum, da dupla e do vão sem porta (m)
+export const PORTA_GRANDE_H = 2.8 // a da porta grande
 
 export type Vec3 = [number, number, number]
 export type Axis = 'x' | 'z'

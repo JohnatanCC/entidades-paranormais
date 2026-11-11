@@ -5,8 +5,8 @@
 //   etapa 1: a resolução, o passe final (a correção de cor, a vinheta) e a suavização das bordas;
 //   etapa 2: o bloom, dentro do passe final (Médio e Alto; o Baixo não tem passe);
 //   etapa 3: a sombra de canto vale para os três níveis (é dado da malha, não custa por quadro); a luz das lâmpadas
-//            assada vale no Baixo e no Médio (no Alto as lâmpadas são de verdade, para o brilho e o relevo da etapa 5);
-//   etapa 4: as sombras em tempo real, só no Alto.
+//            assada vale inteira no Baixo; no Médio e no Alto só as lâmpadas com sombra são de verdade, o resto é assado;
+//   etapa 4: as sombras em tempo real, no Médio (a lua e 1 lâmpada) e no Alto (a lua e 3): render/sombras.ts.
 import { useSyncExternalStore } from 'react'
 import { getSettings, useSettings } from '../settings/settings'
 import type { Bloom } from './passeFinal'
@@ -19,14 +19,19 @@ export interface NivelDef {
   dpr: number // o máximo de pixels desenhados por pixel da tela (o celular tem 2 a 3: desenhar tudo isso é o que mais pesa)
   passe: boolean // o passe final de tela cheia: a correção de cor e a vinheta (sem ele, o tom vem só das luzes e da neblina)
   amostras: number // a suavização das bordas no passe final (MSAA); sem o passe, vale a da própria tela
-  assada: boolean // o cenário usa a luz das lâmpadas assada na malha, no lugar das lâmpadas de verdade (render/assada.ts)
+  // as lâmpadas no cenário (render/assada.ts): 'assada' = todas vêm da malha; 'mista' = as que fazem sombra são de verdade
+  lampadas: 'assada' | 'mista'
+  // as sombras em tempo real: quantas lâmpadas (as mais perto do agente) fazem sombra, o tamanho da textura de cada uma
+  // e o da sombra da lua (0 = sem sombra)
+  sombras: { lampadas: number; mapa: number; lua: number }
   bloom: Bloom // o brilho em volta do que é claro (só com o passe): o tamanho da maior textura dele e quantas reduções
 }
 
+const SEM_SOMBRAS = { lampadas: 0, mapa: 0, lua: 0 }
 export const NIVEIS: Record<Nivel, NivelDef> = {
-  baixo: { nome: 'Baixo', dpr: 1, passe: false, amostras: 0, assada: true, bloom: { de: 0, niveis: 0 } },
-  medio: { nome: 'Médio', dpr: 1.5, passe: true, amostras: 2, assada: true, bloom: { de: 4, niveis: 4 } },
-  alto: { nome: 'Alto', dpr: 2, passe: true, amostras: 4, assada: false, bloom: { de: 2, niveis: 5 } },
+  baixo: { nome: 'Baixo', dpr: 1, passe: false, amostras: 0, lampadas: 'assada', sombras: SEM_SOMBRAS, bloom: { de: 0, niveis: 0 } },
+  medio: { nome: 'Médio', dpr: 1.5, passe: true, amostras: 2, lampadas: 'mista', sombras: { lampadas: 1, mapa: 512, lua: 1024 }, bloom: { de: 4, niveis: 4 } },
+  alto: { nome: 'Alto', dpr: 2, passe: true, amostras: 4, lampadas: 'mista', sombras: { lampadas: 3, mapa: 512, lua: 2048 }, bloom: { de: 2, niveis: 5 } },
 }
 const ORDEM: Nivel[] = ['baixo', 'medio', 'alto']
 

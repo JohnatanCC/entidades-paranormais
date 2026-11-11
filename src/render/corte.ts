@@ -6,6 +6,7 @@
 import * as THREE from 'three'
 import type { Material } from 'three'
 import { LEVEL_H } from '../maps/types'
+import { anotar } from './remendos'
 
 export type ModoParedes = 'altas' | 'recortadas' | 'baixas'
 const MODOS: Record<ModoParedes, number> = { altas: 0, recortadas: 1, baixas: 2 }
@@ -52,5 +53,5 @@ export function aplicarCorte<M extends Material>(mat: M): M {
   }`)
   }
   mat.customProgramCacheKey = () => 'corte'
-  return mat
+  return anotar(mat, aplicarCorte as (m: Material) => unknown)
 }

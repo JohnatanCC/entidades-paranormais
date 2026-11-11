@@ -11,12 +11,12 @@
 // A luz das lâmpadas assada (a etapa 3b): cada vértice guarda também a luz que chega nele de cada lâmpada do mapa, com
 // as paredes bloqueando (maps/luzAssada.ts); o Baixo e o Médio usam isso no lugar das lâmpadas de verdade (render/assada.ts).
 import * as THREE from 'three'
-import { LEVEL_H, type Axis, type Chunk, type Opening, type Wall, type WallSide } from '../maps/types'
-import { assadorDe, type Assador } from '../maps/luzAssada'
+import { LEVEL_H, PORTA_GRANDE_H as GRANDE_H, PORTA_H, type Axis, type Chunk, type Opening, type Wall, type WallSide } from '../maps/types'
+import { assadorDe, novaLuzVertice, type Assador } from '../maps/luzAssada'
 import { BATENTE, TOPO } from '../render/materiais' // o corte da parede (topo e vergas) e a madeira do batente
 
 export const ESPESSURA = 0.12 // a espessura da parede (m)
-const PORTA_H = 2.1, GRANDE_H = 2.8, JANELA_Y0 = 0.9, JANELA_Y1 = 2.1
+const JANELA_Y0 = 0.9, JANELA_Y1 = 2.1
 const T2 = ESPESSURA / 2
 /** A sombra de canto: forca = o quanto cada encosto escurece (dois encostos, duas vezes); alcance = até onde ela sobe na parede (m). */
 export const SOMBRA = { forca: 0.45, alcance: 0.7 }
@@ -24,11 +24,11 @@ const sombra = (encostos: number) => (1 - SOMBRA.forca) ** encostos
 const PASSO_LUZ = 0.5 // de quanto em quanto a parede ganha vértices para a luz assada (m)
 const PASSOS_Y = Array.from({ length: Math.ceil(LEVEL_H / PASSO_LUZ) - 1 }, (_, i) => (i + 1) * PASSO_LUZ)
 
-interface Buf { p: number[]; n: number[]; uv: number[]; c: number[]; lf: number[]; lp: number[]; i: number[] }
-const novoBuf = (): Buf => ({ p: [], n: [], uv: [], c: [], lf: [], lp: [], i: [] })
+interface Buf { p: number[]; n: number[]; uv: number[]; c: number[]; la: number[]; lb: number[]; lr: number[]; lj: number[]; i: number[] }
+const novoBuf = (): Buf => ({ p: [], n: [], uv: [], c: [], la: [], lb: [], lr: [], lj: [], i: [] })
 // a luz assada da malha sendo montada agora: quem calcula e o andar do que está sendo desenhado (quad lê daqui)
 let assa: Assador | null = null, andar = 0
-const _fixa: V3 = [0, 0, 0], _pisca: V3 = [0, 0, 0]
+const _luz = novaLuzVertice(), SEM_LUZ = novaLuzVertice()
 type V3 = [number, number, number]
 
 const k = (level: number, axis: Axis, x: number, z: number) => `${level}|${axis}|${x}|${z}`
@@ -43,13 +43,13 @@ function quad(b: Buf, c: V3[], n: V3, uv: [number, number][], luz: number[] = SE
   const mx = (c[0][0] + c[1][0] + c[2][0] + c[3][0]) / 4, my = (c[0][1] + c[1][1] + c[2][1] + c[3][1]) / 4, mz = (c[0][2] + c[1][2] + c[2][2] + c[3][2]) / 4
   for (const j of ordem) {
     b.p.push(...c[j]); b.n.push(...n); b.uv.push(...uv[j]); b.c.push(luz[j], luz[j], luz[j])
-    // a luz das lâmpadas neste canto, olhando de um ponto um pouco para dentro da face (o canto fica em cima da parede)
-    _fixa[0] = _fixa[1] = _fixa[2] = _pisca[0] = _pisca[1] = _pisca[2] = 0
+    // a luz das lâmpadas e das janelas neste canto, olhando de um ponto um pouco para dentro da face (o canto fica em cima da parede)
     if (assa) {
       const dx = mx - c[j][0], dy = my - c[j][1], dz = mz - c[j][2], k = 0.1 / (Math.hypot(dx, dy, dz) || 1)
-      assa(c[j], n, [c[j][0] + dx * k + n[0] * 0.05, c[j][1] + dy * k + n[1] * 0.05, c[j][2] + dz * k + n[2] * 0.05], andar, _fixa, _pisca)
+      assa(c[j], n, [c[j][0] + dx * k + n[0] * 0.05, c[j][1] + dy * k + n[1] * 0.05, c[j][2] + dz * k + n[2] * 0.05], andar, _luz)
     }
-    b.lf.push(..._fixa); b.lp.push(..._pisca)
+    const L = assa ? _luz : SEM_LUZ
+    b.la.push(...L.a); b.lb.push(...L.b); b.lr.push(...L.resto); b.lj.push(...L.janela)
   }
   // a diagonal liga os dois cantos mais claros: com um canto só escuro, o degradê não "quebra" no meio do quadrado
   if (luz[1] + luz[3] > luz[0] + luz[2]) b.i.push(v0, v0 + 1, v0 + 3, v0 + 1, v0 + 2, v0 + 3)
@@ -231,8 +231,9 @@ function geometrias(bufs: Map<string, Buf>) {
     g.setAttribute('normal', new THREE.Float32BufferAttribute(b.n, 3))
     g.setAttribute('uv', new THREE.Float32BufferAttribute(b.uv, 2))
     g.setAttribute('color', new THREE.Float32BufferAttribute(b.c, 3)) // a sombra de canto (o material multiplica)
-    g.setAttribute('luzFixa', new THREE.Float32BufferAttribute(b.lf, 3)) // a luz assada das lâmpadas normais
-    g.setAttribute('luzPisca', new THREE.Float32BufferAttribute(b.lp, 3)) // e a das que estão falhando
+    // a luz assada: as duas lâmpadas mais fortes (com o número de cada uma), o resto delas e a das janelas
+    g.setAttribute('luzA', new THREE.Float32BufferAttribute(b.la, 4)); g.setAttribute('luzB', new THREE.Float32BufferAttribute(b.lb, 4))
+    g.setAttribute('luzResto', new THREE.Float32BufferAttribute(b.lr, 3)); g.setAttribute('luzJanela', new THREE.Float32BufferAttribute(b.lj, 3))
     g.setIndex(b.i)
     out.set(tex, g)
   }

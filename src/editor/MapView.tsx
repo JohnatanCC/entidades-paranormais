@@ -27,7 +27,7 @@ export function MapView({ chunks, maxLevel, ocultar, portas }: Props) {
   return (
     <group>
       {[...paredes].map(([tex, g]) => <mesh key={'p' + tex} geometry={g} material={materialDe(tex, true)} castShadow receiveShadow />)}
-      {[...pisos].map(([tex, g]) => <mesh key={'f' + tex} geometry={g} material={materialDe(tex)} receiveShadow />)}
+      {[...pisos].map(([tex, g]) => <mesh key={'f' + tex} geometry={g} material={materialDe(tex)} castShadow receiveShadow />)}
       {[...degraus].map(([tex, g]) => <mesh key={'e' + tex} geometry={g} material={materialDe(tex)} castShadow receiveShadow />)}
       {[...corrimao].map(([m, g]) => <mesh key={'c' + m} geometry={g} material={materialCorrimao(m)} castShadow receiveShadow />)}
       {/* a chave troca no começo e no fim do Testar: as folhas voltam para o ângulo do mapa */}

@@ -14,6 +14,7 @@ import { LEVEL_H, type AreaAmbiente, type Chunk } from '../maps/types'
 import { useSettings } from '../settings/settings'
 import { Acoes } from './input/acoes'
 import { ganchos } from '../dev/ganchos'
+import { novaSombraDeChao } from './corpo/sombraDeChao'
 import { Iluminacao } from './luz/Iluminacao'
 import { momento } from './luz/luz'
 import { animarAgente } from './player/animacao'
@@ -27,7 +28,9 @@ import { tranco } from './player/dano'
 import { curar, machucado, novaVida, passoVida, porcento, tomarDano } from './player/vida'
 import { chamar, descartarArco, desenharArco, gatilhoArmadilha, lancar, novaArmadilha, novoArco, passoArmadilha, pontoDeSoltar, recolher, velocidadeDoArremesso } from './weapons/armadilha'
 import { gatilho } from './weapons/tiro'
-import { alcanceCamera, chaoEm, montarMundo, tetoEm } from './world/colisao'
+import { alcanceCamera, andarDe, chaoEm, montarMundo, tetoEm } from './world/colisao'
+import { assadorDe, novaLuzVertice } from '../maps/luzAssada'
+import { iluminarObjeto } from '../render/assada'
 import { animarPortas, dicaDaPorta, novasPortas, portaPerto, usarPorta, type PortasVivas } from './world/portas'
 
 interface Props {
@@ -61,7 +64,9 @@ export function Testar({ chunks, levels, ambiente, areas, inicio, yaw, portas, o
     portas.clear(); novasPortas(m).forEach((v, k) => portas.set(k, v))
     return m
   }, [chunks, levels, portas])
-  const agente = useMemo(() => montarAgente(), [])
+  const agente = useMemo(() => montarAgente(), []), sombra = useMemo(() => novaSombraDeChao(), [])
+  // a luz assada de onde o agente está (as lâmpadas sem sombra e as janelas), tirada de novo a cada poucos quadros
+  const assa = useMemo(() => assadorDe(Object.values(chunks)), [chunks]), luzAgente = useMemo(() => novaLuzVertice(), []), quadro = useRef(0)
   const acoes = useMemo(() => new Acoes(), [])
   const armadilha = useMemo(() => novaArmadilha(), []), arco = useMemo(() => novoArco(), [])
   const est = useRef({
@@ -101,13 +106,14 @@ export function Testar({ chunks, levels, ambiente, areas, inicio, yaw, portas, o
       s.j = novoJogador(x, chaoEm(mundo, x, z, andar * LEVEL_H + 0.3) ?? andar * LEVEL_H, z, yaw)
       s.camYaw = yaw; s.pitch = pitch; s.pivX = x; s.pivZ = z; s.pivY = s.j.y; s.k = 1
     }
-    return () => { delete ganchos.ir }
-  }, [mundo])
+    ganchos.cena = scene
+    return () => { delete ganchos.ir; delete ganchos.cena }
+  }, [mundo, scene])
 
   // o agente na cena, a entrada ligada, o mouse travado com um clique; Esc (ou soltar o mouse) volta ao editor
   useEffect(() => {
     const el = gl.domElement
-    scene.add(agente.root, arco.linha, arco.marca)
+    scene.add(agente.root, sombra, arco.linha, arco.marca)
     acoes.ligar(el)
     const clique = () => { if (document.pointerLockElement !== el) { try { const r = el.requestPointerLock() as unknown as Promise<void> | undefined; r?.catch?.(() => {}) } catch { /* sem trava: segue sem olhar com o mouse */ } } }
     const trava = () => {
@@ -123,7 +129,7 @@ export function Testar({ chunks, levels, ambiente, areas, inicio, yaw, portas, o
     window.addEventListener('keydown', esc)
     clique() // tenta travar já (o clique no botão Testar conta como gesto do usuário)
     return () => {
-      scene.remove(agente.root)
+      scene.remove(agente.root, sombra)
       descartarArco(arco); recolher(armadilha)
       acoes.desligar()
       el.removeEventListener('click', clique)
@@ -133,7 +139,7 @@ export function Testar({ chunks, levels, ambiente, areas, inicio, yaw, portas, o
       const c = camera as THREE.PerspectiveCamera
       c.fov = 50; c.updateProjectionMatrix() // o campo de visão do editor
     }
-  }, [gl, scene, agente, acoes, camera, armadilha, arco])
+  }, [gl, scene, agente, sombra, acoes, camera, armadilha, arco])
 
   const cam = camera as THREE.PerspectiveCamera
   const v = useMemo(() => ({ f: new THREE.Vector3(), r: new THREE.Vector3(), de: new THREE.Vector3(), para: new THREE.Vector3(), alvo: new THREE.Vector3(), vel: new THREE.Vector3(), mao: new THREE.Vector3() }), [])
@@ -183,6 +189,8 @@ export function Testar({ chunks, levels, ambiente, areas, inicio, yaw, portas, o
     const dica = s.msgT > 0 ? s.msg : porta ? dicaDaPorta(porta, portas) : null
     if (dica !== s.dica) { s.dica = dica; dicaRef.current(dica) }
     agente.root.position.set(j.x, j.y, j.z)
+    sombra.position.set(j.x, j.y + 0.03, j.z) // o círculo escuro nos pés
+    if (quadro.current++ % 4 === 0) { const p: [number, number, number] = [j.x, j.y + 1, j.z]; assa(p, null, p, andarDe(j.y), luzAgente); iluminarObjeto(agente.root, luzAgente) }
     agente.root.rotation.y = j.yaw
     // a arma aponta para o ponto que a câmera mira (de onde a câmera estava no quadro anterior: ela anda depois)
     v.f.set(Math.sin(s.camYaw) * Math.cos(s.pitch), Math.sin(s.pitch), Math.cos(s.camYaw) * Math.cos(s.pitch))
