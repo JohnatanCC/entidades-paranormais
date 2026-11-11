@@ -1,6 +1,6 @@
 // Os sons do jogo, sintetizados na hora (Web Audio, sem arquivos; portados do laboratório): as peças que todo
 // personagem usa. ruido (sopro, pano, impacto, chiado), tom (oscilador com glissando), estalos (um trem deles: osso,
-// garganta, madeira), pancada, racha, a voz (o pulso da garganta, as vogais, a aspereza) e o grito.
+// garganta, madeira), pancada, racha, rangido, a voz (o pulso da garganta, as vogais, a aspereza), o grito e o sussurro.
 // O navegador só libera o áudio depois de um clique ou tecla: o contexto nasce na primeira interação (prepararSom) e,
 // até lá, som() devolve null e nada toca. A cadeia: tudo entra em `saida` (o volume Geral × Efeitos) → um passa-baixa
 // e um corte nos agudos (menos "digital") → um compressor (segura os picos) → os alto-falantes. O eco é um cômodo de
@@ -82,15 +82,30 @@ export function tom(s: Som, o: OpTom) {
   no.connect(vca(s, o.dest, o.t, a, o.gain ?? 0.2, Math.max(0, o.dur - a), r)); osc.start(o.t); osc.stop(o.t + o.dur + r + 0.05)
 }
 
-export interface OpEstalos { t: number; n: number; i0: number; i1: number; f: number; q?: number; gain?: number; r?: number; dest: AudioNode }
-/** Um trem de estalos (osso, garganta molhada, madeira): o intervalo vai de i0 a i1. */
+export interface OpEstalos { t: number; n: number; i0: number; i1: number; f: number; q?: number; gain?: number; r?: number; forma?: (u: number) => number; dest: AudioNode }
+/** Um trem de estalos (osso, garganta molhada, madeira): o intervalo vai de i0 a i1; forma = a força ao longo dele. */
 export function estalos(s: Som, o: OpEstalos) {
   let t = o.t
   for (let k = 0; k < o.n; k++) {
     const u = k / Math.max(1, o.n - 1)
-    ruido(s, { t, dur: 0.002, a: 0.0008, r: o.r ?? 0.018, f: o.f * (1 + (R() - 0.5) * 0.3), q: o.q ?? 6, gain: (o.gain ?? 0.1) * (0.6 + R() * 0.4), dest: o.dest })
+    ruido(s, { t, dur: 0.002, a: 0.0008, r: o.r ?? 0.018, f: o.f * (1 + (R() - 0.5) * 0.3), q: o.q ?? 6, gain: (o.gain ?? 0.1) * (0.6 + R() * 0.4) * (o.forma ? o.forma(u) : 1), dest: o.dest })
     t += (o.i0 + (o.i1 - o.i0) * u) * (0.75 + R() * 0.5)
   }
+}
+
+/** A pancada: um baque grave e curto (o pé, o joelho, o corpo no chão). */
+export function pancada(s: Som, t: number, f: number, gain: number, dest: AudioNode) {
+  tom(s, { t, f, f2: f * 0.55, dur: 0.09, r: 0.12, gain, lp: 300, dest })
+  ruido(s, { t, dur: 0.03, tipo: 'lowpass', f: 600, gain: gain * 0.35, r: 0.05, dest })
+}
+/** A racha: estalos secos de osso (ou madeira) e um toque grave. */
+export function racha(s: Som, t: number, gain: number, dest: AudioNode) {
+  estalos(s, { t, n: 6 + ((R() * 6) | 0), i0: 0.012, i1: 0.004, f: 2200, q: 3, gain, dest })
+  tom(s, { t, f: 140, f2: 70, dur: 0.03, gain: gain * 0.6, lp: 400, dest })
+}
+/** O rangido: a madeira cedendo (estalos que crescem e somem). */
+export function rangido(s: Som, t: number, gain: number, dest: AudioNode) {
+  estalos(s, { t, n: 18 + ((R() * 22) | 0), i0: 0.03 + R() * 0.02, i1: 0.012, f: 350 + R() * 400, q: 9, gain, r: 0.03, forma: (u) => Math.sin(u * Math.PI), dest })
 }
 
 // os formantes (F1, F2, F3: a frequência, o Q e o peso) de cada vogal

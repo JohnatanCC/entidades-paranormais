@@ -1,5 +1,6 @@
-// A voz da Mãe (portada do laboratório; o corpo e o Luto entram na etapa 2 dos sons). Sai da boca dela, no mundo
-// (audio/espaco.ts), e cada som varia um pouco a cada vez:
+// Os sons da Mãe (portados do laboratório): a voz, aqui, e o corpo e o Luto (ruidos.ts); aqui também o quando de cada
+// um. A voz sai da boca dela; os passos e o Luto, do chão onde ela está (audio/espaco.ts). Cada som varia um pouco a
+// cada vez:
 //   patrulhando, ela cantarola a cantiga (melodia original em lá menor: boca fechada, abrindo nas notas longas; a voz
 //     escorrega para a nota, às vezes quebra, cai e fica rouca no fim da frase; nas pausas, puxa o ar pelo nariz);
 //   caçando, respira rasgado (puxa num assobio rouco e solta gemendo, a garganta molhada) e guincha de tempos em tempos;
@@ -7,10 +8,15 @@
 //     guincho do bote, da carga e da finta, o ar puxado e o guincho do surgir, o grito (o ar puxado, o grito com o peito
 //     por baixo e a voz caindo no fim), o ofego da exausta, a atordoada (o golpe, o baque, o lamento e os soluços junto
 //     com os trancos do corpo, o ar rouco quando a cabeça estala), o gemido do cambaleio, o choro fraco, o desespero presa;
-//   na fase 4, sussurros.
+//   na fase 4, sussurros;
+//   o corpo: um passo a cada meia volta do andar (correndo, mais pesados), o pescoço estalando (na parada, de leve; no
+//     surgir e no fim da atordoada, forte), os dedos estalando parada, a garra rasgando o ar, os joelhos batendo no chão,
+//     os pés derrapando (a carga, o pouso da investida);
+//   o Luto: o espirro e o mergulho, as bolhas e o ronco do aviso, o corpo escorrendo no surgir, as lágrimas pingando.
 import * as THREE from 'three'
 import { moverFonte, novaFonte, soltarFonte, type Fonte } from '../../../audio/espaco'
-import { curva, estalos, formantes, grito, mudarVogal, ruido, som, sussurro, voz, type Formantes, type Som, type Vogal } from '../../../audio/sintese'
+import { curva, estalos, formantes, grito, mudarVogal, pancada, racha, ruido, som, sussurro, voz, type Formantes, type Som, type Vogal } from '../../../audio/sintese'
+import { baque, bolha, dedos, derrapa, escorre, espirro, estaloPescoco, gota, mergulho, passo, rasgo, ronco } from './ruidos'
 import type { Mae } from './modelo'
 import { ESTADO, GOLPE, LUTO, SOM } from './numeros'
 
@@ -129,22 +135,25 @@ function gritoDaMae(s: Som, t: number, d: AudioNode) {
 }
 
 // ---------- o que ela lembra ----------
-/** fonte = de onde a voz sai (nasce quando o som liga); os relógios de cada som que se repete. */
-export interface SonsMae { fonte: Fonte | null; canto: Canto | null; resp: number; guincho: number; choro: number; sussurro: number }
-export const novosSonsMae = (): SonsMae => ({ fonte: null, canto: null, resp: 0.3, guincho: 2, choro: 1.5, sussurro: 1 })
+/** fonte = de onde a voz sai, chao = de onde vêm os passos e o Luto (nascem quando o som liga); passoN = o último
+ *  passo; estalo = a cabeça estava estalando; os relógios de cada som que se repete. */
+export interface SonsMae { fonte: Fonte | null; chao: Fonte | null; canto: Canto | null; passoN: number; estalo: boolean; resp: number; guincho: number; choro: number; sussurro: number; dedos: number; bolha: number; gota: number }
+export const novosSonsMae = (): SonsMae => ({ fonte: null, chao: null, canto: null, passoN: -1, estalo: false, resp: 0.3, guincho: 2, choro: 1.5, sussurro: 1, dedos: 3, bolha: 0, gota: 0.5 })
 
-const _boca = new THREE.Vector3()
+const _boca = new THREE.Vector3(), _pe = new THREE.Vector3()
 
 /** Um quadro da voz dela (depois da pose): caca = ela está caçando (respira e guincha em vez de cantarolar). */
 export function passoSonsMae(m: Mae, caca: boolean, dt: number) {
   const s = som(), V = m.sons
   if (!s) return
   if (!V.fonte) V.fonte = novaFonte(1.6)
-  const d = V.fonte!.entrada, t = s.ctx.currentTime, g = m.anim.golpe
+  if (!V.chao) V.chao = novaFonte(2)
+  const d = V.fonte!.entrada, p = V.chao!.entrada, t = s.ctx.currentTime, g = m.anim.golpe
   moverFonte(V.fonte!, m.cabeca.localToWorld(_boca.set(0, 0.03, 0.14)))
+  moverFonte(V.chao!, m.root.getWorldPosition(_pe).setY(0.05))
   // uma vez por golpe, quando o tempo dele passa do ponto
   const uma = (nome: string, quando: number, f: () => void) => { if (g && g.t >= quando && !g.feito.has(nome)) { g.feito.add(nome); f() } }
-  const cada = (k: 'resp' | 'guincho' | 'choro' | 'sussurro', intervalo: readonly [number, number], f: () => void) => { V[k] -= dt; if (V[k] <= 0) { V[k] = entre(intervalo); f() } }
+  const cada = (k: 'resp' | 'guincho' | 'choro' | 'sussurro' | 'dedos' | 'gota', intervalo: readonly [number, number], f: () => void) => { V[k] -= dt; if (V[k] <= 0) { V[k] = entre(intervalo); f() } }
 
   // patrulhando, sem golpe e à vista: cantarola; o resto a cala
   const canta = !g && !caca && m.root.visible
@@ -154,6 +163,22 @@ export function passoSonsMae(m: Mae, caca: boolean, dt: number) {
   if ((!g && caca) || correndo) cada('resp', correndo ? SOM.respiraCorrendo : SOM.respira, () => respira(s, t, d))
   if (!g && caca) cada('guincho', SOM.guincho, () => guincho(s, t, d))
 
+  // os passos: um a cada meia volta do andar (animacao.ts: passo), em pé e acima do chão
+  const n = Math.floor(m.anim.passo / Math.PI)
+  if (n !== V.passoN) {
+    const emPe = m.pose.cur.hy > -0.3 && m.root.visible && m.root.position.y > -0.05
+    if (V.passoN >= 0 && emPe && m.anim.andar > 0.15) passo(s, t, p, Math.hypot(m.anim.vel.x, m.anim.vel.z) > 2.2)
+    V.passoN = n
+  }
+  // parada: o pescoço estala de leve a cada estalo da cabeça; os dedos estalam de vez em quando
+  const estala = m.anim.estaloT > 0
+  if (estala && !V.estalo) estaloPescoco(s, t, d, 0.6, R() < 0.3)
+  V.estalo = estala
+  if (!g && m.anim.andar < 0.2) cada('dedos', SOM.dedos, () => dedos(s, t, d))
+  // as lágrimas de Luto pingando (de joelhos, chorando)
+  const chorando = (g?.nome === 'atordoada' && g.t > 1.5 && g.t < g.dur - ESTADO.atordoada.estala) || g?.nome === 'enfraquecida'
+  if (chorando) cada('gota', SOM.gota, () => gota(s, t, d))
+
   if (g) switch (g.nome) {
     case 'garra_d': case 'garra_e': case 'garra_ultima_d': case 'garra_ultima_e':
       uma('som:preparo', 0, () => { // rosna erguendo o braço; grita no corte
@@ -161,13 +186,40 @@ export function passoSonsMae(m: Mae, caca: boolean, dt: number) {
         ruido(s, { t, dur: 0.2, a: 0.1, r: 0.04, f: 700, f2: 1300, q: 0.8, gain: 0.07, dest: d })
       })
       uma('som:garra', GOLPE.garra.preparo, () => voz(s, { t, dur: 0.17, f: 360, f2: 560, vogal: 'a', gain: 0.13, grit: 4, r: 0.06, dest: d }))
+      uma('som:rasgo', GOLPE.garra.preparo + 0.01, () => rasgo(s, t, d))
       break
-    case 'investida': uma('som:bote', 0.03, () => guincho(s, t, d)); break
-    case 'carga': uma('som:guincho', 0.12, () => guincho(s, t, d)); break
-    case 'finta': uma('som:finta', 0.12, () => voz(s, { t, dur: 0.5, f: 720, f2: 1150, f3: 820, vogal: 'e', gain: 0.13, grit: 4, vib: [11, 40], r: 0.1, dest: d })); break
-    case 'surgir': { // a cabeça sobe puxando o ar; o pescoço estala e ela guincha
+    case 'investida': // sai do Luto num espirro, guincha, pousa derrapando
+      uma('som:sai', 0, () => { espirro(s, t, p, 0.65, 0.42); pancada(s, t, 66, 0.3, p) })
+      uma('som:bote', 0.03, () => guincho(s, t, d))
+      uma('som:pousa', 0.58, () => { baque(s, t, p, 0.6); derrapa(s, t, p, 0.4) })
+      break
+    case 'carga':
+      uma('som:guincho', 0.12, () => guincho(s, t, d))
+      if (g.parou >= 0) uma('som:derrapa', 0, () => derrapa(s, t, p, GOLPE.carga.derrapa))
+      break
+    case 'finta':
+      uma('som:sai', 0, () => espirro(s, t, p, 0.35, 0.3))
+      uma('som:finta', 0.12, () => voz(s, { t, dur: 0.5, f: 720, f2: 1150, f3: 820, vogal: 'e', gain: 0.13, grit: 4, vib: [11, 40], r: 0.1, dest: d }))
+      uma('som:volta', 0.78, () => mergulho(s, t, p))
+      break
+    case 'mergulhar': uma('som:entra', 0.21, () => mergulho(s, t, p)); uma('som:some', 0.62, () => espirro(s, t, p, 0.3, 0.18)); break
+    case 'aviso': { // o chão estufa roncando e borbulha cada vez mais (como as bolhas de golpes.ts)
+      uma('som:ronco', 0, () => ronco(s, t, p, g.dur))
+      const w = Math.max(0, Math.min(1, (g.t - 0.25) / Math.max(0.4, g.dur - 0.35)))
+      V.bolha -= dt
+      if (V.bolha <= 0) { V.bolha = (0.8 + R() * 0.4) / (2 + 14 * w); bolha(s, t, p, 120 + R() * 260, 0.13) }
+      break
+    }
+    case 'surgir': { // bolhas; o Luto rompe; as mãos tateiam (os dedos) e agarram o chão; o corpo sai escorrendo; a
+      // cabeça sobe puxando o ar; o pescoço estala e ela guincha
       const T0 = LUTO.surgir.espera
+      if (g.t > T0 - 0.8 && g.t < T0 + 0.4) { V.bolha -= dt; if (V.bolha <= 0) { V.bolha = 0.12 + R() * 0.1; bolha(s, t, p, 120 + R() * 260, 0.12) } }
+      uma('som:rompe', T0, () => espirro(s, t, p, 0.4, 0.35))
+      uma('som:dedos', T0 + 0.1, () => dedos(s, t, p))
+      uma('som:agarra', T0 + 1.25, () => { espirro(s, t, p, 0.25, 0.25); pancada(s, t, 80, 0.25, p) })
+      uma('som:escorre', T0 + 2.0, () => escorre(s, t, p))
       uma('som:ar', T0 + 2.4, () => puxaAr(s, t, d, 0.9, 0.09))
+      uma('som:estala', T0 + 2.98, () => estaloPescoco(s, t, d, 1, false))
       uma('som:guincho', T0 + 3.28, () => guincho(s, t, d))
       break
     }
@@ -176,6 +228,7 @@ export function passoSonsMae(m: Mae, caca: boolean, dt: number) {
     case 'atordoada': {
       const E = ESTADO.atordoada
       uma('som:golpe', 0, () => { grito(s, t, 0.45, 600, 820, 0.4, d); voz(s, { t, dur: 0.3, f: 520, f2: 380, vogal: 'e', gain: 0.18, grit: 4, vib: [12, 30], r: 0.08, dest: d }) })
+      uma('som:joelhos', 0.6, () => baque(s, t, p))
       uma('som:baque', 0.62, () => voz(s, { t, dur: 0.22, f: 140, f2: 90, vogal: 'o', gain: 0.2, grit: 4, fry: 0.5, r: 0.1, dest: d }))
       // de joelhos, o rosto para o céu: o lamento e os soluços, no tranco de cada um (estados.ts: sin(t·5,2)^8)
       if (g.t < g.dur - E.estala) {
@@ -183,15 +236,20 @@ export function passoSonsMae(m: Mae, caca: boolean, dt: number) {
         const k = Math.floor((g.t * 5.2 - Math.PI / 2) / (2 * Math.PI)), forca = 0.4 + 0.6 * Math.max(0, Math.sin(g.t * 0.9))
         if (g.t > 1.2 && k >= 0 && forca > 0.55) uma('som:soluco' + k, 0, () => soluca(s, t, d, forca))
       }
+      uma('som:estalo', g.dur - E.estala, () => estaloPescoco(s, t, d, 1, false))
       uma('som:estala', g.dur - E.estala + 0.05, () => arRouco(s, t, d))
       break
     }
     case 'cambaleio': uma('som:cambaleio', 0, () => voz(s, { t, dur: 0.55, f: 190, f2: 115, vogal: 'o', gain: 0.3, grit: 4, fry: 0.6, fryHz: 32, r: 0.15, dest: d })); break
-    case 'enfraquecida': // quase apagada: um gemido e o choro fraco
-      uma('som:enfraquece', 0.1, () => voz(s, { t, dur: 0.9, f: 260, f2: 160, vogal: 'u', gain: 0.09, grit: 2.5, vib: [6, 20], r: 0.4, dest: d }))
-      if (g.t > 1.2) cada('choro', SOM.choroFraco, () => (R() < 0.5 ? soluca(s, t, d, 0.6) : lamento(s, t, d, 0.05)))
+    case 'enfraquecida': // cai de joelhos, quase apagada: um gemido e o choro fraco
+      uma('som:joelhos', 0.3, () => baque(s, t, p, 0.8))
+      uma('som:enfraquece', 0.1, () => voz(s, { t, dur: 0.9, f: 260, f2: 160, vogal: 'u', gain: 0.14, grit: 2.5, vib: [6, 20], r: 0.4, dest: d }))
+      if (g.t > 1.2) cada('choro', SOM.choroFraco, () => (R() < 0.5 ? soluca(s, t, d, 0.8) : lamento(s, t, d, 0.09)))
       break
-    case 'levanta': uma('som:levanta', 0.15, () => ofega(s, t, d, 1.3)); break
+    case 'levanta': // sai dos joelhos estalando
+      uma('som:levanta', 0.15, () => ofega(s, t, d, 1.3))
+      uma('som:estala1', 0.3, () => estaloPescoco(s, t, d, 0.5, false)); uma('som:estala2', 0.75, () => racha(s, t, 0.25, d))
+      break
     case 'capturada': // presa: o grito e, por cima, guinchos desesperados
       uma('som:presa', 0, () => grito(s, t, 1.0, 560, 900, 0.45, d))
       if (g.t > 0.6) cada('guincho', SOM.guinchoPresa, () => guincho(s, t, d))
@@ -206,5 +264,6 @@ export function pararSonsMae(m: Mae) {
   const s = som(), V = m.sons
   if (s && V.canto) pararCanto(s, V.canto)
   if (V.fonte) soltarFonte(V.fonte)
-  V.canto = null; V.fonte = null
+  if (V.chao) soltarFonte(V.chao)
+  V.canto = null; V.fonte = null; V.chao = null
 }

@@ -125,7 +125,8 @@ src/game/                  (já existem: Testar.tsx, player/, input/, world/, we
                            modelo.ts (monta o modelo, a saia e o cabelo com molas), pose.ts (as molas da pose, do
                            laboratório), animacao.ts (parada, andar, passar pela porta), rosto.ts (as expressões, os
                            tiques e o brilho dos olhos), efeitos.ts (o rosto que escurece, as ondas do grito, a fase 4
-                           preta com partículas), sons.ts (a voz dela: a cantiga, a caça, a de cada golpe e estado), golpes.ts (os ataques e os movimentos do Luto), estados.ts
+                           preta com partículas), sons.ts (a voz dela: a cantiga, a caça, a de cada golpe e estado; e quando
+                           cada som toca), ruidos.ts (o corpo e o Luto: passos, estalos, garras, bolhas), golpes.ts (os ataques e os movimentos do Luto), estados.ts
                            (grito, exausta, atordoada, cambaleio, enfraquecida, capturada), luto.ts (a poça, as ondas,
                            os respingos, o aviso) e numeros.ts
   capture/                 a poça e a captura

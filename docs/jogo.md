@@ -320,8 +320,20 @@ Números da tabela `T` em `buildDemo()` do laboratório (linha ~7674); a lógica
       - o gemido do cambaleio, o choro fraco da enfraquecida e o desespero da capturada.
     - Na **fase 4**, sussurros.
     - No Ver modelos, "Ela está: Patrulhando / Caçando" (caçando, o rosto também fica o da caça).
-  - 2: **o corpo e o Luto** (os passos descalços com o vestido arrastando, os estalos do pescoço e dos dedos, o mergulho,
-    as bolhas, o chão estufando, o que escorre, o vento das garras);
+  - ✅ 2 (11/nov): **o corpo e o Luto** (`enemies/mae/ruidos.ts`; o quando de cada um em `sons.ts`). Os passos e o
+    Luto vêm do chão onde ela está, não da boca.
+    - **Os passos descalços:** um a cada meia volta do andar, pesados, com a sola estalando na tábua e a barra do
+      vestido arrastando; às vezes a tábua range. Correndo, o assoalho inteiro sente.
+    - **O pescoço estala** em vários tempos: de leve na parada, forte no surgir, no fim da atordoada e ao levantar.
+    - **Os dedos** estalam no ar parada e quando as mãos rompem o Luto.
+    - **A garra** rasga o ar.
+    - **Os joelhos** batem no chão: na atordoada e na enfraquecida.
+    - **Os pés derrapam:** no fim da carga e no pouso da investida.
+    - **O Luto:**
+      - o espirro (líquido grosso, bolhas estourando) quando ela sai e no mergulho;
+      - o ronco do chão estufando e as bolhas cada vez mais rápidas no aviso;
+      - as bolhas, as mãos agarrando o chão e o corpo saindo escorrendo, no surgir;
+      - as lágrimas pingando, de joelhos.
   - 3: **a luta** (o berço, o tornado, a chuva, a música de batalha `batalha_mae.mp3`), quando a luta existir.
 
 ## O HUD (conceito C, aprovado)
