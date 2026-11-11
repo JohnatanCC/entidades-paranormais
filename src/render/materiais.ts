@@ -4,6 +4,7 @@
 // De perto o pixel fica duro (NearestFilter); de longe usa as versões reduzidas, senão o desenho "formiga" com a câmera.
 import * as THREE from 'three'
 import { TEXTURAS } from '../maps/textures'
+import { aplicarAssada } from './assada'
 import { aplicarCorte } from './corte'
 
 export const TOPO = '#topo' // o corte da parede (topo e a parte de baixo das vergas)
@@ -41,7 +42,8 @@ export function materialDe(nome: string, corte = false): THREE.MeshStandardMater
   if (!m) {
     const cor = CORES[nome], map = cor ? null : texturaDe(nome)
     // vertexColors: a sombra de canto que a malha do mapa traz em cada vértice (editor/wallMesh.ts)
-    m = new THREE.MeshStandardMaterial({ map, color: cor ?? (map ? '#ffffff' : '#ff00ff'), roughness: 0.92, vertexColors: true })
+    // e a luz assada das lâmpadas, que o Baixo e o Médio usam no lugar das de verdade (render/assada.ts)
+    m = aplicarAssada(new THREE.MeshStandardMaterial({ map, color: cor ?? (map ? '#ffffff' : '#ff00ff'), roughness: 0.92, vertexColors: true }))
     if (corte) aplicarCorte(m)
     materiais.set(chave, m)
   }

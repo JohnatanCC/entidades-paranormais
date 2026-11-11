@@ -8,8 +8,11 @@
 // dos tetos guarda o quanto ele está encostado num canto (parede com chão, com teto, com outra parede), e a malha escurece
 // macio ali. Não fica gravado no mapa: sai das paredes e dos pisos toda vez que a malha é montada, e não custa nada por
 // quadro (é uma cor por vértice; vale para os três níveis de qualidade).
+// A luz das lâmpadas assada (a etapa 3b): cada vértice guarda também a luz que chega nele de cada lâmpada do mapa, com
+// as paredes bloqueando (maps/luzAssada.ts); o Baixo e o Médio usam isso no lugar das lâmpadas de verdade (render/assada.ts).
 import * as THREE from 'three'
 import { LEVEL_H, type Axis, type Chunk, type Opening, type Wall, type WallSide } from '../maps/types'
+import { assadorDe, type Assador } from '../maps/luzAssada'
 import { BATENTE, TOPO } from '../render/materiais' // o corte da parede (topo e vergas) e a madeira do batente
 
 export const ESPESSURA = 0.12 // a espessura da parede (m)
@@ -18,9 +21,14 @@ const T2 = ESPESSURA / 2
 /** A sombra de canto: forca = o quanto cada encosto escurece (dois encostos, duas vezes); alcance = até onde ela sobe na parede (m). */
 export const SOMBRA = { forca: 0.45, alcance: 0.7 }
 const sombra = (encostos: number) => (1 - SOMBRA.forca) ** encostos
+const PASSO_LUZ = 0.5 // de quanto em quanto a parede ganha vértices para a luz assada (m)
+const PASSOS_Y = Array.from({ length: Math.ceil(LEVEL_H / PASSO_LUZ) - 1 }, (_, i) => (i + 1) * PASSO_LUZ)
 
-interface Buf { p: number[]; n: number[]; uv: number[]; c: number[]; i: number[] }
-const novoBuf = (): Buf => ({ p: [], n: [], uv: [], c: [], i: [] })
+interface Buf { p: number[]; n: number[]; uv: number[]; c: number[]; lf: number[]; lp: number[]; i: number[] }
+const novoBuf = (): Buf => ({ p: [], n: [], uv: [], c: [], lf: [], lp: [], i: [] })
+// a luz assada da malha sendo montada agora: quem calcula e o andar do que está sendo desenhado (quad lê daqui)
+let assa: Assador | null = null, andar = 0
+const _fixa: V3 = [0, 0, 0], _pisca: V3 = [0, 0, 0]
 type V3 = [number, number, number]
 
 const k = (level: number, axis: Axis, x: number, z: number) => `${level}|${axis}|${x}|${z}`
@@ -32,7 +40,17 @@ function quad(b: Buf, c: V3[], n: V3, uv: [number, number][], luz: number[] = SE
   const cr = [e1[1] * e2[2] - e1[2] * e2[1], e1[2] * e2[0] - e1[0] * e2[2], e1[0] * e2[1] - e1[1] * e2[0]]
   const ordem = cr[0] * n[0] + cr[1] * n[1] + cr[2] * n[2] >= 0 ? [0, 1, 2, 3] : [0, 3, 2, 1]
   const v0 = b.p.length / 3
-  for (const j of ordem) { b.p.push(...c[j]); b.n.push(...n); b.uv.push(...uv[j]); b.c.push(luz[j], luz[j], luz[j]) }
+  const mx = (c[0][0] + c[1][0] + c[2][0] + c[3][0]) / 4, my = (c[0][1] + c[1][1] + c[2][1] + c[3][1]) / 4, mz = (c[0][2] + c[1][2] + c[2][2] + c[3][2]) / 4
+  for (const j of ordem) {
+    b.p.push(...c[j]); b.n.push(...n); b.uv.push(...uv[j]); b.c.push(luz[j], luz[j], luz[j])
+    // a luz das lâmpadas neste canto, olhando de um ponto um pouco para dentro da face (o canto fica em cima da parede)
+    _fixa[0] = _fixa[1] = _fixa[2] = _pisca[0] = _pisca[1] = _pisca[2] = 0
+    if (assa) {
+      const dx = mx - c[j][0], dy = my - c[j][1], dz = mz - c[j][2], k = 0.1 / (Math.hypot(dx, dy, dz) || 1)
+      assa(c[j], n, [c[j][0] + dx * k + n[0] * 0.05, c[j][1] + dy * k + n[1] * 0.05, c[j][2] + dz * k + n[2] * 0.05], andar, _fixa, _pisca)
+    }
+    b.lf.push(..._fixa); b.lp.push(..._pisca)
+  }
   // a diagonal liga os dois cantos mais claros: com um canto só escuro, o degradê não "quebra" no meio do quadrado
   if (luz[1] + luz[3] > luz[0] + luz[2]) b.i.push(v0, v0 + 1, v0 + 3, v0 + 1, v0 + 2, v0 + 3)
   else b.i.push(v0, v0 + 1, v0 + 2, v0, v0 + 2, v0 + 3)
@@ -62,8 +80,10 @@ export function wallGeometries(chunks: Chunk[], maxLevel: number): Map<string, T
   }
   const bufs = new Map<string, Buf>()
   const buf = (tex: string) => { let b = bufs.get(tex); if (!b) bufs.set(tex, (b = novoBuf())); return b }
+  assa = assadorDe(chunks)
 
   for (const w of walls) {
+    andar = w.level
     const L = w.level, y0 = L * LEVEL_H, ax = w.axis
     // a ponta em (vx, vz): continua reto? encontra parede de lado?
     const ponta = (vx: number, vz: number, inicio: boolean) => {
@@ -93,12 +113,17 @@ export function wallGeometries(chunks: Chunk[], maxLevel: number): Map<string, T
       const c0 = canto(0), c1 = canto(1)
       const emY = (y: number) => (y <= 0 ? 1 : y >= LEVEL_H && teto ? 1 : 0)
       for (const [fa, fb, tex] of faixas) {
-        // a faixa é cortada onde a sombra acaba, para o degradê ter o alcance dela e não a altura da parede
-        const ys = [fa, ...[SOMBRA.alcance, LEVEL_H - SOMBRA.alcance].filter((y) => y > fa && y < fb), fb]
-        for (let i = 0; i < ys.length - 1; i++) {
-          const ya2 = ys[i], yb2 = ys[i + 1], ea = emY(ya2), eb = emY(yb2)
-          quad(buf(tex), [P(u0, d, ya2), P(u1, d, ya2), P(u1, d, yb2), P(u0, d, yb2)], nLado(sinal), [[u0, ya2], [u1, ya2], [u1, yb2], [u0, yb2]],
-            [sombra(c0 + ea), sombra(c1 + ea), sombra(c1 + eb), sombra(c0 + eb)])
+        // a faixa é cortada onde a sombra acaba (para o degradê ter o alcance dela e não a altura da parede) e a cada
+        // PASSO_LUZ, na altura e no comprimento: a luz assada é por vértice, e uma arandela colada na parede precisa de
+        // vértices perto dela para aparecer
+        const ys = [...new Set([fa, fb, ...[SOMBRA.alcance, LEVEL_H - SOMBRA.alcance, ...PASSOS_Y].filter((y) => y > fa + 0.05 && y < fb - 0.05)])].sort((p, q) => p - q)
+        const us = [u0, s + 0.5, u1]
+        for (let i = 0; i < ys.length - 1; i++) for (let j = 0; j < 2; j++) {
+          const ya2 = ys[i], yb2 = ys[i + 1], ea = emY(ya2), eb = emY(yb2), ua = us[j], ub = us[j + 1]
+          // (no meio do pedaço a sombra do canto é a média das duas pontas: o degradê continua reto)
+          const luz = (k: number, e: number) => (j + k === 1 ? (sombra(c0 + e) + sombra(c1 + e)) / 2 : sombra((j + k === 0 ? c0 : c1) + e))
+          quad(buf(tex), [P(ua, d, ya2), P(ub, d, ya2), P(ub, d, yb2), P(ua, d, yb2)], nLado(sinal), [[ua, ya2], [ub, ya2], [ub, yb2], [ua, yb2]],
+            [luz(0, ea), luz(1, ea), luz(1, eb), luz(0, eb)])
         }
       }
     }
@@ -140,6 +165,7 @@ export function floorGeometries(chunks: Chunk[], maxLevel: number): Map<string, 
   // um ponto encostado numa parede escurece; num canto de duas paredes, duas vezes
   const luzEm = (L: number, x: number, z: number) => sombra((noX.has(`${L}_${x}_${z}`) ? 1 : 0) + (noZ.has(`${L}_${x}_${z}`) ? 1 : 0))
   const luzes = (L: number, x: number, z: number) => [luzEm(L, x, z), luzEm(L, x + 1, z), luzEm(L, x + 1, z + 1), luzEm(L, x, z + 1)]
+  assa = assadorDe(chunks)
   // o buraco: o piso de cima some sobre a escada do andar de baixo (o dado do piso fica; quem corta é a escada)
   const buraco = new Set<string>()
   for (const c of chunks) for (const st of c.stairs) for (let x = st.x; x < st.x + st.w; x++) for (let z = st.z; z < st.z + st.d; z++) buraco.add(`${st.level + 1}_${x}_${z}`)
@@ -147,8 +173,10 @@ export function floorGeometries(chunks: Chunk[], maxLevel: number): Map<string, 
     if (f.level > maxLevel || buraco.has(`${f.level}_${f.x}_${f.z}`)) continue
     const y = f.level * LEVEL_H, x0 = f.x, x1 = f.x + 1, z0 = f.z, z1 = f.z + 1
     const uv: [number, number][] = [[x0, z0], [x1, z0], [x1, z1], [x0, z1]]
+    andar = f.level
     quad(buf(f.top), [[x0, y, z0], [x1, y, z0], [x1, y, z1], [x0, y, z1]], [0, 1, 0], uv, luzes(f.level, f.x, f.z))
-    // o teto é do andar de baixo: quem faz sombra nele são as paredes de lá
+    // o teto é do andar de baixo: quem faz sombra nele são as paredes de lá (e as lâmpadas de lá é que iluminam)
+    andar = f.level - 1
     if (f.level > 0) quad(buf(f.bottom), [[x0, y - TETO, z0], [x1, y - TETO, z0], [x1, y - TETO, z1], [x0, y - TETO, z1]], [0, -1, 0], uv, luzes(f.level - 1, f.x, f.z))
   }
   return geometrias(bufs)
@@ -165,8 +193,10 @@ export const degrausDe = (rise: number) => Math.max(2, Math.round(rise / 0.18))
 export function stairGeometries(chunks: Chunk[], maxLevel: number): Map<string, THREE.BufferGeometry> {
   const bufs = new Map<string, Buf>()
   const buf = (tex: string) => { let b = bufs.get(tex); if (!b) bufs.set(tex, (b = novoBuf())); return b }
+  assa = assadorDe(chunks)
   for (const c of chunks) for (const st of c.stairs) {
     if (st.level > maxLevel) continue
+    andar = st.level
     const y0 = st.level * LEVEL_H, ns = st.dir === 'norte' || st.dir === 'sul'
     const comp = ns ? st.d : st.w, larg = ns ? st.w : st.d, n = degrausDe(st.rise), t = comp / n
     // (a ao longo da subida a partir do pé, c atravessando) -> (x, z) no mundo
@@ -193,6 +223,7 @@ export function stairGeometries(chunks: Chunk[], maxLevel: number): Map<string, 
 }
 
 function geometrias(bufs: Map<string, Buf>) {
+  assa = null
   const out = new Map<string, THREE.BufferGeometry>()
   for (const [tex, b] of bufs) {
     const g = new THREE.BufferGeometry()
@@ -200,6 +231,8 @@ function geometrias(bufs: Map<string, Buf>) {
     g.setAttribute('normal', new THREE.Float32BufferAttribute(b.n, 3))
     g.setAttribute('uv', new THREE.Float32BufferAttribute(b.uv, 2))
     g.setAttribute('color', new THREE.Float32BufferAttribute(b.c, 3)) // a sombra de canto (o material multiplica)
+    g.setAttribute('luzFixa', new THREE.Float32BufferAttribute(b.lf, 3)) // a luz assada das lâmpadas normais
+    g.setAttribute('luzPisca', new THREE.Float32BufferAttribute(b.lp, 3)) // e a das que estão falhando
     g.setIndex(b.i)
     out.set(tex, g)
   }

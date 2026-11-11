@@ -7,6 +7,7 @@ import { useFrame } from '@react-three/fiber'
 import * as THREE from 'three'
 import { OBJETOS, type ObjDef } from '../maps/objetos'
 import type { Chunk, Prop } from '../maps/types'
+import { ASSADA } from '../render/assada'
 import { casca3d, objeto3d } from '../render/objetos3d'
 
 export const COR_ESCOLHIDO = '#f2c14e', COR_MIRA = '#9a7a40'
@@ -37,8 +38,9 @@ function Luz({ modo, luz: l }: { modo: string; luz: NonNullable<ObjDef['luz']> }
   useFrame(({ clock }) => {
     if (!luz.current || modo !== 'falhando') return
     // falhando: a maior parte do tempo acesa, com quedas curtas e irregulares
+    // (com a luz assada ligada, todas as que falham piscam juntas, no ritmo da malha: render/assada.ts)
     const t = clock.elapsedTime, n = Math.sin(t * 13.1) * Math.sin(t * 7.3 + 1.7) * Math.sin(t * 2.9)
-    luz.current.intensity = n > 0.35 ? 0.4 : (l.forca ?? 6)
+    luz.current.intensity = ASSADA.ligada ? (l.forca ?? 6) * ASSADA.pisca.value : n > 0.35 ? 0.4 : (l.forca ?? 6)
   })
   if (modo === 'apagada') return null
   return <pointLight ref={luz} position={l.pos} color={l.cor ?? '#e0a050'} intensity={l.forca ?? 6} distance={l.alcance ?? 7} decay={1.6} />

@@ -12,6 +12,7 @@ import { useFrame, useThree } from '@react-three/fiber'
 import * as THREE from 'three'
 import { LUA, ambienteDe } from '../../maps/ambientes'
 import type { AreaAmbiente } from '../../maps/types'
+import { ASSADA, luzAssada, piscaEm } from '../../render/assada'
 import { BRILHO, FORCA_COM_BLOOM } from '../../render/brilho'
 import { CONTORNO } from '../../render/contorno'
 import { novoPasseFinal, type Bloom, type PasseFinal } from '../../render/passeFinal'
@@ -60,6 +61,9 @@ export function Iluminacao({ ambiente, areas = SEM_AREAS, em, semCeu }: Props) {
     return () => setDpr([1, 2]) // a do editor
   }, [setDpr, N.dpr])
 
+  // a luz das lâmpadas assada na malha (Baixo e Médio): o cenário troca as lâmpadas de verdade por ela
+  useEffect(() => { luzAssada(N.assada); return () => luzAssada(false) }, [N.assada])
+
   const medida = useRef({ t: 0, soma: 0, n: 0, feita: false })
   useFrame(({ camera, clock }, dt) => {
     passoLuz(c.viva, lugar(), Math.min(dt, 0.1))
@@ -74,6 +78,7 @@ export function Iluminacao({ ambiente, areas = SEM_AREAS, em, semCeu }: Props) {
     // o céu: o horizonte é a cor da neblina (o que some ao longe some na cor dele)
     if (c.cupula) { const C = c.cupula; C.zenite.copy(L.zenite); C.horizonte.copy(L.neblina); C.u.uEstrelas.value = L.estrelas; C.u.uForcaLua.value = L.lua; C.u.uT.value = clock.elapsedTime }
     CONTORNO.cor.value.copy(L.contorno); CONTORNO.forca.value = L.forcaContorno
+    ASSADA.pisca.value = piscaEm(clock.elapsedTime) // as lâmpadas que falham, na malha (piscam juntas)
     gl.toneMappingExposure = L.exposicao // sem o passe final, o tonemapping é o do próprio three
     // o automático: mede os quadros do começo e desce um nível se estiverem lentos (e mede de novo no nível novo)
     const m = medida.current

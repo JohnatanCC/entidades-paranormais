@@ -51,15 +51,26 @@ O que está decidido sobre a luz, como ela é feita e as etapas. Os números fic
   o formato do mapa não mudou. Não custa nada por quadro. Aparece também no editor. Os números: `SOMBRA` (a força de
   cada encosto e até onde a sombra sobe na parede). A porta e o vão não escurecem o chão; os móveis e as escadas não
   entram na conta.
+- **A luz das lâmpadas assada** (etapa 3b, no Baixo e no Médio; `src/maps/luzAssada.ts`, `src/render/assada.ts`): cada
+  vértice de paredes, pisos, tetos e escadas guarda a luz que chega nele de cada lâmpada do mapa, com as paredes e os
+  pisos bloqueando. Nesses dois níveis o cenário usa essa cor no lugar das lâmpadas de verdade: a lâmpada não clareia
+  mais o cômodo vizinho, e o cenário deixa de fazer a conta de todas as lâmpadas em cada pixel (o maior ganho do
+  celular). **No Alto as lâmpadas continuam de verdade** (decidido em 11/nov): é o que o brilho e o relevo da etapa 5
+  precisam; lá o vazamento se resolve com as sombras da etapa 4. Os personagens e os móveis usam as lâmpadas de verdade
+  em todos os níveis. Também não fica gravada no mapa: é calculada ao montar a malha.
+  - Porta e vão deixam a luz passar (aberta ou fechada); parede e janela bloqueiam; o piso bloqueia entre andares.
+  - As lâmpadas **falhando** vão numa segunda cor da malha e **piscam todas juntas** (decidido em 11/nov).
+  - As paredes têm vértices a cada 0,5 m para a luz ter onde cair; os pisos e tetos, a cada 1 m. A poça de luz fica
+    mais macia e em losangos, no estilo do Minecraft.
 - **Toda cena de jogo usa `<Iluminacao />`** (`src/game/luz/Iluminacao.tsx`): o Testar e a luz "Jogo" do Ver modelos.
 
 ## Os níveis de qualidade (`src/render/qualidade.ts`)
 
-| Nível | Resolução (pixels por ponto da tela) | Passada final (cor, vinheta) | Bloom | Suavização das bordas |
-| --- | --- | --- | --- | --- |
-| Baixo (celular) | até 1 | não | não | a da tela |
-| Médio | até 1,5 | sim | a partir de 1/4 da tela, 4 níveis | 2 amostras |
-| Alto | até 2 | sim | a partir de 1/2 da tela, 5 níveis | 4 amostras |
+| Nível | Resolução (pixels por ponto da tela) | Passada final (cor, vinheta) | Bloom | Suavização das bordas | Lâmpadas no cenário |
+| --- | --- | --- | --- | --- | --- |
+| Baixo (celular) | até 1 | não | não | a da tela | assadas |
+| Médio | até 1,5 | sim | a partir de 1/4 da tela, 4 níveis | 2 amostras | assadas |
+| Alto | até 2 | sim | a partir de 1/2 da tela, 5 níveis | 4 amostras | de verdade |
 
 Nas configurações: **Automático** (o padrão; mostra qual nível escolheu), Baixo, Médio e Alto. O automático olha o
 aparelho (tela de toque, memória, núcleos, o nome da placa de vídeo) e, nos primeiros segundos de uma cena de jogo, mede
@@ -76,9 +87,7 @@ vale até recarregar a página.
 3. **Luz e sombra "assadas" na malha do mapa**, nos três níveis, sem custo por quadro. Dividida em duas versões
    (decidido em 11/nov):
    - **3a. A sombra de canto.** ✅ (11/nov) O escurecimento macio dos cantos, calculado ao montar a malha.
-   - **3b. A luz das lâmpadas assada**, com as paredes bloqueando: a lâmpada para de clarear o cômodo vizinho e a luz de
-     fora deixa de clarear o que está dentro. Mexe em como os personagens e a lâmpada "falhando" são iluminados (hoje
-     cada lâmpada é uma luz de verdade): decidir isso antes de construir.
+   - **3b. A luz das lâmpadas assada.** ✅ (11/nov) No Baixo e no Médio, com as paredes bloqueando.
 4. **Sombras em tempo real**, só no nível Alto.
 5. **Materiais** (proposta de 11/nov, depois da 4): **5a** o brilho de cada textura (mármore reflete, tapete não), em
    todos os níveis; **5b** o relevo de luz gerado da própria textura, no Alto, com a criação do nível **Ultra**;
@@ -90,11 +99,13 @@ Fora da numeração, já feito: **o céu da noite** ✅ (11/nov). Ficaram para d
 
 - A ambientação é uma só para a tela inteira (a de onde o agente está): olhando de fora para dentro por uma porta, o
   interior aparece com a luz de fora, e o contrário. A etapa 3 resolve o grosso disso.
-- As luzes não fazem sombra: a lâmpada de um cômodo clareia o cômodo vizinho através da parede (etapas 3b e 4).
+- As luzes não fazem sombra: a lâmpada de um cômodo clareia o cômodo vizinho através da parede no nível Alto (etapa 4), e sobre os personagens e os móveis em todos os níveis.
 - O feixe de luar das janelas tem a neblina dele, fixa: não acompanha a densidade da ambientação. E a direção dele é
   própria de cada janela: não segue a posição da lua no céu (toda janela com luar tem feixe, de qualquer lado da casa).
 - O editor e o Testar dividem a mesma tela, criada com a suavização de bordas do navegador ligada; no Médio e no Alto ela
   fica sem uso durante o teste. A tela própria do jogo, quando existir, nasce sem ela.
+- A luz assada não muda durante o jogo: uma lâmpada que apagar por script vai pedir que a malha seja refeita (é rápido,
+  mas ainda não existe quem peça). E o luar de fora continua clareando o que está dentro quando o agente está fora.
 - O bloom não tem limiar por objeto: qualquer coisa bem clara vaza (uma parede branca colada numa lâmpada, por exemplo).
   Se algo brilhar demais, baixe o `brilho` da ambientação ou a força da lâmpada.
 - O nível Baixo ainda não foi medido num celular de verdade: os números dele são o ponto de partida.
