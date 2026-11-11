@@ -5,6 +5,8 @@
 //   provas.limpar()                                          tira o quadro
 //   provas.medidas(c)                                        mãos, cabeça, quadril; o ângulo de cada mecha
 //   await provas.som([['andando', 4000, { anda: 0.95 }], ['grito', 2000, { golpe: 'grito' }]])   o volume de cada trecho
+//   provas.ir(x, z, yaw, pitch?, andar?)                    no Testar aberto: leva o agente a um ponto (fotos do mesmo lugar)
+//   provas.qualidade()                                       o nível de qualidade valendo agora (baixo, medio, alto)
 // Câmeras: 'frente', 'lado', 'tras', '34', 'agente' (o olho dele, a 1,6 m), 'rosto' (de perto, pela frente da cabeça),
 // ou { de: [x, y, z], alvo: [x, y, z] }. O som só toca depois de um clique de verdade na página.
 import * as THREE from 'three'
@@ -14,6 +16,8 @@ import type { NomeGolpe } from '../game/enemies/mae/golpes'
 import { pararSonsMae } from '../game/enemies/mae/sons'
 import { ouvinte } from '../audio/espaco'
 import { som } from '../audio/sintese'
+import { ganchos } from './ganchos'
+import { nivelAtual } from '../render/qualidade'
 
 export interface Cena { m: Mae; sc: THREE.Scene }
 type Camera = 'frente' | 'lado' | 'tras' | '34' | 'agente' | 'rosto' | { de: number[]; alvo: number[]; fov?: number }
@@ -107,4 +111,11 @@ async function som_(roteiro: [string, number, EstadoMae & { golpe?: NomeGolpe; a
   return linhas.join('\n')
 }
 
-export const provas = { mae, fotos, limpar, medidas, som: som_ }
+/** No Testar aberto: o agente vai para (x, z), olhando para yaw (rad; 0 = +z) e pitch. */
+function ir(x: number, z: number, yaw: number, pitch?: number, andar?: number) {
+  if (!ganchos.ir) return 'abra o Testar do criador de mapas primeiro'
+  ganchos.ir(x, z, yaw, pitch, andar)
+  return 'ok'
+}
+
+export const provas = { mae, fotos, limpar, medidas, som: som_, ir, qualidade: nivelAtual }

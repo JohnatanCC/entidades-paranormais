@@ -1,22 +1,22 @@
 import type { Go } from '../App'
-import { resetSettings, setSettings, useSettings, type ImagemPreset } from '../settings/settings'
+import { NIVEIS, useNivelAuto, type Nivel, type Qualidade } from '../render/qualidade'
+import { resetSettings, setSettings, useSettings } from '../settings/settings'
 
-const IMAGENS: { id: ImagemPreset; nome: string }[] = [
-  { id: 'limpo', nome: 'Limpo' }, // o padrão desde 10/nov
-  { id: 'suave', nome: 'Suave' },
-  { id: 'ps1', nome: 'Retrô PS1' },
-]
+const QUALIDADES: Qualidade[] = ['auto', 'baixo', 'medio', 'alto']
 
 export function SettingsScreen({ go }: { go: Go }) {
-  const s = useSettings()
+  const s = useSettings(), auto = useNivelAuto()
   return (
     <div className="tela">
       <h2>Configurações</h2>
       <div className="form">
-        <label>Imagem</label>
+        <label>Qualidade</label>
         <div className="opcoes">
-          {IMAGENS.map((o) => (
-            <button key={o.id} aria-pressed={s.imagem === o.id} onClick={() => setSettings({ imagem: o.id })}>{o.nome}</button>
+          {QUALIDADES.map((q) => (
+            <button key={q} aria-pressed={s.qualidade === q} onClick={() => setSettings({ qualidade: q })}
+              title={q === 'auto' ? 'Escolhe pelo aparelho e desce sozinho se os quadros ficarem lentos' : undefined}>
+              {q === 'auto' ? `Automático · ${NIVEIS[auto].nome}` : NIVEIS[q as Nivel].nome}
+            </button>
           ))}
         </div>
         <label htmlFor="vol">Volume</label>

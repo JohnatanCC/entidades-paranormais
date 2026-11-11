@@ -1,8 +1,11 @@
-// O formato do mapa (versão 1). Um mapa é uma pasta em maps/<id>/ com:
-//   map.json            o cabeçalho (nome, andares, onde o jogador nasce, a lista de blocos)
+// O formato do mapa (versão 2). Um mapa é uma pasta em maps/<id>/ com:
+//   map.json            o cabeçalho (nome, andares, onde o jogador nasce, a ambientação e as áreas dela, a lista de blocos)
 //   chunks/<cx>_<cz>.json  um arquivo por bloco de 16 × 16 m (cx, cz = índice do bloco)
 // Tudo o que está no mapa pertence ao bloco do quadrado onde ele começa (a posição x, z arredondada para baixo).
 // Unidades: metros; ângulos em graus; o eixo y é para cima; o andar 0 é o térreo.
+// A versão 2 (11/nov) trouxe a ambientação; um mapa da versão 1 é convertido ao ser lido (formato.ts).
+
+export const FORMATO = 2
 
 export const GRID = 1 // as paredes ficam nas linhas desta grade (m)
 export const SNAP_OBJ = 0.25 // os objetos encaixam a cada (m)
@@ -118,14 +121,27 @@ export interface Chunk {
   points: ScriptPoint[]
 }
 
+/** Uma área do mapa com a sua ambientação (a luz, a neblina, o tom): o retângulo de (x, z) a (x+w, z+d), num andar. */
+export interface AreaAmbiente {
+  id: string
+  level: number
+  x: number
+  z: number
+  w: number
+  d: number
+  ambiente: string // o nome no catálogo (maps/ambientes.ts)
+}
+
 export interface MapMeta {
-  formato: 1
+  formato: typeof FORMATO
   id: string
   nome: string
   levels: number
   levelH: number
   chunkSize: number
   spawn: { pos: Vec3; yaw: number; level: number }
+  ambiente: string // a ambientação do mapa onde nenhuma área diz outra (o nome no catálogo)
+  areas: AreaAmbiente[] // as áreas com outra ambientação; onde duas se cruzam, vale a menor
   chunks: string[] // "cx_cz" de cada bloco que existe
 }
 

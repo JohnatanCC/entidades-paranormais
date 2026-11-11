@@ -46,7 +46,8 @@ a tiro e os prende com a armadilha. Cenário e personagens em blocos com textura
   de parado (botões para ver na hora), mirar e atirar, e a luz do jogo; e cada arma e objeto sozinho.
 - **Modelos no Blockbench**: o desenvolvedor modela e pinta; o jogo lê o `.bbmodel` direto. Passo a passo em
   `docs/blockbench.md`. Os objetos do cenário e as armas também (decidido em 10/nov); o Editor de modelos saiu do plano.
-- **Sem filtro PS1 por padrão:** a imagem limpa é a padrão; PS1 e suave ficam como opção nas configurações.
+- **A imagem é limpa** (decidido em 11/nov): o filtro PS1 e o "suave" saíram do projeto. No lugar entrou a iluminação do
+  jogo (a ambientação de cada lugar, os níveis de qualidade): `docs/iluminacao.md`.
 
 ## O objetivo de cada capítulo
 

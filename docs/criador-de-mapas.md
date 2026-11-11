@@ -23,6 +23,7 @@ Plano original e decisões: `docs/design/criador-de-mapas-plano.md`. Este arquiv
 | Escadas | Você marca a área e a direção; os degraus se montam sozinhos pela altura (um andar = 3,5 m) e o piso de cima ganha o buraco |
 | Lâmpadas de teto | normal, falhando, apagada |
 | Detalhes | quadros, sujeira, manchas (decalques colados na superfície) |
+| Ambientação | Cada lugar tem a sua luz (a luz ambiente, a neblina, o tom de cor): o mapa tem uma ambientação padrão e **áreas retangulares** com outra, pelo nome de uma predefinição (decidido em 11/nov). Os números de cada uma ficam em `src/maps/ambientes.ts`. Ver `docs/iluminacao.md` |
 | Scripts | Depois do mapa: gatilhos, cenas, nascimento de monstros. O formato já reserva `points` |
 | Capítulos | **Cada capítulo é um mapa próprio** (`maps/mansao-cap1`, `maps/mansao-cap2`...). A mansão que muda é uma troca de mapa; o mapa do capítulo seguinte nasce como cópia do anterior. A arena do chefe é outro mapa, atrás de uma porta e de uma tela de carregamento (o capítulo 1 tem `mansao-cap1` e `bercario-cap1`) |
 | A demo | É o **capítulo 1 inteiro**: o primeiro mapa de verdade é `mansao-cap1` |
@@ -40,7 +41,7 @@ Plano original e decisões: `docs/design/criador-de-mapas-plano.md`. Este arquiv
   - onde ficam os objetos ligados e a chave: pontos marcados no mapa (`points`), um ou vários candidatos por objeto;
   - o piso **não** faz barulho (decidido em 9/nov): o barulho vem de quebrar objetos, porta aberta com força e tiros.
 
-## O formato (versão 1)
+## O formato (versão 2)
 
 ```
 maps/
@@ -54,9 +55,17 @@ maps/
 `map.json` (tipo `MapMeta` em `src/maps/types.ts`):
 
 ```json
-{ "formato": 1, "id": "teste", "nome": "Sala de teste", "levels": 1, "levelH": 3.5, "chunkSize": 16,
-  "spawn": { "pos": [3, 0, 4], "yaw": 0, "level": 0 }, "chunks": ["0_0"] }
+{ "formato": 2, "id": "teste", "nome": "Sala de teste", "levels": 1, "levelH": 3.5, "chunkSize": 16,
+  "spawn": { "pos": [3, 0, 4], "yaw": 0, "level": 0 },
+  "ambiente": "mansao", "areas": [{ "id": "area-1", "level": 0, "x": 12, "z": 4, "w": 8, "d": 4, "ambiente": "corredor" }],
+  "chunks": ["0_0"] }
 ```
+
+- **A ambientação** (formato 2, 11/nov): `ambiente` é a do mapa inteiro (o nome no catálogo `src/maps/ambientes.ts`);
+  `areas` são retângulos de (x, z) a (x+w, z+d) num andar, cada um com outra ambientação. Onde duas áreas se cruzam,
+  vale a menor. Ficam no cabeçalho (são poucas e atravessam os blocos). Nome que não existe no catálogo cai na padrão.
+- **A conversão**: um mapa do formato 1 (sem ambientação) é lido como se tivesse `"ambiente": "mansao"` e nenhuma área
+  (`src/maps/formato.ts`, usado pelo jogo e pelo editor). O arquivo só muda no disco quando o mapa é salvo de novo.
 
 Cada bloco (tipo `Chunk`) tem as listas `walls`, `floors`, `openings`, `stairs`, `props`, `decals`, `points`.
 Regra de dono: **cada coisa pertence ao bloco do quadrado onde ela começa** (x, z arredondados para baixo).
@@ -90,13 +99,13 @@ imagem**, `texturas/<nome>.png` (32 × 32, pintada em pixel e sem costura: o que
 catálogo guarda só o nome, o uso e a cor de base. Para repintar, abra o PNG no Blockbench ou num editor de pixel com o
 modo lado a lado (Piskel, LibreSprite) e salve por cima: no `npm run dev` atualiza na hora. Textura que não existe aparece magenta.
 
-Mudança no formato = subir `formato` e escrever a conversão no carregador. Nunca quebrar mapas salvos.
+Mudança no formato = subir `FORMATO` (`src/maps/types.ts`) e escrever a conversão em `src/maps/formato.ts`. Nunca quebrar mapas salvos.
 
 ## As etapas
 
 Cada etapa vira uma versão que o desenvolvedor testa antes da próxima.
 
-1. **A base do projeto.** ✅ Estrutura, menu, configurações (filtro retrô, volume, sensibilidade), leitura da pasta de mapas, visualização dos blocos, mapa novo e salvar.
+1. **A base do projeto.** ✅ Estrutura, menu, configurações (imagem, volume, sensibilidade), leitura da pasta de mapas, visualização dos blocos, mapa novo e salvar.
 2. **A grade e as paredes.** ✅ A câmera do editor (estilo The Sims: gira, aproxima, arrasta), os andares, as paredes automáticas (reta e sala), apagar, desfazer e refazer (Ctrl+Z / Ctrl+Y). Paredes vizinhas se juntam nos cantos.
    E o **gerenciador de mapas**: novo, abrir, salvar, **copiar a partir de um mapa** (o capítulo 2 nasce do 1),
    **apagar** (confirma digitando o nome do mapa), **exportar** o mapa inteiro num `.json` único e **importar** esse arquivo.
@@ -155,10 +164,12 @@ Cada etapa vira uma versão que o desenvolvedor testa antes da próxima.
 A mesma cara do HUD do jogo: latão, âmbar e VT323.
 - **Barra de cima:** Mapas (o gerenciador), o nome do mapa (• = não salvo), o andar (▼ ▲, + e − andar), as **paredes altas,
   recortadas ou baixas** (V troca; recortadas abaixa as paredes entre a câmera e o ponto que ela olha), desfazer e refazer,
-  Salvar, o filtro PS1 e Sair.
+  Salvar e Sair.
 - **Coluna da esquerda:** as ferramentas em ícones, com a tecla: 1 paredes, 2 apagar, 3 piso e teto, 4 pintar parede,
   5 portas e janelas, 6 escadas, 7 objetos e luzes, 8 **conta-gotas** (clique em qualquer coisa e ele pega a textura ou o
-  objeto e troca para a ferramenta certa).
+  objeto e troca para a ferramenta certa), 9 **ambientação** (as áreas de luz: arrastar marca uma área com a ambientação
+  escolhida na gaveta; clicar numa área troca a dela no painel; Ctrl + clique ou Del apaga; a gaveta também escolhe a
+  ambientação do resto do mapa; as áreas só aparecem com esta ferramenta).
 - **Gaveta de baixo:** a ajuda da ferramenta e o catálogo dela (texturas, tipos de porta e janela com ícone, objetos com
   **miniatura**), e a linha de status.
 - **Painel Inspetor:** a janela flutuante e arrastável com as configurações do que está escolhido.
@@ -173,9 +184,9 @@ Ajudas de construção propostas para depois (uma de cada vez, se aprovadas): **
    Feita antes da 6b (decidido em 9/nov: andar no mapa mostra cedo se as medidas servem para o jogo). Duas versões:
    - **7a. Testar.** ✅ O botão **Testar** (ou T) solta o agente no ponto que a câmera do editor olha, de costas para ela.
      Clique trava o mouse; WASD anda, Shift corre (fôlego), Espaço esquiva, mouse olha; **Esc** volta ao editor no mesmo lugar.
-     Câmera por cima do ombro direito (braço que encolhe na parede, não atravessa o teto), o filtro PS1 só se o botão de
-     cima estiver ligado (desligado por padrão: em 10/nov a imagem limpa virou o visual do jogo), luz de jogo
-     (as lâmpadas do mapa é que iluminam), paredes sempre altas. Bate em paredes, janelas, portas fechadas e trancadas e
+     Câmera por cima do ombro direito (braço que encolhe na parede, não atravessa o teto), a luz do jogo (a ambientação
+     de cada área do mapa, com troca suave ao passar de uma para outra, mais as lâmpadas e o luar das janelas:
+     `docs/iluminacao.md`; **M** toca o momento "a Mãe chegando"), paredes sempre altas. Bate em paredes, janelas, portas fechadas e trancadas e
      móveis; passa por porta aberta e vão; sobe e desce escada; cai no buraco da escada. Sem armas, fantasmas nem HUD.
      **Abrir portas** (9/nov): perto de uma porta e de frente para ela, aparece "E · abrir a porta"; **E** abre e fecha.
      A folha abre sempre para longe do agente e não fecha com ele parado no vão; a trancada mostra o motivo (e o nome da

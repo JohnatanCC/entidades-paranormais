@@ -3,7 +3,6 @@
 // as mesmas cores do objeto guarda-corpo, para os dois se emendarem sem diferença; a textura é a madeira em pixel
 // (32 px por metro, com veio), mapeada pelo mundo como nas paredes.
 import * as THREE from 'three'
-import { applyPsx } from '../render/psx'
 import { corrimaos, alturaCorrimao, medidas, noMundo, RECUO, type Beirada, type LadoEscada } from '../maps/corrimao'
 import { GUARDA } from '../maps/objetos'
 import { LEVEL_H, type Chunk } from '../maps/types'
@@ -111,7 +110,7 @@ export function materialCorrimao(nome: string): THREE.Material {
   for (let k = 0; k < 4; k++) { let x = Math.floor(rnd() * 28), y = Math.floor(rnd() * 28); for (let i = 0; i < 3; i++) px(x++, y++, 18) } // arranhões
   const t = new THREE.CanvasTexture(c)
   t.wrapS = t.wrapT = THREE.RepeatWrapping; t.magFilter = THREE.NearestFilter; t.minFilter = THREE.LinearMipmapLinearFilter; t.colorSpace = THREE.SRGBColorSpace
-  m = applyPsx(new THREE.MeshStandardMaterial({ map: t, roughness: 0.85 }))
+  m = new THREE.MeshStandardMaterial({ map: t, roughness: 0.85 })
   materiais.set(nome, m)
   return m
 }

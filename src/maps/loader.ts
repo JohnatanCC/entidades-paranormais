@@ -1,7 +1,10 @@
 // A pasta maps/: o jogo lê os cabeçalhos de todos os mapas de uma vez e carrega os blocos sob demanda.
+import { cabecalhoAtual } from './formato'
 import type { Chunk, MapMeta } from './types'
 
-const metas = import.meta.glob<MapMeta>('/maps/*/map.json', { eager: true, import: 'default' })
+// os cabeçalhos como estão no disco, já convertidos para o formato de agora (formato.ts)
+const crus = import.meta.glob<Record<string, unknown>>('/maps/*/map.json', { eager: true, import: 'default' })
+const metas = Object.fromEntries(Object.entries(crus).map(([k, m]) => [k, { ...m, ...cabecalhoAtual(m) } as unknown as MapMeta]))
 const chunkFiles = import.meta.glob<Chunk>('/maps/*/chunks/*.json', { import: 'default' })
 
 // No npm run dev, salvar um mapa muda os arquivos de maps/ e o Vite recarregaria tudo o que depende deste arquivo

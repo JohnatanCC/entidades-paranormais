@@ -32,7 +32,7 @@ export function pontoCortado(x: number, y: number, z: number): boolean {
   return (x - CORTE.alvo.value.x) * CORTE.dir.value.x + (z - CORTE.alvo.value.y) * CORTE.dir.value.y > 0
 }
 
-/** Liga o corte num material de parede (use depois do applyPsx). */
+/** Liga o corte num material de parede. */
 export function aplicarCorte<M extends Material>(mat: M): M {
   const prev = mat.onBeforeCompile
   mat.onBeforeCompile = (s, r) => {
@@ -51,6 +51,6 @@ export function aplicarCorte<M extends Material>(mat: M): M {
     if (hc > uCorteAltura && hc < ${LEVEL_H.toFixed(2)} + 0.05 && (uCorteModo > 1.5 || dot(vMundoCorte.xz - uCorteAlvo, uCorteDir) > 0.0)) discard;
   }`)
   }
-  mat.customProgramCacheKey = () => 'psx-corte'
+  mat.customProgramCacheKey = () => 'corte'
   return mat
 }

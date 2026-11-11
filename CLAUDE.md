@@ -6,7 +6,8 @@ e captura entidades. Este projeto começa pelo **Modo desenvolvedor → Criador 
 ## Leia antes de mexer
 
 1. `docs/criador-de-mapas.md` — o foco agora: decisões, o formato dos mapas e as 8 etapas (qual é a próxima).
-2. `docs/jogo.md` — o que já foi decidido e jogado (agente, armas, captura, fantasmas, HUD, a demo Intro).
+2. `docs/iluminacao.md` — a luz do jogo: as decisões, as ambientações, os níveis de qualidade e as 4 etapas (qual é a próxima).
+   `docs/jogo.md` — o que já foi decidido e jogado (agente, armas, captura, fantasmas, HUD, a demo Intro).
    `docs/mansao-cap1.md` — a planta da mansão do capítulo 1 (cômodos, escadas, rota, onde ficam os objetos da Mãe).
    `docs/blockbench.md` — como os personagens são feitos (Blockbench, as regras das juntas, a escala, a exportação).
 3. `docs/portando-do-laboratorio.md` — onde está cada coisa no laboratório antigo e o que **não** trazer.
@@ -56,7 +57,8 @@ e captura entidades. Este projeto começa pelo **Modo desenvolvedor → Criador 
 - Os modelos dos personagens, dos objetos e (quando chegarem) das armas são feitos no **Blockbench** (o passo a passo
   está em `docs/blockbench.md`): personagens e armas com 64 px por metro, objetos do cenário com 32, com sombra e desgaste
   pintados em pixel.
-- O visual padrão é a imagem **limpa**; o filtro PS1 (pixels, 5 bits com pontilhado, tremor de vértice) e o "suave" viraram opção.
+- A imagem é **limpa**: o filtro PS1 e o "suave" saíram do projeto (11/nov). O clima vem da iluminação (`docs/iluminacao.md`):
+  a cena é sempre legível (ação, não breu) e o terror vem do contraste, o âmbar das lâmpadas e o luar frio contra os cantos escuros.
 
 ## Comandos
 
@@ -78,18 +80,22 @@ src/
   main.tsx, App.tsx        as telas (menu → configurações | modo desenvolvedor → criador de mapas)
   styles.css               a paleta e as telas
   screens/                 MainMenu, SettingsScreen, DevMenu, VerModelos (o personagem de perto: animação, expressão, mãos, luz)
-  settings/settings.ts     configurações no localStorage (useSettings / setSettings)
+  settings/settings.ts     configurações no localStorage (useSettings / setSettings): a qualidade da imagem, os volumes, o mouse
   audio/musica.ts          a trilha: useMusica('menu') toca public/musica/<nome>.mp3 em laço, com o volume das configurações
   audio/sintese.ts         os efeitos sintetizados na hora (do laboratório, sem arquivos): ruído, tom, estalos, a voz com
                            vogais, o grito, o sussurro; liga no primeiro clique; o volume é Geral × Efeitos
-  dev/provas.ts            só no npm run dev (window.provas): fotos, medidas e o volume da Mãe, para conferir pelo console
+  dev/provas.ts            só no npm run dev (window.provas): fotos, medidas e o volume da Mãe, para conferir pelo console;
+                           provas.ir(x, z, yaw) leva o agente a um ponto no Testar (dev/ganchos.ts), provas.qualidade() diz o nível
   audio/espaco.ts          o som 3D: a voz sai da boca do personagem, no mundo; o ouvido é a câmera (ouvinte, a cada quadro)
-  render/                  RetroRenderer (pós-processo PS1), psx.ts (tremor de vértice), materiais.ts (nome da textura -> material),
+  render/                  qualidade.ts (os níveis Baixo, Médio e Alto e o automático por aparelho), passeFinal.ts (a passada de
+                           tela cheia do Médio e do Alto: tonemapping, correção de cor, vinheta), contorno.ts (o contorno de luz
+                           dos personagens), materiais.ts (nome da textura -> material),
                            corte.ts (paredes altas / recortadas / baixas no editor), miniaturas.ts (fotos do catálogo de objetos),
                            bbmodel.ts (lê um modelo do Blockbench: pastas = juntas, blocos = malhas; "luz_" brilha; os
                            personagens viram uma malha só com ossos: vestir),
                            objetos3d.ts (cada tipo de objeto, porta, janela e arma montado uma vez; o mapa usa cópias que dividem tudo)
-  maps/                    types.ts (o formato v1), loader.ts (o jogo lê a pasta), storage.ts (o editor lê, grava,
+  maps/                    types.ts (o formato v2), formato.ts (a conversão dos mapas antigos), ambientes.ts (o catálogo das
+                           ambientações e dos momentos de luz: os números de cada uma), loader.ts (o jogo lê a pasta), storage.ts (o editor lê, grava,
                            exporta e importa; o pacote MapBundle), textures.ts (o catálogo: cada nome, o uso e a cor; a imagem é texturas/<nome>.png),
                            objetos.ts (o catálogo de móveis e lâmpadas, em dados: nome, tamanho, apoio; a forma vem do modelo),
                            corrimao.ts (o corrimão automático das escadas, calculado do mapa; o editor desenha em editor/corrimaoMesh.ts)
@@ -97,7 +103,8 @@ src/
                            Medida (a etiqueta ao construir), FerramentaContaGotas, MapManager (o gerenciador de mapas), MapView + wallMesh (desenha;
                            paredes juntadas por textura, cantos fechados), EditorCamera, FerramentaParedes,
                            FerramentaPiso, FerramentaPincel, FerramentaAberturas + PainelAbertura, FerramentaEscadas + PainelEscada,
-                           FerramentaObjetos + PainelObjeto, Objetos (monta o catálogo; a lâmpada acende),
+                           FerramentaObjetos + PainelObjeto, FerramentaAmbiente + PainelArea (as áreas de ambientação),
+                           Objetos (monta o catálogo; a lâmpada acende),
                            Aberturas (portas, janelas) + Luar (feixe macio, brilho, poeira), Paleta, doc.ts (o documento e as operações),
                            historico.ts (desfazer e refazer)
 texturas/                  as texturas do cenário: <nome>.png, 32 × 32 px por bloco de 1 m, pintadas em pixel e sem costura
@@ -115,8 +122,11 @@ Cada coisa do jogo mora na sua pasta; nada de arquivo gigante como o laboratóri
 ficam num arquivo próprio de cada pasta, para ajustar sem caçar no código.
 
 ```
-src/game/                  (já existem: Testar.tsx, player/, input/, world/, weapons/, corpo/, enemies/mae/ — o resto entra
+src/game/                  (já existem: Testar.tsx, player/, input/, world/, weapons/, corpo/, luz/, enemies/mae/ — o resto entra
                            quando a etapa chegar)
+  luz/                     a luz do jogo: Iluminacao.tsx (a luz ambiente, o preenchimento, o luar, a neblina, a imagem final; entra
+                           em toda cena de jogo), luz.ts (a ambientação de onde o agente está, a troca suave, os momentos:
+                           momento('mae-chegando'))
   corpo/                   o que serve a todo personagem: molas.ts (o que pendura e balança: cabelo, saia)
   Testar.tsx               o Testar do editor: o agente andando no mapa aberto (câmera, colisão, luz do jogo)
   player/                  o agente: modelo.ts (liga modelos/agente.bbmodel no esqueleto), animacao.ts, maos.ts (os dedos),
@@ -140,7 +150,7 @@ src/game/                  (já existem: Testar.tsx, player/, input/, world/, we
   hud/                     o HUD conceito C
   input/                   acoes.ts: ações do jogador (teclado e mouse; depois controle e toque): o jogo lê ações, nunca teclas
   world/                   colisao.ts (paredes, portas, móveis, corrimão, chão, escadas, braço da câmera, a armadilha jogada), portas.ts (abrir e fechar
-                           com E, o estado vivo das portas); depois carregar por blocos, luz
+                           com E, o estado vivo das portas); depois carregar por blocos
 src/chapters/cap1/         o roteiro do capítulo: qual mapa, gatilhos, cenas, chefe
 ```
 
@@ -155,9 +165,10 @@ Versões fixas no `package.json`; não atualize sem pedir.
 ## Convenções de código
 
 - O estado das configurações fica em `src/settings/settings.ts`; telas leem com `useSettings()`.
-- Materiais de cenário e personagens passam por `applyPsx()` (o tremor só liga com o filtro PS1). O `<RetroRenderer />` entra
-  na cena só quando o filtro escolhido não é o limpo.
+- Toda cena de jogo leva `<Iluminacao />` (`src/game/luz`): nada de luz ambiente solta na cena. Os números de cada lugar ficam em
+  `src/maps/ambientes.ts`; o que muda por nível de qualidade, em `src/render/qualidade.ts`. Tudo o que for de tela cheia
+  mora numa passada só (`src/render/passeFinal.ts`): no celular o que pesa é preencher a tela.
 - O mapa é dado puro (JSON, tipos em `src/maps/types.ts`). O editor muda o dado; a vista desenha a partir dele. Nada de estado escondido nos objetos 3D.
-- Mudou o formato do mapa? Suba `formato` e escreva a conversão no carregador. Nunca quebre um mapa salvo.
-- Textura e objeto são referenciados por **nome** no mapa (`"papel-verde"`, `"lampada-teto"`), nunca por caminho de arquivo.
+- Mudou o formato do mapa? Suba `FORMATO` (`src/maps/types.ts`) e escreva a conversão em `src/maps/formato.ts`. Nunca quebre um mapa salvo.
+- Textura, objeto e ambientação são referenciados por **nome** no mapa (`"papel-verde"`, `"lampada-teto"`, `"corredor"`), nunca por caminho de arquivo.
 - Comentários curtos explicando o porquê, em português, no estilo do laboratório.

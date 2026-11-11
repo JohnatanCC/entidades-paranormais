@@ -1,17 +1,21 @@
 // O Testar do criador de mapas: o agente andando no mapa aberto, com a câmera por cima do ombro, colisão, escadas e
-// as lâmpadas acesas e a arma na mão (Q troca): mira e atira (o coice e o clarão), joga a armadilha e chama de volta
+// as lâmpadas acesas, a luz do lugar (a ambientação de cada área do mapa: game/luz) e a arma na mão (Q troca): mira e atira (o coice e o clarão), joga a armadilha e chama de volta
 // (a bala, os fantasmas e o HUD vêm com o jogo). Fica dentro do <Canvas> do editor.
 //   clique trava o mouse · WASD anda · Shift corre · Espaço esquiva · E abre e fecha porta · Q troca a arma · mouse olha
 //   botão direito mira · botão esquerdo atira (ou joga a armadilha; com ela fora, chama de volta) · Esc volta ao editor
 //   para ver o modelo (só no Testar, não é controle do jogo): 1–6 expressões, 7–9 poses da mão, 0 volta ao automático,
 //   K cai (a queda: a tela escurece e ele volta no começo do teste, que por enquanto é o checkpoint), J toma 25 de dano
 //   de uma direção sorteada (a vida simples: 30% ou menos, machucado; zerou, cai) · F usa um kit (+60)
+//   M toca o momento "a Mãe chegando" (a luz muda por alguns segundos e volta)
 import { useEffect, useMemo, useRef } from 'react'
 import { useFrame, useThree } from '@react-three/fiber'
 import * as THREE from 'three'
-import type { Chunk } from '../maps/types'
+import { LEVEL_H, type AreaAmbiente, type Chunk } from '../maps/types'
 import { useSettings } from '../settings/settings'
 import { Acoes } from './input/acoes'
+import { ganchos } from '../dev/ganchos'
+import { Iluminacao } from './luz/Iluminacao'
+import { momento } from './luz/luz'
 import { animarAgente } from './player/animacao'
 import { ARMAS, armadilhaFora, pegarArma } from './player/arma'
 import { novoJogador, passoJogador } from './player/controle'
@@ -29,6 +33,8 @@ import { animarPortas, dicaDaPorta, novasPortas, portaPerto, usarPorta, type Por
 interface Props {
   chunks: Record<string, Chunk>
   levels: number
+  ambiente: string // a ambientação padrão do mapa
+  areas: AreaAmbiente[] // as áreas com outra ambientação
   inicio: [number, number, number] // onde o agente aparece (x, y, z)
   yaw: number // para onde a câmera começa olhando
   portas: PortasVivas // o estado vivo das portas (este componente preenche; a vista do mapa desenha a partir dele)
@@ -46,7 +52,7 @@ const VER_MAO: PoseMao[] = ['punho', 'aberta', 'apontar']
 
 const amortece = (de: number, para: number, k: number, dt: number) => de + (para - de) * (1 - Math.exp(-k * dt))
 
-export function Testar({ chunks, levels, inicio, yaw, portas, onTravado, onDica, onMira, onEscuro, onVida, onSair }: Props) {
+export function Testar({ chunks, levels, ambiente, areas, inicio, yaw, portas, onTravado, onDica, onMira, onEscuro, onVida, onSair }: Props) {
   const { camera, gl, scene } = useThree()
   const { sensibilidade } = useSettings()
   // o mundo (colisão) e as portas como o mapa diz que começam
@@ -75,6 +81,7 @@ export function Testar({ chunks, levels, inicio, yaw, portas, onTravado, onDica,
     const tecla = (e: KeyboardEvent) => {
       if (e.code === 'KeyK') { est.current.cair = true; return } // testar a queda
       if (e.code === 'KeyJ') { est.current.golpe = true; return } // testar um golpe
+      if (e.code === 'KeyM') { momento('mae-chegando'); return } // testar um momento de luz
       const n = /^Digit(\d)$/.exec(e.code)?.[1]
       if (n === undefined) return
       const d = Number(n)
@@ -85,6 +92,17 @@ export function Testar({ chunks, levels, inicio, yaw, portas, onTravado, onDica,
     window.addEventListener('keydown', tecla)
     return () => window.removeEventListener('keydown', tecla)
   }, [])
+
+  // as provas (só no npm run dev): provas.ir(x, z, yaw) leva o agente a um ponto, para fotos sempre do mesmo lugar
+  useEffect(() => {
+    if (!import.meta.env.DEV) return
+    ganchos.ir = (x, z, yaw, pitch = -0.12, andar = 0) => {
+      const s = est.current
+      s.j = novoJogador(x, chaoEm(mundo, x, z, andar * LEVEL_H + 0.3) ?? andar * LEVEL_H, z, yaw)
+      s.camYaw = yaw; s.pitch = pitch; s.pivX = x; s.pivZ = z; s.pivY = s.j.y; s.k = 1
+    }
+    return () => { delete ganchos.ir }
+  }, [mundo])
 
   // o agente na cena, a entrada ligada, o mouse travado com um clique; Esc (ou soltar o mouse) volta ao editor
   useEffect(() => {
@@ -209,11 +227,6 @@ export function Testar({ chunks, levels, inicio, yaw, portas, onTravado, onDica,
     if (Math.abs(cam.fov - fov) > 0.01) { cam.fov = fov; cam.updateProjectionMatrix() }
   })
 
-  return (
-    <>
-      {/* a luz do jogo: mais escura que a do editor; as lâmpadas do mapa é que iluminam */}
-      <hemisphereLight args={['#c9c0ff', '#1a1612', 0.55]} />
-      <directionalLight position={[-6, 10, 4]} intensity={0.35} color="#9fb8e8" />
-    </>
-  )
+  // a luz do jogo: a do lugar onde o agente está (as lâmpadas e o luar das janelas são do mapa)
+  return <Iluminacao ambiente={ambiente} areas={areas} em={agente.root.position} />
 }

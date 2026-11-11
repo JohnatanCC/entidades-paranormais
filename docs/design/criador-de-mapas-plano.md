@@ -46,7 +46,7 @@ O primeiro passo do projeto de verdade: um editor de mapas dentro do próprio jo
 
 Cada etapa vira uma versão que você testa antes da próxima.
 
-1. **A base do projeto.** O repositório, a estrutura, o menu, as configurações (filtro retrô, volume, sensibilidade do mouse) e a leitura da pasta de mapas.
+1. **A base do projeto.** O repositório, a estrutura, o menu, as configurações (imagem, volume, sensibilidade do mouse) e a leitura da pasta de mapas.
 2. **A grade e as paredes.** A câmera do editor, os andares, as paredes automáticas (reta e sala), apagar, salvar e abrir o JSON, desfazer e refazer.
 3. **Pisos, tetos e texturas.** As duas faces do piso, a pintura de cada lado da parede com a barra de baixo, o catálogo de texturas.
 4. **Portas e janelas.** Os quatro tipos de porta e os dois de janela, com a luz 2D.

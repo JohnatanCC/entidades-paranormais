@@ -33,6 +33,7 @@ import { EXPRESSOES_MAE, type ExpressaoMae } from '../game/enemies/mae/rosto'
 import { pararSonsMae } from '../game/enemies/mae/sons'
 import { ouvinte } from '../audio/espaco'
 import { abertura3d } from '../render/objetos3d'
+import { Iluminacao } from '../game/luz/Iluminacao'
 
 type Anim = 'parado' | 'andando' | 'correndo' | 'esquiva' | 'queda' | 'porta'
 type Camera = 'corpo' | 'rosto' | 'maos' | 'pes' | 'costas'
@@ -178,9 +179,8 @@ function Luzes({ luz }: { luz: Luz }) {
       <directionalLight position={[2, 3, 2.5]} intensity={1.6} />
       <directionalLight position={[-2.5, 2, -2]} intensity={0.6} color="#bcd0ff" />
     </> : <>
-      {/* como no Testar: quase escuro, e uma lâmpada de teto acesa por perto */}
-      <hemisphereLight args={['#c9c0ff', '#1a1612', 0.55]} />
-      <directionalLight position={[-6, 10, 4]} intensity={0.35} color="#9fb8e8" />
+      {/* como no Testar: a luz da mansão, e uma lâmpada de teto acesa por perto */}
+      <Iluminacao ambiente="mansao" />
       <pointLight position={[1.2, 3.1, 1.2]} color="#e0a050" intensity={6} distance={7} decay={1.6} />
     </>}
   </>

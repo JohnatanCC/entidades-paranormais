@@ -1,7 +1,7 @@
 // O documento que o editor muda: o cabeçalho e os blocos (pela chave "cx_cz"). Nunca é alterado no lugar: cada
 // mudança gera um documento novo que reaproveita os blocos que não mudaram. É isso que deixa o desfazer barato
 // (o histórico guarda documentos inteiros, mas eles dividem quase tudo entre si).
-import { chunkKey, chunkOf, emptyChunk, type Axis, type Chunk, type MapMeta, type Opening, type Prop, type Stair, type Vec3, type Wall, type WallSide } from '../maps/types'
+import { FORMATO, chunkKey, chunkOf, emptyChunk, type AreaAmbiente, type Axis, type Chunk, type MapMeta, type Opening, type Prop, type Stair, type Vec3, type Wall, type WallSide } from '../maps/types'
 import { vazio, type MapBundle } from '../maps/storage'
 
 export interface MapDoc { meta: MapMeta; chunks: Record<string, Chunk> }
@@ -10,7 +10,7 @@ export const docDe = (b: MapBundle): MapDoc => ({ meta: b.meta, chunks: Object.f
 
 export function pacoteDe(d: MapDoc): MapBundle {
   const chunks = Object.values(d.chunks).filter((c) => !vazio(c))
-  return { formato: 1, meta: { ...d.meta, chunks: chunks.map((c) => chunkKey(c.cx, c.cz)).sort() }, chunks }
+  return { formato: FORMATO, meta: { ...d.meta, chunks: chunks.map((c) => chunkKey(c.cx, c.cz)).sort() }, chunks }
 }
 
 /** Um pedaço de parede (1 m) sem as texturas: só onde ele fica. */
@@ -412,6 +412,28 @@ export const comAndares = (doc: MapDoc, levels: number): MapDoc => ({ ...doc, me
 
 /** O andar tem alguma coisa? (só dá para tirar o último andar se ele estiver vazio) */
 export function andarTemCoisa(doc: MapDoc, level: number) {
-  return Object.values(doc.chunks).some((c) =>
+  return doc.meta.areas.some((a) => a.level === level) || Object.values(doc.chunks).some((c) =>
     [c.walls, c.floors, c.openings, c.stairs, c.props, c.decals, c.points].some((l) => (l as { level: number }[]).some((x) => x.level === level)))
+}
+
+// ---------- a ambientação (a padrão do mapa e as áreas com outra: ficam no cabeçalho) ----------
+
+const comAreas = (doc: MapDoc, areas: AreaAmbiente[]): MapDoc => ({ ...doc, meta: { ...doc.meta, areas } })
+
+export const comAmbiente = (doc: MapDoc, ambiente: string): MapDoc => ({ ...doc, meta: { ...doc.meta, ambiente } })
+
+/** Põe uma área nova (o id sai sozinho: area-1, area-2...). */
+export function comArea(doc: MapDoc, a: Omit<AreaAmbiente, 'id'>): { doc: MapDoc; id: string } {
+  let n = doc.meta.areas.length + 1
+  while (doc.meta.areas.some((x) => x.id === 'area-' + n)) n++
+  return { doc: comAreas(doc, [...doc.meta.areas, { ...a, id: 'area-' + n }]), id: 'area-' + n }
+}
+export const semArea = (doc: MapDoc, id: string) => comAreas(doc, doc.meta.areas.filter((a) => a.id !== id))
+export const mudarArea = (doc: MapDoc, id: string, patch: Partial<AreaAmbiente>) => comAreas(doc, doc.meta.areas.map((a) => (a.id === id ? { ...a, ...patch } : a)))
+
+/** A área de um quadrado do andar: a menor que contém ele (a mesma regra do jogo). */
+export function areaEm(doc: MapDoc, level: number, x: number, z: number): AreaAmbiente | undefined {
+  let melhor: AreaAmbiente | undefined
+  for (const a of doc.meta.areas) if (a.level === level && x >= a.x && x < a.x + a.w && z >= a.z && z < a.z + a.d && (!melhor || a.w * a.d < melhor.w * melhor.d)) melhor = a
+  return melhor
 }

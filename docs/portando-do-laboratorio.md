@@ -17,7 +17,7 @@ O laboratório é só referência: nada no projeto importa de `reference/`.
 | `06-hud.js` | O HUD conceito C (`dh-vg`, `dh-kb`, `dh-wg`, `WICON`, `hudGauges`), legendas `SUBS`, avisos | 10178–10547 |
 | `07-casa-mansao.js` | A casa: **texturas da mansão** (papel de parede, lambri, assoalho, forro), a casca (paredes por material juntadas em uma malha), portas com dobradiça, **móveis**, feixes de luar das janelas | 10805–12279 |
 | `08-intro.js` | A Intro inteira: **texturas da Intro** (bloco, azulejo, concreto, chapa, granilite), portas de correr, luz desenhada (tubos, cone, mancha 2D), móveis e máquinas, ondas, captura por poça, ectoplasma nas portas, Lara e Nicolas (`mateAnim`), cutscenes, o Glutão chefe, avisos de controle | 12280–14093 |
-| `09-imagem-pos-processo.js` | Presets de imagem e o shader de pós-processo (já portado em `src/render/RetroRenderer.tsx`) | 14540–14640 |
+| `09-imagem-pos-processo.js` | Presets de imagem e o shader de pós-processo (o filtro PS1: **não trazer**, saiu do projeto em 11/nov) | 14540–14640 |
 
 Os números das linhas servem para achar o contexto no arquivo inteiro (`reference/laboratorio.html`), onde estão as funções auxiliares que os trechos usam.
 
@@ -37,8 +37,6 @@ No jogo elas vão para `public/musica/` e são chamadas por nome, como as textur
 ## O que já foi portado
 
 - Paleta e fontes → `src/styles.css`.
-- Filtro de imagem (limpo / suave / PS1: pixels nítidos, cores de 5 bits com pontilhado, vinheta, linhas, granulação) → `src/render/RetroRenderer.tsx`.
-- Tremor de vértice do PS1 → `src/render/psx.ts` (`applyPsx(material)`).
 - As texturas da casa (`07`) e da Intro (`08`), com os mesmos tamanhos por metro (TILE / ITILE) → o catálogo `src/maps/textures.ts`;
   em 10/nov foram repintadas em pixel como imagens (`texturas/<nome>.png`) e o desenho em canvas saiu. Ficaram de fora as dos móveis e efeitos (lençol, tapete, teia, cortina, chama...): entram com os objetos (etapa 6).
 - A "casca" (faces juntadas por material, textura pelo mundo) → `src/editor/wallMesh.ts` (paredes e pisos).

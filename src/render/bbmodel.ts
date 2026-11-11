@@ -10,7 +10,7 @@
 import * as THREE from 'three'
 import { mergeGeometries } from 'three/examples/jsm/utils/BufferGeometryUtils.js'
 import { aplicarCorte } from './corte'
-import { applyPsx } from './psx'
+import { aplicarContorno } from './contorno'
 
 export const UNIDADE = 1 / 32 // metros por unidade do Blockbench
 
@@ -81,8 +81,9 @@ export interface MontadoBB { raiz: THREE.Group; pastas: Map<string, THREE.Group>
 export function montarBB(bb: BBModel, opc: { inflar?: number; corte?: boolean; pele?: boolean } = {}): MontadoBB {
   const tex = bb.textures[0], mapa = tex && !opc.inflar ? textura(tex.source) : undefined
   const W = tex?.uv_width ?? bb.resolution.width, H = tex?.uv_height ?? bb.resolution.height
-  const base = applyPsx(new THREE.MeshStandardMaterial({ color: '#ffffff', roughness: 0.9, ...(mapa ? { map: mapa } : {}) }))
-  const material = opc.corte ? aplicarCorte(base) : base
+  const base = new THREE.MeshStandardMaterial({ color: '#ffffff', roughness: 0.9, ...(mapa ? { map: mapa } : {}) })
+  // os personagens (pele) ganham o contorno de luz do jogo; as portas e janelas, o corte das paredes do editor
+  const material = opc.corte ? aplicarCorte(base) : opc.pele ? aplicarContorno(base) : base
   const luz = new THREE.MeshBasicMaterial({ color: '#ffffff', ...(mapa ? { map: mapa } : {}) })
   const porId = new Map(bb.elements.map((e) => [e.uuid, e]))
   const pastas = new Map<string, THREE.Group>(), blocos = new Map<string, THREE.Object3D>()

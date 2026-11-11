@@ -1,14 +1,16 @@
 // Onde os mapas moram: a pasta maps/. Rodando no seu computador (npm run dev), o editor lê e grava pela API do
 // servidor (tools/mapsDevApi.ts), sempre direto do disco. No jogo publicado só dá para ler o que entrou no build.
 // O pacote (MapBundle) é o mapa inteiro num objeto só: é o que o Exportar baixa e o Importar lê.
+import { AMBIENTE_PADRAO } from './ambientes'
+import { cabecalhoAtual } from './formato'
 import { getMap, listMaps, loadChunk } from './loader'
-import { CHUNK, LEVEL_H, chunkKey, type Chunk, type MapMeta } from './types'
+import { CHUNK, FORMATO, LEVEL_H, chunkKey, type Chunk, type MapMeta } from './types'
 
 /** Gravar, copiar, apagar e importar só existem no npm run dev. */
 export const podeGravar = import.meta.env.DEV
 
 export interface MapInfo { id: string; nome: string; levels: number; blocos: number }
-export interface MapBundle { formato: 1; meta: MapMeta; chunks: Chunk[] }
+export interface MapBundle { formato: typeof FORMATO; meta: MapMeta; chunks: Chunk[] }
 
 async function api<T>(url: string, body?: unknown): Promise<T> {
   const r = await fetch(url, body === undefined ? undefined : { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify(body) })
@@ -62,7 +64,7 @@ export function slug(nome: string) {
 }
 
 export function mapaVazio(id: string, nome: string): MapBundle {
-  return { formato: 1, meta: { formato: 1, id, nome, levels: 1, levelH: LEVEL_H, chunkSize: CHUNK, spawn: { pos: [2, 0, 2], yaw: 0, level: 0 }, chunks: [] }, chunks: [] }
+  return { formato: FORMATO, meta: { formato: FORMATO, id, nome, levels: 1, levelH: LEVEL_H, chunkSize: CHUNK, spawn: { pos: [2, 0, 2], yaw: 0, level: 0 }, ambiente: AMBIENTE_PADRAO, areas: [], chunks: [] }, chunks: [] }
 }
 
 export const vazio = (c: Chunk) => !c.walls.length && !c.floors.length && !c.openings.length && !c.stairs.length && !c.props.length && !c.decals.length && !c.points.length
@@ -76,9 +78,9 @@ export function validar(j: unknown): MapBundle {
   const meta = o.meta as Record<string, unknown> | undefined
   if (!meta || typeof meta !== 'object' || !Array.isArray(o.chunks)) throw new Error('O arquivo não é um mapa exportado pelo Criador de mapas.')
   const formato = Number(o.formato ?? meta.formato)
-  // formato novo de mapa = subir o número e converter aqui (nunca quebrar um mapa salvo)
-  if (formato > 1) throw new Error(`Este mapa é do formato ${formato}, mais novo que este editor (formato 1).`)
-  if (formato !== 1) throw new Error('O arquivo não diz o formato do mapa.')
+  // formato novo de mapa = subir o número e converter em formato.ts (nunca quebrar um mapa salvo)
+  if (formato > FORMATO) throw new Error(`Este mapa é do formato ${formato}, mais novo que este editor (formato ${FORMATO}).`)
+  if (!(formato >= 1)) throw new Error('O arquivo não diz o formato do mapa.')
   if (typeof meta.id !== 'string' || typeof meta.nome !== 'string') throw new Error('O mapa não tem id ou nome.')
   const chunks: Chunk[] = (o.chunks as Record<string, unknown>[]).map((c, i) => {
     if (!c || typeof c !== 'object' || !Number.isInteger(c.cx) || !Number.isInteger(c.cz)) throw new Error(`O bloco ${i + 1} do mapa está quebrado.`)
@@ -88,9 +90,10 @@ export function validar(j: unknown): MapBundle {
   })
   const levels = Math.max(1, Math.floor(Number(meta.levels) || 1))
   const spawn = (meta.spawn as MapMeta['spawn'] | undefined) ?? { pos: [2, 0, 2], yaw: 0, level: 0 }
+  const atual = cabecalhoAtual(meta)
   return {
-    formato: 1,
-    meta: { formato: 1, id: meta.id, nome: meta.nome, levels, levelH: LEVEL_H, chunkSize: CHUNK, spawn, chunks: chunks.filter((c) => !vazio(c)).map((c) => chunkKey(c.cx, c.cz)).sort() },
+    formato: FORMATO,
+    meta: { ...atual, areas: atual.areas.filter((a) => a.level < levels), id: meta.id, nome: meta.nome, levels, levelH: LEVEL_H, chunkSize: CHUNK, spawn, chunks: chunks.filter((c) => !vazio(c)).map((c) => chunkKey(c.cx, c.cz)).sort() },
     chunks,
   }
 }

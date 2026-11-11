@@ -20,13 +20,13 @@ export interface Efeitos {
 
 /** Ensina o material do corpo a escurecer: o rosto (os vértices presos na cabeça e no queixo multiplicam a cor por
  *  1 − escuro; o uniforme é do rosto: rosto.ts muda) e o corpo inteiro na fase 4 (a cor final, com o reflexo junto:
- *  preta de verdade, mesmo sob luz forte). O tremor do PS1 continua (vem antes). */
+ *  preta de verdade, mesmo sob luz forte). */
 function corpoQueEscurece(corpo: THREE.SkinnedMesh, ossos: THREE.Object3D[], escuro: { value: number }, preta: { value: number }) {
   const mat = corpo.material as THREE.MeshStandardMaterial
   const ossosRosto = { value: new THREE.Vector2(...ossos.map((o) => corpo.skeleton.bones.indexOf(o as THREE.Bone))) }
   const antes = mat.onBeforeCompile
   mat.onBeforeCompile = (s, r) => {
-    antes.call(mat, s, r)
+    antes.call(mat, s, r) // o que o material já fazia (hoje nada; fica encadeado para quem vier antes)
     s.uniforms.uEscuro = escuro; s.uniforms.uOssosRosto = ossosRosto; s.uniforms.uPreta = preta
     s.vertexShader = 'uniform float uEscuro;\nuniform vec2 uOssosRosto;\nvarying float vEscuro;\n' + s.vertexShader.replace('#include <skinning_vertex>',
       '#include <skinning_vertex>\nvEscuro = (abs(skinIndex.x - uOssosRosto.x) < 0.5 || abs(skinIndex.x - uOssosRosto.y) < 0.5) ? uEscuro : 0.0;')
@@ -34,7 +34,7 @@ function corpoQueEscurece(corpo: THREE.SkinnedMesh, ossos: THREE.Object3D[], esc
       .replace('#include <map_fragment>', '#include <map_fragment>\ndiffuseColor.rgb *= 1.0 - vEscuro;')
       .replace('#include <opaque_fragment>', '#include <opaque_fragment>\ngl_FragColor.rgb *= 1.0 - uPreta;')
   }
-  mat.customProgramCacheKey = () => 'psx-mae' // outro programa que o dos outros personagens
+  mat.customProgramCacheKey = () => 'mae' // outro programa que o dos outros personagens
 }
 
 /** Monta os efeitos de uma Mãe (depois do corpo vestido). */

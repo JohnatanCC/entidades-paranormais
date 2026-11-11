@@ -1,0 +1,180 @@
+{
+ "cx": 2,
+ "cz": 0,
+ "walls": [],
+ "floors": [
+  {
+   "level": 0,
+   "x": 32,
+   "z": 0,
+   "top": "grama",
+   "bottom": "gesso"
+  },
+  {
+   "level": 0,
+   "x": 32,
+   "z": 1,
+   "top": "grama",
+   "bottom": "gesso"
+  },
+  {
+   "level": 0,
+   "x": 32,
+   "z": 2,
+   "top": "grama",
+   "bottom": "gesso"
+  },
+  {
+   "level": 0,
+   "x": 32,
+   "z": 3,
+   "top": "grama",
+   "bottom": "gesso"
+  },
+  {
+   "level": 0,
+   "x": 32,
+   "z": 4,
+   "top": "grama",
+   "bottom": "gesso"
+  },
+  {
+   "level": 0,
+   "x": 32,
+   "z": 5,
+   "top": "cascalho",
+   "bottom": "gesso"
+  },
+  {
+   "level": 0,
+   "x": 32,
+   "z": 6,
+   "top": "cascalho",
+   "bottom": "gesso"
+  },
+  {
+   "level": 0,
+   "x": 32,
+   "z": 7,
+   "top": "grama",
+   "bottom": "gesso"
+  },
+  {
+   "level": 0,
+   "x": 32,
+   "z": 8,
+   "top": "grama",
+   "bottom": "gesso"
+  },
+  {
+   "level": 0,
+   "x": 32,
+   "z": 9,
+   "top": "grama",
+   "bottom": "gesso"
+  },
+  {
+   "level": 0,
+   "x": 32,
+   "z": 10,
+   "top": "grama",
+   "bottom": "gesso"
+  },
+  {
+   "level": 0,
+   "x": 32,
+   "z": 11,
+   "top": "grama",
+   "bottom": "gesso"
+  },
+  {
+   "level": 0,
+   "x": 33,
+   "z": 0,
+   "top": "grama",
+   "bottom": "gesso"
+  },
+  {
+   "level": 0,
+   "x": 33,
+   "z": 1,
+   "top": "grama",
+   "bottom": "gesso"
+  },
+  {
+   "level": 0,
+   "x": 33,
+   "z": 2,
+   "top": "grama",
+   "bottom": "gesso"
+  },
+  {
+   "level": 0,
+   "x": 33,
+   "z": 3,
+   "top": "grama",
+   "bottom": "gesso"
+  },
+  {
+   "level": 0,
+   "x": 33,
+   "z": 4,
+   "top": "grama",
+   "bottom": "gesso"
+  },
+  {
+   "level": 0,
+   "x": 33,
+   "z": 5,
+   "top": "cascalho",
+   "bottom": "gesso"
+  },
+  {
+   "level": 0,
+   "x": 33,
+   "z": 6,
+   "top": "cascalho",
+   "bottom": "gesso"
+  },
+  {
+   "level": 0,
+   "x": 33,
+   "z": 7,
+   "top": "grama",
+   "bottom": "gesso"
+  },
+  {
+   "level": 0,
+   "x": 33,
+   "z": 8,
+   "top": "grama",
+   "bottom": "gesso"
+  },
+  {
+   "level": 0,
+   "x": 33,
+   "z": 9,
+   "top": "grama",
+   "bottom": "gesso"
+  },
+  {
+   "level": 0,
+   "x": 33,
+   "z": 10,
+   "top": "grama",
+   "bottom": "gesso"
+  },
+  {
+   "level": 0,
+   "x": 33,
+   "z": 11,
+   "top": "grama",
+   "bottom": "gesso"
+  }
+ ],
+ "openings": [],
+ "stairs": [],
+ "props": [],
+ "decals": [],
+ "points": []
+}
