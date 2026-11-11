@@ -193,6 +193,12 @@ Ajudas de construção propostas para depois (uma de cada vez, se aprovadas): **
      chave, até o inventário existir). O estado das portas no teste não muda o mapa: sair do Testar volta tudo como estava.
      O código: `src/game/world/portas.ts`; a ação "interagir" em `src/game/input/acoes.ts`.
      O código mora em `src/game/` (player/, input/, world/), já na estrutura do jogo.
+     **Em tela cheia** (11/nov): durante o teste as ferramentas de construção somem e a cena ocupa a janela inteira
+     (F11 do navegador tira também a barra dele). No canto de cima à direita ficam os **quadros por segundo**, e **F3**
+     abre o detalhe do desempenho: o tempo de cada quadro (a média e o pior dos últimos 120), quanto dele o processador
+     gasta mandando desenhar, o nível de qualidade e a
+     resolução, quantos desenhos e triângulos o quadro inteiro fez (com as sombras e o bloom), o que está na memória
+     da placa, as lâmpadas (e quantas com sombra) e a memória do jogo. O código: `src/game/Desempenho.tsx`.
    - **7b. Os blocos.** O jogo carrega só os blocos perto do agente e junta as malhas por bloco (desempenho da mansão e do celular).
      Os modelos do Blockbench já vêm em pedaços (10/nov): no jogo publicado, cada .bbmodel é um arquivo à parte, baixado
      quando abre uma tela que usa modelos (o pacote principal ficou em 1,1 MB, 328 KB comprimido). Falta, nesta etapa,

@@ -5,4 +5,6 @@ export const ganchos: {
   ir?: (x: number, z: number, yaw: number, pitch?: number, andar?: number) => void
   /** A cena do Testar aberto (para inspecionar luzes e malhas pelo console). */
   cena?: import('three').Scene
+  /** O desenhista do Testar aberto (para inspecionar as sombras e a contagem). */
+  gl?: import('three').WebGLRenderer
 } = {}

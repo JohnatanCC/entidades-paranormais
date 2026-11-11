@@ -23,16 +23,25 @@ export interface NivelDef {
   lampadas: 'assada' | 'mista'
   // as sombras em tempo real: quantas lâmpadas (as mais perto do agente) fazem sombra, o tamanho da textura de cada uma
   // e o da sombra da lua (0 = sem sombra)
-  sombras: { lampadas: number; mapa: number; lua: number }
+  // e de quantos em quantos quadros cada sombra é refeita (2 = quadro sim, quadro não: metade do custo, um quadro de atraso)
+  // macia = a borda da sombra suavizada (17 leituras de textura por pixel para a lua e 9 por lâmpada; sem ela, 1 cada)
+  sombras: { lampadas: number; mapa: number; lua: number; cada: number; macia: boolean }
   bloom: Bloom // o brilho em volta do que é claro (só com o passe): o tamanho da maior textura dele e quantas reduções
 }
 
-const SEM_SOMBRAS = { lampadas: 0, mapa: 0, lua: 0 }
+const SEM_SOMBRAS = { lampadas: 0, mapa: 0, lua: 0, cada: 1, macia: false }
 export const NIVEIS: Record<Nivel, NivelDef> = {
   baixo: { nome: 'Baixo', dpr: 1, passe: false, amostras: 0, lampadas: 'assada', sombras: SEM_SOMBRAS, bloom: { de: 0, niveis: 0 } },
-  medio: { nome: 'Médio', dpr: 1.5, passe: true, amostras: 2, lampadas: 'mista', sombras: { lampadas: 1, mapa: 512, lua: 1024 }, bloom: { de: 4, niveis: 4 } },
-  alto: { nome: 'Alto', dpr: 2, passe: true, amostras: 4, lampadas: 'mista', sombras: { lampadas: 3, mapa: 512, lua: 2048 }, bloom: { de: 2, niveis: 5 } },
+  medio: { nome: 'Médio', dpr: 1.5, passe: true, amostras: 2, lampadas: 'mista', sombras: { lampadas: 1, mapa: 512, lua: 1024, cada: 2, macia: false }, bloom: { de: 4, niveis: 4 } },
+  alto: { nome: 'Alto', dpr: 2, passe: true, amostras: 4, lampadas: 'mista', sombras: { lampadas: 3, mapa: 512, lua: 2048, cada: 1, macia: true }, bloom: { de: 2, niveis: 5 } },
 }
+/** O que o <Canvas> de uma cena de jogo precisa do nível: a resolução e as sombras. Passe como propriedades dele (o
+ *  fiber repõe as duas a cada redesenho, então não adianta mudar por dentro da cena). */
+export function canvasDoNivel(n: Nivel): { dpr: number; shadows: false | 'basic' | 'percentage' } {
+  const N = NIVEIS[n], tem = N.sombras.lua > 0 || N.sombras.lampadas > 0
+  return { dpr: Math.min(window.devicePixelRatio, N.dpr), shadows: tem ? (N.sombras.macia ? 'percentage' : 'basic') : false }
+}
+
 const ORDEM: Nivel[] = ['baixo', 'medio', 'alto']
 
 /** A medição dos quadros no automático: depois de `espera` s, a média de `janela` s acima de `lento` ms desce um nível. */

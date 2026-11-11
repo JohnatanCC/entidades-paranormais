@@ -82,7 +82,10 @@ O que está decidido sobre a luz, como ela é feita e as etapas. Os números fic
   agente** fazem sombra (512 cada): 3 no Alto e 1 no Médio (a pedido, 11/nov: no começo era só no Alto). Sombra de lâmpada é cara: cada uma desenha a cena seis vezes por quadro; por isso só as mais perto, escolhidas
   de novo a cada 0,4 s. Paredes, pisos, escadas, corrimão, portas, móveis e personagens fazem e recebem sombra; o que
   acende (os blocos `luz_`) e a peça que tem a lâmpada dentro não fazem (a cúpula do abajur taparia a própria luz).
-  Dentro de casa o luar é zero e a sombra da lua não é refeita. Os números: `sombras` de cada nível em `qualidade.ts`.
+  Dentro de casa o luar é zero: a lua deixa de fazer sombra e o cenário nem faz a conta dela (a troca, ao entrar e
+  sair, refaz os programas uma vez; depois ficam guardados). **No Médio a borda da sombra é dura** (uma leitura de
+  textura por pixel, no lugar de 17 para a lua e 9 por lâmpada); no Alto é suavizada. **No Médio cada sombra é refeita quadro sim, quadro
+  não** (a da lua e a da lâmpada em quadros alternados): metade do custo, com um quadro de atraso que não se nota. Os números: `sombras` de cada nível em `qualidade.ts`.
 - **Toda cena de jogo usa `<Iluminacao />`** (`src/game/luz/Iluminacao.tsx`): o Testar e a luz "Jogo" do Ver modelos.
 
 ## Os níveis de qualidade (`src/render/qualidade.ts`)
@@ -92,6 +95,15 @@ O que está decidido sobre a luz, como ela é feita e as etapas. Os números fic
 | Baixo (celular) | até 1 | não | não | a da tela | assadas | não |
 | Médio | até 1,5 | sim | a partir de 1/4 da tela, 4 níveis | 2 amostras | mistas (de verdade a 1 com sombra) | a lua e 1 lâmpada |
 | Alto | até 2 | sim | a partir de 1/2 da tela, 5 níveis | 4 amostras | mistas (de verdade as 3 com sombra) | a lua e 3 lâmpadas |
+
+**As metas** (do desenvolvedor, 11/nov, na mansão): Baixo 60 quadros por segundo ou mais, Médio de 50 a 60, Alto de 30 a
+40. Medido no PC dele (1875 × 964 px) antes de aliviar o Médio: Baixo 60, Médio 46, Alto 37 a 40. No Médio o
+processador gastava 6,4 ms de 21,4 mandando desenhar: quem limitava era a placa de vídeo, no custo de cada pixel.
+
+**A resolução e as sombras do nível são propriedades do `<Canvas>`** (`canvasDoNivel` em `qualidade.ts`): o React
+Three Fiber repõe as duas a cada redesenho da tela, então ligar por dentro da cena não dura. Foi um defeito de 11/nov:
+as sombras desligavam sozinhas no meio do teste e as lâmpadas com sombra sumiam (o salão ficava preto no Alto). As
+medidas de quadros feitas antes desse conserto não valem: parte delas foi com as sombras desligadas.
 
 Nas configurações: **Automático** (o padrão; mostra qual nível escolheu), Baixo, Médio e Alto. O automático olha o
 aparelho (tela de toque, memória, núcleos, o nome da placa de vídeo) e, nos primeiros segundos de uma cena de jogo, mede
@@ -138,4 +150,7 @@ Fora da numeração, já feito: **o céu da noite** ✅ (11/nov). Ficaram para d
   mas ainda não existe quem peça). E o luar de fora continua clareando o que está dentro quando o agente está fora.
 - O bloom não tem limiar por objeto: qualquer coisa bem clara vaza (uma parede branca colada numa lâmpada, por exemplo).
   Se algo brilhar demais, baixe o `brilho` da ambientação ou a força da lâmpada.
+- O automático mede contra 24 ms por quadro, pensando numa tela de 60 quadros por segundo: num navegador ou aparelho
+  travado em 30 (economia de bateria, alguns painéis embutidos) ele desce até o Baixo mesmo com folga. Visto em 11/nov
+  no navegador de teste, que trava em 30.
 - O nível Baixo ainda não foi medido num celular de verdade: os números dele são o ponto de partida.

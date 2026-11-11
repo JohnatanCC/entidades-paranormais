@@ -106,9 +106,9 @@ export function Testar({ chunks, levels, ambiente, areas, inicio, yaw, portas, o
       s.j = novoJogador(x, chaoEm(mundo, x, z, andar * LEVEL_H + 0.3) ?? andar * LEVEL_H, z, yaw)
       s.camYaw = yaw; s.pitch = pitch; s.pivX = x; s.pivZ = z; s.pivY = s.j.y; s.k = 1
     }
-    ganchos.cena = scene
-    return () => { delete ganchos.ir; delete ganchos.cena }
-  }, [mundo, scene])
+    ganchos.cena = scene; ganchos.gl = gl
+    return () => { delete ganchos.ir; delete ganchos.cena; delete ganchos.gl }
+  }, [mundo, scene, gl])
 
   // o agente na cena, a entrada ligada, o mouse travado com um clique; Esc (ou soltar o mouse) volta ao editor
   useEffect(() => {

@@ -3,10 +3,11 @@
 // e no Alto, o passe com o bloom, a correção de cor e a vinheta). Tudo sai da ambientação de onde o agente está
 // (maps/ambientes.ts), com troca suave entre as áreas do mapa e os momentos por cima (luz.ts). As lâmpadas e o luar das
 // janelas são do mapa (editor/Objetos, editor/Luar): aqui fica só o que é do lugar.
-// O nível de qualidade (render/qualidade.ts) muda a resolução e liga o passe final; no automático, os primeiros
+// A resolução e o ligar das sombras do nível são do <Canvas> (quem monta a cena passa canvasDoNivel: o fiber repõe os
+// dois a cada redesenho da tela, então mexer neles por aqui não dura). O nível liga aqui o passe final; no automático, os primeiros
 // segundos medem os quadros e descem um nível se o aparelho não der conta.
 //   etapa 3 (a luz assada no mapa): quando chegar, a luz ambiente daqui baixa, porque a malha já traz a luz dos cantos;
-// No nível Alto, a lua e as lâmpadas mais perto do agente fazem sombra (render/sombras.ts).
+// No Médio e no Alto, a lua e as lâmpadas mais perto do agente fazem sombra (render/sombras.ts).
 import { useEffect, useMemo, useRef } from 'react'
 import { useFrame, useThree } from '@react-three/fiber'
 import * as THREE from 'three'
@@ -19,7 +20,7 @@ import { CONTORNO } from '../../render/contorno'
 import { novoPasseFinal, type Bloom, type PasseFinal } from '../../render/passeFinal'
 import { MEDICAO, NIVEIS, descerNivel, useNivel } from '../../render/qualidade'
 import { descartarCeu, novoCeu } from './ceu'
-import { escolherSombras, semSombras } from '../../render/sombras'
+import { escolherSombras, refazerSombras, semSombras } from '../../render/sombras'
 import { ambienteEm, novaLuzViva, passoLuz, type Luz } from './luz'
 
 interface Props {
@@ -34,7 +35,7 @@ const _f = new THREE.Vector3(), _a = new THREE.Vector3()
 const LONGE = 45 // a que distância do agente a lua "fica" para fazer a sombra (m)
 
 export function Iluminacao({ ambiente, areas = SEM_AREAS, em, semCeu }: Props) {
-  const gl = useThree((s) => s.gl), scene = useThree((s) => s.scene), setDpr = useThree((s) => s.setDpr)
+  const gl = useThree((s) => s.gl), scene = useThree((s) => s.scene)
   const N = NIVEIS[useNivel()]
   const lugar = () => (em ? ambienteEm(ambiente, areas, em.x, em.y, em.z) : ambienteDe(ambiente))
   const c = useMemo(() => {
@@ -58,31 +59,23 @@ export function Iluminacao({ ambiente, areas = SEM_AREAS, em, semCeu }: Props) {
   }, [gl, scene, c])
   useEffect(() => () => { if (c.cupula) descartarCeu(c.cupula) }, [c])
 
-  // a resolução do nível (o celular tem 2 a 3 pixels por ponto da tela: desenhar todos é o que mais pesa)
-  useEffect(() => {
-    setDpr(Math.min(window.devicePixelRatio, N.dpr))
-    return () => setDpr([1, 2]) // a do editor
-  }, [setDpr, N.dpr])
-
   // o desenho do luar das janelas é mais sutil no jogo
   useEffect(() => { forcaDoLuar(LUAR_NO_JOGO); return () => forcaDoLuar(1) }, [])
 
   // a luz das lâmpadas assada na malha: no Baixo e no Médio, todas; no Alto, as que não fazem sombra
   useEffect(() => { luzAssada(N.lampadas); return () => luzAssada('nao') }, [N.lampadas])
 
-  // as sombras em tempo real (só o Alto): a lua, uma sombra para tudo em volta do agente; as lâmpadas, só as mais perto
+  // as sombras em tempo real (Médio e Alto): a lua, uma sombra para tudo em volta do agente; as lâmpadas, só as mais perto
   const S = N.sombras
   useEffect(() => {
     if (!S.lua && !S.lampadas) return
     const s = c.luar.shadow
-    gl.shadowMap.enabled = true
-    c.luar.castShadow = S.lua > 0
     s.mapSize.set(S.lua, S.lua); s.bias = -0.0006; s.normalBias = 0.05
     Object.assign(s.camera, { left: -24, right: 24, top: 24, bottom: -24, near: 1, far: LONGE * 2 }); s.camera.updateProjectionMatrix()
-    return () => { gl.shadowMap.enabled = false; c.luar.castShadow = false; s.map?.dispose(); s.map = null; semSombras() }
+    return () => { c.luar.castShadow = false; s.map?.dispose(); s.map = null; semSombras() }
   }, [gl, c, S])
 
-  const sombra = useRef(1) // o tempo até escolher de novo as lâmpadas que fazem sombra
+  const sombra = useRef(1), quadro = useRef(0) // o tempo até escolher de novo as lâmpadas que fazem sombra; o quadro, para o ritmo delas
   const medida = useRef({ t: 0, soma: 0, n: 0, feita: false })
   useFrame(({ camera, clock }, dt) => {
     passoLuz(c.viva, lugar(), Math.min(dt, 0.1))
@@ -96,7 +89,14 @@ export function Iluminacao({ ambiente, areas = SEM_AREAS, em, semCeu }: Props) {
     // a lua acompanha o agente (de metro em metro, para a sombra não tremer); dentro de casa o luar é zero e a sombra dela não é refeita
     _a.set(em ? Math.round(em.x) : 0, 0, em ? Math.round(em.z) : 0)
     c.luar.target.position.copy(_a); c.luar.position.set(_a.x + LUA[0] * LONGE, LUA[1] * LONGE, _a.z + LUA[2] * LONGE)
-    c.luar.shadow.autoUpdate = L.forcaLuar > 0.02
+    // cada sombra é refeita no ritmo do nível; a da lua e as das lâmpadas em quadros alternados, para o custo não somar
+    const q = quadro.current++
+    // a lua só faz sombra onde tem luar: dentro de casa (luar zero) o cenário nem faz a conta da sombra dela em cada
+    // pixel (são 17 leituras de textura por pixel). A troca refaz os programas uma vez; depois ficam guardados.
+    const lua = S.lua > 0 && L.forcaLuar > 0.02
+    if (c.luar.castShadow !== lua) c.luar.castShadow = lua
+    c.luar.shadow.autoUpdate = false; c.luar.shadow.needsUpdate = lua && q % S.cada === S.cada - 1
+    if (S.lampadas) refazerSombras(q, S.cada)
     if (S.lampadas && em && (sombra.current += dt) > 0.4) { sombra.current = 0; escolherSombras(_a.set(em.x, em.y + 1, em.z), S.lampadas, S.mapa) }
     c.neblina.color.copy(L.neblina); c.neblina.density = L.densidade; c.fundo.copy(L.neblina)
     // o céu: o horizonte é a cor da neblina (o que some ao longe some na cor dele)

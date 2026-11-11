@@ -29,10 +29,17 @@ export function escolherSombras(de: Vector3, quantas: number, tamanho: number) {
     if (!perto.includes(l)) { soltar(l); continue }
     if (l.castShadow) continue
     l.castShadow = true
+    l.shadow.autoUpdate = false; l.shadow.needsUpdate = true // quem refaz é refazerSombras, no ritmo do nível
     l.shadow.mapSize.set(tamanho, tamanho)
     l.shadow.camera.near = 0.08; l.shadow.camera.far = l.distance || 12; l.shadow.camera.updateProjectionMatrix()
     l.shadow.bias = -0.004; l.shadow.normalBias = 0.03
   }
+}
+
+/** Um quadro: as lâmpadas com sombra refazem a delas de `cada` em `cada` quadros (nos quadros pares, se cada = 2). */
+export function refazerSombras(quadro: number, cada: number) {
+  if (quadro % cada !== 0) return
+  for (const l of lampadas) if (l.castShadow) l.shadow.needsUpdate = true
 }
 
 /** Nenhuma lâmpada faz sombra (saindo do jogo, ou o nível deixou de ter sombras). */

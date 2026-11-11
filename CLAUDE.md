@@ -135,7 +135,9 @@ src/game/                  (já existem: Testar.tsx, player/, input/, world/, we
                            momento('mae-chegando'))
   corpo/                   o que serve a todo personagem: molas.ts (o que pendura e balança: cabelo, saia), sombraDeChao.ts
                            (o círculo escuro embaixo dele)
-  Testar.tsx               o Testar do editor: o agente andando no mapa aberto (câmera, colisão, luz do jogo)
+  Testar.tsx               o Testar do editor: o agente andando no mapa aberto (câmera, colisão, luz do jogo), em tela cheia
+  Desempenho.tsx           o medidor de uma cena de jogo: os quadros por segundo e, com F3, o detalhe (desenhos, triângulos,
+                           memória da placa, nível, lâmpadas)
   player/                  o agente: modelo.ts (liga modelos/agente.bbmodel no esqueleto), animacao.ts, maos.ts (os dedos),
                            arma.ts (a arma na mão; a escopeta com as duas mãos ou no ombro; o pêndulo da armadilha; Q troca
                            no Testar), mira.ts (mirar: a pose, o coice, a bomba depois do tiro), queda.ts (cair sem violência), dano.ts (o tranco de um golpe,
@@ -172,7 +174,8 @@ Versões fixas no `package.json`; não atualize sem pedir.
 ## Convenções de código
 
 - O estado das configurações fica em `src/settings/settings.ts`; telas leem com `useSettings()`.
-- Toda cena de jogo leva `<Iluminacao />` (`src/game/luz`): nada de luz ambiente solta na cena. Os números de cada lugar ficam em
+- Toda cena de jogo leva `<Iluminacao />` (`src/game/luz`): nada de luz ambiente solta na cena. O `<Canvas>` dela recebe
+  `canvasDoNivel(nivel)` (a resolução e as sombras): o fiber repõe as duas a cada redesenho, não mexa nelas por dentro da cena. Os números de cada lugar ficam em
   `src/maps/ambientes.ts`; o que muda por nível de qualidade, em `src/render/qualidade.ts`. Tudo o que for de tela cheia
   mora numa passada só (`src/render/passeFinal.ts`): no celular o que pesa é preencher a tela.
 - O mapa é dado puro (JSON, tipos em `src/maps/types.ts`). O editor muda o dado; a vista desenha a partir dele. Nada de estado escondido nos objetos 3D.

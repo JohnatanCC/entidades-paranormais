@@ -121,4 +121,4 @@ function ir(x: number, z: number, yaw: number, pitch?: number, andar?: number) {
   return 'ok'
 }
 
-export const provas = { mae, fotos, limpar, medidas, som: som_, ir, qualidade: nivelAtual, sombras: contarSombras, cena: () => ganchos.cena }
+export const provas = { mae, fotos, limpar, medidas, som: som_, ir, qualidade: nivelAtual, sombras: contarSombras, cena: () => ganchos.cena, gl: () => ganchos.gl }

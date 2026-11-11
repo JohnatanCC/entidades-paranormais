@@ -17,6 +17,8 @@ import { EscolherAmbiente, PainelArea } from './PainelArea'
 import { OBJETOS } from '../maps/objetos'
 import { CORTE, setModoParedes, type ModoParedes } from '../render/corte'
 import { Testar } from '../game/Testar'
+import { Desempenho } from '../game/Desempenho'
+import { canvasDoNivel, useNivel } from '../render/qualidade'
 import type { PortasVivas } from '../game/world/portas'
 import { ICONES } from './Icones'
 import { GavetaAberturas, GavetaObjetos, GavetaPincel, GavetaPiso } from './Gaveta'
@@ -51,6 +53,7 @@ const FERRAMENTAS: { id: Ferramenta; nome: string; tecla: string; icone: ReactNo
   { id: 'contagotas', nome: 'Conta-gotas', tecla: '8', icone: ICONES.contagotas },
   { id: 'ambiente', nome: 'Ambientação', tecla: '9', icone: ICONES.ambiente },
 ]
+const SEM_NIVEL = { dpr: [1, 2] as [number, number], shadows: false as const } // o editor: a resolução da tela, sem sombras
 const MODOS_PAREDE: ModoParedes[] = ['altas', 'recortadas', 'baixas']
 const CHAVE_MODO = 'entidades.editor.paredes'
 const lerModo = (): ModoParedes => { try { const m = localStorage.getItem(CHAVE_MODO) as ModoParedes; return MODOS_PAREDE.includes(m) ? m : 'recortadas' } catch { return 'recortadas' } }
@@ -103,6 +106,7 @@ export function MapEditor({ go }: { go: Go }) {
   const setModo = (m: ModoParedes) => { setModoState(m); try { localStorage.setItem(CHAVE_MODO, m) } catch { /* vale só agora */ } }
   // o Testar: o agente andando no mapa (paredes sempre altas enquanto joga)
   const [testando, setTestando] = useState<{ inicio: [number, number, number]; yaw: number } | null>(null)
+  const nivel = useNivel()
   const [travado, setTravado] = useState(false)
   const [dicaTeste, setDicaTeste] = useState<string | null>(null)
   const [mirando, setMirando] = useState(false)
@@ -122,6 +126,8 @@ export function MapEditor({ go }: { go: Go }) {
   // o aviso some sozinho depois de uns segundos
   useEffect(() => { if (!aviso) return; const t = setTimeout(() => setAviso(''), 5000); return () => clearTimeout(t) }, [aviso])
   const statusRef = useRef<HTMLSpanElement>(null)
+  const desempenhoRef = useRef<HTMLPreElement>(null) // o medidor do Testar (o texto vem de dentro da cena)
+  const onDesempenho = useCallback((t: string) => { if (desempenhoRef.current) desempenhoRef.current.textContent = t }, [])
   const iniciou = useRef(false)
 
   const sujo = !!doc && doc !== salvo
@@ -360,7 +366,7 @@ export function MapEditor({ go }: { go: Go }) {
 
   const ferr = FERRAMENTAS.find((f) => f.id === ferramenta)!
   return (
-    <div className="editor">
+    <div className={testando ? 'editor testando' : 'editor'}>
       {/* a barra de cima: o mapa, o andar, as paredes, desfazer e salvar */}
       <header className="topo">
         <button className="bt" onClick={() => setGerenciador(true)} data-dica="Novo, abrir, copiar, exportar, importar">{ICONES.mapas} Mapas</button>
@@ -402,7 +408,8 @@ export function MapEditor({ go }: { go: Go }) {
       </nav>
 
       <div className="vista">
-        <Canvas camera={{ position: [10, 12, 10], fov: 50 }}>
+        {/* no Testar, a resolução e as sombras são as do nível de qualidade */}
+        <Canvas camera={{ position: [10, 12, 10], fov: 50 }} {...(testando ? canvasDoNivel(nivel) : SEM_NIVEL)}>
           <color attach="background" args={['#0b0c0f']} />
           {/* luz de trabalho: clara e sem sombra, para ver as texturas; cada lado da parede pega um tom diferente */}
           {!testando && <>
@@ -412,6 +419,7 @@ export function MapEditor({ go }: { go: Go }) {
           </>}
           {doc && <Suspense fallback={null}><MapView chunks={doc.chunks} maxLevel={testando ? nAndares - 1 : andar} ocultar={ferramenta === 'objetos' && !testando ? arrastando : null} portas={portasVivas} /></Suspense>}
           {doc && testando && portasVivas && <Testar chunks={doc.chunks} levels={nAndares} ambiente={doc.meta.ambiente} areas={doc.meta.areas} inicio={testando.inicio} yaw={testando.yaw} portas={portasVivas} onTravado={setTravado} onDica={setDicaTeste} onMira={setMirando} onEscuro={setEscuro} onVida={setVidaTeste} onSair={sairTeste} />}
+          {testando && <Desempenho onTexto={onDesempenho} />}
           {doc && !testando && (ferramenta === 'paredes' || ferramenta === 'apagar') && <FerramentaParedes doc={doc} andar={andar} apagar={ferramenta === 'apagar'} onFeito={onFeito} onInfo={onInfo} />}
           {doc && !testando && ferramenta === 'piso' && <FerramentaPiso doc={doc} andar={andar} onFeito={onPiso} onInfo={onInfo} />}
           {doc && !testando && ferramenta === 'pincel' && <FerramentaPincel doc={doc} andar={andar} onFeito={onPintar} onInfo={onInfo} />}
@@ -433,10 +441,11 @@ export function MapEditor({ go }: { go: Go }) {
         {testando && dicaTeste && <div className="dica-teste">{dicaTeste}</div>}
         {testando && mirando && <div className="mira-ponto" />}
         {testando && <div className={escuro ? 'escuro-teste ligado' : 'escuro-teste'} />}
+        {testando && <pre className="desempenho-teste" ref={desempenhoRef} />}
         {testando && <div className={vidaTeste <= 30 ? 'vida-teste perigo' : 'vida-teste'}>Vida {vidaTeste}%</div>}
         {testando && <div className={travado ? 'teste-b jogando' : 'teste-b'}>
           {travado
-            ? <span>WASD anda · Shift corre · Espaço esquiva · E abre e fecha porta · Q troca a arma · botão direito mira, esquerdo atira (ou joga a armadilha; fora, chama de volta) · mouse olha (sem o cursor travado: arraste) · 1–6 expressões, 7–9 mãos, 0 automático, J toma dano, F kit, K cai, M momento de luz · <b>Esc</b> volta ao editor</span>
+            ? <span>WASD anda · Shift corre · Espaço esquiva · E abre e fecha porta · Q troca a arma · botão direito mira, esquerdo atira (ou joga a armadilha; fora, chama de volta) · mouse olha (sem o cursor travado: arraste) · 1–6 expressões, 7–9 mãos, 0 automático, J toma dano, F kit, K cai, M momento de luz, F3 desempenho · <b>Esc</b> volta ao editor</span>
             : <><b>Testar</b><span>Clique na vista para jogar · Esc volta ao editor</span></>}
         </div>}
         {/* o Painel Inspetor: as configurações do que está escolhido, numa janela que se arrasta */}
