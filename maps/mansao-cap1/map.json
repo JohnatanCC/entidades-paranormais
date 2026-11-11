@@ -1,5 +1,89 @@
 {
- "formato": 1,
+ "formato": 2,
+ "ambiente": "exterior",
+ "areas": [
+  {
+   "level": 0,
+   "x": 8,
+   "z": 8,
+   "w": 32,
+   "d": 24,
+   "ambiente": "mansao",
+   "id": "area-1"
+  },
+  {
+   "level": 0,
+   "x": 8,
+   "z": 24,
+   "w": 22,
+   "d": 3,
+   "ambiente": "corredor",
+   "id": "area-2"
+  },
+  {
+   "level": 0,
+   "x": 22,
+   "z": 28,
+   "w": 8,
+   "d": 4,
+   "ambiente": "corredor",
+   "id": "area-3"
+  },
+  {
+   "level": 1,
+   "x": 8,
+   "z": 8,
+   "w": 32,
+   "d": 24,
+   "ambiente": "corredor",
+   "id": "area-4"
+  },
+  {
+   "level": 1,
+   "x": 8,
+   "z": 24,
+   "w": 33,
+   "d": 3,
+   "ambiente": "corredor",
+   "id": "area-5"
+  },
+  {
+   "level": 1,
+   "x": 22,
+   "z": 28,
+   "w": 8,
+   "d": 4,
+   "ambiente": "corredor",
+   "id": "area-6"
+  },
+  {
+   "level": 1,
+   "x": 18,
+   "z": 8,
+   "w": 12,
+   "d": 3,
+   "ambiente": "corredor",
+   "id": "area-7"
+  },
+  {
+   "level": 0,
+   "x": 8,
+   "z": 0,
+   "w": 32,
+   "d": 8,
+   "ambiente": "corredor",
+   "id": "area-8"
+  },
+  {
+   "level": 0,
+   "x": 8,
+   "z": 0,
+   "w": 32,
+   "d": 8,
+   "ambiente": "exterior",
+   "id": "area-9"
+  }
+ ],
  "id": "mansao-cap1",
  "nome": "Mansão · capítulo 1",
  "levels": 3,

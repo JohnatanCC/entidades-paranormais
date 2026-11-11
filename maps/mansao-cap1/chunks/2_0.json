@@ -1859,6 +1859,454 @@
    "z": 15,
    "top": "tabua-corrida",
    "bottom": "gesso"
+  },
+  {
+   "level": 0,
+   "x": 32,
+   "z": 0,
+   "top": "cascalho",
+   "bottom": "gesso"
+  },
+  {
+   "level": 0,
+   "x": 32,
+   "z": 1,
+   "top": "cascalho",
+   "bottom": "gesso"
+  },
+  {
+   "level": 0,
+   "x": 32,
+   "z": 2,
+   "top": "cascalho",
+   "bottom": "gesso"
+  },
+  {
+   "level": 0,
+   "x": 32,
+   "z": 3,
+   "top": "cascalho",
+   "bottom": "gesso"
+  },
+  {
+   "level": 0,
+   "x": 32,
+   "z": 4,
+   "top": "cascalho",
+   "bottom": "gesso"
+  },
+  {
+   "level": 0,
+   "x": 32,
+   "z": 5,
+   "top": "cascalho",
+   "bottom": "gesso"
+  },
+  {
+   "level": 0,
+   "x": 32,
+   "z": 6,
+   "top": "cascalho",
+   "bottom": "gesso"
+  },
+  {
+   "level": 0,
+   "x": 32,
+   "z": 7,
+   "top": "cascalho",
+   "bottom": "gesso"
+  },
+  {
+   "level": 0,
+   "x": 33,
+   "z": 0,
+   "top": "cascalho",
+   "bottom": "gesso"
+  },
+  {
+   "level": 0,
+   "x": 33,
+   "z": 1,
+   "top": "cascalho",
+   "bottom": "gesso"
+  },
+  {
+   "level": 0,
+   "x": 33,
+   "z": 2,
+   "top": "cascalho",
+   "bottom": "gesso"
+  },
+  {
+   "level": 0,
+   "x": 33,
+   "z": 3,
+   "top": "cascalho",
+   "bottom": "gesso"
+  },
+  {
+   "level": 0,
+   "x": 33,
+   "z": 4,
+   "top": "cascalho",
+   "bottom": "gesso"
+  },
+  {
+   "level": 0,
+   "x": 33,
+   "z": 5,
+   "top": "cascalho",
+   "bottom": "gesso"
+  },
+  {
+   "level": 0,
+   "x": 33,
+   "z": 6,
+   "top": "cascalho",
+   "bottom": "gesso"
+  },
+  {
+   "level": 0,
+   "x": 33,
+   "z": 7,
+   "top": "cascalho",
+   "bottom": "gesso"
+  },
+  {
+   "level": 0,
+   "x": 34,
+   "z": 0,
+   "top": "cascalho",
+   "bottom": "gesso"
+  },
+  {
+   "level": 0,
+   "x": 34,
+   "z": 1,
+   "top": "cascalho",
+   "bottom": "gesso"
+  },
+  {
+   "level": 0,
+   "x": 34,
+   "z": 2,
+   "top": "cascalho",
+   "bottom": "gesso"
+  },
+  {
+   "level": 0,
+   "x": 34,
+   "z": 3,
+   "top": "cascalho",
+   "bottom": "gesso"
+  },
+  {
+   "level": 0,
+   "x": 34,
+   "z": 4,
+   "top": "cascalho",
+   "bottom": "gesso"
+  },
+  {
+   "level": 0,
+   "x": 34,
+   "z": 5,
+   "top": "cascalho",
+   "bottom": "gesso"
+  },
+  {
+   "level": 0,
+   "x": 34,
+   "z": 6,
+   "top": "cascalho",
+   "bottom": "gesso"
+  },
+  {
+   "level": 0,
+   "x": 34,
+   "z": 7,
+   "top": "cascalho",
+   "bottom": "gesso"
+  },
+  {
+   "level": 0,
+   "x": 35,
+   "z": 0,
+   "top": "cascalho",
+   "bottom": "gesso"
+  },
+  {
+   "level": 0,
+   "x": 35,
+   "z": 1,
+   "top": "cascalho",
+   "bottom": "gesso"
+  },
+  {
+   "level": 0,
+   "x": 35,
+   "z": 2,
+   "top": "cascalho",
+   "bottom": "gesso"
+  },
+  {
+   "level": 0,
+   "x": 35,
+   "z": 3,
+   "top": "cascalho",
+   "bottom": "gesso"
+  },
+  {
+   "level": 0,
+   "x": 35,
+   "z": 4,
+   "top": "cascalho",
+   "bottom": "gesso"
+  },
+  {
+   "level": 0,
+   "x": 35,
+   "z": 5,
+   "top": "cascalho",
+   "bottom": "gesso"
+  },
+  {
+   "level": 0,
+   "x": 35,
+   "z": 6,
+   "top": "cascalho",
+   "bottom": "gesso"
+  },
+  {
+   "level": 0,
+   "x": 35,
+   "z": 7,
+   "top": "cascalho",
+   "bottom": "gesso"
+  },
+  {
+   "level": 0,
+   "x": 36,
+   "z": 0,
+   "top": "cascalho",
+   "bottom": "gesso"
+  },
+  {
+   "level": 0,
+   "x": 36,
+   "z": 1,
+   "top": "cascalho",
+   "bottom": "gesso"
+  },
+  {
+   "level": 0,
+   "x": 36,
+   "z": 2,
+   "top": "cascalho",
+   "bottom": "gesso"
+  },
+  {
+   "level": 0,
+   "x": 36,
+   "z": 3,
+   "top": "cascalho",
+   "bottom": "gesso"
+  },
+  {
+   "level": 0,
+   "x": 36,
+   "z": 4,
+   "top": "cascalho",
+   "bottom": "gesso"
+  },
+  {
+   "level": 0,
+   "x": 36,
+   "z": 5,
+   "top": "cascalho",
+   "bottom": "gesso"
+  },
+  {
+   "level": 0,
+   "x": 36,
+   "z": 6,
+   "top": "cascalho",
+   "bottom": "gesso"
+  },
+  {
+   "level": 0,
+   "x": 36,
+   "z": 7,
+   "top": "cascalho",
+   "bottom": "gesso"
+  },
+  {
+   "level": 0,
+   "x": 37,
+   "z": 0,
+   "top": "cascalho",
+   "bottom": "gesso"
+  },
+  {
+   "level": 0,
+   "x": 37,
+   "z": 1,
+   "top": "cascalho",
+   "bottom": "gesso"
+  },
+  {
+   "level": 0,
+   "x": 37,
+   "z": 2,
+   "top": "cascalho",
+   "bottom": "gesso"
+  },
+  {
+   "level": 0,
+   "x": 37,
+   "z": 3,
+   "top": "cascalho",
+   "bottom": "gesso"
+  },
+  {
+   "level": 0,
+   "x": 37,
+   "z": 4,
+   "top": "cascalho",
+   "bottom": "gesso"
+  },
+  {
+   "level": 0,
+   "x": 37,
+   "z": 5,
+   "top": "cascalho",
+   "bottom": "gesso"
+  },
+  {
+   "level": 0,
+   "x": 37,
+   "z": 6,
+   "top": "cascalho",
+   "bottom": "gesso"
+  },
+  {
+   "level": 0,
+   "x": 37,
+   "z": 7,
+   "top": "cascalho",
+   "bottom": "gesso"
+  },
+  {
+   "level": 0,
+   "x": 38,
+   "z": 0,
+   "top": "cascalho",
+   "bottom": "gesso"
+  },
+  {
+   "level": 0,
+   "x": 38,
+   "z": 1,
+   "top": "cascalho",
+   "bottom": "gesso"
+  },
+  {
+   "level": 0,
+   "x": 38,
+   "z": 2,
+   "top": "cascalho",
+   "bottom": "gesso"
+  },
+  {
+   "level": 0,
+   "x": 38,
+   "z": 3,
+   "top": "cascalho",
+   "bottom": "gesso"
+  },
+  {
+   "level": 0,
+   "x": 38,
+   "z": 4,
+   "top": "cascalho",
+   "bottom": "gesso"
+  },
+  {
+   "level": 0,
+   "x": 38,
+   "z": 5,
+   "top": "cascalho",
+   "bottom": "gesso"
+  },
+  {
+   "level": 0,
+   "x": 38,
+   "z": 6,
+   "top": "cascalho",
+   "bottom": "gesso"
+  },
+  {
+   "level": 0,
+   "x": 38,
+   "z": 7,
+   "top": "cascalho",
+   "bottom": "gesso"
+  },
+  {
+   "level": 0,
+   "x": 39,
+   "z": 0,
+   "top": "cascalho",
+   "bottom": "gesso"
+  },
+  {
+   "level": 0,
+   "x": 39,
+   "z": 1,
+   "top": "cascalho",
+   "bottom": "gesso"
+  },
+  {
+   "level": 0,
+   "x": 39,
+   "z": 2,
+   "top": "cascalho",
+   "bottom": "gesso"
+  },
+  {
+   "level": 0,
+   "x": 39,
+   "z": 3,
+   "top": "cascalho",
+   "bottom": "gesso"
+  },
+  {
+   "level": 0,
+   "x": 39,
+   "z": 4,
+   "top": "cascalho",
+   "bottom": "gesso"
+  },
+  {
+   "level": 0,
+   "x": 39,
+   "z": 5,
+   "top": "cascalho",
+   "bottom": "gesso"
+  },
+  {
+   "level": 0,
+   "x": 39,
+   "z": 6,
+   "top": "cascalho",
+   "bottom": "gesso"
+  },
+  {
+   "level": 0,
+   "x": 39,
+   "z": 7,
+   "top": "cascalho",
+   "bottom": "gesso"
   }
  ],
  "openings": [
