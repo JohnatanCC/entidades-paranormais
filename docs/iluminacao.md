@@ -90,6 +90,15 @@ O que está decidido sobre a luz, como ela é feita e as etapas. Os números fic
 
 ## Os níveis de qualidade (`src/render/qualidade.ts`)
 
+**Desde 11/nov são quatro níveis e cada recurso é ajustável.** Um nível (Baixo, Médio, Alto, **Ultra**) é um conjunto de
+recursos; nas configurações o jogador escolhe o nível e pode mudar qualquer recurso por cima dele (os ajustes ficam
+guardados junto; trocar de nível desfaz). Os recursos de hoje: resolução, correção de cor, bordas suaves, brilho das
+luzes (bloom), sombra das lâmpadas (0, 1 ou 3), detalhe da sombra, sombra da lua, borda da sombra, ritmo da sombra,
+reflexo dos materiais e nitidez das texturas ao longe. **O Ultra é o mais pesado: tudo o que melhora luz e sombra entra
+nele primeiro** (decisão do desenvolvedor); hoje ele é o Alto com a sombra das lâmpadas em 1024, a da lua em 4096 e as
+texturas mais nítidas ao longe. O Automático nunca escolhe o Ultra. Um recurso novo: o campo em `Recursos`, o valor em
+cada nível e a linha em `OPCOES` (ela aparece sozinha nas configurações). A tabela abaixo é a dos três primeiros níveis.
+
 | Nível | Resolução (pixels por ponto da tela) | Passada final (cor, vinheta) | Bloom | Suavização das bordas | Lâmpadas no cenário | Sombras |
 | --- | --- | --- | --- | --- | --- | --- |
 | Baixo (celular) | até 1 | não | não | a da tela | assadas | não |
@@ -122,9 +131,16 @@ vale até recarregar a página.
    - **3a. A sombra de canto.** ✅ (11/nov) O escurecimento macio dos cantos, calculado ao montar a malha.
    - **3b. A luz das lâmpadas assada.** ✅ (11/nov) No Baixo e no Médio, com as paredes bloqueando.
 4. **Sombras em tempo real.** ✅ (11/nov) No Médio (a lua e 1 lâmpada) e no Alto (a lua e 3 lâmpadas).
-5. **Materiais** (proposta de 11/nov, depois da 4): **5a** o brilho de cada textura (mármore reflete, tapete não), em
-   todos os níveis; **5b** o relevo de luz gerado da própria textura, no Alto, com a criação do nível **Ultra**;
+5. **Materiais.** **5a ✅ (11/nov)** o brilho de cada textura: o catálogo (`src/maps/textures.ts`) diz o `brilho` de 0
+   (fosca) a 1 (polida) e se é `metal`; mármore, azulejo e ladrilho refletem a luz, tapete, reboco e grama não. Sem
+   custo (é um número do material). Só as luzes de verdade fazem reflexo (o luar, o preenchimento e as lâmpadas com
+   sombra): aparece no Médio e no Alto, quase nada no Baixo. Os móveis e os personagens não entraram. **5b** o relevo de luz gerado da própria textura, como recurso do Ultra (o nível já existe);
    **5c** o relevo de verdade (parallax), só no Ultra, como experimento.
+
+**A seguir (pedido em 11/nov): o escuro realista.** Hoje a luz ambiente é igual em todo lugar, então um salão sem lâmpada
+fica com o piso claro por igual. A ideia: a luz **indireta** calculada no mapa (a luz das lâmpadas e das janelas se
+espalha pelos cômodos, perde força a cada metro e para nas paredes, como a luz dos blocos do Minecraft), com a luz
+ambiente geral bem mais baixa. Recurso do Ultra, ajustável.
 
 Fora da numeração, já feito: **o céu da noite** ✅ (11/nov). Ficaram para depois: a aurora, as nuvens e as silhuetas no horizonte.
 

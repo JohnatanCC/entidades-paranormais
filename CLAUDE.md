@@ -81,7 +81,8 @@ src/
   main.tsx, App.tsx        as telas (menu → configurações | modo desenvolvedor → criador de mapas)
   styles.css               a paleta e as telas
   screens/                 MainMenu, SettingsScreen, DevMenu, VerModelos (o personagem de perto: animação, expressão, mãos, luz)
-  settings/settings.ts     configurações no localStorage (useSettings / setSettings): a qualidade da imagem, os volumes, o mouse
+  settings/settings.ts     configurações no localStorage (useSettings / setSettings): a qualidade da imagem (o nível e os
+                           ajustes de cada recurso), os volumes, o mouse
   audio/musica.ts          a trilha: useMusica('menu') toca public/musica/<nome>.mp3 em laço, com o volume das configurações
   audio/sintese.ts         os efeitos sintetizados na hora (do laboratório, sem arquivos): ruído, tom, estalos, a voz com
                            vogais, o grito, o sussurro; liga no primeiro clique; o volume é Geral × Efeitos
@@ -89,7 +90,7 @@ src/
                            provas.ir(x, z, yaw) leva o agente a um ponto no Testar (dev/ganchos.ts), provas.qualidade() diz o nível,
                            provas.sombras() conta as lâmpadas com sombra, provas.cena() dá a cena do Testar para inspecionar
   audio/espaco.ts          o som 3D: a voz sai da boca do personagem, no mundo; o ouvido é a câmera (ouvinte, a cada quadro)
-  render/                  qualidade.ts (os níveis Baixo, Médio e Alto e o automático por aparelho), passeFinal.ts (a passada de
+  render/                  qualidade.ts (os níveis Baixo, Médio, Alto e Ultra, os recursos ajustáveis um a um e o automático), passeFinal.ts (a passada de
                            tela cheia do Médio e do Alto: bloom, tonemapping, correção de cor, vinheta), contorno.ts (o contorno de luz
                            dos personagens), brilho.ts (os blocos "luz_" mais fortes que o branco quando o bloom está ligado),
                            assada.ts (o cenário e os objetos usam a luz assada: todas as lâmpadas no Baixo; no Médio e no Alto, as que não fazem

@@ -30,6 +30,18 @@ button { font: inherit; color: inherit; }
 .form .opcoes button[aria-pressed='true'] { border-color: var(--lamp); color: var(--amber); }
 .form input[type='range'] { width: 100%; accent-color: var(--lamp); }
 .form .valor { font-size: 12px; color: var(--muted); }
+/* as configurações cresceram: a tela rola, e os ajustes de cada recurso ficam em grupos que ocupam a largura toda */
+.tela.rolavel { justify-content: flex-start; overflow-y: auto; padding: 36px 0 48px; }
+.form .nota-form { font-size: 12px; color: var(--muted); line-height: 1.5; max-width: 560px; }
+.form .nota-form .link { background: none; border: 0; padding: 0; color: var(--amber); text-decoration: underline; cursor: pointer; }
+.form .grupo-form { grid-column: 1 / 3; display: flex; flex-direction: column; gap: 6px; padding: 10px 0 4px; border-top: 1px solid var(--line); }
+.form .grupo-form h3 { margin: 0 0 2px; font-family: var(--display); font-weight: 400; font-size: 22px; letter-spacing: .06em; color: var(--cream); }
+.form .linha-form { display: grid; grid-template-columns: 190px 1fr; gap: 12px; align-items: center; }
+.form .linha-form > span { font-size: 13px; color: var(--fg); }
+.form .linha-form > span.mudado { color: var(--amber); }
+.form .linha-form > span.mudado::after { content: ' •'; }
+.form .linha-form .opcoes button { padding: 4px 10px; font-size: 12px; }
+.form .opcoes button:disabled { opacity: .35; cursor: not-allowed; }
 
 
 /* criador de mapas: o conceito B, "Arquivo C.R.O.S." — latão, âmbar e VT323, a mesma cara do HUD do jogo.

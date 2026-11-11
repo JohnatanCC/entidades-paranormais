@@ -3,7 +3,7 @@
 // em maps/textures.ts diz o nome e o uso de cada uma). As malhas têm as coordenadas de textura em metros: um bloco por metro.
 // De perto o pixel fica duro (NearestFilter); de longe usa as versões reduzidas, senão o desenho "formiga" com a câmera.
 import * as THREE from 'three'
-import { TEXTURAS } from '../maps/textures'
+import { BRILHO_PADRAO, TEXTURAS } from '../maps/textures'
 import { aplicarAssada } from './assada'
 import { aplicarCorte } from './corte'
 
@@ -26,7 +26,7 @@ export function texturaDe(nome: string): THREE.Texture | null {
     const url = urlDe(nome)
     if (!url || !TEXTURAS[nome]) return null
     t = carregador.load(url)
-    t.magFilter = THREE.NearestFilter; t.minFilter = THREE.LinearMipmapLinearFilter; t.generateMipmaps = true; t.anisotropy = 4
+    t.magFilter = THREE.NearestFilter; t.minFilter = THREE.LinearMipmapLinearFilter; t.generateMipmaps = true; t.anisotropy = filtroAtual
     t.colorSpace = THREE.SRGBColorSpace
     t.wrapS = t.wrapT = THREE.RepeatWrapping
     texturas.set(nome, t)
@@ -43,12 +43,24 @@ export function materialDe(nome: string, corte = false): THREE.MeshStandardMater
     const cor = CORES[nome], map = cor ? null : texturaDe(nome)
     // vertexColors: a sombra de canto que a malha do mapa traz em cada vértice (editor/wallMesh.ts)
     // e a luz assada das lâmpadas, que o Baixo e o Médio usam no lugar das de verdade (render/assada.ts)
-    m = aplicarAssada(new THREE.MeshStandardMaterial({ map, color: cor ?? (map ? '#ffffff' : '#ff00ff'), roughness: 0.92, vertexColors: true }))
+    // o brilho da textura (o catálogo diz): quanto mais brilho, menos áspera a superfície e mais nítido o reflexo da luz
+    const def = TEXTURAS[nome]
+    m = aplicarAssada(new THREE.MeshStandardMaterial({ map, color: cor ?? (map ? '#ffffff' : '#ff00ff'), roughness: asperezaDe(nome), metalness: def?.metal ? 0.6 : 0, vertexColors: true }))
     if (corte) aplicarCorte(m)
     materiais.set(chave, m)
   }
   return m
 }
+
+/** As texturas no nível de qualidade: brilho = os materiais refletem a luz conforme o catálogo (sem ele, tudo quase
+ *  fosco); filtro = a nitidez das texturas vistas de lado. Vale para os materiais já criados e para os próximos. */
+let comBrilho = true, filtroAtual = 4
+export function ajustarMateriais(brilho: boolean, filtro: number) {
+  comBrilho = brilho; filtroAtual = filtro
+  for (const [chave, m] of materiais) m.roughness = asperezaDe(chave.split('|')[0])
+  for (const t of texturas.values()) if (t.anisotropy !== filtro) { t.anisotropy = filtro; t.needsUpdate = true }
+}
+const asperezaDe = (nome: string) => 1 - 0.8 * (comBrilho ? TEXTURAS[nome]?.brilho ?? BRILHO_PADRAO : BRILHO_PADRAO)
 
 /** A imagem do bloco para os botões da paleta (o próprio PNG). */
 export const amostraDe = (nome: string): string => urlDe(nome) ?? ''

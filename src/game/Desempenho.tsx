@@ -9,7 +9,7 @@ import { useEffect, useRef } from 'react'
 import { useFrame, useThree } from '@react-three/fiber'
 import * as THREE from 'three'
 import { ASSADA } from '../render/assada'
-import { NIVEIS, nivelAtual } from '../render/qualidade'
+import { NIVEIS, nivelAtual, personalizado } from '../render/qualidade'
 import { contarSombras } from '../render/sombras'
 import { getSettings } from '../settings/settings'
 
@@ -55,7 +55,7 @@ export function Desempenho({ onTexto }: { onTexto: (texto: string) => void }) {
       linhas.push(
         `quadro ${ms(media)} ms · pior ${ms(pior)} ms (últimos ${M.n})`,
         `processador mandando desenhar: ${ms(cpu / M.n)} ms`,
-        `nível ${NIVEIS[nivel].nome}${getSettings().qualidade === 'auto' ? ' (automático)' : ''} · ${M.tam.x} × ${M.tam.y} px`,
+        `nível ${NIVEIS[nivel].nome}${getSettings().qualidade === 'auto' ? ' (automático)' : ''}${personalizado() ? ' com ajustes' : ''} · ${M.tam.x} × ${M.tam.y} px`,
         `desenhos ${desenhos} · triângulos ${mil(triangulos)}`,
         `na placa: ${I.memory.geometries} geometrias · ${I.memory.textures} texturas · ${I.programs?.length ?? 0} programas`,
         `lâmpadas ${S.lampadas} (${S.comSombra} com sombra) · no cenário: ${LUZES[ASSADA.modo]}`,

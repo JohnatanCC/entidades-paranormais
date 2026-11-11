@@ -58,17 +58,18 @@ export interface PasseFinal {
   descartar: () => void
 }
 
-export function novoPasseFinal(amostras: number, bloom: Bloom): PasseFinal {
+/** bloom = null: sem bloom (só a correção de cor). */
+export function novoPasseFinal(amostras: number, bloom: Bloom | null): PasseFinal {
   const textura = (extra?: THREE.RenderTargetOptions) => new THREE.WebGLRenderTarget(4, 4, { type: THREE.HalfFloatType, minFilter: THREE.LinearFilter, magFilter: THREE.LinearFilter, ...extra })
   const alvo = textura({ samples: amostras })
-  const niveis = Array.from({ length: bloom.niveis }, () => textura({ depthBuffer: false }))
+  const niveis = Array.from({ length: bloom?.niveis ?? 0 }, () => textura({ depthBuffer: false })), de = bloom?.de ?? 1
   const material = (frag: string, uniforms: Record<string, THREE.IUniform>, soma = false) => new THREE.ShaderMaterial({
     uniforms, depthTest: false, depthWrite: false, toneMapped: false, vertexShader: VERT, fragmentShader: frag,
     ...(soma ? { transparent: true, blending: THREE.AdditiveBlending } : {}) })
   const uR = { tFonte: { value: alvo.texture }, uPx: { value: new THREE.Vector2() }, uPrimeira: { value: 0 } }
   const uA = { tFonte: { value: alvo.texture }, uPx: { value: new THREE.Vector2() } }
   const u = {
-    tCena: { value: alvo.texture }, tBloom: { value: niveis[0].texture }, uExp: { value: 1 }, uBrilho: { value: 0 }, uContraste: { value: 1 }, uSat: { value: 1 },
+    tCena: { value: alvo.texture }, tBloom: { value: (niveis[0] ?? alvo).texture }, uExp: { value: 1 }, uBrilho: { value: 0 }, uContraste: { value: 1 }, uSat: { value: 1 },
     uVig: { value: 0 }, uT: { value: 0 }, uAspecto: { value: 1 }, uSombras: { value: new THREE.Color() }, uLuzes: { value: new THREE.Color() },
   }
   const reduzir = material(REDUZIR, uR), ampliar = material(AMPLIAR, uA, true), final = material(FINAL, u)
@@ -84,7 +85,7 @@ export function novoPasseFinal(amostras: number, bloom: Bloom): PasseFinal {
       gl.getDrawingBufferSize(tam)
       if (alvo.width !== tam.x || alvo.height !== tam.y) {
         alvo.setSize(tam.x, tam.y)
-        niveis.forEach((n, i) => n.setSize(Math.max(2, Math.round(tam.x / (bloom.de << i))), Math.max(2, Math.round(tam.y / (bloom.de << i)))))
+        niveis.forEach((n, i) => n.setSize(Math.max(2, Math.round(tam.x / (de << i))), Math.max(2, Math.round(tam.y / (de << i)))))
       }
       gl.setRenderTarget(alvo); gl.render(cena, camera)
       // o bloom: reduz do maior para o menor (a primeira redução escolhe o que brilha)...
@@ -105,7 +106,7 @@ export function novoPasseFinal(amostras: number, bloom: Bloom): PasseFinal {
       // a passada final, na tela
       tela.material = final
       u.uExp.value = tom.exposicao; u.uContraste.value = tom.contraste; u.uSat.value = tom.saturacao; u.uVig.value = tom.vinheta
-      u.uBrilho.value = tom.brilho / niveis.length // a soma dos níveis não cresce com a quantidade deles
+      u.uBrilho.value = niveis.length ? tom.brilho / niveis.length : 0 // a soma dos níveis não cresce com a quantidade deles
       // as cores do tom são contas em cima da imagem pronta (sRGB): entram como foram escritas, sem virar "luz"
       tom.sombras.getRGB(u.uSombras.value, THREE.SRGBColorSpace); tom.luzes.getRGB(u.uLuzes.value, THREE.SRGBColorSpace)
       u.uT.value = t; u.uAspecto.value = tam.x / tam.y

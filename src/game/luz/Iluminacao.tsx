@@ -18,7 +18,8 @@ import { ASSADA, luzAssada, piscaEm } from '../../render/assada'
 import { BRILHO, FORCA_COM_BLOOM } from '../../render/brilho'
 import { CONTORNO } from '../../render/contorno'
 import { novoPasseFinal, type Bloom, type PasseFinal } from '../../render/passeFinal'
-import { MEDICAO, NIVEIS, descerNivel, useNivel } from '../../render/qualidade'
+import { ajustarMateriais } from '../../render/materiais'
+import { MEDICAO, descerNivel, useDefinicao } from '../../render/qualidade'
 import { descartarCeu, novoCeu } from './ceu'
 import { escolherSombras, refazerSombras, semSombras } from '../../render/sombras'
 import { ambienteEm, novaLuzViva, passoLuz, type Luz } from './luz'
@@ -36,7 +37,7 @@ const LONGE = 45 // a que distância do agente a lua "fica" para fazer a sombra 
 
 export function Iluminacao({ ambiente, areas = SEM_AREAS, em, semCeu }: Props) {
   const gl = useThree((s) => s.gl), scene = useThree((s) => s.scene)
-  const N = NIVEIS[useNivel()]
+  const N = useDefinicao()
   const lugar = () => (em ? ambienteEm(ambiente, areas, em.x, em.y, em.z) : ambienteDe(ambiente))
   const c = useMemo(() => {
     const viva = novaLuzViva(lugar())
@@ -58,6 +59,9 @@ export function Iluminacao({ ambiente, areas = SEM_AREAS, em, semCeu }: Props) {
     }
   }, [gl, scene, c])
   useEffect(() => () => { if (c.cupula) descartarCeu(c.cupula) }, [c])
+
+  // as texturas do nível: o reflexo dos materiais e a nitidez ao longe (ao sair, voltam a ser as do editor)
+  useEffect(() => { ajustarMateriais(N.recursos.brilho, N.recursos.filtro); return () => ajustarMateriais(true, 4) }, [N.recursos.brilho, N.recursos.filtro])
 
   // o desenho do luar das janelas é mais sutil no jogo
   useEffect(() => { forcaDoLuar(LUAR_NO_JOGO); return () => forcaDoLuar(1) }, [])
@@ -119,11 +123,11 @@ export function Iluminacao({ ambiente, areas = SEM_AREAS, em, semCeu }: Props) {
 }
 
 /** O passe final (Médio e Alto): assume o desenho da cena enquanto está montado. */
-function Passe({ amostras, bloom, luz }: { amostras: number; bloom: Bloom; luz: Luz }) {
+function Passe({ amostras, bloom, luz }: { amostras: number; bloom: Bloom | null; luz: Luz }) {
   const passe = useMemo<PasseFinal>(() => novoPasseFinal(amostras, bloom), [amostras, bloom])
   useEffect(() => () => passe.descartar(), [passe])
   // com o bloom, o que acende sozinho (as lâmpadas, os olhos) passa do branco: é o que faz o halo
-  useEffect(() => { BRILHO.value = FORCA_COM_BLOOM; return () => { BRILHO.value = 1 } }, [])
+  useEffect(() => { BRILHO.value = bloom ? FORCA_COM_BLOOM : 1; return () => { BRILHO.value = 1 } }, [bloom])
   useFrame(({ gl, scene, camera, clock }) => passe.desenhar(gl, scene, camera, luz, clock.elapsedTime), 1)
   return null
 }

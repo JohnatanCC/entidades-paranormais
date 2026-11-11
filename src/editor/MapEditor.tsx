@@ -18,7 +18,7 @@ import { OBJETOS } from '../maps/objetos'
 import { CORTE, setModoParedes, type ModoParedes } from '../render/corte'
 import { Testar } from '../game/Testar'
 import { Desempenho } from '../game/Desempenho'
-import { canvasDoNivel, useNivel } from '../render/qualidade'
+import { canvasDoNivel, useDefinicao } from '../render/qualidade'
 import type { PortasVivas } from '../game/world/portas'
 import { ICONES } from './Icones'
 import { GavetaAberturas, GavetaObjetos, GavetaPincel, GavetaPiso } from './Gaveta'
@@ -106,7 +106,7 @@ export function MapEditor({ go }: { go: Go }) {
   const setModo = (m: ModoParedes) => { setModoState(m); try { localStorage.setItem(CHAVE_MODO, m) } catch { /* vale só agora */ } }
   // o Testar: o agente andando no mapa (paredes sempre altas enquanto joga)
   const [testando, setTestando] = useState<{ inicio: [number, number, number]; yaw: number } | null>(null)
-  const nivel = useNivel()
+  const definicao = useDefinicao()
   const [travado, setTravado] = useState(false)
   const [dicaTeste, setDicaTeste] = useState<string | null>(null)
   const [mirando, setMirando] = useState(false)
@@ -409,7 +409,7 @@ export function MapEditor({ go }: { go: Go }) {
 
       <div className="vista">
         {/* no Testar, a resolução e as sombras são as do nível de qualidade */}
-        <Canvas camera={{ position: [10, 12, 10], fov: 50 }} {...(testando ? canvasDoNivel(nivel) : SEM_NIVEL)}>
+        <Canvas camera={{ position: [10, 12, 10], fov: 50 }} {...(testando ? canvasDoNivel(definicao) : SEM_NIVEL)}>
           <color attach="background" args={['#0b0c0f']} />
           {/* luz de trabalho: clara e sem sombra, para ver as texturas; cada lado da parede pega um tom diferente */}
           {!testando && <>
