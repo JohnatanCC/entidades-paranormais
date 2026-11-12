@@ -117,7 +117,8 @@ rouparia–banheiro, corredor–banheiro, corredor–escada de serviço, corredo
 
 ## Os outros fantasmas e as salas seguras (sugestão, decidir na etapa dos fantasmas)
 
-- **Glutão:** a sala de jantar e a cozinha. **Espectral:** os corredores. O tiro faz barulho e chama a Mãe: lutar ou evitar.
+- **Os Sombrios** (`docs/demonios.md`): o Assombrado e a Asa sombria nos corredores e nos cômodos; o Devora almas numa
+  sala grande, a arena dele. O tiro faz barulho e chama a Mãe: lutar ou evitar. (O Glutão é da Intro.)
 - **Salas seguras candidatas:** o quarto dos criados (térreo) e o quarto de hóspedes (em cima).
 
 ## A história no cenário

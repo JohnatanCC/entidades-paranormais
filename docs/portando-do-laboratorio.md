@@ -11,7 +11,7 @@ O laboratório é só referência: nada no projeto importa de `reference/`.
 | `00-estilos-da-pagina.css` | Paleta, fontes, HUD, legendas, roda de armas, telas | 5–195 |
 | `01-som.js` | Sons sintetizados (WebAudio): passos, tiros, fantasmas, vozes (`SFX.voice`), músicas de tensão e do Glutão. **Já portado (10/nov):** as peças (`src/audio/sintese.ts`), o som 3D da Mãe (`src/audio/espaco.ts`), a voz dela (`src/game/enemies/mae/sons.ts`) e, em 11/nov, o corpo e o Luto (`ruidos.ts`) | 478–2246 |
 | `02-visual-materiais-geometria.js` | Materiais (`mk`), texturas procedurais em canvas, geometrias e utilidades de cena | 2247–2763 |
-| `03-espectral-glutao.js` | Os modelos e a animação do Espectral e do Glutão (escala `S.sc`, `AR.hold`) | 5957–6872 |
+| `03-espectral-glutao.js` | Os modelos e a animação do Espectral e do Glutão (escala `S.sc`, `AR.hold`). **O Espectral não vem** (saiu em 12/nov; no lugar dele, os Sombrios: `docs/demonios.md`); o Glutão, sim | 5957–6872 |
 | `04-numeros-da-luta.js` | A tabela `T` (agente, kits, armas) | 7666–7692 |
 | `05-agente-armas-controle-camera.js` | O agente (modelo, cabeça, cabelo com física), as armas, IK dos braços, entrada, câmera por cima do ombro, controle, roda de armas, animação (`animAgent`), efeitos, a armadilha | 8413–9622 |
 | `06-hud.js` | O HUD conceito C (`dh-vg`, `dh-kb`, `dh-wg`, `WICON`, `hudGauges`), legendas `SUBS`, avisos | 10178–10547 |
@@ -28,9 +28,9 @@ Os únicos sons em arquivo; o resto o laboratório sintetiza na hora. A tabela `
 | Arquivo | Uso | Volume |
 | --- | --- | --- |
 | `amb_casa.mp3` | ambiente da casa | 0,6 |
-| `tensao.mp3` | tensão (Espectrais por perto) | 0,55 |
+| `tensao.mp3` | tensão (inimigos por perto) | 0,55 |
 | `batalha_mae.mp3` | a luta da Mãe | 0,62 |
-| `batalha_espectral.mp3` | a luta dos Espectrais e do Glutão; o laço vai de 0,39 s a 121,2 s | 0,62 |
+| `batalha_espectral.mp3` | a luta do Glutão (e, no laboratório, dos Espectrais); o laço vai de 0,39 s a 121,2 s | 0,62 |
 
 No jogo elas vão para `public/musica/` e são chamadas por nome, como as texturas.
 

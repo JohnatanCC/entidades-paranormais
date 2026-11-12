@@ -14,7 +14,7 @@ import { novoClarao } from '../weapons/clarao'
 import { TIRO } from '../weapons/numeros'
 
 export type Arma = 'pistola' | 'escopeta' | 'armadilha'
-export const ARMAS: [Arma, string][] = [['pistola', 'Pistola de Demantino'], ['escopeta', 'Escopeta de sal grosso'], ['armadilha', 'Armadilha']]
+export const ARMAS: [Arma, string][] = [['pistola', 'Pistola de plasma'], ['escopeta', 'Escopeta de Demantino'], ['armadilha', 'Armadilha']]
 /** A pose da mão que segura cada uma: pistola e escopeta com o indicador fora do gatilho. */
 export const POSE_DA_ARMA: Record<Arma, PoseMao> = { pistola: 'guarda', escopeta: 'guarda', armadilha: 'segurar' }
 

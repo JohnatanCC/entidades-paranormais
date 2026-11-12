@@ -12,6 +12,19 @@ a tiro e os prende com a armadilha. Cenário e personagens em blocos com textura
 - **Mais tarde:** versão para celular, e talvez vender ou publicar de graça.
 - **A base é o laboratório v130** (`reference/laboratorio.html`, o mesmo de https://claude.ai/artifact/BDUaLP6DmvqwsBXhkdJdYw).
 
+## A história: o portal (12/nov)
+
+Vale sobre `docs/design/historia.md` onde discordarem; os detalhes ainda vão ser pensados.
+
+- **A mansão é um portal para o submundo.** Nela há uma ruptura na realidade, que está crescendo. Uma ruptura abre onde
+  houve muitas mortes trágicas, desespero, dor e trauma: o Palacete Monteval e o que a família viveu em 1930.
+- **A C.R.O.S. envia três agentes**, o Matheus, a Lara e o Nicolas, com uma ferramenta que repara essas rachaduras. A
+  ruptura aumenta e suga os três, e cada um cai num lugar diferente da **mansão do submundo**, uma versão distorcida da casa.
+- **Só o Matheus é jogável** (por enquanto). Ele procura a saída e os outros dois e captura os fantasmas, que **fortalecem
+  o portal e a mansão**: a cada chefe capturado a mansão muda (ver "Capítulos" acima).
+- **Fantasmas e demônios:** os fantasmas foram gente (a família Monteval) e são os chefes, capturados. Os demônios são
+  do submundo, os **Sombrios** (`docs/demonios.md`): os inimigos comuns e o mini-chefe, só destruídos.
+
 ## A identidade visual (10/nov)
 
 - **Blocos com textura pintada em pixel**: o cenário com 32 px por metro, os personagens com 64 (o rosto com 128), para
@@ -20,8 +33,8 @@ a tiro e os prende com a armadilha. Cenário e personagens em blocos com textura
 - **Proporções quase realistas** (cabeça só um pouco maior, mãos normais): o estilo em blocos puxa para o "fofo", e o
   terror compensa com a **ambientação mais tensa**: pouca luz, sombras, sons.
 - **Fantasmas com formas erradas:** a Mãe alta demais (2,26 m: maior que uma porta), braços longos, cabelo em mechas finas, sem véu, olhos brancos
-  de cega, a cabeça virando sem suavizar; o Espectral translúcido, se desfazendo em cubos embaixo; o Glutão inchado,
-  com a boca rasgando o tronco. Olhos que brilham no escuro.
+  de cega, a cabeça virando sem suavizar; o Glutão inchado, com a boca rasgando o tronco; os Sombrios, de matéria
+  escura com capuz vermelho, pingando em cubos (`docs/demonios.md`). Olhos que brilham no escuro.
 - **Animação:** partes rígidas que giram nas juntas (como no laboratório), feita em código, ligada às ações do jogo.
   Os dedos fecham por poses (solta, punho, aberta, segurar, guarda com o indicador fora do gatilho, apontar) e o rosto tem expressões (neutra, esforço, medo,
   dor, raiva, surpresa), com piscar e o olhar passeando; as mechas do cabelo balançam com física simples (a gravidade
@@ -148,12 +161,23 @@ não colidem com ele, e só "lutam" nas cutscenes. Usam a mesma animação de an
 | Invulnerável depois de dano | 0,9 s |
 | Kit médico (F) | cura 60. **A cada 1:30 nasce 1 kit, mas só se você estiver com 0.** Na Intro: +1 kit por onda limpa, +2 na enfermaria, e ao morrer volta com 5 |
 
-## As armas (munição infinita; o limite é a sobrecarga)
+## As armas
 
-| Arma | Atalho | Tiro | Dano | Sobrecarga | Trava |
-| --- | --- | --- | --- | --- | --- |
-| Pistola de Demantino (ferro extraído de objetos amaldiçoados) | 1 | a cada 0,2 s, bala a 40 m/s | 3 | +3% por tiro | 5 s |
-| Escopeta de sal grosso | 2 | a cada 1 s, 5 bagos em leque 0,065, 46 m/s | 5 × 10 | +30% por tiro | 8 s |
+Mudado em 12/nov: a pistola nunca acaba, mas esquenta; a escopeta é forte, mas a munição é contada. O jogador decide
+quando gastar um cartucho, e a pistola cobre o resto sem deixá-lo parado.
+
+| Arma | Atalho | Tiro | Dano | Limite |
+| --- | --- | --- | --- | --- |
+| Pistola de plasma | 1 | a cada 0,2 s, bala a 40 m/s | 3 | **sobrecarga**: +3% por tiro; cheia, trava por 5 s. Munição infinita |
+| Escopeta de Demantino (o ferro extraído dos objetos amaldiçoados) | 2 | a cada 1 s, 5 bagos em leque 0,065, 46 m/s | 5 × 10 | **balas**: 4 no cano, recarga de 2,5 s por bala. Sem sobrecarga |
+
+**A munição da escopeta (12/nov): infinita por enquanto**, para testar. Mais tarde, as balas são **fabricadas** com o que
+se junta dos objetos destruídos e dos demônios mortos, num sistema de fabricação de munição e de aprimoramento (para
+depois: é grande, mexe no HUD, num menu novo e no que cada inimigo solta; desenhar antes de construir).
+
+**Em aberto (decidir na etapa das armas):** se a recarga, bala por bala, pode ser interrompida pelo tiro;
+os 2,5 s por bala (10 s para as 4) no teste; a cor do clarão e do tiro de plasma; o vidro da "câmara de sal" no modelo
+da escopeta (o gesto de parado virou "conferir os cartuchos") e os cartuchos de sal do traje, que viram de Demantino.
 | Armadilha | 3 | jogada (mira com o botão direito) | — | — | — |
 | Kit médico | F | — | cura 60 | — | — |
 
@@ -220,9 +244,9 @@ de morte. Feita em 10/nov (`src/game/player/queda.ts`, os tempos em `numeros.ts`
 
 Os fantasmas são de dois tipos:
 
-- **Menores: o Espectral e os demônios** (nenhum demônio desenhado ainda). Com a vida zerada, **são destruídos**: estouram
-  num respingo de ectoplasma, sem corpo nem ossos, e deixam uma mancha no chão que seca em poucos segundos. É um efeito,
-  não uma animação de morte. Não há o que capturar.
+- **Menores: os demônios, os Sombrios** (`docs/demonios.md`: o Assombrado, a Asa sombria e o mini-chefe Devora almas).
+  Com a vida zerada, **são destruídos**: estouram num respingo de matéria escura, sem corpo nem ossos, e deixam uma
+  mancha no chão que seca em poucos segundos. É um efeito, não uma animação de morte. Não há o que capturar.
 - **Maiores: o Glutão, a Mãe e os que vierem** (os chefes e os únicos). Esses **precisam ser capturados**:
   - com a vida zerada, o fantasma **se desfaz numa poça de ectoplasma** com um anel que mostra o tempo;
   - em cima da poça aparece o **ícone da armadilha** (ensina o que fazer);
@@ -231,16 +255,19 @@ Os fantasmas são de dois tipos:
   - a Mãe tem a regra dela: as quatro barras e a armadilha na hora em que fica enfraquecida (ver abaixo).
 - Não existe animação de morte: o menor estoura, o maior vira poça e some na captura.
 
-## Os fantasmas da demo
+## O Glutão (chefe da Intro)
 
-| | Espectral | Glutão (chefe da Intro) |
-| --- | --- | --- |
-| Vida | 60 | 400 (escala 1,6×) |
-| Ataque | mordida 30 (22 na Intro), bote a 3,4 m/s | pancada 35, investida 30, cospe Espectrais (primeiro aos 10 s, depois a cada 14 s) |
-| Especial | só um ataca por vez (um "token" de ataque) | só o **núcleo** leva dano cheio; com pouca vida **devora** um Espectral e cura **10% da vida máxima** (espera 20 s entre devoradas); Lara e Nicolas aparecem encolhidos dentro da barriga |
-| Vida zerada | destruído (estoura em ectoplasma) | poça, 10 s; capturado, solta Lara e Nicolas no chão |
+O Espectral do laboratório **saiu do projeto** (12/nov): no lugar dele entraram os Sombrios. O Glutão cuspia Espectrais
+e devorava um para se curar; o que ele cospe agora (proposta: Assombrados) entra na Intro reformulada (para depois).
 
-Os Espectrais são esqueléticos, de manto. O Glutão é gordo, esquelético e deformado, com núcleo brilhante na barriga.
+| | Glutão |
+| --- | --- |
+| Vida | 400 (escala 1,6×) |
+| Ataque | pancada 35, investida 30, cospe os menores (primeiro aos 10 s, depois a cada 14 s) |
+| Especial | só o **núcleo** leva dano cheio; com pouca vida **devora** um dos menores e cura **10% da vida máxima** (espera 20 s entre devoradas); Lara e Nicolas aparecem encolhidos dentro da barriga |
+| Vida zerada | poça, 10 s; capturado, solta Lara e Nicolas no chão |
+
+O Glutão é gordo, esquelético e deformado, com núcleo brilhante na barriga.
 
 ## A Mãe (chefe, a luta do berçário)
 
@@ -401,9 +428,12 @@ Elevador → eclusa → corredor 1 → **escritório** (cutscene na visão da La
 Detalhes completos: `docs/design/intro.md`. Código: `reference/lab/08-intro.js`.
 
 Com a regra de destruir ou capturar (10/nov), a Intro muda assim (vale sobre o `docs/design/intro.md`):
-- as ondas do refeitório terminam com os Espectrais **destruídos**, não capturados;
+- as ondas do refeitório terminam com os menores **destruídos**, não capturados;
 - o **tutorial da armadilha passa para a usina**: o aviso aparece na primeira poça do Glutão;
-- os Espectrais que o Glutão cospe são destruídos a tiro, e destruir antes que ele os devore continua impedindo a cura.
+- os menores que o Glutão cospe são destruídos a tiro, e destruir antes que ele os devore continua impedindo a cura.
+
+**A Intro vai ser reformulada** (12/nov, para depois): sem o Espectral, ela perdeu os inimigos das ondas e os que o
+Glutão cospe. O que está acima é como ela foi feita no laboratório.
 
 ## Fica de fora (não trazer do laboratório)
 

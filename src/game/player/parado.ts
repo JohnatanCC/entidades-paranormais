@@ -14,7 +14,7 @@ export type Gesto = 'olhar' | 'alca' | 'bolsa' | 'mao' | 'frasco' | 'pulso' | 'r
 const NOMES: Record<Gesto, string> = {
   olhar: 'Olhar em volta', alca: 'Ajustar a alça', bolsa: 'Conferir a bolsa', mao: 'Abrir e fechar a mão',
   frasco: 'Conferir o frasco', pulso: 'Girar o pulso', rosto: 'Levantar até o rosto', girar: 'Girar a lanterna',
-  camara: 'Conferir a câmara de sal', bomba: 'Puxar a bomba',
+  camara: 'Conferir os cartuchos', bomba: 'Puxar a bomba',
 }
 // os gestos de cada estado
 const DO_ESTADO: Record<Arma | 'nenhuma', Gesto[]> = {
@@ -185,7 +185,7 @@ const GESTO: Record<Gesto, DefGesto> = {
       return [undefined, undefined]
     },
   },
-  // tira a escopeta do ombro e traz deitada na frente do peito, de lado, com o vidro da câmara de sal virado para os
+  // tira a escopeta do ombro e traz deitada na frente do peito, de lado, com o vidro da câmara virado para os
   // olhos; a mão esquerda segura embaixo, na bomba; ele confere os cartuchos e devolve
   camara: {
     dur: 4.0,

@@ -1,6 +1,7 @@
 // As provas: conferir animações e sons pelo console do navegador, sem montar tudo à mão (só no npm run dev; o jogo
 // publicado não leva isto). main.tsx põe em window.provas. Recarregue a página antes (o HMR deixa módulos velhos).
 //   const c = await provas.mae('grito', 1.1)                 a Mãe num instante (null = parada; estado = EstadoMae)
+//   const s = await provas.assombrado('atacar', 0.6, 0)      o Assombrado num instante ('atacar', 'dano' ou null; andar m/s)
 //   await provas.fotos([['grito', c, 'lado'], ['rosto', c, 'rosto']])   as fotos num quadro por cima da tela
 //   provas.limpar()                                          tira o quadro
 //   provas.medidas(c)                                        mãos, cabeça, quadril; o ângulo de cada mecha
@@ -26,8 +27,11 @@ import { contarSombras } from '../render/sombras'
 import { montarAgente, type Agente, type ModeloAgente } from '../game/player/modelo'
 import { animarAgente } from '../game/player/animacao'
 import { pegarArma, type Arma } from '../game/player/arma'
+import { montarAssombrado } from '../game/enemies/assombrado/modelo'
+import { animarAssombrado, atacar, ferir } from '../game/enemies/assombrado/animacao'
 
-export interface Cena { m: Mae; sc: THREE.Scene }
+/** m: a Mãe (as cenas do Assombrado não têm) */
+export interface Cena { m: Mae | null; sc: THREE.Scene }
 type Camera = 'frente' | 'lado' | 'tras' | '34' | 'agente' | 'rosto' | { de: number[]; alvo: number[]; fov?: number }
 
 /** A Mãe num instante: assenta na parada, começa o golpe (dur encurta) e anima até `ate` s, num cenário com chão. */
@@ -46,13 +50,31 @@ async function mae(golpe: NomeGolpe | null, ate: number, estado: EstadoMae & { d
   return { m, sc }
 }
 
+/** O Assombrado num instante: assenta parado, começa a ação (atacar; dano vindo da frente) e anima até `ate` s;
+ *  andar = m/s (ele pula para a frente, +z). */
+async function assombrado(acao: 'atacar' | 'dano' | null, ate: number, andar = 0): Promise<Cena> {
+  const a = montarAssombrado(), sc = new THREE.Scene()
+  sc.background = new THREE.Color('#1c1a1e')
+  sc.add(new THREE.HemisphereLight('#ffffff', '#4a4640', 1))
+  const d = new THREE.DirectionalLight('#ffffff', 1.3); d.position.set(1, 3, 3); sc.add(d)
+  sc.add(new THREE.Mesh(new THREE.PlaneGeometry(6, 6).rotateX(-Math.PI / 2), new THREE.MeshStandardMaterial({ color: '#333' })))
+  sc.add(a.root)
+  a.anim.balanco.prox = 99 // sem empurrões sorteados: a foto sai igual
+  for (let i = 0; i < 40; i++) animarAssombrado(a, {}, 1 / 60)
+  if (acao === 'atacar') atacar(a); else if (acao === 'dano') ferir(a, 0)
+  for (let t = 0; t < ate; t += 1 / 60) a.root.position.z += animarAssombrado(a, { andar }, 1 / 60).avanca / 60
+  a.root.updateMatrixWorld(true)
+  await new Promise((ok) => setTimeout(ok, 600))
+  return { m: null, sc }
+}
+
 function camera(c: Cena, k: Camera) {
   const cam = new THREE.PerspectiveCamera(typeof k === 'object' ? (k.fov ?? 35) : 35, 1, 0.02, 80)
-  if (typeof k === 'object') { cam.position.fromArray(k.de); cam.lookAt(new THREE.Vector3().fromArray(k.alvo)) } else if (k === 'rosto') {
+  if (typeof k === 'object') { cam.position.fromArray(k.de); cam.lookAt(new THREE.Vector3().fromArray(k.alvo)) } else if (k === 'rosto' && c.m) {
     const r = c.m.cabeca.localToWorld(new THREE.Vector3(0, 0.08, 0.1)), q = c.m.cabeca.getWorldQuaternion(new THREE.Quaternion())
     cam.position.copy(r).add(new THREE.Vector3(0.15, 0, 1).applyQuaternion(q).multiplyScalar(0.7)); cam.lookAt(r)
   } else {
-    const de = { frente: [0.3, 1.5, 3.6], lado: [3.6, 1.3, 0.3], tras: [0.4, 1.5, -3.6], '34': [2.4, 1.8, 2.6], agente: [0.3, 1.6, 3.2] }[k]
+    const de = { frente: [0.3, 1.5, 3.6], lado: [3.6, 1.3, 0.3], tras: [0.4, 1.5, -3.6], '34': [2.4, 1.8, 2.6], agente: [0.3, 1.6, 3.2], rosto: [0.3, 1.5, 3.6] }[k]
     cam.position.fromArray(de); cam.lookAt(0, k === 'agente' ? 1.5 : 1.1, 0.2)
   }
   return cam
@@ -79,6 +101,7 @@ const limpar = () => document.getElementById('provas')?.remove()
 
 /** Medidas de um instante: as mãos (a palma), a cabeça e o quadril (m), e o ângulo de cada mecha com a vertical (°). */
 function medidas(c: Cena) {
+  if (!c.m) return 'só da Mãe'
   const v = (o: THREE.Object3D, p = [0, 0, 0]) => o.localToWorld(new THREE.Vector3().fromArray(p)).toArray().map((x) => +x.toFixed(2))
   const mechas = c.m.cabelo.molas.map((s) => {
     const a = s.g.localToWorld(new THREE.Vector3()), b = s.g.localToWorld(new THREE.Vector3(0, -0.4, 0)).sub(a).normalize()
@@ -187,4 +210,4 @@ function ir(x: number, z: number, yaw: number, pitch?: number, andar?: number) {
   return 'ok'
 }
 
-export const provas = { mae, fotos, limpar, medidas, som: som_, ir, passo, escorrega, qualidade: nivelAtual, sombras: contarSombras, cena: () => ganchos.cena, gl: () => ganchos.gl }
+export const provas = { mae, assombrado, fotos, limpar, medidas, som: som_, ir, passo, escorrega, qualidade: nivelAtual, sombras: contarSombras, cena: () => ganchos.cena, gl: () => ganchos.gl }

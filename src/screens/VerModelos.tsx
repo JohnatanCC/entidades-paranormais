@@ -1,5 +1,5 @@
 // Ver modelos (Modo desenvolvedor): um modelo sozinho na tela, para olhar de perto e decidir o que melhorar.
-// Não edita nada: o Matheus vem de modelos/agente.bbmodel, a Lara, o Nicolas e o Victor de modelos/lara.bbmodel, nicolas.bbmodel e victor.bbmodel (o mesmo esqueleto), os fantasmas de modelos/fantasmas/<nome>.bbmodel (a Mãe), as armas de modelos/armas/<nome>.bbmodel e os objetos de
+// Não edita nada: o Matheus vem de modelos/agente.bbmodel, a Lara, o Nicolas e o Victor de modelos/lara.bbmodel, nicolas.bbmodel e victor.bbmodel (o mesmo esqueleto), os fantasmas de modelos/fantasmas/<nome>.bbmodel (a Mãe), os demônios de modelos/demonios/<nome>.bbmodel (o Assombrado: parado, andando, atacar, dano, estourar), as armas de modelos/armas/<nome>.bbmodel e os objetos de
 // modelos/objetos/<tipo>.bbmodel (salvar no
 // Blockbench atualiza aqui no npm run dev). A câmera gira em volta (botão esquerdo gira, direito move, rodinha aproxima).
 // Para o Matheus o painel troca a animação, a expressão, a pose das mãos, a arma na mão e o ângulo, faz os gestos de
@@ -34,6 +34,9 @@ import { pararSonsMae } from '../game/enemies/mae/sons'
 import { ouvinte } from '../audio/espaco'
 import { abertura3d } from '../render/objetos3d'
 import { Iluminacao } from '../game/luz/Iluminacao'
+import { montarAssombrado } from '../game/enemies/assombrado/modelo'
+import { animarAssombrado, atacar, estourarAssombrado, ferir, refazer } from '../game/enemies/assombrado/animacao'
+import { novoEstouro, passoEstouro } from '../game/enemies/estouro'
 
 type Anim = 'parado' | 'andando' | 'correndo' | 'esquiva' | 'queda' | 'porta'
 type Camera = 'corpo' | 'rosto' | 'maos' | 'pes' | 'costas'
@@ -45,6 +48,11 @@ const AGENTE_ID = 'agente'
 const ARMA = 'arma:' // o id de uma arma no seletor: arma:pistola
 const MAE = 'fantasma:mae'
 const ANIMS_MAE: [Anim, string][] = [['parado', 'Parada'], ['andando', 'Andando (em roda)'], ['porta', 'Passando pela porta']]
+// os demônios (docs/demonios.md): o id é o nome do arquivo em modelos/demonios/
+const ASSOMBRADO = 'demonio:assombrado'
+const ANIMS_DEMONIO: [Anim, string][] = [['parado', 'Parado'], ['andando', 'Andando (em roda)']]
+type AcaoDemonio = 'atacar' | 'dano' | 'estourar'
+const ACOES_DEMONIO: [AcaoDemonio, string][] = [['atacar', 'Atacar'], ['dano', 'Tomar dano'], ['estourar', 'Estourar']]
 // os ataques no Ver modelos: cada botão é uma sequência de golpes (contra um alvo marcado no chão)
 const ATAQUES: [string, string, NomeGolpe[]][] = [
   ['garra', 'Garra', ['garra_d']], ['garras', 'Duas garradas', ['garra_d', 'garra_ultima_e']], ['aproximar', 'Aproximar aos trancos', ['aproximar']],
@@ -67,7 +75,7 @@ const MAOS: [PoseMao | null, string][] = [[null, 'Automática'], ['solta', 'Solt
 const CAMERAS: [Camera, string][] = [['corpo', 'Corpo'], ['rosto', 'Rosto'], ['maos', 'Mãos'], ['pes', 'Pés'], ['costas', 'Costas']]
 const LUZES: [Luz, string][] = [['estudio', 'Estúdio'], ['jogo', 'Jogo (lâmpada no escuro)']]
 
-interface Escolhas { qual: string; anim: Anim; exp: Expressao | null; mao: PoseMao | null; arma: Arma | null; gesto: { g: Gesto; n: number } | null; mirando: boolean; tiros: number; golpes: number; ferido: boolean; ataque: { nome: string; n: number } | null; rostoMae: ExpressaoMae | null; fase4: boolean; caca: boolean; camera: Camera; luz: Luz; girar: boolean; grade: boolean }
+interface Escolhas { qual: string; anim: Anim; exp: Expressao | null; mao: PoseMao | null; arma: Arma | null; gesto: { g: Gesto; n: number } | null; mirando: boolean; tiros: number; golpes: number; ferido: boolean; ataque: { nome: string; n: number } | null; rostoMae: ExpressaoMae | null; fase4: boolean; caca: boolean; demonio: { acao: AcaoDemonio; n: number } | null; camera: Camera; luz: Luz; girar: boolean; grade: boolean }
 interface Info { linhas: string[] }
 
 function Opcoes<T>({ titulo, lista, valor, onEscolher }: { titulo: string; lista: [T, string][]; valor: T; onEscolher: (v: T) => void }) {
@@ -80,22 +88,23 @@ function Opcoes<T>({ titulo, lista, valor, onEscolher }: { titulo: string; lista
 }
 
 export function VerModelos({ go }: { go: Go }) {
-  const [e, setE] = useState<Escolhas>({ qual: AGENTE_ID, anim: 'parado', exp: null, mao: null, arma: null, gesto: null, mirando: false, tiros: 0, golpes: 0, ferido: false, ataque: null, rostoMae: null, fase4: false, caca: false, camera: 'corpo', luz: 'estudio', girar: false, grade: true })
+  const [e, setE] = useState<Escolhas>({ qual: AGENTE_ID, anim: 'parado', exp: null, mao: null, arma: null, gesto: null, mirando: false, tiros: 0, golpes: 0, ferido: false, ataque: null, rostoMae: null, fase4: false, caca: false, demonio: null, camera: 'corpo', luz: 'estudio', girar: false, grade: true })
   const [info, setInfo] = useState<Info | null>(null)
   const muda = (p: Partial<Escolhas>) => setE((v) => ({ ...v, ...p }))
   const humano = HUMANOS.find(([id]) => id === e.qual), agente = !!humano, arma = e.qual.startsWith(ARMA) ? e.qual.slice(ARMA.length) : null, mae = e.qual === MAE
+  const assombrado = e.qual === ASSOMBRADO
   return (
     <div className="vermodelo">
       <header className="topo">
         <span className="titulo">Ver modelos</span>
-        <span className="nome">{humano ? `${humano[1]} · modelos/${e.qual}.bbmodel` : mae ? 'A Mãe · modelos/fantasmas/mae.bbmodel' : arma ? `${ARMAS.find(([k]) => k === arma)?.[1]} · modelos/armas/${arma}.bbmodel` : `${OBJETOS[e.qual]?.nome} · modelos/${caminhoObjeto(e.qual)}.bbmodel`}</span>
+        <span className="nome">{humano ? `${humano[1]} · modelos/${e.qual}.bbmodel` : mae ? 'A Mãe · modelos/fantasmas/mae.bbmodel' : assombrado ? 'O Assombrado · modelos/demonios/assombrado.bbmodel' : arma ? `${ARMAS.find(([k]) => k === arma)?.[1]} · modelos/armas/${arma}.bbmodel` : `${OBJETOS[e.qual]?.nome} · modelos/${caminhoObjeto(e.qual)}.bbmodel`}</span>
         <span className="espaco" />
         <button className="bt" onClick={() => go('dev')}>Voltar</button>
       </header>
       <div className="vista">
         <Canvas camera={{ position: [1.4, 1.4, 3.6], fov: 35, near: 0.02, far: 100 }}>
           <Luzes luz={e.luz} />
-          {agente ? <CenaAgente key={e.qual} modelo={e.qual as ModeloAgente} e={e} onInfo={setInfo} /> : mae ? <CenaMae e={e} onInfo={setInfo} /> : <CenaObjeto key={e.qual} qual={e.qual} girar={e.girar} onInfo={setInfo} />}
+          {agente ? <CenaAgente key={e.qual} modelo={e.qual as ModeloAgente} e={e} onInfo={setInfo} /> : mae ? <CenaMae e={e} onInfo={setInfo} /> : assombrado ? <CenaAssombrado e={e} onInfo={setInfo} /> : <CenaObjeto key={e.qual} qual={e.qual} girar={e.girar} onInfo={setInfo} />}
           {e.grade && <Grid args={[8, 8]} cellSize={0.5} cellThickness={0.6} cellColor="#6a5a40" sectionSize={1} sectionThickness={1.2} sectionColor="#c89b4a" fadeDistance={14} infiniteGrid />}
           <OrbitControls makeDefault target={[0, 0.95, 0]} minDistance={0.2} maxDistance={9} />
         </Canvas>
@@ -108,6 +117,7 @@ export function VerModelos({ go }: { go: Go }) {
             <option value={AGENTE_ID}>Matheus Moura (o agente)</option>
             <optgroup label="Personagens">{HUMANOS.slice(1).map(([id, nome]) => <option key={id} value={id}>{nome}</option>)}</optgroup>
             <optgroup label="Fantasmas"><option value={MAE}>A Mãe</option></optgroup>
+            <optgroup label="Demônios"><option value={ASSOMBRADO}>O Assombrado</option></optgroup>
             <optgroup label="Armas">{ARMAS.map(([k, nome]) => <option key={k} value={ARMA + k}>{nome}</option>)}</optgroup>
             {GRUPOS.map(([g, nome]) => (
               <optgroup key={g} label={`Objetos · ${nome}`}>
@@ -134,6 +144,12 @@ export function VerModelos({ go }: { go: Go }) {
           <b>Estados</b>
           <div className="opcoes">{ESTADOS_MAE.map(([id, nome]) => <button key={id} onClick={() => muda({ anim: 'parado', girar: false, ataque: { nome: id, n: (e.ataque?.n ?? 0) + 1 } })}>{nome}</button>)}</div>
           <small>No lugar. Atordoada e enfraquecida: de joelhos, o Luto escorrendo dos olhos.</small>
+        </section>}
+        {assombrado && <Opcoes titulo="Animação" lista={ANIMS_DEMONIO} valor={e.anim} onEscolher={(anim) => muda({ anim })} />}
+        {assombrado && <section>
+          <b>Ações</b>
+          <div className="opcoes">{ACOES_DEMONIO.map(([acao, nome]) => <button key={acao} onClick={() => muda({ ...(acao === 'atacar' ? { anim: 'parado', girar: false } : {}), demonio: { acao, n: (e.demonio?.n ?? 0) + 1 } })}>{nome}</button>)}</div>
+          <small>O ataque sai de trás contra o alvo marcado no chão. O dano vem de uma direção sorteada. Estourado, ele volta em 2,5 s.</small>
         </section>}
         {agente && <>
           <Opcoes titulo="Animação" lista={ANIMS} valor={e.anim} onEscolher={(anim) => muda({ anim })} />
@@ -175,6 +191,9 @@ export function VerModelos({ go }: { go: Go }) {
 }
 
 function Luzes({ luz }: { luz: Luz }) {
+  // voltando da luz do jogo, a Iluminacao devolve o fundo que achou (o escuro) ao sair: o estúdio repõe o dele depois
+  const scene = useThree((s) => s.scene)
+  useEffect(() => { if (luz === 'estudio') scene.background = new THREE.Color('#26252a') }, [luz, scene])
   return <>
     <color attach="background" args={[luz === 'jogo' ? '#07080a' : '#26252a']} />
     {luz === 'estudio' ? <>
@@ -353,6 +372,54 @@ function CenaMae({ e, onInfo }: { e: Escolhas; onInfo: (i: Info) => void }) {
     {e.anim === 'porta' && <primitive object={porta} />}
     {e.anim === 'parado' && e.ataque && !ESTADOS_MAE.some(([id]) => id === e.ataque!.nome) && <primitive object={alvo} />}
     {e.anim !== 'porta' && <primitive object={luto.grupo} />}
+  </>
+}
+
+function CenaAssombrado({ e, onInfo }: { e: Escolhas; onInfo: (i: Info) => void }) {
+  // montarAssombrado na lista: salvar o .bbmodel recarrega o módulo e ele é montado de novo
+  const a = useMemo(() => montarAssombrado(), [montarAssombrado])
+  const E = useMemo(() => novoEstouro(), [])
+  const { pronto, voar } = useVoo()
+  // em roda: o ângulo; o ataque: sai de trás contra o alvo e volta ao lugar; estourado: quanto falta para ele voltar
+  const ida = useRef({ ang: 0, ataque: false, espera: 0, volta: 0 })
+  const ALVO_Z = 1.1
+  const alvo = useMemo(() => { const g = new THREE.Mesh(new THREE.RingGeometry(0.3, 0.38, 24).rotateX(-Math.PI / 2), new THREE.MeshBasicMaterial({ color: '#c2453a' })); g.position.set(0, 0.01, ALVO_Z); return g }, [])
+  const noLugar = (z: number) => { a.root.position.set(0, 0, z); a.root.rotation.y = 0; a.molas.pos = null; a.anim.yaw = null } // pula sem o tranco nas molas
+  useEffect(() => {
+    const c = contas(a.root)
+    a.root.updateMatrixWorld(true)
+    const b = new THREE.Box3().setFromObject(a.root)
+    onInfo({ linhas: [`Altura: ${b.max.y.toFixed(2)} m`, `${c.blocos} blocos em ${c.juntas} juntas`, `${c.desenhos} chamadas de desenho`] })
+  }, [a, onInfo])
+  useEffect(() => {
+    if (pronto) voar(new THREE.Vector3(0, 0.65, e.anim === 'andando' ? 0 : 0.3), e.anim === 'andando' ? new THREE.Vector3(3.2, 2.6, 4.2) : new THREE.Vector3(1.6, 1.2, 3.3))
+  }, [pronto, e.anim])
+  useEffect(() => {
+    const p = e.demonio, I = ida.current
+    if (!p) return
+    if (a.anim.estourado) { refazer(a); noLugar(0) }
+    if (p.acao === 'atacar') { noLugar(-0.6); atacar(a); I.ataque = true; I.espera = 0 }
+    else if (p.acao === 'dano') ferir(a, Math.random() * Math.PI * 2)
+    else { estourarAssombrado(a, E, 0); I.volta = 2.5 }
+  }, [e.demonio])
+  useFrame((_, dtBruto) => {
+    const dt = Math.min(dtBruto, 0.05), I = ida.current
+    if (a.anim.estourado && (I.volta -= dt) <= 0) { refazer(a); noLugar(0) }
+    const roda = e.anim === 'andando' && !I.ataque
+    const s = animarAssombrado(a, { andar: roda ? 1.2 : 0 }, dt)
+    if (roda) { // em roda, 1,4 m de raio, de frente para onde vai (ele só avança no ar)
+      I.ang += (s.avanca * dt) / 1.4
+      a.root.position.set(Math.cos(I.ang) * 1.4, 0, Math.sin(I.ang) * 1.4); a.root.rotation.y = -I.ang
+    } else if (I.ataque) { // para a frente (+z) o que o salto pede; acabou, espera e volta ao lugar
+      a.root.position.z += s.avanca * dt
+      if (!a.anim.golpe && (I.espera += dt) > 0.9) { I.ataque = false; noLugar(0) }
+    } else if (e.girar) a.root.rotation.y += dt * 0.5
+    passoEstouro(E, dt)
+  })
+  return <>
+    <primitive object={a.root} />
+    <primitive object={E.grupo} />
+    {ida.current.ataque || e.demonio?.acao === 'atacar' ? <primitive object={alvo} /> : null}
   </>
 }
 

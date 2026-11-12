@@ -53,7 +53,7 @@ salvar no Blockbench atualiza o jogo (se o Testar estiver aberto, saia e entre d
 
 As pessoas e os fantasmas são **menos "Minecraft"** que o cenário: o corpo é feito de muitas peças pequenas, chanfradas
 e inclinadas. Os objetos, as portas e as armas continuam simples. O Matheus (214 blocos; eram 89) e a Mãe (259; eram
-118) já estão assim; o Espectral, o Glutão, Lara e Nicolas nascem assim. Os modelos antigos estão no git.
+118) já estão assim; o Glutão, os Sombrios, Lara e Nicolas nascem assim. Os modelos antigos estão no git.
 
 - **O trecho chanfrado:** um braço, uma coxa ou a cintura não é um bloco só: são três blocos cruzados na mesma altura
   (um largo e raso, um médio, um estreito e fundo), e o corte fica um octógono. Vários trechos empilhados, cada um um
@@ -237,6 +237,19 @@ desenvolvedor; os traços, não o personagem dela):
 - Personagem (o Matheus, os fantasmas): o jogo junta tudo numa malha só com ossos (uma chamada de desenho). Para você não
   muda nada: as pastas continuam sendo as juntas.
 
+## Os demônios (12/nov)
+
+- `modelos/demonios/<nome>.bbmodel`, com 64 px por metro, como os personagens. O primeiro: o Assombrado
+  (`assombrado.bbmodel`). As pastas de cada um, o desenho e as animações estão em `docs/demonios.md`.
+- **Não têm o esqueleto do Matheus:** cada um tem as juntas do próprio corpo (o Assombrado: `quadril`, `corpo`, os três
+  olhos, os braços com a `garra`, a perna `coxa` › `canela` › `pe`). O nome das pastas é o que o código procura.
+- **O que balança:** toda pasta `mecha_...` (a ponta do capuz, os pingos de matéria) balança com mola, presa no `corpo`.
+- **Os olhos:** blocos `luz_` (brilham sozinhos), cada olho na sua pasta: é ela que pisca, apaga e cresce.
+- **A perna do Assombrado é calculada no jogo:** a dobra que aparece no Blockbench vem do giro das pastas da perna, só
+  para o desenho; pode mudar o tamanho da coxa e da canela, o jogo mede no arquivo.
+- **Muitos ao mesmo tempo:** o jogo monta o modelo uma vez e faz cópias que dividem a geometria, o material e a
+  textura. Mantenha uma textura pequena e poucos blocos `luz_`.
+
 ## O que vem depois
 
 1. ✅ **Ligar no jogo** (10/nov): o Testar lê `modelos/agente.bbmodel` e as animações do laboratório (andar, correr,
@@ -245,6 +258,8 @@ desenvolvedor; os traços, não o personagem dela):
    nuca, lados, topete) e 7 mechas com física (quatro na nuca até a gola e três na franja; as dos lados saíram em
    10/nov, a pedido); rosto com expressões; mãos com palma, polegar e quatro dedos de duas falanges (luva sem dedos);
    botas com cano, biqueira, salto e sola; gola, lapelas, bolsos, alças, cinto com bolsas, coldre e os frascos da mochila.
-3. **Os fantasmas no mesmo estilo:** ✅ a Mãe (o modelo, 10/nov; as animações em etapas), o Espectral e o Glutão (ver
+3. **Os fantasmas no mesmo estilo:** ✅ a Mãe (o modelo, 10/nov; as animações em etapas) e o Glutão (ver
    "A identidade visual" em `docs/jogo.md`).
-4. **Lara e Nicolas**: ✅ os modelos (11/nov, acima); a lanterna da Lara, as rotas, as falas e as cenas quando a demo Intro for trazida.
+4. **Os demônios, os Sombrios** (12/nov): em `modelos/demonios/`, com as pastas de cada um em `docs/demonios.md`.
+   ✅ O Assombrado (`assombrado.bbmodel`, o modelo de partida, para retocar).
+5. **Lara e Nicolas**: ✅ os modelos (11/nov, acima); a lanterna da Lara, as rotas, as falas e as cenas quando a demo Intro for trazida.

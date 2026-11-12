@@ -7,7 +7,8 @@ e captura entidades. Este projeto começa pelo **Modo desenvolvedor → Criador 
 
 1. `docs/criador-de-mapas.md` — o foco agora: decisões, o formato dos mapas e as 8 etapas (qual é a próxima).
 2. `docs/iluminacao.md` — a luz do jogo: as decisões, as ambientações, os níveis de qualidade e as 4 etapas (qual é a próxima).
-   `docs/jogo.md` — o que já foi decidido e jogado (agente, armas, captura, fantasmas, HUD, a demo Intro).
+   `docs/jogo.md` — o que já foi decidido e jogado (a história do portal, agente, armas, captura, fantasmas, HUD, a demo Intro).
+   `docs/demonios.md` — os Sombrios (Assombrado, Asa sombria, Devora almas): o desenho, os modelos, como lutam e as etapas.
    `docs/mansao-cap1.md` — a planta da mansão do capítulo 1 (cômodos, escadas, rota, onde ficam os objetos da Mãe).
    `docs/blockbench.md` — como os personagens são feitos (Blockbench, as regras das juntas, a escala, a exportação).
 3. `docs/portando-do-laboratorio.md` — onde está cada coisa no laboratório antigo e o que **não** trazer.
@@ -21,7 +22,7 @@ e captura entidades. Este projeto começa pelo **Modo desenvolvedor → Criador 
 - **Pergunte antes** quando a decisão mudar o que será construído (formato do mapa, controles, regras). Detalhes de implementação, decida e conte.
 - Ele prefere **instruções passo a passo** para o que ele mesmo tem que fazer (rodar, testar, configurar), em vez de você operar o computador dele.
 - **Conferir no navegador:** no `npm run dev`, use `window.provas` (`src/dev/provas.ts`) pelo console em vez de montar
-  o teste à mão: `provas.mae(golpe, t)` monta a Mãe num instante, `provas.fotos([...])` tira fotos de vários ângulos,
+  o teste à mão: `provas.mae(golpe, t)` monta a Mãe num instante (`provas.assombrado(acao, t)`, o Assombrado), `provas.fotos([...])` tira fotos de vários ângulos,
   `provas.medidas(c)` dá as mãos, a cabeça e as mechas, `provas.som([...])` mede o volume de cada trecho. Recarregue a
   página antes; o som só liga depois de um clique de verdade; com o painel escondido a página não desenha (as provas
   funcionam mesmo assim).
@@ -39,22 +40,23 @@ e captura entidades. Este projeto começa pelo **Modo desenvolvedor → Criador 
 ## Regras do conteúdo
 
 - **Sem animação de morte dos fantasmas** nem as animações específicas de cenas do laboratório. O fantasma menor zerado
-  (Espectral, demônios) estoura em ectoplasma e é destruído; o maior (Glutão, Mãe, chefes) vira poça e é capturado.
+  (os demônios, os Sombrios) estoura e é destruído; o maior (Glutão, Mãe, chefes) vira poça e é capturado.
 - **O agente cai, sem violência explícita** (mudado em 10/nov, a pedido): perde as forças, cai de joelhos e tomba; a tela
   escurece e ele volta no checkpoint. Nada de sangue, ferimento ou corpo machucado.
 - **A base é o laboratório v130**: `reference/laboratorio.html`, igual ao publicado em
   https://claude.ai/artifact/BDUaLP6DmvqwsBXhkdJdYw. O link antigo (`2wZHuEXpxxiRrKP9h2J1jM`, com fatia, pé de cabra e
   orbe) está desatualizado: não use como referência.
-- Faz parte da base: o agente, as duas armas e a armadilha, a captura por poça (dos fantasmas maiores), o Espectral, o Glutão, o HUD conceito C,
+- Faz parte da base: o agente, as duas armas e a armadilha, a captura por poça (dos fantasmas maiores), o Glutão, o HUD conceito C,
   Lara e Nicolas (a demo Intro) e **a Mãe com a luta do berçário** (o berço, o tornado, as quatro barras).
 - Fora do projeto (eram testes do laboratório): os outros fantasmas do laboratório (Sombra, Desconhecido, Garota, Mordomo,
   Observador, Reflexo, Amigo), a demo da casa como fase, a demo "O Bando", a fatia, o círculo de velas, o orbe, o pé de cabra.
+  O Espectral também saiu (12/nov): no lugar dele, os Sombrios (`docs/demonios.md`).
   Fora agora não quer dizer fora para sempre: se o desenvolvedor trouxer de volta, atualize esta lista.
 - **A identidade visual** (decidida em 10/nov): cenário e personagens em **blocos com textura pintada em pixel** (cenário
   com 32 px por metro, personagens com 64 e o rosto com 128), com **proporções quase realistas** (nada de cabeça e mãos grandes). As pessoas e os fantasmas são em **blocos refinados**
   (decidido em 11/nov): muitas peças pequenas, chanfradas e inclinadas, dentro das mesmas juntas; os objetos continuam simples. O terror vem da ambientação: pouca luz,
   fantasmas com formas erradas, olhos que brilham, movimentos travados. O estilo é parecido com o do Hytale, mas os
-  personagens são nossos: não copiar os deles.
+  personagens são nossos: não copiar os deles. Os Sombrios têm o clima das sombras do Don't Starve, sem copiar o desenho.
 - Os modelos dos personagens, dos objetos e (quando chegarem) das armas são feitos no **Blockbench** (o passo a passo
   está em `docs/blockbench.md`): personagens e armas com 64 px por metro, objetos do cenário com 32, com sombra e desgaste
   pintados em pixel.
@@ -83,7 +85,7 @@ src/
   styles.css               a paleta e as telas
   screens/                 MainMenu, SettingsScreen (com PreviaQualidade ao lado: a sala do mapa teste-iluminacao com a
                            qualidade escolhida, ao vivo, e o fps; e TesteDesempenho: a mansão inteira nível por nível, com a
-                           média e o mínimo de quadros), DevMenu, VerModelos (o personagem de perto: animação, expressão, mãos, luz)
+                           média e o mínimo de quadros), DevMenu, VerModelos (o personagem, o fantasma ou o demônio de perto: animação, expressão, mãos, ações, luz)
   settings/settings.ts     configurações no localStorage (useSettings / setSettings): a qualidade da imagem (o nível e os
                            ajustes de cada recurso), os volumes, o mouse
   audio/musica.ts          a trilha: useMusica('menu') toca public/musica/<nome>.mp3 em laço, com o volume das configurações
@@ -123,7 +125,7 @@ texturas/                  as texturas do cenário: <nome>.png, 32 × 32 px por 
 modelos/                   os modelos do Blockbench (.bbmodel), lidos direto pelo jogo: agente.bbmodel, lara.bbmodel,
                            nicolas.bbmodel e victor.bbmodel (o mesmo esqueleto do agente), objetos/<tipo>.bbmodel,
                            aberturas/<tipo>.bbmodel (as portas e janelas), armas/<nome>.bbmodel (pistola, escopeta, armadilha),
-                           fantasmas/<nome>.bbmodel (a Mãe)
+                           fantasmas/<nome>.bbmodel (a Mãe), demonios/<nome>.bbmodel (os Sombrios: o Assombrado)
 public/musica/             as músicas do jogo (menu.mp3: o menu e o criador de mapas)
 reference/                 o laboratório antigo, só para consulta (não importar nada daqui); ost/ = as 4 músicas dele
 docs/                      o que está decidido
@@ -135,7 +137,7 @@ Cada coisa do jogo mora na sua pasta; nada de arquivo gigante como o laboratóri
 ficam num arquivo próprio de cada pasta, para ajustar sem caçar no código.
 
 ```
-src/game/                  (já existem: Testar.tsx, player/, input/, world/, weapons/, corpo/, luz/, enemies/mae/ — o resto entra
+src/game/                  (já existem: Testar.tsx, player/, input/, world/, weapons/, corpo/, luz/, enemies/mae/, enemies/assombrado/ — o resto entra
                            quando a etapa chegar)
   luz/                     a luz do jogo: Iluminacao.tsx (a luz ambiente, o preenchimento, o luar, a neblina, a imagem final; entra
                            em toda cena de jogo), ceu.ts (o céu da noite: a cúpula com o degradê, as estrelas e a lua), luz.ts (a ambientação de onde o agente está, a troca suave, os momentos:
@@ -155,14 +157,16 @@ src/game/                  (já existem: Testar.tsx, player/, input/, world/, we
                            (andar, correr, esquivar), numeros.ts
   weapons/                 tiro.ts (o gatilho e a cadência), clarao.ts (o clarão no cano), armadilha.ts (jogar: o voo em
                            arco, grudar, chamar de volta, a linha do arco), numeros.ts; depois a bala e a sobrecarga
-  enemies/<nome>/          um fantasma por pasta (mae/, espectral/, glutao/): IA, ataques, modelo, números; a Mãe já tem
+  enemies/<nome>/          um inimigo por pasta (mae/, glutao/, assombrado/, asa-sombria/, devora-almas/): IA, ataques, modelo, números; a Mãe já tem
                            modelo.ts (monta o modelo, a saia e o cabelo com molas), pose.ts (as molas da pose, do
                            laboratório), animacao.ts (parada, andar, passar pela porta), rosto.ts (as expressões, os
                            tiques e o brilho dos olhos), efeitos.ts (o rosto que escurece, as ondas do grito, a fase 4
                            preta com partículas), sons.ts (a voz dela: a cantiga, a caça, a de cada golpe e estado; e quando
                            cada som toca), ruidos.ts (o corpo e o Luto: passos, estalos, garras, bolhas), golpes.ts (os ataques e os movimentos do Luto), estados.ts
                            (grito, exausta, atordoada, cambaleio, enfraquecida, capturada), luto.ts (a poça, as ondas,
-                           os respingos, o aviso) e numeros.ts
+                           os respingos, o aviso) e numeros.ts; o Assombrado tem modelo.ts (o molde e as cópias que dividem
+                           tudo), animacao.ts (o joão-bobo, os pulos, o ataque, o dano, estourar; a perna por IK) e numeros.ts
+  enemies/estouro.ts       o estouro dos Sombrios (os cubos de matéria e a mancha que seca), um estoque só para todos
   capture/                 a poça e a captura
   allies/                  Lara e Nicolas
   hud/                     o HUD conceito C
