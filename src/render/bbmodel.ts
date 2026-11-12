@@ -9,6 +9,7 @@
 // Só o que os modelos usam: blocos (com giro e inflar), pastas (com giro) e a primeira textura.
 import * as THREE from 'three'
 import { mergeGeometries } from 'three/examples/jsm/utils/BufferGeometryUtils.js'
+import { clone } from 'three/examples/jsm/utils/SkeletonUtils.js'
 import { aplicarCorte } from './corte'
 import { aplicarContorno } from './contorno'
 import { aplicarBrilho } from './brilho'
@@ -190,6 +191,25 @@ export function vestir(corpo: THREE.Object3D, m: MontadoBB, ossoDe: Record<strin
     malhas.push(s)
   }
   return malhas
+}
+
+// os moldes dos personagens que se repetem (no npm run dev, salvar o .bbmodel recarrega este módulo e eles são refeitos)
+const moldes = new Map<string, THREE.Group>()
+/**
+ * Um personagem que aparece muitas vezes (os demônios): montado e vestido do arquivo uma vez só (o molde, que fica
+ * parado na pose do arquivo), e cada chamada devolve uma cópia dele, com os ossos próprios, que divide a geometria, o
+ * material e a textura com as outras. nome = o caminho em modelos/ sem a extensão ("demonios/assombrado").
+ */
+export function copiaDoMolde(nome: string): THREE.Group {
+  let molde = moldes.get(nome)
+  if (!molde) {
+    const m = montarBB(arquivoModelo(nome), { pele: true })
+    molde = new THREE.Group(); molde.name = nome.split('/').pop()!
+    molde.add(m.raiz)
+    vestir(molde, m)
+    moldes.set(nome, molde)
+  }
+  return clone(molde) as THREE.Group
 }
 
 /** A caixa dos blocos de uma pasta, no espaço dela (os personagens com pele não têm malha por pasta para medir). */

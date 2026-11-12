@@ -1,5 +1,5 @@
 // Ver modelos (Modo desenvolvedor): um modelo sozinho na tela, para olhar de perto e decidir o que melhorar.
-// Não edita nada: o Matheus vem de modelos/agente.bbmodel, a Lara, o Nicolas e o Victor de modelos/lara.bbmodel, nicolas.bbmodel e victor.bbmodel (o mesmo esqueleto), os fantasmas de modelos/fantasmas/<nome>.bbmodel (a Mãe), os demônios de modelos/demonios/<nome>.bbmodel (o Assombrado: parado, andando, atacar, dano, estourar), as armas de modelos/armas/<nome>.bbmodel e os objetos de
+// Não edita nada: o Matheus vem de modelos/agente.bbmodel, a Lara, o Nicolas e o Victor de modelos/lara.bbmodel, nicolas.bbmodel e victor.bbmodel (o mesmo esqueleto), os fantasmas de modelos/fantasmas/<nome>.bbmodel (a Mãe), os demônios de modelos/demonios/<nome>.bbmodel (o Assombrado: parado, andando, atacar, dano, estourar; a Asa sombria: voando, cuspir com o projétil, desviar, dano, estourar), as armas de modelos/armas/<nome>.bbmodel e os objetos de
 // modelos/objetos/<tipo>.bbmodel (salvar no
 // Blockbench atualiza aqui no npm run dev). A câmera gira em volta (botão esquerdo gira, direito move, rodinha aproxima).
 // Para o Matheus o painel troca a animação, a expressão, a pose das mãos, a arma na mão e o ângulo, faz os gestos de
@@ -37,6 +37,9 @@ import { Iluminacao } from '../game/luz/Iluminacao'
 import { montarAssombrado } from '../game/enemies/assombrado/modelo'
 import { animarAssombrado, atacar, estourarAssombrado, ferir, refazer } from '../game/enemies/assombrado/animacao'
 import { novoEstouro, passoEstouro } from '../game/enemies/estouro'
+import { montarAsaSombria } from '../game/enemies/asa-sombria/modelo'
+import { animarAsaSombria, cuspir, desviar, estourarAsa, ferir as ferirAsa, refazerAsa } from '../game/enemies/asa-sombria/animacao'
+import { disparar, novosProjeteis, passoProjeteis } from '../game/enemies/asa-sombria/projetil'
 
 type Anim = 'parado' | 'andando' | 'correndo' | 'esquiva' | 'queda' | 'porta'
 type Camera = 'corpo' | 'rosto' | 'maos' | 'pes' | 'costas'
@@ -49,10 +52,20 @@ const ARMA = 'arma:' // o id de uma arma no seletor: arma:pistola
 const MAE = 'fantasma:mae'
 const ANIMS_MAE: [Anim, string][] = [['parado', 'Parada'], ['andando', 'Andando (em roda)'], ['porta', 'Passando pela porta']]
 // os demônios (docs/demonios.md): o id é o nome do arquivo em modelos/demonios/
-const ASSOMBRADO = 'demonio:assombrado'
-const ANIMS_DEMONIO: [Anim, string][] = [['parado', 'Parado'], ['andando', 'Andando (em roda)']]
-type AcaoDemonio = 'atacar' | 'dano' | 'estourar'
-const ACOES_DEMONIO: [AcaoDemonio, string][] = [['atacar', 'Atacar'], ['dano', 'Tomar dano'], ['estourar', 'Estourar']]
+const ASSOMBRADO = 'demonio:assombrado', ASA = 'demonio:asa-sombria'
+type AcaoDemonio = 'atacar' | 'cuspir' | 'desviar' | 'dano' | 'estourar'
+const DEMONIOS: Record<string, { nome: string; arquivo: string; anims: [Anim, string][]; acoes: [AcaoDemonio, string][]; ajuda: string }> = {
+  [ASSOMBRADO]: {
+    nome: 'O Assombrado', arquivo: 'demonios/assombrado', anims: [['parado', 'Parado'], ['andando', 'Andando (em roda)']],
+    acoes: [['atacar', 'Atacar'], ['dano', 'Tomar dano'], ['estourar', 'Estourar']],
+    ajuda: 'O ataque sai de trás contra o alvo marcado no chão. O dano vem de uma direção sorteada. Estourado, ele volta em 2,5 s.',
+  },
+  [ASA]: {
+    nome: 'A Asa sombria', arquivo: 'demonios/asa-sombria', anims: [['parado', 'Voando no lugar'], ['andando', 'Voando (em roda)']],
+    acoes: [['cuspir', 'Cuspir'], ['desviar', 'Desviar'], ['dano', 'Tomar dano'], ['estourar', 'Estourar']],
+    ajuda: 'Ela voa a 2 m. Cospe no alvo marcado a 4 m, na altura do peito do agente. Desvia um lado de cada vez. Estourada, volta em 2,5 s.',
+  },
+}
 // os ataques no Ver modelos: cada botão é uma sequência de golpes (contra um alvo marcado no chão)
 const ATAQUES: [string, string, NomeGolpe[]][] = [
   ['garra', 'Garra', ['garra_d']], ['garras', 'Duas garradas', ['garra_d', 'garra_ultima_e']], ['aproximar', 'Aproximar aos trancos', ['aproximar']],
@@ -92,19 +105,19 @@ export function VerModelos({ go }: { go: Go }) {
   const [info, setInfo] = useState<Info | null>(null)
   const muda = (p: Partial<Escolhas>) => setE((v) => ({ ...v, ...p }))
   const humano = HUMANOS.find(([id]) => id === e.qual), agente = !!humano, arma = e.qual.startsWith(ARMA) ? e.qual.slice(ARMA.length) : null, mae = e.qual === MAE
-  const assombrado = e.qual === ASSOMBRADO
+  const demonio = DEMONIOS[e.qual]
   return (
     <div className="vermodelo">
       <header className="topo">
         <span className="titulo">Ver modelos</span>
-        <span className="nome">{humano ? `${humano[1]} · modelos/${e.qual}.bbmodel` : mae ? 'A Mãe · modelos/fantasmas/mae.bbmodel' : assombrado ? 'O Assombrado · modelos/demonios/assombrado.bbmodel' : arma ? `${ARMAS.find(([k]) => k === arma)?.[1]} · modelos/armas/${arma}.bbmodel` : `${OBJETOS[e.qual]?.nome} · modelos/${caminhoObjeto(e.qual)}.bbmodel`}</span>
+        <span className="nome">{humano ? `${humano[1]} · modelos/${e.qual}.bbmodel` : mae ? 'A Mãe · modelos/fantasmas/mae.bbmodel' : demonio ? `${demonio.nome} · modelos/${demonio.arquivo}.bbmodel` : arma ? `${ARMAS.find(([k]) => k === arma)?.[1]} · modelos/armas/${arma}.bbmodel` : `${OBJETOS[e.qual]?.nome} · modelos/${caminhoObjeto(e.qual)}.bbmodel`}</span>
         <span className="espaco" />
         <button className="bt" onClick={() => go('dev')}>Voltar</button>
       </header>
       <div className="vista">
         <Canvas camera={{ position: [1.4, 1.4, 3.6], fov: 35, near: 0.02, far: 100 }}>
           <Luzes luz={e.luz} />
-          {agente ? <CenaAgente key={e.qual} modelo={e.qual as ModeloAgente} e={e} onInfo={setInfo} /> : mae ? <CenaMae e={e} onInfo={setInfo} /> : assombrado ? <CenaAssombrado e={e} onInfo={setInfo} /> : <CenaObjeto key={e.qual} qual={e.qual} girar={e.girar} onInfo={setInfo} />}
+          {agente ? <CenaAgente key={e.qual} modelo={e.qual as ModeloAgente} e={e} onInfo={setInfo} /> : mae ? <CenaMae e={e} onInfo={setInfo} /> : e.qual === ASSOMBRADO ? <CenaAssombrado e={e} onInfo={setInfo} /> : e.qual === ASA ? <CenaAsaSombria e={e} onInfo={setInfo} /> : <CenaObjeto key={e.qual} qual={e.qual} girar={e.girar} onInfo={setInfo} />}
           {e.grade && <Grid args={[8, 8]} cellSize={0.5} cellThickness={0.6} cellColor="#6a5a40" sectionSize={1} sectionThickness={1.2} sectionColor="#c89b4a" fadeDistance={14} infiniteGrid />}
           <OrbitControls makeDefault target={[0, 0.95, 0]} minDistance={0.2} maxDistance={9} />
         </Canvas>
@@ -117,7 +130,7 @@ export function VerModelos({ go }: { go: Go }) {
             <option value={AGENTE_ID}>Matheus Moura (o agente)</option>
             <optgroup label="Personagens">{HUMANOS.slice(1).map(([id, nome]) => <option key={id} value={id}>{nome}</option>)}</optgroup>
             <optgroup label="Fantasmas"><option value={MAE}>A Mãe</option></optgroup>
-            <optgroup label="Demônios"><option value={ASSOMBRADO}>O Assombrado</option></optgroup>
+            <optgroup label="Demônios">{Object.entries(DEMONIOS).map(([id, d]) => <option key={id} value={id}>{d.nome}</option>)}</optgroup>
             <optgroup label="Armas">{ARMAS.map(([k, nome]) => <option key={k} value={ARMA + k}>{nome}</option>)}</optgroup>
             {GRUPOS.map(([g, nome]) => (
               <optgroup key={g} label={`Objetos · ${nome}`}>
@@ -145,11 +158,11 @@ export function VerModelos({ go }: { go: Go }) {
           <div className="opcoes">{ESTADOS_MAE.map(([id, nome]) => <button key={id} onClick={() => muda({ anim: 'parado', girar: false, ataque: { nome: id, n: (e.ataque?.n ?? 0) + 1 } })}>{nome}</button>)}</div>
           <small>No lugar. Atordoada e enfraquecida: de joelhos, o Luto escorrendo dos olhos.</small>
         </section>}
-        {assombrado && <Opcoes titulo="Animação" lista={ANIMS_DEMONIO} valor={e.anim} onEscolher={(anim) => muda({ anim })} />}
-        {assombrado && <section>
+        {demonio && <Opcoes titulo="Animação" lista={demonio.anims} valor={e.anim} onEscolher={(anim) => muda({ anim })} />}
+        {demonio && <section>
           <b>Ações</b>
-          <div className="opcoes">{ACOES_DEMONIO.map(([acao, nome]) => <button key={acao} onClick={() => muda({ ...(acao === 'atacar' ? { anim: 'parado', girar: false } : {}), demonio: { acao, n: (e.demonio?.n ?? 0) + 1 } })}>{nome}</button>)}</div>
-          <small>O ataque sai de trás contra o alvo marcado no chão. O dano vem de uma direção sorteada. Estourado, ele volta em 2,5 s.</small>
+          <div className="opcoes">{demonio.acoes.map(([acao, nome]) => <button key={acao} onClick={() => muda({ ...(acao === 'atacar' || acao === 'cuspir' ? { anim: 'parado', girar: false } : {}), demonio: { acao, n: (e.demonio?.n ?? 0) + 1 } })}>{nome}</button>)}</div>
+          <small>{demonio.ajuda}</small>
         </section>}
         {agente && <>
           <Opcoes titulo="Animação" lista={ANIMS} valor={e.anim} onEscolher={(anim) => muda({ anim })} />
@@ -420,6 +433,65 @@ function CenaAssombrado({ e, onInfo }: { e: Escolhas; onInfo: (i: Info) => void 
     <primitive object={a.root} />
     <primitive object={E.grupo} />
     {ida.current.ataque || e.demonio?.acao === 'atacar' ? <primitive object={alvo} /> : null}
+  </>
+}
+
+function CenaAsaSombria({ e, onInfo }: { e: Escolhas; onInfo: (i: Info) => void }) {
+  // montarAsaSombria na lista: salvar o .bbmodel recarrega o módulo e ela é montada de novo
+  const a = useMemo(() => montarAsaSombria(), [montarAsaSombria])
+  const E = useMemo(() => novoEstouro(), []), P = useMemo(() => novosProjeteis(), [])
+  const { pronto, voar } = useVoo()
+  const ALTURA = 2.0, R = 2.2, VEL = 3 // o voo: a altura (m); em roda: o raio (m) e a velocidade (m/s)
+  // o alvo do cuspe: a 4 m à frente, na altura do peito do agente (um anel em pé)
+  const alvo = useMemo(() => new THREE.Vector3(0, 1.3, 4), [])
+  const anel = useMemo(() => { const g = new THREE.Mesh(new THREE.RingGeometry(0.22, 0.3, 24), new THREE.MeshBasicMaterial({ color: '#c2453a', side: THREE.DoubleSide })); g.position.copy(alvo); return g }, [alvo])
+  const ida = useRef({ ang: 0, lado: 1, volta: 0 })
+  const _d = useMemo(() => new THREE.Vector3(), [])
+  useEffect(() => { a.root.position.set(0, ALTURA, 0); a.anim.ultimo = null; a.molas.pos = null }, [a])
+  useEffect(() => {
+    const c = contas(a.root)
+    a.root.updateMatrixWorld(true)
+    const b = new THREE.Box3().setFromObject(a.root)
+    onInfo({ linhas: [`Altura, com as asas: ${(b.max.y - b.min.y).toFixed(2)} m`, `Largura, com as asas: ${(b.max.x - b.min.x).toFixed(2)} m`, `${c.blocos} blocos em ${c.juntas} juntas`, `${c.desenhos} chamadas de desenho`] })
+  }, [a, onInfo])
+  useEffect(() => {
+    // parada: de lado, pegando ela e o alvo do cuspe; em roda, de longe
+    if (pronto) voar(new THREE.Vector3(0, 1.6, e.anim === 'andando' ? 0 : 1.6), e.anim === 'andando' ? new THREE.Vector3(5.5, 4.2, 6.5) : new THREE.Vector3(10.5, 3.1, 2.0))
+  }, [pronto, e.anim])
+  useEffect(() => {
+    const p = e.demonio, I = ida.current
+    if (!p) return
+    if (a.anim.estourado) { refazerAsa(a); a.root.position.set(0, ALTURA, 0) }
+    if (p.acao === 'cuspir') cuspir(a)
+    else if (p.acao === 'desviar') { desviar(a, I.lado); I.lado = -I.lado }
+    else if (p.acao === 'dano') ferirAsa(a, Math.random() * Math.PI * 2)
+    else if (p.acao === 'estourar') { estourarAsa(a, E, 0); I.volta = 2.5 }
+  }, [e.demonio])
+  useFrame((_, dtBruto) => {
+    const dt = Math.min(dtBruto, 0.05), I = ida.current, r = a.root
+    if (a.anim.estourado && (I.volta -= dt) <= 0) { refazerAsa(a); r.position.set(0, ALTURA, 0) }
+    const roda = e.anim === 'andando' && !a.anim.golpe
+    const s = animarAsaSombria(a, { alvo: a.anim.golpe?.nome === 'cuspir' ? alvo : undefined }, dt)
+    if (roda) { // em roda, de frente para onde vai
+      I.ang += (VEL * dt) / R
+      r.position.set(Math.cos(I.ang) * R, ALTURA, Math.sin(I.ang) * R); r.rotation.y = -I.ang
+    } else if (!a.anim.golpe) { // parada no ar: volta devagar para o lugar, de frente para o alvo
+      const k = 1 - Math.exp(-2.2 * dt)
+      r.position.lerp(_d.set(0, ALTURA, 0), k)
+      if (!e.girar) r.rotation.y += -r.rotation.y * k; else r.rotation.y += dt * 0.5
+    }
+    // o que o golpe pede: andar de lado (desviar), recuar (o cuspe)
+    r.position.addScaledVector(_d.set(Math.cos(r.rotation.y), 0, -Math.sin(r.rotation.y)), s.lado * dt)
+    r.position.addScaledVector(_d.set(Math.sin(r.rotation.y), 0, Math.cos(r.rotation.y)), -s.recua * dt)
+    if (s.cospe) disparar(P, s.cospe, alvo)
+    passoProjeteis(P, dt, E, 0)
+    passoEstouro(E, dt)
+  })
+  return <>
+    <primitive object={a.root} />
+    <primitive object={E.grupo} />
+    <primitive object={P.grupo} />
+    {e.demonio?.acao === 'cuspir' && <primitive object={anel} />}
   </>
 }
 

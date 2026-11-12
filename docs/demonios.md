@@ -23,7 +23,8 @@ Substituem o Espectral, que saiu do projeto.
   pingos. Não copiar o desenho deles: nada da boca branca em zigue-zague, da faixa amarrada no corpo nem do corpo em
   gota com chifres. Os dentes daqui são vermelhos, e o tecido é capuz e manto.
 - **Leves:** cada um é uma malha só com ossos e um material, com textura pequena; cópias do mesmo Sombrio dividem a
-  geometria e o material. Os projéteis e os respingos são reaproveitados (um estoque fixo, nada criado no meio da luta).
+  geometria e o material (`copiaDoMolde`, em `src/render/bbmodel.ts`). Os projéteis e os respingos são reaproveitados
+  (um estoque fixo, nada criado no meio da luta).
 
 ## Os modelos
 
@@ -63,23 +64,38 @@ o material e a textura (o primeiro é o molde; os outros são cópias com os oss
   - **surgir** (proposta, não feito): sobe de uma mancha escura no chão, de baixo para cima.
 - **Falta (na etapa da luta):** os sons, a inteligência (ir atrás do agente, um atacando por vez), o dano de verdade.
 
-### Asa sombria (morcego de capuz)
+### Asa sombria (morcego de capuz) ✅ modelo e animações (12/nov)
 
-Um corpo pequeno de capuz vermelho, com asas de morcego, sem olhos. O corpo tem **0,7 m** e as asas abertas **1,8 m**.
-Voa entre 1,8 e 2,3 m do chão, abaixo do teto e acima da cabeça do agente.
+Um corpo pequeno de capuz vermelho, com asas de morcego, sem olhos. O corpo com o capuz tem **0,85 m** (com os pingos,
+1 m) e as asas abertas **1,85 m** de ponta a ponta. Voa a uns 2 m do chão, abaixo do teto e acima da cabeça do agente.
+O modelo de partida (`modelos/demonios/asa-sombria.bbmodel`, 82 blocos, textura 256 × 256) nasceu de um gerador, para
+retocar no Blockbench. **A origem é o centro do corpo** (ela voa: o jogo põe o root na altura do voo). No jogo: 2
+chamadas de desenho (o corpo e o núcleo), e várias Asas dividem a geometria, o material e a textura.
 
-- **A boca:** no lugar do rosto, fechada como uma costura. Abre em **quatro pétalas** com dentes vermelhos, e no fundo um
-  núcleo vermelho (`luz_`) acende quando ela vai atirar.
-- **As asas:** duas, com os "dedos" pintados e dobra no meio.
+- **A boca:** no lugar do rosto, no fundo do capuz: um losango de **quatro pétalas** (cada uma um quadrado girado 45°),
+  fechado numa costura em X de dentes vermelhos. Cada pétala dobra para fora pela ponta de fora do losango; no fundo, o
+  núcleo vermelho (`luz_`) cresce e pulsa quando ela vai cuspir.
+- **As asas:** de morcego, em degraus de pixel: o braço até o pulso e três dedos (a borda da frente, o do meio e o de
+  baixo), a pele preto-arroxeada com veias e a borda de trás vermelho-escura; a garra do polegar no pulso. Varridas 20°
+  para trás no arquivo. A ponta dobra no pulso.
 - **A cauda:** a matéria escorrendo embaixo do corpo, em pingos que balançam.
-- **As pastas:** `raiz` › `corpo` › `capuz`; `petala_1` a `petala_4` (a boca) e o `nucleo`; `asa_e` › `asa_ponta_e` e
-  `asa_d` › `asa_ponta_d`; os pingos em `mecha_pingo_1`, `_2`…
-- **As animações:**
-  - **voar:** o bater de asas, com o corpo subindo e descendo no ritmo, e planar de vez em quando;
-  - **mirar e cuspir:** para no ar, as pétalas abrem e o núcleo acende (o aviso), cospe o projétil e o corpo recua;
-  - **desviar:** fecha as asas e rola para o lado, rápido;
-  - **dano** e **estourar**, como no Assombrado.
-- **O projétil:** uma bola de matéria escura com o brilho vermelho, lenta o bastante para esquivar.
+- **As pastas:** `raiz` › `corpo` (o corpo, o capuz, o `rosto`, as pétalas `petala_cima`, `petala_baixo`, `petala_e` e
+  `petala_d`, o `nucleo`, `asa_e` › `asa_ponta_e`, `asa_d` › `asa_ponta_d` e os pingos `mecha_pingo_1` a `_5`). O ponto de
+  giro de cada pétala é a dobra (a ponta de fora do losango); o da asa, o ombro; o da ponta, o pulso.
+- **As animações** (`src/game/enemies/asa-sombria/animacao.ts`, os números em `numeros.ts`):
+  - **voar:** uma batida a cada 0,42 s, a descida mais rápida que a subida; a ponta vem atrasada e dobra para trás na
+    subida; o corpo sobe a cada descida; ela deita para a frente quando anda e de lado nas curvas; de 3 a 6 s, plana um
+    pouco (as asas abertas para cima, sem bater);
+  - **cuspir** (1,1 s): para no ar batendo as asas mais curto, as pétalas abrem até a metade, o núcleo cresce e pulsa e o
+    corpo se inclina para o alvo (o aviso, 0,6 s); cospe (a boca abre de vez, o corpo recua) e a boca fecha;
+  - **desviar** (0,45 s): fecha as asas, rola uma volta inteira e anda 1,1 m de lado; abre as asas de novo;
+  - **dano:** o tranco no corpo, ela cai um pouco, as asas dão um pulo e a boca treme;
+  - **estourar:** o corpo some; os cubos caem do ar até o chão e a mancha fica lá.
+- **O projétil** (`projetil.ts`): um núcleo vermelho (brilha; com o bloom, faz halo) com cinco pedras de matéria girando
+  em volta e um rastro de cubinhos; a 8 m/s. Batendo no chão (ou depois de 16 m), estoura pequeno, com uma mancha. Todos
+  os projéteis são uma malha só. A colisão com as paredes e com o agente entra com a luta.
+- **Falta (na etapa da luta):** os sons, a inteligência (rodear o agente, quando cuspir, quando desviar), a colisão do
+  projétil, o dano de verdade.
 
 ### Devora almas (tubarão-lula)
 
@@ -140,7 +156,8 @@ Os números vão para `src/game/enemies/<nome>/numeros.ts` quando cada um chegar
 
 1. ✅ **O Assombrado** (12/nov): um modelo de partida gerado (como os outros), para você retocar no Blockbench, e as
    animações (parado, andar, ataque, dano, estourar) no Ver modelos (Modelo → Demônios → O Assombrado).
-2. **A Asa sombria:** o modelo e as animações (voar, cuspir, desviar), e o projétil no Ver modelos.
+2. ✅ **A Asa sombria** (12/nov): o modelo de partida e as animações (voar, planar, cuspir, desviar, dano, estourar), e o
+   projétil, no Ver modelos (Modelo → Demônios → A Asa sombria).
 3. **O Devora almas:** o modelo, os tentáculos em onda, o nadar (a barbatana e a mancha), a marca e o salto.
 4. **As armas novas** (`docs/jogo.md`, "As armas"): a pistola de plasma e a escopeta de Demantino com as 4 balas e a
    recarga (a munição infinita por enquanto).

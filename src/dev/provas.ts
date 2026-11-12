@@ -2,6 +2,7 @@
 // publicado não leva isto). main.tsx põe em window.provas. Recarregue a página antes (o HMR deixa módulos velhos).
 //   const c = await provas.mae('grito', 1.1)                 a Mãe num instante (null = parada; estado = EstadoMae)
 //   const s = await provas.assombrado('atacar', 0.6, 0)      o Assombrado num instante ('atacar', 'dano' ou null; andar m/s)
+//   const v = await provas.asaSombria('cuspir', 0.5, 0.2)    a Asa sombria a 2 m ('cuspir', 'desviar', 'dano' ou null; a fase das asas)
 //   await provas.fotos([['grito', c, 'lado'], ['rosto', c, 'rosto']])   as fotos num quadro por cima da tela
 //   provas.limpar()                                          tira o quadro
 //   provas.medidas(c)                                        mãos, cabeça, quadril; o ângulo de cada mecha
@@ -29,6 +30,8 @@ import { animarAgente } from '../game/player/animacao'
 import { pegarArma, type Arma } from '../game/player/arma'
 import { montarAssombrado } from '../game/enemies/assombrado/modelo'
 import { animarAssombrado, atacar, ferir } from '../game/enemies/assombrado/animacao'
+import { montarAsaSombria } from '../game/enemies/asa-sombria/modelo'
+import { animarAsaSombria, cuspir as cuspirAsa, desviar as desviarAsa, ferir as ferirAsa } from '../game/enemies/asa-sombria/animacao'
 
 /** m: a Mãe (as cenas do Assombrado não têm) */
 export interface Cena { m: Mae | null; sc: THREE.Scene }
@@ -63,6 +66,28 @@ async function assombrado(acao: 'atacar' | 'dano' | null, ate: number, andar = 0
   for (let i = 0; i < 40; i++) animarAssombrado(a, {}, 1 / 60)
   if (acao === 'atacar') atacar(a); else if (acao === 'dano') ferir(a, 0)
   for (let t = 0; t < ate; t += 1 / 60) a.root.position.z += animarAssombrado(a, { andar }, 1 / 60).avanca / 60
+  a.root.updateMatrixWorld(true)
+  await new Promise((ok) => setTimeout(ok, 600))
+  return { m: null, sc }
+}
+
+/** A Asa sombria num instante, voando a 2 m: assenta, começa a ação (cuspir no alvo a 5 m à frente, na altura do peito;
+ *  desviar para a esquerda dela; dano vindo da frente) e anima até `ate` s. fase: onde está o bater de asas (0..1). */
+async function asaSombria(acao: 'cuspir' | 'desviar' | 'dano' | null, ate: number, fase?: number): Promise<Cena> {
+  const a = montarAsaSombria(), sc = new THREE.Scene(), alvo = new THREE.Vector3(0, 1.3, 5)
+  sc.background = new THREE.Color('#1c1a1e')
+  sc.add(new THREE.HemisphereLight('#ffffff', '#4a4640', 1))
+  const d = new THREE.DirectionalLight('#ffffff', 1.3); d.position.set(1, 3, 3); sc.add(d)
+  sc.add(new THREE.Mesh(new THREE.PlaneGeometry(8, 12).rotateX(-Math.PI / 2), new THREE.MeshStandardMaterial({ color: '#333' })))
+  a.root.position.set(0, 2, 0); a.anim.proxPlanar = 99 // sem planar sozinha: a foto sai igual
+  sc.add(a.root)
+  for (let i = 0; i < 40; i++) animarAsaSombria(a, {}, 1 / 60)
+  if (acao === 'cuspir') cuspirAsa(a); else if (acao === 'desviar') desviarAsa(a, 1); else if (acao === 'dano') ferirAsa(a, 0)
+  for (let t = 0; t < ate; t += 1 / 60) {
+    const s = animarAsaSombria(a, { alvo: acao === 'cuspir' ? alvo : undefined }, 1 / 60)
+    a.root.position.x += s.lado / 60; a.root.position.z -= s.recua / 60
+  }
+  if (fase !== undefined) { a.anim.fase = (fase - 1 / 60 / 0.42 + 1) % 1; animarAsaSombria(a, {}, 1 / 60) }
   a.root.updateMatrixWorld(true)
   await new Promise((ok) => setTimeout(ok, 600))
   return { m: null, sc }
@@ -210,4 +235,4 @@ function ir(x: number, z: number, yaw: number, pitch?: number, andar?: number) {
   return 'ok'
 }
 
-export const provas = { mae, assombrado, fotos, limpar, medidas, som: som_, ir, passo, escorrega, qualidade: nivelAtual, sombras: contarSombras, cena: () => ganchos.cena, gl: () => ganchos.gl }
+export const provas = { mae, assombrado, asaSombria, fotos, limpar, medidas, som: som_, ir, passo, escorrega, qualidade: nivelAtual, sombras: contarSombras, cena: () => ganchos.cena, gl: () => ganchos.gl }

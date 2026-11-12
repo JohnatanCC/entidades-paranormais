@@ -239,12 +239,16 @@ desenvolvedor; os traços, não o personagem dela):
 
 ## Os demônios (12/nov)
 
-- `modelos/demonios/<nome>.bbmodel`, com 64 px por metro, como os personagens. O primeiro: o Assombrado
-  (`assombrado.bbmodel`). As pastas de cada um, o desenho e as animações estão em `docs/demonios.md`.
+- `modelos/demonios/<nome>.bbmodel`, com 64 px por metro, como os personagens: o Assombrado (`assombrado.bbmodel`) e a
+  Asa sombria (`asa-sombria.bbmodel`). As pastas de cada um, o desenho e as animações estão em `docs/demonios.md`.
 - **Não têm o esqueleto do Matheus:** cada um tem as juntas do próprio corpo (o Assombrado: `quadril`, `corpo`, os três
-  olhos, os braços com a `garra`, a perna `coxa` › `canela` › `pe`). O nome das pastas é o que o código procura.
+  olhos, os braços com a `garra`, a perna `coxa` › `canela` › `pe`; a Asa sombria: `corpo`, as quatro pétalas da boca,
+  o `nucleo`, as asas com a ponta). O nome das pastas é o que o código procura.
+- **A Asa sombria voa:** a origem dela é o centro do corpo, não o chão (no Blockbench ela fica metade abaixo da grade).
+  As pétalas giram pela pasta: o ponto de giro de cada uma é a dobra, na ponta de fora do losango da boca.
 - **O que balança:** toda pasta `mecha_...` (a ponta do capuz, os pingos de matéria) balança com mola, presa no `corpo`.
-- **Os olhos:** blocos `luz_` (brilham sozinhos), cada olho na sua pasta: é ela que pisca, apaga e cresce.
+- **O que brilha:** blocos `luz_`, cada um na sua pasta (os olhos do Assombrado, o núcleo da Asa): é a pasta que pisca,
+  apaga e cresce.
 - **A perna do Assombrado é calculada no jogo:** a dobra que aparece no Blockbench vem do giro das pastas da perna, só
   para o desenho; pode mudar o tamanho da coxa e da canela, o jogo mede no arquivo.
 - **Muitos ao mesmo tempo:** o jogo monta o modelo uma vez e faz cópias que dividem a geometria, o material e a
@@ -261,5 +265,5 @@ desenvolvedor; os traços, não o personagem dela):
 3. **Os fantasmas no mesmo estilo:** ✅ a Mãe (o modelo, 10/nov; as animações em etapas) e o Glutão (ver
    "A identidade visual" em `docs/jogo.md`).
 4. **Os demônios, os Sombrios** (12/nov): em `modelos/demonios/`, com as pastas de cada um em `docs/demonios.md`.
-   ✅ O Assombrado (`assombrado.bbmodel`, o modelo de partida, para retocar).
+   ✅ O Assombrado (`assombrado.bbmodel`) e a Asa sombria (`asa-sombria.bbmodel`): os modelos de partida, para retocar.
 5. **Lara e Nicolas**: ✅ os modelos (11/nov, acima); a lanterna da Lara, as rotas, as falas e as cenas quando a demo Intro for trazida.

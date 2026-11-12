@@ -22,7 +22,7 @@ e captura entidades. Este projeto começa pelo **Modo desenvolvedor → Criador 
 - **Pergunte antes** quando a decisão mudar o que será construído (formato do mapa, controles, regras). Detalhes de implementação, decida e conte.
 - Ele prefere **instruções passo a passo** para o que ele mesmo tem que fazer (rodar, testar, configurar), em vez de você operar o computador dele.
 - **Conferir no navegador:** no `npm run dev`, use `window.provas` (`src/dev/provas.ts`) pelo console em vez de montar
-  o teste à mão: `provas.mae(golpe, t)` monta a Mãe num instante (`provas.assombrado(acao, t)`, o Assombrado), `provas.fotos([...])` tira fotos de vários ângulos,
+  o teste à mão: `provas.mae(golpe, t)` monta a Mãe num instante (`provas.assombrado(acao, t)` e `provas.asaSombria(acao, t)`, os demônios), `provas.fotos([...])` tira fotos de vários ângulos,
   `provas.medidas(c)` dá as mãos, a cabeça e as mechas, `provas.som([...])` mede o volume de cada trecho. Recarregue a
   página antes; o som só liga depois de um clique de verdade; com o painel escondido a página não desenha (as provas
   funcionam mesmo assim).
@@ -105,7 +105,8 @@ src/
                            relevo.ts (o relevo das texturas do cenário, gerado da imagem: na luz e o de verdade, do Ultra),
                            corte.ts (paredes altas / recortadas / baixas no editor), miniaturas.ts (fotos do catálogo de objetos),
                            bbmodel.ts (lê um modelo do Blockbench: pastas = juntas, blocos = malhas; "luz_" brilha; os
-                           personagens viram uma malha só com ossos: vestir),
+                           personagens viram uma malha só com ossos: vestir; os que se repetem, os demônios, são cópias
+                           de um molde que dividem tudo: copiaDoMolde),
                            objetos3d.ts (cada tipo de objeto, porta, janela e arma montado uma vez; o mapa usa cópias que dividem tudo)
   maps/                    types.ts (o formato v2), formato.ts (a conversão dos mapas antigos), ambientes.ts (o catálogo das
                            ambientações e dos momentos de luz: os números de cada uma), luzAssada.ts (a luz de cada lâmpada
@@ -125,7 +126,7 @@ texturas/                  as texturas do cenário: <nome>.png, 32 × 32 px por 
 modelos/                   os modelos do Blockbench (.bbmodel), lidos direto pelo jogo: agente.bbmodel, lara.bbmodel,
                            nicolas.bbmodel e victor.bbmodel (o mesmo esqueleto do agente), objetos/<tipo>.bbmodel,
                            aberturas/<tipo>.bbmodel (as portas e janelas), armas/<nome>.bbmodel (pistola, escopeta, armadilha),
-                           fantasmas/<nome>.bbmodel (a Mãe), demonios/<nome>.bbmodel (os Sombrios: o Assombrado)
+                           fantasmas/<nome>.bbmodel (a Mãe), demonios/<nome>.bbmodel (os Sombrios: o Assombrado, a Asa sombria)
 public/musica/             as músicas do jogo (menu.mp3: o menu e o criador de mapas)
 reference/                 o laboratório antigo, só para consulta (não importar nada daqui); ost/ = as 4 músicas dele
 docs/                      o que está decidido
@@ -137,7 +138,8 @@ Cada coisa do jogo mora na sua pasta; nada de arquivo gigante como o laboratóri
 ficam num arquivo próprio de cada pasta, para ajustar sem caçar no código.
 
 ```
-src/game/                  (já existem: Testar.tsx, player/, input/, world/, weapons/, corpo/, luz/, enemies/mae/, enemies/assombrado/ — o resto entra
+src/game/                  (já existem: Testar.tsx, player/, input/, world/, weapons/, corpo/, luz/, enemies/mae/, enemies/assombrado/,
+                           enemies/asa-sombria/ — o resto entra
                            quando a etapa chegar)
   luz/                     a luz do jogo: Iluminacao.tsx (a luz ambiente, o preenchimento, o luar, a neblina, a imagem final; entra
                            em toda cena de jogo), ceu.ts (o céu da noite: a cúpula com o degradê, as estrelas e a lua), luz.ts (a ambientação de onde o agente está, a troca suave, os momentos:
@@ -165,8 +167,11 @@ src/game/                  (já existem: Testar.tsx, player/, input/, world/, we
                            cada som toca), ruidos.ts (o corpo e o Luto: passos, estalos, garras, bolhas), golpes.ts (os ataques e os movimentos do Luto), estados.ts
                            (grito, exausta, atordoada, cambaleio, enfraquecida, capturada), luto.ts (a poça, as ondas,
                            os respingos, o aviso) e numeros.ts; o Assombrado tem modelo.ts (o molde e as cópias que dividem
-                           tudo), animacao.ts (o joão-bobo, os pulos, o ataque, o dano, estourar; a perna por IK) e numeros.ts
+                           tudo), animacao.ts (o joão-bobo, os pulos, o ataque, o dano, estourar; a perna por IK) e numeros.ts;
+                           a Asa sombria tem modelo.ts, animacao.ts (voar, planar, cuspir, desviar, o dano, estourar),
+                           projetil.ts (a bola de matéria com o núcleo e o rastro, uma malha só para todas) e numeros.ts
   enemies/estouro.ts       o estouro dos Sombrios (os cubos de matéria e a mancha que seca), um estoque só para todos
+  enemies/pastas.ts        achar as pastas de uma cópia de modelo pelo nome (avisa se faltar) e as mecha_ que balançam
   capture/                 a poça e a captura
   allies/                  Lara e Nicolas
   hud/                     o HUD conceito C
