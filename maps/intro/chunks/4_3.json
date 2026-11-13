@@ -507,6 +507,66 @@
     18.457015038893573
    ],
    "free": true
+  },
+  {
+   "type": "base-ilha",
+   "level": 0,
+   "pos": [
+    68,
+    0,
+    50.5
+   ],
+   "rot": [
+    0,
+    0,
+    0
+   ],
+   "id": "base-ilha-tc1tn"
+  },
+  {
+   "type": "base-ilha",
+   "level": 0,
+   "pos": [
+    72.5,
+    0,
+    49.5
+   ],
+   "rot": [
+    0,
+    0,
+    0
+   ],
+   "id": "base-ilha-g19z9"
+  },
+  {
+   "type": "base-ilha",
+   "level": 0,
+   "pos": [
+    74.25,
+    0,
+    52.75
+   ],
+   "rot": [
+    0,
+    0,
+    0
+   ],
+   "id": "base-ilha-0ylj5"
+  },
+  {
+   "type": "base-ilha",
+   "level": 0,
+   "pos": [
+    77,
+    0,
+    49
+   ],
+   "rot": [
+    0,
+    0,
+    0
+   ],
+   "id": "base-ilha-gsnde"
   }
  ],
  "decals": [],

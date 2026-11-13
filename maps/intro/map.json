@@ -1,5 +1,8 @@
 {
  "formato": 3,
+ "ambiente": "submundo",
+ "areas": [],
+ "semChao": true,
  "id": "intro",
  "nome": "Demo · Intro (o submundo)",
  "levels": 1,
@@ -14,9 +17,6 @@
   "yaw": 90,
   "level": 0
  },
- "ambiente": "submundo",
- "areas": [],
- "semChao": true,
  "chunks": [
   "0_2",
   "0_3",

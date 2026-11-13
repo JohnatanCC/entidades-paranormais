@@ -551,6 +551,21 @@
     2.953515903049631
    ],
    "free": true
+  },
+  {
+   "type": "base-ilha",
+   "level": 0,
+   "pos": [
+    37.75,
+    0,
+    35
+   ],
+   "rot": [
+    0,
+    0,
+    0
+   ],
+   "id": "base-ilha-zxvn8"
   }
  ],
  "decals": [],

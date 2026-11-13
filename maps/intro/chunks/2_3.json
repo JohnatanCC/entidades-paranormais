@@ -848,6 +848,36 @@
     2.3922178683730024
    ],
    "free": true
+  },
+  {
+   "type": "base-ilha",
+   "level": 0,
+   "pos": [
+    32.5,
+    0,
+    51
+   ],
+   "rot": [
+    0,
+    0,
+    0
+   ],
+   "id": "base-ilha-omsi3"
+  },
+  {
+   "type": "base-ilha",
+   "level": 0,
+   "pos": [
+    38,
+    0,
+    50
+   ],
+   "rot": [
+    0,
+    0,
+    0
+   ],
+   "id": "base-ilha-9se9u"
   }
  ],
  "decals": [],

@@ -156,6 +156,160 @@
    "z": 47,
    "top": "rocha-negra",
    "bottom": "rocha-negra"
+  },
+  {
+   "level": 0,
+   "x": 1,
+   "z": 43,
+   "top": "rocha-negra",
+   "bottom": "gesso"
+  },
+  {
+   "level": 0,
+   "x": 1,
+   "z": 44,
+   "top": "rocha-negra",
+   "bottom": "gesso"
+  },
+  {
+   "level": 0,
+   "x": 1,
+   "z": 45,
+   "top": "rocha-negra",
+   "bottom": "gesso"
+  },
+  {
+   "level": 0,
+   "x": 1,
+   "z": 46,
+   "top": "rocha-negra",
+   "bottom": "gesso"
+  },
+  {
+   "level": 0,
+   "x": 2,
+   "z": 43,
+   "top": "rocha-negra",
+   "bottom": "gesso"
+  },
+  {
+   "level": 0,
+   "x": 2,
+   "z": 45,
+   "top": "rocha-negra",
+   "bottom": "gesso"
+  },
+  {
+   "level": 0,
+   "x": 2,
+   "z": 46,
+   "top": "rocha-negra",
+   "bottom": "gesso"
+  },
+  {
+   "level": 0,
+   "x": 3,
+   "z": 43,
+   "top": "rocha-negra",
+   "bottom": "gesso"
+  },
+  {
+   "level": 0,
+   "x": 3,
+   "z": 44,
+   "top": "rocha-negra",
+   "bottom": "gesso"
+  },
+  {
+   "level": 0,
+   "x": 4,
+   "z": 43,
+   "top": "rocha-negra",
+   "bottom": "gesso"
+  },
+  {
+   "level": 0,
+   "x": 4,
+   "z": 44,
+   "top": "rocha-negra",
+   "bottom": "gesso"
+  },
+  {
+   "level": 0,
+   "x": 3,
+   "z": 47,
+   "top": "rocha-negra",
+   "bottom": "gesso"
+  },
+  {
+   "level": 0,
+   "x": 4,
+   "z": 46,
+   "top": "rocha-negra",
+   "bottom": "gesso"
+  },
+  {
+   "level": 0,
+   "x": 5,
+   "z": 45,
+   "top": "rocha-negra",
+   "bottom": "gesso"
+  },
+  {
+   "level": 0,
+   "x": 5,
+   "z": 46,
+   "top": "rocha-negra",
+   "bottom": "gesso"
+  },
+  {
+   "level": 0,
+   "x": 5,
+   "z": 47,
+   "top": "rocha-negra",
+   "bottom": "gesso"
+  },
+  {
+   "level": 0,
+   "x": 2,
+   "z": 47,
+   "top": "rocha-negra",
+   "bottom": "gesso"
+  },
+  {
+   "level": 0,
+   "x": 2,
+   "z": 44,
+   "top": "chao-rachado",
+   "bottom": "gesso"
+  },
+  {
+   "level": 0,
+   "x": 4,
+   "z": 45,
+   "top": "chao-rachado",
+   "bottom": "gesso"
+  },
+  {
+   "level": 0,
+   "x": 3,
+   "z": 45,
+   "top": "chao-rachado",
+   "bottom": "gesso"
+  },
+  {
+   "level": 0,
+   "x": 3,
+   "z": 46,
+   "top": "chao-rachado",
+   "bottom": "gesso"
+  },
+  {
+   "level": 0,
+   "x": 4,
+   "z": 47,
+   "top": "chao-rachado",
+   "bottom": "gesso"
   }
  ],
  "openings": [],
@@ -207,6 +361,21 @@
     17.953411902257628
    ],
    "free": true
+  },
+  {
+   "type": "base-ilha",
+   "level": 0,
+   "pos": [
+    4,
+    0,
+    45.25
+   ],
+   "rot": [
+    0,
+    0,
+    0
+   ],
+   "id": "base-ilha-e7j6d"
   }
  ],
  "decals": [],

@@ -443,6 +443,132 @@
    "z": 59,
    "top": "cinza",
    "bottom": "rocha-negra"
+  },
+  {
+   "level": 0,
+   "x": 4,
+   "z": 57,
+   "top": "rocha-negra",
+   "bottom": "gesso"
+  },
+  {
+   "level": 0,
+   "x": 4,
+   "z": 58,
+   "top": "rocha-negra",
+   "bottom": "gesso"
+  },
+  {
+   "level": 0,
+   "x": 4,
+   "z": 59,
+   "top": "rocha-negra",
+   "bottom": "gesso"
+  },
+  {
+   "level": 0,
+   "x": 5,
+   "z": 58,
+   "top": "rocha-negra",
+   "bottom": "gesso"
+  },
+  {
+   "level": 0,
+   "x": 5,
+   "z": 59,
+   "top": "rocha-negra",
+   "bottom": "gesso"
+  },
+  {
+   "level": 0,
+   "x": 6,
+   "z": 57,
+   "top": "rocha-negra",
+   "bottom": "gesso"
+  },
+  {
+   "level": 0,
+   "x": 7,
+   "z": 57,
+   "top": "rocha-negra",
+   "bottom": "gesso"
+  },
+  {
+   "level": 0,
+   "x": 7,
+   "z": 59,
+   "top": "rocha-negra",
+   "bottom": "gesso"
+  },
+  {
+   "level": 0,
+   "x": 8,
+   "z": 59,
+   "top": "rocha-negra",
+   "bottom": "gesso"
+  },
+  {
+   "level": 0,
+   "x": 8,
+   "z": 58,
+   "top": "rocha-negra",
+   "bottom": "gesso"
+  },
+  {
+   "level": 0,
+   "x": 6,
+   "z": 60,
+   "top": "rocha-negra",
+   "bottom": "gesso"
+  },
+  {
+   "level": 0,
+   "x": 8,
+   "z": 60,
+   "top": "rocha-negra",
+   "bottom": "gesso"
+  },
+  {
+   "level": 0,
+   "x": 5,
+   "z": 60,
+   "top": "rocha-negra",
+   "bottom": "gesso"
+  },
+  {
+   "level": 0,
+   "x": 7,
+   "z": 60,
+   "top": "rocha-negra",
+   "bottom": "gesso"
+  },
+  {
+   "level": 0,
+   "x": 6,
+   "z": 58,
+   "top": "chao-rachado",
+   "bottom": "gesso"
+  },
+  {
+   "level": 0,
+   "x": 5,
+   "z": 57,
+   "top": "chao-rachado",
+   "bottom": "gesso"
+  },
+  {
+   "level": 0,
+   "x": 6,
+   "z": 59,
+   "top": "chao-rachado",
+   "bottom": "gesso"
+  },
+  {
+   "level": 0,
+   "x": 7,
+   "z": 58,
+   "top": "chao-rachado",
+   "bottom": "gesso"
   }
  ],
  "openings": [],
@@ -582,6 +708,21 @@
     285,
     0
    ]
+  },
+  {
+   "type": "base-ilha",
+   "level": 0,
+   "pos": [
+    6.75,
+    0,
+    58.5
+   ],
+   "rot": [
+    0,
+    0,
+    0
+   ],
+   "id": "base-ilha-fpdh2"
   }
  ],
  "decals": [],
