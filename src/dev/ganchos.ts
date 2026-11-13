@@ -7,4 +7,6 @@ export const ganchos: {
   cena?: import('three').Scene
   /** O desenhista do Testar aberto (para inspecionar as sombras e a contagem). */
   gl?: import('three').WebGLRenderer
+  /** O controle do agente na fase (o que os inimigos ferem; os alvos das balas). */
+  fase?: import('../game/Testar').AgenteNaFase
 } = {}

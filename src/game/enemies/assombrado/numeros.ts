@@ -34,10 +34,10 @@ export const SURGIR = { dura: 1.1, fundo: 1.7, rompe: 0.3 }
 // os olhos piscam um de cada vez, fora de ordem: o intervalo (s, sorteado) e quanto dura uma piscada (s)
 export const PISCAR = { intervalo: [1.2, 4.2], dura: 0.13 }
 
-// a luta (ia.ts; docs/demonios.md, "Como lutam"): o dano e o alcance das garras (m) e o quanto o agente pode estar de
+// a luta (ia.ts; docs/demonios.md, "Como lutam"): a vida; o dano e o alcance das garras (m) e o quanto o agente pode estar de
 // lado na hora do pouso (rad); a velocidade pulando (m/s); de quão perto ele para; quão rápido vira (rad/s); a espera
 // entre um ataque e o próximo dele (s, sorteada); esperando a vez (outro do bando atacando), fica a esta distância;
 // o raio do corpo (bate nas coisas) e a distância mínima entre dois do bando (m); do lado da câmera (dentro de
 // `camera` rad da linha câmera-agente, mais perto que `contorna` m), ele dá a volta até o lado do agente antes de atacar
 // (senão tapa a vista)
-export const LUTA = { dano: 22, alcance: 1.4, frente: 1.0, vel: 1.2, perto: 1.2, vira: 4, espera: [1.2, 2.2], espaco: 2.2, raio: 0.35, separa: 0.9, camera: 0.9, contorna: 5 }
+export const LUTA = { vida: 60, dano: 22, alcance: 1.4, frente: 1.0, vel: 1.2, perto: 1.2, vira: 4, espera: [1.2, 2.2], espaco: 2.2, raio: 0.35, separa: 0.9, camera: 0.9, contorna: 5 }

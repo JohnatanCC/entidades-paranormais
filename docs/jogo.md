@@ -199,7 +199,7 @@ não colidem com ele, e só "lutam" nas cutscenes. Usam a mesma animação de an
 | Fôlego | 6 s de corrida, volta em 1,4× |
 | Esquiva (Espaço) | 2,7 m em 0,5 s, invulnerável de 0,03 a 0,34 s, recarga 0,7 s |
 | Invulnerável depois de dano | 0,9 s |
-| Kit médico (F) | cura 60. **A cada 1:30 nasce 1 kit, mas só se você estiver com 0.** Na Intro: +1 kit por onda limpa, +2 na enfermaria, e ao morrer volta com 5 |
+| Kit médico (F) | cura 60. **A cada 1:30 nasce 1 kit, mas só se você estiver com 0.** Começa com 3, no máximo 5; caindo, volta com pelo menos 3. Na Demo · Intro: +1 kit por onda limpa (KITS em `player/numeros.ts`) |
 
 ## As armas
 
@@ -236,8 +236,8 @@ ectoplasma em cima dela mostra: acende mais com o calor, treme perto do limite e
 devagar até destravar.
 
 Os números ficam em `src/game/weapons/numeros.ts` (MUNICAO) e os tempos da animação em `src/game/player/numeros.ts`
-(RECARGA). Por enquanto, um contador simples: no Testar, embaixo da vida ("Escopeta 3/4 · recarregando", "Pistola ·
-calor 42%", "travada 3 s"); no Ver modelos, na parte de atirar, com os botões "Segurar o gatilho" e "Recarregar".
+(RECARGA). No jogo e no Testar, o mostrador da arma no HUD (o anel do calor da pistola, as 4 balas da escopeta em
+pedaços do anel); no Ver modelos, um contador simples na parte de atirar, com os botões "Segurar o gatilho" e "Recarregar".
 
 **A munição da escopeta (12/nov): infinita por enquanto**, para testar. Mais tarde, as balas são **fabricadas** com o que
 se junta dos objetos destruídos e dos demônios mortos, num sistema de fabricação de munição e de aprimoramento (para
@@ -273,7 +273,21 @@ acompanha para baixo. Ela voa girando e **gruda no chão (em pé) ou na parede (
 Fora da mão, um clique a chama de volta: ela voa até a mão. Trocar de arma com ela fora a recolhe na hora
 (`src/game/weapons/armadilha.ts`). A captura (abrir a íris, o raio, puxar a poça) vem com o primeiro fantasma.
 
-A bala e o dano vêm na etapa 4b (`docs/demonios.md`). Quando os atalhos 1/2/3 das armas chegarem, eles deixam de
+**A bala (feita em 12/nov, a etapa 4b):** `src/game/weapons/bala.ts` e `impacto.ts`, os números em `numeros.ts` (BALA, IMPACTO).
+- **A mira de verdade:** a linha da câmera procura o que está embaixo dela (o demônio, a parede, o chão, até 25 m) e a
+  arma e a bala vão para lá. Com a mira em cima de um demônio, o tiro vai no meio dele (senão os bagos da escopeta
+  passavam pela borda). A conta da bala começa no peito (0,8 m antes do cano): quem está colado também leva o tiro.
+- **O voo:** a pistola, uma bala a 40 m/s (3 de dano); a escopeta, 5 bagos em leque a 46 m/s (10 cada). Um risco que
+  brilha, da cor do tiro. Vai até 60 m.
+- **Onde bate:** a parede, a porta fechada, os objetos (o guarda-corpo vazado deixa passar), o chão (no mapa sem chão,
+  o vazio não para a bala) e o teto: as faíscas e a marca queimada (some em 8 s).
+- **Nos demônios:** cada um se apresenta como esferas (o Assombrado e a Asa, uma; o Devora, a boca, o corpo e a cauda,
+  só o que está fora do chão). Acertou: o tranco vem do lado do tiro; zerou a vida (60, 40, 500), estoura. O Devora: o
+  corpo preto leva metade, a boca aberta leva cheio; cada barra que zera o deixa tonto e passa de fase; 60 de dano em
+  pouco tempo também.
+- **Leve:** as balas são uma malha só, as faíscas outra e as marcas outra; a procura da parede usa uma grade das caixas.
+
+Quando os atalhos 1/2/3 das armas chegarem, eles deixam de
 mostrar as expressões no Testar (isso fica no Ver modelos).
 
 ## Tomar dano e ficar machucado (10/nov)
@@ -287,9 +301,9 @@ Só a animação (decidido: machucado não muda a velocidade nem o correr). Sem 
   mancando da perna direita (o passo dela é mais curto), a mão esquerda segurando o lado quando está livre (não na
   bomba, na mira ou apontando) e o rosto de esforço; não faz gestos de parado. Melhora devagar quando se cura.
 
-A vida (`src/game/player/vida.ts`): 200, invulnerável 0,9 s depois de um golpe, o kit (F) cura 60; zerou, a queda.
-No Testar ela é simples (sem HUD: a vida em % num canto): **J** toma 25 de uma direção sorteada, **F** usa um kit (sem
-limite, por enquanto) e, depois da queda, ele volta com a vida cheia. No Ver modelos: **Tomar dano** e **Machucado**.
+A vida (`src/game/player/vida.ts`): 200, invulnerável 0,9 s depois de um golpe, o kit (F) cura 60 (os kits: a tabela
+acima); zerou, a queda. No Testar: **J** toma 25 de uma direção sorteada, **F** usa um kit e, depois da queda, ele volta
+com a vida cheia. A vida e os kits aparecem no HUD. No Ver modelos: **Tomar dano** e **Machucado**.
 
 ## A queda do agente (decidida em 10/nov)
 
@@ -473,6 +487,14 @@ Números da tabela `T` em `buildDemo()` do laboratório (linha ~7674); a lógica
   - 3: **a luta** (o berço, o tornado, a chuva, a música de batalha `batalha_mae.mp3`), quando a luta existir.
 
 ## O HUD (conceito C, aprovado)
+
+**Feito em 12/nov** (`src/game/hud/`: Hud.tsx e hud.css), no jogo e no Testar do editor: o anel da vida com o fôlego,
+o selo dos kits, o mostrador da arma (a pistola: o anel do calor, "trava 4 s" piscando; a escopeta: o anel em 4
+pedaços, um por bala, "R · recarregar"; a armadilha: pronta, no ar, no chão, voltando; sem arma: "mão livre"). As duas
+armas em volta são as próximas do **Q** (a de cima, com a letra, é a que vem). Em cima, na luta do chefe, o nome e as
+barras de vida dele (a da direita esvazia primeiro; a que está sendo gasta tem o contorno). O desenho é feito uma vez;
+a cada quadro só muda o que mudou. **Ficam para depois:** as legendas (quando houver falas), a roda de armas (Tab, com os
+atalhos 1/2/3) e os avisos de controle.
 
 - **Vida**: anel grande com o número em %, linha de ECG e o estado (bem / cuidado / perigo); o fôlego é um anel por dentro.
 - **Kits**: um selo com a quantidade e um anel que mostra o tempo até o próximo kit (quando está com 0).

@@ -1,0 +1,66 @@
+/* O HUD conceito C (Hud.tsx): âmbar #e8b765, latão #c89b4a, creme #efe6d6, perigo #c2453a; os tamanhos acompanham a tela */
+.hud { position: absolute; inset: 0; z-index: 5; pointer-events: none; font-family: var(--body); }
+.hud svg { display: block; overflow: visible; }
+
+/* a vida: o anel (3/4 de volta), o fôlego por dentro, o ECG, o número e o estado */
+.hud-vida { --s: clamp(118px, 19vmin, 220px); --hc: #7ad08a; position: absolute; left: max(18px, env(safe-area-inset-left, 0px)); bottom: calc(16px + env(safe-area-inset-bottom, 0px)); width: var(--s); height: var(--s); }
+.hud-vida.cuidado { --hc: #e8c14a; } .hud-vida.perigo { --hc: #e2553e; }
+.hud-vida svg, .hud-arma > svg { position: absolute; inset: 0; width: 100%; height: 100%; }
+.hud-vida .bk, .hud-arma .bk { fill: rgba(11, 10, 9, .86); }
+.hud-vida .tr, .hud-vida .fl, .hud-vida .str, .hud-vida .sfl, .hud-arma .tr, .hud-arma .fl { fill: none; transform: rotate(135deg); transform-origin: 100px 100px; }
+.hud-vida .tr { stroke: #2a2622; stroke-width: 15; stroke-linecap: round; }
+.hud-vida .fl { stroke: var(--hc); stroke-width: 15; stroke-linecap: round; transition: stroke .3s, stroke-dasharray .15s; }
+.hud-vida .str { stroke: rgba(143, 180, 200, .14); stroke-width: 4; stroke-linecap: round; }
+.hud-vida .sfl { stroke: #8fb4c8; stroke-width: 4; stroke-linecap: round; }
+.hud-vida.travado .sfl { stroke: #6a4a46; }
+.hud-vida .ecg { fill: none; stroke: var(--hc); stroke-width: 3; stroke-linejoin: round; stroke-linecap: round; opacity: .85; stroke-dasharray: 120 140; animation: hudEcg 1.3s linear infinite; }
+.hud-vida.perigo .ecg { animation-duration: .62s; }
+@keyframes hudEcg { from { stroke-dashoffset: 260; } to { stroke-dashoffset: 0; } }
+.hud-vida b { position: absolute; left: 0; right: 0; top: 23%; text-align: center; font-weight: 600; font-size: calc(var(--s) * .17); line-height: 1;
+  color: var(--cream); font-variant-numeric: tabular-nums; text-shadow: 0 1px 3px #000; }
+.hud-vida span { position: absolute; left: 0; right: 0; bottom: 22%; text-align: center; font-size: calc(var(--s) * .068); letter-spacing: .24em; color: var(--hc); text-transform: uppercase; }
+
+/* os kits: o selo ao lado da vida; zerado, apagado com o anel do próximo */
+.hud-kit { --k: calc(clamp(118px, 19vmin, 220px) * .3); position: absolute; left: calc(max(18px, env(safe-area-inset-left, 0px)) + clamp(118px, 19vmin, 220px) * .94);
+  bottom: calc(20px + env(safe-area-inset-bottom, 0px)); display: flex; align-items: center; gap: 10px; text-shadow: 0 1px 3px #000; }
+.hud-kit .selo { position: relative; width: var(--k); height: var(--k); border-radius: 50%; background: rgba(11, 10, 9, .88); box-shadow: 0 0 0 2px #5a4e3c;
+  display: grid; place-items: center; color: var(--cream); --cut: #0b0a09; }
+.hud-kit .selo > svg:not(.rg) { width: 62%; height: 62%; }
+.hud-kit .rg { position: absolute; inset: -4px; width: calc(100% + 8px); height: calc(100% + 8px); transform: rotate(-90deg); }
+.hud-kit .rg .fl { fill: none; stroke: #9cff7a; stroke-width: 4; stroke-linecap: round; }
+.hud-kit.nenhum .selo { color: #5a564e; }
+.hud-kit b { font-weight: 600; font-size: calc(var(--k) * .42); color: var(--cream); }
+.hud-kit span { font-size: calc(var(--k) * .22); letter-spacing: .12em; color: #9a8f80; text-transform: uppercase; white-space: nowrap; }
+
+/* a arma: o mostrador, o anel (o calor da pistola, as balas da escopeta), a linha, as outras em volta e o nome */
+.hud-arma { --w: clamp(124px, 21vmin, 240px); position: absolute; right: max(18px, env(safe-area-inset-right, 0px)); bottom: calc(14px + env(safe-area-inset-bottom, 0px)); width: var(--w); height: var(--w); }
+.hud-arma .tr { stroke: #2a2218; stroke-width: 12; }
+.hud-arma .fl { stroke: var(--amber); stroke-width: 12; }
+.hud-arma.morno .fl { stroke: #ffb04a; } .hud-arma.quente .fl { stroke: #ff4a3a; }
+.hud-arma .in { fill: #1a130a; stroke: var(--brass); stroke-width: 2; }
+.hud-arma > .ic { position: absolute; left: 50%; top: 45%; width: 52%; height: 52%; transform: translate(-50%, -50%); color: #ead7aa; --cut: #1a130a; filter: drop-shadow(0 0 6px rgba(232, 183, 101, .25)); }
+.hud-arma .ic svg { width: 100%; height: 100%; }
+.hud-arma > em { position: absolute; left: 0; right: 0; bottom: 21%; text-align: center; font-style: normal; font-weight: 600; font-size: calc(var(--w) * .062); letter-spacing: .06em;
+  color: var(--amber); white-space: nowrap; text-shadow: 0 1px 2px #000; }
+.hud-arma.quente > em { color: #ff8a7a; } .hud-arma.vazia > em { color: #9a8f80; }
+.hud-arma .sat { position: absolute; width: 32%; height: 32%; border-radius: 50%; background: rgba(11, 10, 9, .9); box-shadow: 0 0 0 2px #5a4e3c; color: #9a8f80; --cut: #0b0a09; }
+.hud-arma .sat .ic { position: absolute; inset: 15%; }
+.hud-arma .sat:has(.ic:empty) { display: none; }
+.hud-arma .sat i { position: absolute; left: -10%; top: -14%; font-style: normal; font-weight: 600; font-size: calc(var(--w) * .06); color: #9a8f80; text-shadow: 0 1px 2px #000; }
+.hud-arma .s1 { left: -4%; top: -22%; } .hud-arma .s2 { left: -34%; top: 14%; }
+.hud-nome { position: absolute; right: calc(max(18px, env(safe-area-inset-right, 0px)) + clamp(124px, 21vmin, 240px) * .98); bottom: calc(22px + env(safe-area-inset-bottom, 0px));
+  font-weight: 600; font-size: clamp(12px, 1.7vmin, 19px); letter-spacing: .06em; text-transform: uppercase; color: var(--cream); text-shadow: 0 1px 3px #000; white-space: nowrap; text-align: right; }
+.hud-nome small { display: block; margin-top: 4px; font-weight: 400; font-size: .72em; letter-spacing: .14em; color: #9a8f80; }
+.hud-nome small.quente { color: #ff8a7a; }
+
+/* o chefe: o nome e as barras de vida, em cima (abaixo da linha do roteiro) */
+.hud-chefe { position: absolute; left: 50%; top: 64px; transform: translateX(-50%); width: min(720px, calc(100% - 32px)); display: grid; gap: 5px; z-index: 5; pointer-events: none;
+  text-shadow: 0 1px 2px #000; }
+.hud-chefe b { font-family: var(--display); font-weight: 400; font-size: 22px; letter-spacing: .3em; color: var(--cream); text-align: center; text-transform: uppercase; }
+.hud-chefe .barras { display: flex; gap: 4px; height: 9px; }
+.hud-chefe .barra { flex: 1; position: relative; background: rgba(255, 255, 255, .09); box-shadow: 0 1px 3px #000; overflow: hidden; }
+.hud-chefe .barra i { position: absolute; inset: 0; transform-origin: left; background: #b3433c; transition: transform .2s; }
+.hud-chefe .barra.atual { outline: 1px solid rgba(255, 255, 255, .45); outline-offset: 1px; }
+
+/* no celular de pé, menores */
+@media (max-width: 640px) { .hud-nome { display: none; } }

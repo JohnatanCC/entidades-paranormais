@@ -40,6 +40,7 @@ import { FerramentaPiso } from './FerramentaPiso'
 import { Paleta } from './Paleta'
 import { MapManager } from './MapManager'
 import { MapView } from './MapView'
+import { Hud, type EstadoHud } from '../game/hud/Hud'
 
 type Ferramenta = 'paredes' | 'apagar' | 'piso' | 'pincel' | 'aberturas' | 'escadas' | 'objetos' | 'contagotas' | 'ambiente'
 const FERRAMENTAS: { id: Ferramenta; nome: string; tecla: string; icone: ReactNode }[] = [
@@ -111,8 +112,8 @@ export function MapEditor({ go }: { go: Go }) {
   const [dicaTeste, setDicaTeste] = useState<string | null>(null)
   const [mirando, setMirando] = useState(false)
   const [escuro, setEscuro] = useState(false)
-  const [vidaTeste, setVidaTeste] = useState(100)
-  const [armaTeste, setArmaTeste] = useState<string | null>(null)
+  const hudTeste = useRef<((e: EstadoHud) => void) | null>(null) // o HUD do Testar (o Testar conta a cada quadro)
+  const onHudTeste = useCallback((e: EstadoHud) => hudTeste.current?.(e), [])
   // o estado vivo das portas enquanto testa (o mapa não muda; sair do teste volta tudo como estava)
   const portasVivas = useMemo<PortasVivas | null>(() => (testando ? new Map() : null), [testando])
   useEffect(() => { setModoParedes(testando ? 'altas' : modoParedes) }, [modoParedes, testando])
@@ -123,7 +124,7 @@ export function MapEditor({ go }: { go: Go }) {
     setSelecionada(null); setTipoObjeto(null)
     setTestando({ inicio: [a.x, andar * LEVEL_H, a.y], yaw: Math.atan2(-d.x, -d.y) })
   }
-  const sairTeste = useCallback(() => { setTestando(null); setTravado(false); setDicaTeste(null); setArmaTeste(null) }, [])
+  const sairTeste = useCallback(() => { setTestando(null); setTravado(false); setDicaTeste(null) }, [])
   // o aviso some sozinho depois de uns segundos
   useEffect(() => { if (!aviso) return; const t = setTimeout(() => setAviso(''), 5000); return () => clearTimeout(t) }, [aviso])
   const statusRef = useRef<HTMLSpanElement>(null)
@@ -419,7 +420,7 @@ export function MapEditor({ go }: { go: Go }) {
             <directionalLight position={[-10, 8, -4]} intensity={0.5} />
           </>}
           {doc && <Suspense fallback={null}><MapView chunks={doc.chunks} maxLevel={testando ? nAndares - 1 : andar} ocultar={ferramenta === 'objetos' && !testando ? arrastando : null} portas={portasVivas} juntar={!!testando} /></Suspense>}
-          {doc && testando && portasVivas && <Testar chunks={doc.chunks} levels={nAndares} ambiente={doc.meta.ambiente} semChao={doc.meta.semChao} areas={doc.meta.areas} inicio={testando.inicio} yaw={testando.yaw} portas={portasVivas} onTravado={setTravado} onDica={setDicaTeste} onMira={setMirando} onEscuro={setEscuro} onVida={setVidaTeste} onArma={setArmaTeste} onSair={sairTeste} />}
+          {doc && testando && portasVivas && <Testar chunks={doc.chunks} levels={nAndares} ambiente={doc.meta.ambiente} semChao={doc.meta.semChao} areas={doc.meta.areas} inicio={testando.inicio} yaw={testando.yaw} portas={portasVivas} onTravado={setTravado} onDica={setDicaTeste} onMira={setMirando} onEscuro={setEscuro} onHud={onHudTeste} onSair={sairTeste} />}
           {testando && <Desempenho onTexto={onDesempenho} />}
           {doc && !testando && (ferramenta === 'paredes' || ferramenta === 'apagar') && <FerramentaParedes doc={doc} andar={andar} apagar={ferramenta === 'apagar'} onFeito={onFeito} onInfo={onInfo} />}
           {doc && !testando && ferramenta === 'piso' && <FerramentaPiso doc={doc} andar={andar} onFeito={onPiso} onInfo={onInfo} />}
@@ -443,8 +444,7 @@ export function MapEditor({ go }: { go: Go }) {
         {testando && mirando && <div className="mira-ponto" />}
         {testando && <div className={escuro ? 'escuro-teste ligado' : 'escuro-teste'} />}
         {testando && <pre className="desempenho-teste" ref={desempenhoRef} />}
-        {testando && <div className={vidaTeste <= 30 ? 'vida-teste perigo' : 'vida-teste'}>Vida {vidaTeste}%</div>}
-        {testando && armaTeste && <div className={armaTeste.includes('travada') ? 'arma-teste perigo' : 'arma-teste'}>{armaTeste}</div>}
+        {testando && <Hud painel={hudTeste} />}
         {testando && <div className={travado ? 'teste-b jogando' : 'teste-b'}>
           {travado
             ? <span>WASD anda · Shift corre · Espaço esquiva · E abre e fecha porta · Q troca a arma · R recarrega a escopeta · botão direito mira, esquerdo atira (ou joga a armadilha; fora, chama de volta) · mouse olha (sem o cursor travado: arraste) · 1–6 expressões, 7–9 mãos, 0 automático, J toma dano, F kit, K cai, M momento de luz, F3 desempenho · <b>Esc</b> volta ao editor</span>

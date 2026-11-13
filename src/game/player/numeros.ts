@@ -13,6 +13,14 @@ export const AGENTE = {
   kit: 60, // quanto o kit médico (F) cura
 }
 
+// Os kits médicos (docs/jogo.md): o HUD mostra no selo ao lado da vida
+export const KITS = {
+  inicio: 3, // com quantos começa (e o mínimo ao voltar depois de cair)
+  max: 5,
+  novo: 90, // zerado, nasce um a cada 1:30 (s)
+  porOnda: 1, // numa fase, a onda limpa dá (o roteiro)
+}
+
 // O cabelo (corpo/molas.ts): as mechas balançam com a gravidade e o tranco da cabeça
 export const CABELO = {
   mola: 45, // quão rápido volta (mais = mais duro)
@@ -37,7 +45,7 @@ export const CAMERA = {
   pitchMin: -0.95,
   pitchMax: 0.8,
   mira: { atras: 1.25, lado: 0.62, acima: 0.06, fov: 46, entra: 10 }, // mirando: mais perto, mais de lado, fechada; entra = quão rápido (por s)
-  alcanceMira: 25, // m: o ponto para onde a arma aponta, na frente da câmera
+  alcanceMira: 25, // m: até onde a mira procura o que está embaixo dela (o demônio, a parede, o chão: a arma e a bala vão para lá)
 }
 
 // O andar (player/passada.ts e animacao.ts): o tamanho do passo e quanto o quadril, o tronco e os braços acompanham.

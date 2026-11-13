@@ -96,7 +96,7 @@ src/
                            vogais, o grito, o sussurro; liga no primeiro clique; o volume é Geral × Efeitos
   dev/provas.ts            só no npm run dev (window.provas): fotos, medidas e o volume da Mãe, para conferir pelo console;
                            provas.ir(x, z, yaw) leva o agente a um ponto no Testar (dev/ganchos.ts), provas.qualidade() diz o nível,
-                           provas.sombras() conta as lâmpadas com sombra, provas.cena() dá a cena do Testar para inspecionar,
+                           provas.sombras() conta as lâmpadas com sombra, provas.cena() dá a cena do Testar para inspecionar, provas.fase() o controle do agente (os alvos das balas),
                            provas.passo() mostra um ciclo do andar em 8 quadros (também de lado e de costas), provas.escorrega() mede o pé de apoio
   audio/espaco.ts          o som 3D: a voz sai da boca do personagem, no mundo; o ouvido é a câmera (ouvinte, a cada quadro)
   render/                  qualidade.ts (os níveis Baixo, Médio, Alto e Ultra, os recursos ajustáveis um a um e o automático), passeFinal.ts (a passada de
@@ -142,7 +142,7 @@ Cada coisa do jogo mora na sua pasta; nada de arquivo gigante como o laboratóri
 ficam num arquivo próprio de cada pasta, para ajustar sem caçar no código.
 
 ```
-src/game/                  (já existem: Testar.tsx, player/, input/, world/, weapons/, corpo/, luz/, enemies/mae/, enemies/assombrado/,
+src/game/                  (já existem: Testar.tsx, player/, input/, world/, weapons/, corpo/, luz/, hud/, enemies/mae/, enemies/assombrado/,
                            enemies/asa-sombria/, enemies/devora-almas/ — o resto entra
                            quando a etapa chegar)
   luz/                     a luz do jogo: Iluminacao.tsx (a luz ambiente, o preenchimento, o luar, a neblina, a imagem final; entra
@@ -158,14 +158,15 @@ src/game/                  (já existem: Testar.tsx, player/, input/, world/, we
                            arma.ts (a arma na mão; a escopeta com as duas mãos ou no ombro; o pêndulo da armadilha; o frasco
                            da pistola com o calor; Q troca no Testar), mira.ts (mirar: a pose, o coice, a bomba depois do tiro),
                            recarga.ts (a recarga da escopeta: a bolsa, o cartucho, as balas puxadas pela arma), queda.ts (cair sem violência), dano.ts (o tranco de um golpe,
-                           machucado), vida.ts (a vida, a invulnerabilidade, o kit), parado.ts (a respiração, o
+                           machucado), vida.ts (a vida, a invulnerabilidade, os kits), parado.ts (a respiração, o
                            peso e os gestos de parado), alcancar.ts (o braço alcança um ponto: IK de dois ossos),
                            rosto.ts (as expressões), passada.ts (as curvas de uma passada de verdade: andar e correr),
                            pes.ts (o pé de apoio preso no chão, em qualquer direção: IK da perna), controle.ts
                            (andar, correr, esquivar; preso e lento), numeros.ts
   weapons/                 tiro.ts (o gatilho e a cadência), clarao.ts (o clarão no cano), municao.ts (as 4 balas e a
                            recarga da escopeta, a sobrecarga da pistola, o contador simples), armadilha.ts (jogar: o voo em
-                           arco, grudar, chamar de volta, a linha do arco), numeros.ts; depois a bala
+                           arco, grudar, chamar de volta, a linha do arco), bala.ts (a bala: a mira de verdade, o voo, bater e
+                           acertar os alvos), impacto.ts (as faíscas e a marca), numeros.ts
   enemies/<nome>/          um inimigo por pasta (mae/, glutao/, assombrado/, asa-sombria/, devora-almas/): IA, ataques, modelo, números; a Mãe já tem
                            modelo.ts (monta o modelo, a saia e o cabelo com molas), pose.ts (as molas da pose, do
                            laboratório), animacao.ts (parada, andar, passar pela porta), rosto.ts (as expressões, os
@@ -192,7 +193,8 @@ src/game/                  (já existem: Testar.tsx, player/, input/, world/, we
   enemies/pastas.ts        achar as pastas de uma cópia de modelo pelo nome (avisa se faltar) e as mecha_ que balançam
   capture/                 a poça e a captura
   allies/                  Lara e Nicolas
-  hud/                     o HUD conceito C
+  hud/                     Hud.tsx + hud.css: o HUD conceito C (a vida e o fôlego, os kits, a arma, as barras do chefe); o jogo
+                           conta a cada quadro (EstadoHud) e ele só muda o que mudou; as legendas e a roda de armas vêm depois
   input/                   acoes.ts: ações do jogador (teclado e mouse; depois controle e toque): o jogo lê ações, nunca teclas
   world/                   colisao.ts (paredes, portas, móveis, corrimão, chão, escadas, braço da câmera, a armadilha jogada, a beirada do mapa sem chão, os bloqueios do roteiro), portas.ts (abrir e fechar
                            com E, o estado vivo das portas); depois carregar por blocos

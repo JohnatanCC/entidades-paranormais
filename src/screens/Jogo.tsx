@@ -1,7 +1,7 @@
 // Uma fase do jogo, fora do editor: o mapa (maps/<mapa>, lido da pasta) com o agente jogando, como no Testar do criador
 // de mapas (a câmera, a colisão, a luz do lugar, as armas, a vida), em tela cheia; Esc volta ao menu.
 // A Demo · Intro (docs/intro.md) é o mapa "intro": o submundo, as três arenas, com o roteiro dela (src/chapters/intro/:
-// as hordas, os tornados, o chefe, a música); a linha do roteiro aparece no alto da tela.
+// as hordas, os tornados, o chefe, a música); a linha do roteiro aparece no alto da tela, e o HUD (game/hud) embaixo.
 import { Suspense, useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { Canvas } from '@react-three/fiber'
 import type { Go } from '../App'
@@ -15,6 +15,7 @@ import { setModoParedes } from '../render/corte'
 import { canvasDoNivel, useDefinicao } from '../render/qualidade'
 import { Roteiro, type TextoRoteiro } from '../chapters/intro/Roteiro'
 import type { AgenteNaFase } from '../game/Testar'
+import { BarrasDoChefe, Hud, type EstadoHud } from '../game/hud/Hud'
 
 /** Os roteiros das fases, pelo mapa (por enquanto, só a Demo · Intro). */
 const ROTEIROS: Record<string, typeof Roteiro> = { intro: Roteiro }
@@ -35,10 +36,11 @@ export function Jogo({ go, mapa }: { go: Go; mapa: string }) {
   const definicao = useDefinicao()
   const portas = useMemo<PortasVivas>(() => new Map(), [])
   const [travado, setTravado] = useState(false), [dica, setDica] = useState<string | null>(null), [mirando, setMirando] = useState(false)
-  const [escuro, setEscuro] = useState(false), [vida, setVida] = useState(100), [arma, setArma] = useState<string | null>(null)
+  const [escuro, setEscuro] = useState(false)
   const desempenho = useRef<HTMLPreElement>(null)
   const onDesempenho = useCallback((t: string) => { if (desempenho.current) desempenho.current.textContent = t }, [])
   const sair = useCallback(() => go('menu'), [go])
+  const hud = useRef<((e: EstadoHud) => void) | null>(null), onHud = useCallback((e: EstadoHud) => hud.current?.(e), [])
   // o roteiro recebe o controle do agente (do Testar); a linha dele aparece no alto
   const jogo = useRef<AgenteNaFase | null>(null), [roteiro, setRoteiro] = useState<TextoRoteiro | null>(null)
   const aoMontar = useCallback((c: AgenteNaFase) => { jogo.current = c }, [])
@@ -53,7 +55,7 @@ export function Jogo({ go, mapa }: { go: Go; mapa: string }) {
         <color attach="background" args={['#000']} />
         <Suspense fallback={null}><MapView chunks={chunks} maxLevel={meta.levels - 1} portas={portas} juntar /></Suspense>
         <Testar chunks={chunks} levels={meta.levels} ambiente={meta.ambiente} semChao={meta.semChao} areas={meta.areas} inicio={[x, y, z]} yaw={(meta.spawn.yaw * Math.PI) / 180}
-          portas={portas} onTravado={setTravado} onDica={setDica} onMira={setMirando} onEscuro={setEscuro} onVida={setVida} onArma={setArma} onSair={sair} aoMontar={aoMontar} />
+          portas={portas} onTravado={setTravado} onDica={setDica} onMira={setMirando} onEscuro={setEscuro} onHud={onHud} onSair={sair} aoMontar={aoMontar} />
         {RoteiroDaFase && <RoteiroDaFase chunks={chunks} jogo={jogo} aoTexto={setRoteiro} />}
         <Desempenho onTexto={onDesempenho} />
       </Canvas>
@@ -62,8 +64,8 @@ export function Jogo({ go, mapa }: { go: Go; mapa: string }) {
       {mirando && <div className="mira-ponto" />}
       <div className={escuro ? 'escuro-teste ligado' : 'escuro-teste'} />
       <pre className="desempenho-teste" ref={desempenho} />
-      <div className={vida <= 30 ? 'vida-teste perigo' : 'vida-teste'}>Vida {vida}%</div>
-      {arma && <div className={arma.includes('travada') ? 'arma-teste perigo' : 'arma-teste'}>{arma}</div>}
+      <Hud painel={hud} />
+      {roteiro?.chefe && <BarrasDoChefe chefe={roteiro.chefe} />}
       {!travado && <div className="teste-b"><b>{meta.nome}</b><span>Clique para jogar · Esc volta ao menu</span></div>}
     </div>
   )

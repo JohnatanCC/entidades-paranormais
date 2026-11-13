@@ -3,7 +3,7 @@
 Decidido em 12/nov. A Intro nova (no lugar da instalação da C.R.O.S. do laboratório, `docs/jogo.md`): o Matheus é sugado
 pela ruptura e cai no submundo, um lugar vazio com ilhas de rocha negra flutuando na névoa vermelha. São **três arenas
 ligadas por pontes de pedra**: duas de hordas dos Sombrios e a do chefe, o Devora almas (`docs/demonios.md`). Sem
-tutorial por enquanto (ensinar os controles aos poucos fica para depois). Depois desta demo vêm o HUD e as balas das armas.
+tutorial por enquanto (ensinar os controles aos poucos fica para depois). Depois desta demo vieram as balas das armas e o HUD (12/nov).
 
 No menu: **Novo jogo → Demo · Intro** (`src/screens/NovoJogo.tsx`, `src/screens/Jogo.tsx`). O jogo de uma fase é o mesmo
 agente do Testar do criador de mapas (a câmera, a colisão, a luz do lugar, as armas, a vida), em tela cheia; Esc volta ao menu.
@@ -94,7 +94,9 @@ Cada Sombrio pensa no `ia.ts` da pasta dele (os números em `LUTA`, no `numeros.
 - **Medido no teste** (o agente parado, sem esquivar): na arena 1 os Assombrados levam ~10 s para chegar e batem a cada
   ~3 s; na arena 2 as bolas e as garras juntas tiram ~25% em 8 s; o Devora engole quem fica parado na marca. Os números
   são o ponto de partida: ajustar jogando.
+- **As balas (12/nov):** os demônios levam tiro e estouram de verdade (`docs/jogo.md`, "A bala"); a tecla H continua, de teste.
 - **Em aberto:** a câmera não desvia dos demônios (um Assombrado muito perto ainda pode ficar na frente); o projétil
   ainda atravessa paredes e objetos.
 
-Depois: o HUD (o conceito C) e as balas das armas (a etapa 4b de `docs/demonios.md`).
+Depois: ✅ as balas das armas (a etapa 4b de `docs/demonios.md`, 12/nov) e ✅ o HUD (o conceito C, 12/nov: as barras do chefe em cima; a onda limpa dá um kit). Ainda sem som: o
+tiro, a bala batendo e o demônio levando tiro.

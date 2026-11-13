@@ -69,7 +69,7 @@ export function passoMunicao(m: Municao, arma: Arma | null, pode: boolean, dt: n
   if (m.recarga >= duracaoDaRecarga(m.faltavam)) m.recarga = -1
 }
 
-/** O contador simples (o HUD conceito C vem depois): o que mostrar da arma na mão, ou null (sem munição para contar). */
+/** O contador simples do Ver modelos (o jogo usa o HUD, game/hud): o que mostrar da arma na mão, ou null. */
 export function textoDaMunicao(m: Municao, arma: Arma | null): string | null {
   if (arma === 'escopeta') return `Escopeta ${m.balas}/${E.balas}${m.recarga >= 0 ? ' · recarregando' : ''}`
   if (arma === 'pistola') return m.travada > 0 ? `Pistola · travada ${Math.ceil(m.travada)} s` : `Pistola · calor ${Math.round(m.calor * 100)}%`

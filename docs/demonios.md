@@ -291,7 +291,8 @@ do chão, a bolha, o respingo) em `src/game/enemies/sons.ts`. No Ver modelos, ca
 4. **As armas novas** (`docs/jogo.md`, "As armas"), em duas partes:
    - **4a. Feita (12/nov).** a escopeta de Demantino com as 4 balas e a recarga nova (1,5 s por bala, cada uma vale ao entrar; a animação do
      cartucho e das balas puxadas pela arma), e a pistola de plasma com a sobrecarga (esquenta, trava 5 s); contadores
-     simples no Testar e no Ver modelos (o HUD conceito C vem depois). Como ficou: `docs/jogo.md`, "As armas";
-   - **4b.** a bala de verdade: o tiro sai, voa, bate na parede (a faísca e a marca) e acerta o que tiver na frente.
+     simples no Ver modelos; no jogo, o HUD conceito C (12/nov). Como ficou: `docs/jogo.md`, "As armas";
+   - **4b. Feita (12/nov).** a bala de verdade: o tiro sai, voa, bate na parede (a faísca e a marca) e acerta o que
+     tiver na frente. Como ficou: `docs/jogo.md`, "A bala".
 5. **A luta:** ✅ atrás do agente e atacando, na Demo · Intro (12/nov, `docs/intro.md`); falta tomar tiro e estourar pelas
    balas (depois da 4b).

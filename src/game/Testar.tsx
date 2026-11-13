@@ -1,12 +1,12 @@
 // O Testar do criador de mapas: o agente andando no mapa aberto, com a câmera por cima do ombro, colisão, escadas e
 // as lâmpadas acesas, a luz do lugar (a ambientação de cada área do mapa: game/luz) e a arma na mão (Q troca): mira e atira (o coice e o clarão), joga a armadilha e chama de volta,
-// a escopeta gasta as 4 balas e recarrega, a pistola esquenta e trava (weapons/municao.ts; um contador simples num canto)
-// (a bala, os fantasmas e o HUD vêm com o jogo). Fica dentro do <Canvas> do editor.
+// a escopeta gasta as 4 balas e recarrega, a pistola esquenta e trava (weapons/municao.ts), a bala voa e acerta
+// (weapons/bala.ts); a vida, os kits e a arma vão para o HUD (game/hud: onHud, a cada quadro). Fica dentro do <Canvas>.
 //   clique trava o mouse · WASD anda · Shift corre · Espaço esquiva · E abre e fecha porta · Q troca a arma · R recarrega · mouse olha
 //   botão direito mira · botão esquerdo atira (ou joga a armadilha; com ela fora, chama de volta) · Esc volta ao editor
 //   para ver o modelo (só no Testar, não é controle do jogo): 1–6 expressões, 7–9 poses da mão, 0 volta ao automático,
 //   K cai (a queda: a tela escurece e ele volta no começo do teste, que por enquanto é o checkpoint), J toma 25 de dano
-//   de uma direção sorteada (a vida simples: 30% ou menos, machucado; zerou, cai) · F usa um kit (+60)
+//   de uma direção sorteada (30% ou menos, machucado; zerou, cai) · F usa um kit (+60; zerado, nasce um a cada 1:30)
 //   M toca o momento "a Mãe chegando" (a luz muda por alguns segundos e volta)
 import { useEffect, useMemo, useRef } from 'react'
 import { useFrame, useThree } from '@react-three/fiber'
@@ -26,10 +26,14 @@ import { montarAgente, type Agente } from './player/modelo'
 import type { Expressao } from './player/rosto'
 import { AGENTE, CAMERA, QUEDA } from './player/numeros'
 import { tranco } from './player/dano'
-import { curar, machucado, novaVida, passoVida, porcento, tomarDano } from './player/vida'
+import { ganharKit, machucado, novaVida, passoVida, tomarDano, usarKit, voltarVida } from './player/vida'
+import { novoEstadoHud, type EstadoHud } from './hud/Hud'
 import { chamar, descartarArco, desenharArco, gatilhoArmadilha, lancar, novaArmadilha, novoArco, passoArmadilha, pontoDeSoltar, recolher, velocidadeDoArremesso } from './weapons/armadilha'
 import { gatilho } from './weapons/tiro'
-import { cortarRecarga, gastar, novaMunicao, passoMunicao, recarregar, temTiro, textoDaMunicao } from './weapons/municao'
+import { atirar, novasBalas, passoBalas, pontoMirado, type Alvejavel } from './weapons/bala'
+import { novosImpactos, passoImpactos } from './weapons/impacto'
+import { grupoDaArma } from './player/arma'
+import { cortarRecarga, gastar, novaMunicao, passoMunicao, recarregar, temTiro } from './weapons/municao'
 import { alcanceCamera, andarDe, chaoEm, montarMundo, tetoEm, type Mundo } from './world/colisao'
 import { assadorDe, novaLuzVertice } from '../maps/luzAssada'
 import { iluminarObjeto } from '../render/assada'
@@ -48,8 +52,7 @@ interface Props {
   onDica: (texto: string | null) => void // a linha de ação na tela ("E · abrir a porta", "Trancada.")
   onMira: (mirando: boolean) => void // mirando: a tela mostra o ponto da mira
   onEscuro: (escuro: boolean) => void // a queda: a tela escurece (e clareia quando ele volta)
-  onVida: (porcento: number) => void // a vida (em %), num canto (o HUD de verdade vem depois)
-  onArma: (texto: string | null) => void // a munição da arma na mão (as balas, o calor), embaixo da vida
+  onHud: (e: EstadoHud) => void // a cada quadro: a vida, o fôlego, os kits e a arma (o HUD só muda o que mudou)
   onSair: () => void
   aoMontar?: (c: AgenteNaFase) => void // quem conduz a fase (o roteiro da Demo · Intro) recebe o controle do agente
 }
@@ -68,10 +71,14 @@ export interface AgenteNaFase {
   cuspir: (onde: THREE.Vector3, de: THREE.Vector3) => void
   /** mais lento: `quanto` (0..1), sumindo em `dura` s (a gosma) */
   lentidao: (quanto: number, dura: number) => void
+  /** ganhou kits médicos (a onda limpa) */
+  darKit: (n: number) => void
   /** onde ele volta depois de cair (o começo da arena) */
   pontoDeVolta: (x: number, z: number, yaw: number) => void
   /** chamado quando ele volta depois de cair (o roteiro recomeça a onda) */
   aoVoltar: (() => void) | null
+  /** o que pode levar tiro agora (o roteiro põe os demônios aqui, a cada quadro): as balas acertam e chamam quem foi */
+  alvos: Alvejavel[]
 }
 
 // as teclas de ver o modelo: 1–6 forçam uma expressão, 7–9 uma pose das mãos, 0 solta as duas
@@ -80,7 +87,7 @@ const VER_MAO: PoseMao[] = ['punho', 'aberta', 'apontar']
 
 const amortece = (de: number, para: number, k: number, dt: number) => de + (para - de) * (1 - Math.exp(-k * dt))
 
-export function Testar({ chunks, levels, ambiente, semChao, areas, inicio, yaw, portas, onTravado, onDica, onMira, onEscuro, onVida, onArma, onSair, aoMontar }: Props) {
+export function Testar({ chunks, levels, ambiente, semChao, areas, inicio, yaw, portas, onTravado, onDica, onMira, onEscuro, onHud, onSair, aoMontar }: Props) {
   const { camera, gl, scene } = useThree()
   const { sensibilidade } = useSettings()
   // o mundo (colisão) e as portas como o mapa diz que começam
@@ -95,10 +102,11 @@ export function Testar({ chunks, levels, ambiente, semChao, areas, inicio, yaw, 
   const assa = useMemo(() => assadorDe(Object.values(chunks)), [chunks]), luzAgente = useMemo(() => novaLuzVertice(), []), quadro = useRef(0)
   const acoes = useMemo(() => new Acoes(), [])
   const armadilha = useMemo(() => novaArmadilha(), []), arco = useMemo(() => novoArco(), [])
+  const balas = useMemo(() => novasBalas(), []), impactos = useMemo(() => novosImpactos(), []) // a bala e o que ela deixa onde bate
   const est = useRef({
     j: novoJogador(inicio[0], chaoEm(mundo, inicio[0], inicio[2], inicio[1] + 0.3) ?? inicio[1], inicio[2], yaw),
     camYaw: yaw, pitch: -0.12, k: 1, pivX: inicio[0], pivZ: inicio[2], pivY: inicio[1], altura: CAMERA.altura, travou: false,
-    msg: '', msgT: 0, dica: null as string | null, mira: 0, mirando: false, escuro: false, cair: false, golpe: false, vidaVista: -1, armaVista: '',
+    msg: '', msgT: 0, dica: null as string | null, mira: 0, mirando: false, escuro: false, cair: false, golpe: false,
     volta: { x: inicio[0], y: inicio[1], z: inicio[2], yaw }, // onde ele volta depois de cair (o roteiro muda: o começo da arena)
     lento: { quanto: 0, t: 0, dura: 1 }, // a gosma: o quanto e quanto falta para sumir
   })
@@ -107,14 +115,14 @@ export function Testar({ chunks, levels, ambiente, semChao, areas, inicio, yaw, 
   const dicaRef = useRef(onDica); dicaRef.current = onDica
   const miraRef = useRef(onMira); miraRef.current = onMira
   const escuroRef = useRef(onEscuro); escuroRef.current = onEscuro
-  const vidaRef = useRef(onVida); vidaRef.current = onVida
-  const armaRef = useRef(onArma); armaRef.current = onArma
+  const hudRef = useRef(onHud); hudRef.current = onHud
+  const hud = useMemo(() => novoEstadoHud(), [])
   const vida = useMemo(() => novaVida(), []), municao = useMemo(() => novaMunicao(), [])
   // o controle do agente para o roteiro da fase (os inimigos ferem, o Devora engole e cospe, a gosma deixa lento)
   const naFase = useMemo<AgenteNaFase>(() => {
     const preso = (sim: boolean) => { const s = est.current; s.j.preso = sim; agente.root.visible = !sim; sombra.visible = !sim; if (s.escuro !== sim) { s.escuro = sim; escuroRef.current(sim) } }
     return {
-      agente, mundo, aoVoltar: null,
+      agente, mundo, aoVoltar: null, alvos: [],
       pode: () => est.current.j.caido < 0 && !est.current.j.preso,
       ferir: (dano, de, sempre = false) => {
         const s = est.current, j = s.j, E = AGENTE.esquiva.invul
@@ -136,6 +144,7 @@ export function Testar({ chunks, levels, ambiente, semChao, areas, inicio, yaw, 
         j.yaw = Math.atan2(de.x - j.x, de.z - j.z) // olhando para ele
         preso(false); tranco(agente, 0)
       },
+      darKit: (n) => ganharKit(vida, n),
       lentidao: (quanto, dura) => { const L = est.current.lento; if (quanto >= L.quanto * (L.t / L.dura)) Object.assign(L, { quanto, t: dura, dura }) },
       pontoDeVolta: (x, z, yaw) => { est.current.volta = { x, y: chaoEm(mundo, x, z, 0.3) ?? 0, z, yaw } },
     }
@@ -167,14 +176,14 @@ export function Testar({ chunks, levels, ambiente, semChao, areas, inicio, yaw, 
       s.j = novoJogador(x, chaoEm(mundo, x, z, andar * LEVEL_H + 0.3) ?? andar * LEVEL_H, z, yaw)
       s.camYaw = yaw; s.pitch = pitch; s.pivX = x; s.pivZ = z; s.pivY = s.j.y; s.k = 1
     }
-    ganchos.cena = scene; ganchos.gl = gl
-    return () => { delete ganchos.ir; delete ganchos.cena; delete ganchos.gl }
-  }, [mundo, scene, gl])
+    ganchos.cena = scene; ganchos.gl = gl; ganchos.fase = naFase
+    return () => { delete ganchos.ir; delete ganchos.cena; delete ganchos.gl; delete ganchos.fase }
+  }, [mundo, scene, gl, naFase])
 
   // o agente na cena, a entrada ligada, o mouse travado com um clique; Esc (ou soltar o mouse) volta ao editor
   useEffect(() => {
     const el = gl.domElement
-    scene.add(agente.root, sombra, arco.linha, arco.marca)
+    scene.add(agente.root, sombra, arco.linha, arco.marca, balas.grupo, impactos.grupo)
     acoes.ligar(el)
     const clique = () => { if (document.pointerLockElement !== el) { try { const r = el.requestPointerLock() as unknown as Promise<void> | undefined; r?.catch?.(() => {}) } catch { /* sem trava: segue sem olhar com o mouse */ } } }
     const trava = () => {
@@ -190,7 +199,7 @@ export function Testar({ chunks, levels, ambiente, semChao, areas, inicio, yaw, 
     window.addEventListener('keydown', esc)
     clique() // tenta travar já (o clique no botão Testar conta como gesto do usuário)
     return () => {
-      scene.remove(agente.root, sombra)
+      scene.remove(agente.root, sombra, balas.grupo, impactos.grupo)
       descartarArco(arco); recolher(armadilha)
       acoes.desligar()
       el.removeEventListener('click', clique)
@@ -200,7 +209,7 @@ export function Testar({ chunks, levels, ambiente, semChao, areas, inicio, yaw, 
       const c = camera as THREE.PerspectiveCamera
       c.fov = 50; c.updateProjectionMatrix() // o campo de visão do editor
     }
-  }, [gl, scene, agente, sombra, acoes, camera, armadilha, arco])
+  }, [gl, scene, agente, sombra, acoes, camera, armadilha, arco, balas, impactos])
 
   const cam = camera as THREE.PerspectiveCamera
   const v = useMemo(() => ({ f: new THREE.Vector3(), r: new THREE.Vector3(), de: new THREE.Vector3(), para: new THREE.Vector3(), alvo: new THREE.Vector3(), vel: new THREE.Vector3(), mao: new THREE.Vector3() }), [])
@@ -217,7 +226,7 @@ export function Testar({ chunks, levels, ambiente, semChao, areas, inicio, yaw, 
     passoVida(vida, dt)
     if (s.golpe && j.caido < 0 && tomarDano(vida, 25)) { tranco(agente, Math.random() * Math.PI * 2); if (vida.atual <= 0) s.cair = true }
     s.golpe = false
-    if (acoes.kit() && j.caido < 0) curar(vida, AGENTE.kit)
+    if (acoes.kit() && j.caido < 0) usarKit(vida)
     if (s.cair && j.caido < 0) { j.caido = 0; if (j.preso) { j.preso = false; agente.root.visible = sombra.visible = true } } // cai onde está (até dentro do Devora)
     s.cair = false
     // a gosma: o quanto ele está lento agora (some aos poucos)
@@ -233,7 +242,7 @@ export function Testar({ chunks, levels, ambiente, semChao, areas, inicio, yaw, 
         s.j = novoJogador(V.x, chaoEm(mundo, V.x, V.z, V.y + 0.3) ?? V.y, V.z, V.yaw)
         s.camYaw = V.yaw; s.pitch = -0.12; s.pivX = V.x; s.pivZ = V.z; s.pivY = s.j.y
         s.escuro = false; escuroRef.current(false); s.lento.t = 0
-        Object.assign(vida, novaVida()); Object.assign(municao, novaMunicao()) // volta com a vida e a munição cheias
+        voltarVida(vida); Object.assign(municao, novaMunicao()) // volta com a vida e a munição cheias (e os kits do começo)
         naFase.aoVoltar?.()
         return // o próximo quadro começa em pé, no lugar novo
       }
@@ -261,7 +270,7 @@ export function Testar({ chunks, levels, ambiente, semChao, areas, inicio, yaw, 
     agente.root.rotation.y = j.yaw
     // a arma aponta para o ponto que a câmera mira (de onde a câmera estava no quadro anterior: ela anda depois)
     v.f.set(Math.sin(s.camYaw) * Math.cos(s.pitch), Math.sin(s.pitch), Math.cos(s.camYaw) * Math.cos(s.pitch))
-    v.alvo.copy(cam.position).addScaledVector(v.f, CAMERA.alcanceMira)
+    pontoMirado(mundo, naFase.alvos, cam.position, v.f, v.alvo, CAMERA.alcanceMira) // o que está embaixo da mira (a bala vai para lá)
     // a velocidade no espaço do agente (x para a esquerda dele, z para a frente): mirando, ele anda de lado e de costas
     const vl = Math.hypot(j.vx, j.vz) > 1e-3 ? j.velocidade / Math.hypot(j.vx, j.vz) : 0
     const mover: [number, number] = [(j.vx * Math.cos(j.yaw) - j.vz * Math.sin(j.yaw)) * vl, (j.vx * Math.sin(j.yaw) + j.vz * Math.cos(j.yaw)) * vl]
@@ -272,7 +281,14 @@ export function Testar({ chunks, levels, ambiente, semChao, areas, inicio, yaw, 
     else if (agente.arma === 'escopeta' && atira && clicou && municao.balas > 0) cortarRecarga(municao)
     passoMunicao(municao, agente.arma, j.esquiva < 0 && !caido, dt)
     animarAgente(agente, { mover, velocidade: j.velocidade, corrida: j.corrida, esquiva: j.esquiva >= 0 ? Math.min(1, j.esquiva / 0.5) : -1, expressao: ver.current.exp, mao: ver.current.mao, mira: { quer, alvo: v.alvo }, queda: caido ? j.caido : undefined, ferido: machucado(vida), municao }, dt)
-    if (gatilho(agente, atira && temTiro(municao, agente.arma), dt)) gastar(municao, agente.arma)
+    if (gatilho(agente, atira && temTiro(municao, agente.arma), dt)) {
+      gastar(municao, agente.arma)
+      // a bala sai do cano (onde o clarão está) para o ponto que a câmera mira
+      const clarao = grupoDaArma(agente)?.userData.clarao as THREE.Object3D | undefined
+      if (clarao && (agente.arma === 'pistola' || agente.arma === 'escopeta')) { agente.root.updateMatrixWorld(true); atirar(balas, agente.arma, clarao.getWorldPosition(v.de), v.alvo) }
+    }
+    passoBalas(balas, dt, mundo, naFase.alvos, impactos)
+    passoImpactos(impactos, dt)
     // a armadilha: o arremesso solta ela no meio da animação; fora, um clique chama de volta; voltando, chega na mão
     if (gatilhoArmadilha(agente, atira, dt)) {
       const de = pontoDeSoltar(agente)
@@ -283,10 +299,12 @@ export function Testar({ chunks, levels, ambiente, semChao, areas, inicio, yaw, 
     if (naMao && agente.anim.arma.mira > 0.5 && agente.anim.arma.lanca < 0) { const de = pontoDeSoltar(agente); desenharArco(arco, mundo, de, velocidadeDoArremesso(de, v.alvo, v.vel)) }
     else arco.linha.visible = arco.marca.visible = false
     if (quer !== s.mirando) { s.mirando = quer; miraRef.current(quer) }
-    const pv = porcento(vida)
-    if (pv !== s.vidaVista) { s.vidaVista = pv; vidaRef.current(pv) }
-    const ta = textoDaMunicao(municao, agente.arma) ?? ''
-    if (ta !== s.armaVista) { s.armaVista = ta; armaRef.current(ta || null) }
+    // o HUD: o que ele mostra (ele só mexe na tela no que mudou)
+    hud.vida = vida.atual / AGENTE.vida; hud.folego = s.j.folego / AGENTE.folego; hud.folegoTravado = s.j.folegoTravado
+    hud.kits = vida.kits; hud.novoKit = vida.novoKit; hud.arma = agente.arma
+    hud.calor = municao.calor; hud.travada = municao.travada; hud.balas = municao.balas; hud.recarregando = municao.recarga >= 0
+    hud.armadilha = armadilha.estado
+    hudRef.current(hud)
 
     // a câmera por cima do ombro direito: o braço encolhe na hora ao bater e estica devagar
     s.altura = amortece(s.altura, j.esquiva >= 0 ? CAMERA.alturaEsquiva : CAMERA.altura, 7, dt)

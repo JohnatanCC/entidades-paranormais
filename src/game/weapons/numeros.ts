@@ -1,5 +1,5 @@
 // Os números das armas (os mesmos da tabela T do laboratório e do docs/jogo.md), num lugar só: a cadência, o que o tiro
-// faz no corpo e na arma, e a munição (as balas da escopeta e a sobrecarga da pistola). A bala e o dano vêm na etapa 4b.
+// faz no corpo e na arma, a munição (as balas da escopeta e a sobrecarga da pistola), a bala e o que ela deixa onde bate.
 export const TIRO = {
   pronto: 0.85, // quanto da mira precisa estar levantado para sair o tiro (atirar sem mirar levanta a arma antes)
   //   cadencia = s entre tiros (segurando o botão); coice = quanto o cano sobe (rad); recua = quanto a arma vem para trás (m);
@@ -32,3 +32,15 @@ export const ARREMESSO = {
   volta: 16, chega: 0.25, // chamada de volta: m/s até a mão, e a que distância ela já está na mão
   arco: { pontos: 60, dt: 0.035 }, // a linha do arco na mira: quantos pontos e o tempo entre eles (s)
 }
+
+// A bala (weapons/bala.ts; a etapa 4b): os números da tabela do docs/jogo.md. vel = m/s; dano por bala; n = quantas
+// saem de uma vez (a escopeta: os bagos) e o leque (rad: o quanto cada uma desvia do centro); tam = o comprimento do
+// risco que ela deixa no ar (m). alcance = até onde ela vai (m); passo = de quanto em quanto a conta procura a parede (m)
+export const BALA = {
+  pistola: { vel: 40, dano: 3, n: 1, leque: 0, tam: 0.45 },
+  escopeta: { vel: 46, dano: 10, n: 5, leque: 0.065, tam: 0.3 },
+  alcance: 60, passo: 0.2,
+}
+// O que a bala deixa onde bate (weapons/impacto.ts): as faíscas (quantas, quanto vivem, a velocidade) e a marca
+// queimada na parede ou no chão (quanto fica, o tamanho, m)
+export const IMPACTO = { faiscas: 6, vida: 0.3, vel: 3.5, marca: { fica: 8, tam: 0.16 } }

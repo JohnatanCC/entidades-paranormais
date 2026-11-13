@@ -88,6 +88,9 @@ export const RESPINGO = { raio: 0.45 * E, estouro: 0.9 * E, cubos: Math.min(1, E
 //   aparece em cada barra de vida (as fases)
 export const LUTA = {
   rodeia: [2.5, 4], roda: 9, chega: 1.2, solto: 1.5, marca: 5, tempoIndo: 6,
+  // a vida (as 3 barras dividem); o corpo preto leva só esta parte do dano (a boca aberta leva cheio); embaixo do chão,
+  // nada; levando `atordoa.dano` em pouco tempo (some em `atordoa.some` s), fica tonto (no máximo a cada `atordoa.espera` s)
+  vida: 500, corpo: 0.5, atordoa: { dano: 60, some: 1, espera: 8 },
   investida: { dano: 20, longe: 11, acerto: 2.4 },
   tentaculo: { dano: 12 },
   engolido: { porSegundo: 20, lento: 0.2, dura: 4 },

@@ -16,7 +16,7 @@ function rampa(a: HTMLAudioElement, para: number, ms: number, fim?: () => void) 
   cancelAnimationFrame(fade)
   const de = a.volume, t0 = performance.now()
   const passo = (t: number) => {
-    const k = Math.min(1, (t - t0) / ms)
+    const k = Math.max(0, Math.min(1, (t - t0) / ms)) // o relógio do quadro pode vir um tico antes de t0: nunca negativo
     a.volume = de + (para - de) * k
     if (k < 1) fade = requestAnimationFrame(passo)
     else fim?.()
