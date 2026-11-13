@@ -106,8 +106,9 @@ export function pontoMirado(m: Mundo, alvos: Alvejavel[], de: THREE.Vector3, dir
 }
 
 const _p = new THREE.Vector3(), _n = new THREE.Vector3(), _m = new THREE.Matrix4(), _q = new THREE.Quaternion(), _s = new THREE.Vector3(), _z = new THREE.Vector3(0, 0, 1), _dir = new THREE.Vector3()
-/** Um quadro: as balas andam em passos curtos; a primeira coisa que encontram (um alvo, uma caixa, o chão, o teto) as para. */
-export function passoBalas(B: Balas, dt: number, m: Mundo, alvos: Alvejavel[], I: Impactos) {
+/** Um quadro: as balas andam em passos curtos; a primeira coisa que encontram (um alvo, uma caixa, o chão, o teto) as para.
+ *  aoBater: onde bateu (o som: weapons/sons.ts), e se foi num alvo. */
+export function passoBalas(B: Balas, dt: number, m: Mundo, alvos: Alvejavel[], I: Impactos, aoBater?: (p: THREE.Vector3, arma: ArmaDeTiro, alvo: boolean) => void) {
   let algo = false
   B.balas.forEach((b, i) => {
     if (!b.viva) return
@@ -117,9 +118,9 @@ export function passoBalas(B: Balas, dt: number, m: Mundo, alvos: Alvejavel[], I
       _p.copy(b.p).addScaledVector(b.v, dt / passos)
       // um alvo (o primeiro que a bala atravessa)
       const alvo = alvos.find((a) => a.c.distanceToSquared(_p) < a.r * a.r)
-      if (alvo) { b.viva = false; alvo.acerta(BALA[b.arma].dano, _p.clone(), _dir.clone()); faiscas(I, _p, _n.copy(_dir).negate(), TIRO[b.arma].cor, 3); break }
+      if (alvo) { b.viva = false; alvo.acerta(BALA[b.arma].dano, _p.clone(), _dir.clone()); faiscas(I, _p, _n.copy(_dir).negate(), TIRO[b.arma].cor, 3); aoBater?.(_p, b.arma, true); break }
       // o chão (onde tem: no mapa sem chão, o vazio não para a bala), o teto e as caixas (paredes, portas, objetos)
-      if (bateNoMundo(m, _p, _n)) { b.viva = false; faiscas(I, _p, _n, TIRO[b.arma].cor); marca(I, _p, _n); break }
+      if (bateNoMundo(m, _p, _n)) { b.viva = false; faiscas(I, _p, _n, TIRO[b.arma].cor); marca(I, _p, _n); aoBater?.(_p, b.arma, false); break }
       b.p.copy(_p); b.dist += total / passos
       if (b.dist > BALA.alcance) b.viva = false
     }

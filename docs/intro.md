@@ -98,5 +98,5 @@ Cada Sombrio pensa no `ia.ts` da pasta dele (os números em `LUTA`, no `numeros.
 - **Em aberto:** a câmera não desvia dos demônios (um Assombrado muito perto ainda pode ficar na frente); o projétil
   ainda atravessa paredes e objetos.
 
-Depois: ✅ as balas das armas (a etapa 4b de `docs/demonios.md`, 12/nov) e ✅ o HUD (o conceito C, 12/nov: as barras do chefe em cima; a onda limpa dá um kit). Ainda sem som: o
-tiro, a bala batendo e o demônio levando tiro.
+Depois: ✅ as balas das armas (a etapa 4b de `docs/demonios.md`, 12/nov) e ✅ o HUD (o conceito C, 12/nov: as barras do chefe em cima; a onda limpa dá um kit). Os sons das armas e
+do agente: 12/nov (`docs/jogo.md`).

@@ -28,6 +28,8 @@ import { AGENTE, CAMERA, QUEDA } from './player/numeros'
 import { tranco } from './player/dano'
 import { ganharKit, machucado, novaVida, passoVida, tomarDano, usarKit, voltarVida } from './player/vida'
 import { novoEstadoHud, type EstadoHud } from './hud/Hud'
+import { ouvirAgente, somDoKit } from './player/sons'
+import { somDaBala } from './weapons/sons'
 import { chamar, descartarArco, desenharArco, gatilhoArmadilha, lancar, novaArmadilha, novoArco, passoArmadilha, pontoDeSoltar, recolher, velocidadeDoArremesso } from './weapons/armadilha'
 import { gatilho } from './weapons/tiro'
 import { atirar, novasBalas, passoBalas, pontoMirado, type Alvejavel } from './weapons/bala'
@@ -226,7 +228,7 @@ export function Testar({ chunks, levels, ambiente, semChao, areas, inicio, yaw, 
     passoVida(vida, dt)
     if (s.golpe && j.caido < 0 && tomarDano(vida, 25)) { tranco(agente, Math.random() * Math.PI * 2); if (vida.atual <= 0) s.cair = true }
     s.golpe = false
-    if (acoes.kit() && j.caido < 0) usarKit(vida)
+    if (acoes.kit() && j.caido < 0 && usarKit(vida)) somDoKit()
     if (s.cair && j.caido < 0) { j.caido = 0; if (j.preso) { j.preso = false; agente.root.visible = sombra.visible = true } } // cai onde está (até dentro do Devora)
     s.cair = false
     // a gosma: o quanto ele está lento agora (some aos poucos)
@@ -280,14 +282,17 @@ export function Testar({ chunks, levels, ambiente, semChao, areas, inicio, yaw, 
     if (agente.arma === 'escopeta' && !caido && (recarrega || (atira && municao.balas === 0))) recarregar(municao)
     else if (agente.arma === 'escopeta' && atira && clicou && municao.balas > 0) cortarRecarga(municao)
     passoMunicao(municao, agente.arma, j.esquiva < 0 && !caido, dt)
-    animarAgente(agente, { mover, velocidade: j.velocidade, corrida: j.corrida, esquiva: j.esquiva >= 0 ? Math.min(1, j.esquiva / 0.5) : -1, expressao: ver.current.exp, mao: ver.current.mao, mira: { quer, alvo: v.alvo }, queda: caido ? j.caido : undefined, ferido: machucado(vida), municao }, dt)
+    const ea = { mover, velocidade: j.velocidade, corrida: j.corrida, esquiva: j.esquiva >= 0 ? Math.min(1, j.esquiva / 0.5) : -1, expressao: ver.current.exp, mao: ver.current.mao, mira: { quer, alvo: v.alvo }, queda: caido ? j.caido : undefined, ferido: machucado(vida), municao }
+    animarAgente(agente, ea, dt)
     if (gatilho(agente, atira && temTiro(municao, agente.arma), dt)) {
       gastar(municao, agente.arma)
       // a bala sai do cano (onde o clarão está) para o ponto que a câmera mira
       const clarao = grupoDaArma(agente)?.userData.clarao as THREE.Object3D | undefined
       if (clarao && (agente.arma === 'pistola' || agente.arma === 'escopeta')) { agente.root.updateMatrixWorld(true); atirar(balas, agente.arma, clarao.getWorldPosition(v.de), v.alvo) }
     }
-    passoBalas(balas, dt, mundo, naFase.alvos, impactos)
+    passoBalas(balas, dt, mundo, naFase.alvos, impactos, (p, arma, alvo) => somDaBala(p, arma, alvo, quadro.current))
+    // os sons dele e das armas, no momento da animação (o chão: o submundo é pedra; o resto, por enquanto, madeira)
+    ouvirAgente(agente, ea, semChao ? 'pedra' : 'madeira', armadilha.estado, armadilha.pos)
     passoImpactos(impactos, dt)
     // a armadilha: o arremesso solta ela no meio da animação; fora, um clique chama de volta; voltando, chega na mão
     if (gatilhoArmadilha(agente, atira, dt)) {

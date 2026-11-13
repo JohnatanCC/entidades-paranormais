@@ -49,6 +49,7 @@ import { nadarPara as nadarParaDevora, virarPara as virarParaDevora } from '../g
 import { ESCALA as ESCALA_DEVORA, NINHADA, RESPINGO } from '../game/enemies/devora-almas/numeros'
 import { estourar } from '../game/enemies/estouro'
 import { calar, somEm } from '../game/enemies/sons'
+import { ouvirAgente } from '../game/player/sons'
 import { ouvirAssombrado } from '../game/enemies/assombrado/sons'
 import { bolaBatendo, ouvirAsaSombria } from '../game/enemies/asa-sombria/sons'
 import { avisoChuva, ouvirDevora, tentaculo } from '../game/enemies/devora-almas/sons'
@@ -302,7 +303,7 @@ function CenaAgente({ modelo, e, onInfo, onMunicao }: { modelo: ModeloAgente; e:
   const recargas = useRef(e.recargas)
   const alvo = useMemo(() => new THREE.Vector3(0, 1.45, 8), []) // a mira: para a frente, na altura do peito
   // a armadilha jogada: num mundo só com o chão; o arco e a cópia solta ficam na cena
-  const { scene } = useThree()
+  const { scene, camera } = useThree()
   const jogo = useMemo(() => ({ mundo: montarMundo([], 1), arm: novaArmadilha(), arco: novoArco(), vel: new THREE.Vector3(), mao: new THREE.Vector3() }), [])
   useEffect(() => {
     scene.add(jogo.arco.linha, jogo.arco.marca)
@@ -339,8 +340,10 @@ function CenaAgente({ modelo, e, onInfo, onMunicao }: { modelo: ModeloAgente; e:
     recargas.current = e.recargas
     if (pede && a.arma === 'pistola' && M.travada > 0) tiros.current = e.tiros
     passoMunicao(M, a.arma, esquiva < 0 && queda === undefined, dt)
-    animarAgente(a, { velocidade, corrida: e.anim === 'correndo' ? 1 : 0, esquiva, expressao: e.exp ?? undefined, mao: e.mao ?? undefined, mira: { quer: (e.mirando || pede || e.gatilho) && (a.arma !== 'armadilha' || naMao), alvo }, queda, ferido: e.ferido, municao: M }, dt)
+    const ea = { velocidade, corrida: e.anim === 'correndo' ? 1 : 0, esquiva, expressao: e.exp ?? undefined, mao: e.mao ?? undefined, mira: { quer: (e.mirando || pede || e.gatilho) && (a.arma !== 'armadilha' || naMao), alvo }, queda, ferido: e.ferido, municao: M }
+    animarAgente(a, ea, dt)
     const J = jogo
+    ouvinte(camera); ouvirAgente(a, ea, 'pedra', J.arm.estado, J.arm.pos) // os sons dele e da arma, com a animação
     if (gatilho(a, atira && temTiro(M, a.arma), dt)) { gastar(M, a.arma); tiros.current = e.tiros }
     const texto = textoDaMunicao(M, a.arma)
     if (texto !== contador.current) { contador.current = texto; onMunicao(texto) }

@@ -14,6 +14,7 @@
 //   provas.medidas(c)                                        mãos, cabeça, quadril; o ângulo de cada mecha
 //   await provas.som([['andando', 4000, { anda: 0.95 }], ['grito', 2000, { golpe: 'grito' }]])   o volume de cada trecho
 //   await provas.sonsDemonios()                               o volume de cada som dos Sombrios (sem tocar)
+//   await provas.sonsAgente()                                 o volume de cada som das armas e do agente (sem tocar)
 //   provas.ir(x, z, yaw, pitch?, andar?)                    no Testar aberto: leva o agente a um ponto (fotos do mesmo lugar)
 //   provas.sombras()                                         quantas lâmpadas na cena e quantas fazem sombra agora
 //   provas.cena()                                            a cena do Testar aberto (luzes, malhas), para inspecionar
@@ -34,6 +35,8 @@ import type { Parte } from '../game/enemies/sons'
 import { PARTES_ASSOMBRADO } from '../game/enemies/assombrado/sons'
 import { PARTES_ASA_SOMBRIA } from '../game/enemies/asa-sombria/sons'
 import { PARTES_DEVORA_ALMAS } from '../game/enemies/devora-almas/sons'
+import { PARTES_ARMAS } from '../game/weapons/sons'
+import { PARTES_AGENTE } from '../game/player/sons'
 import { ganchos } from './ganchos'
 import { nivelAtual } from '../render/qualidade'
 import { contarSombras } from '../render/sombras'
@@ -238,7 +241,18 @@ async function som_(roteiro: [string, number, EstadoMae & { golpe?: NomeGolpe; a
  *  o RMS (do trecho com som) e o pico de cada uma, e se saiu NaN. */
 async function sonsDemonios() {
   const linhas: string[] = []
-  const medir = async (quem: string, partes: Parte[]) => {
+  const medir = (quem: string, partes: Parte[]) => medirPartes(linhas, quem, partes)
+  await medir('Assombrado', PARTES_ASSOMBRADO); await medir('Asa sombria', PARTES_ASA_SOMBRIA); await medir('Devora almas', PARTES_DEVORA_ALMAS)
+  return linhas.join('\n')
+}
+/** Os sons das armas e do agente (weapons/sons.ts, player/sons.ts): o volume de cada parte, do mesmo jeito. */
+async function sonsAgente() {
+  const linhas: string[] = []
+  await medirPartes(linhas, 'Arma', PARTES_ARMAS); await medirPartes(linhas, 'Agente', PARTES_AGENTE)
+  return linhas.join('\n')
+}
+async function medirPartes(linhas: string[], quem: string, partes: Parte[]) {
+  {
     for (const [nome, tocar] of partes) {
       const sr = 22050, ctx = new OfflineAudioContext(2, sr * 4, sr), s = montarSom(ctx, 0.55)
       const dur = tocar(s, 0.05, s.saida)
@@ -248,8 +262,6 @@ async function sonsDemonios() {
       linhas.push(`${quem} · ${nome} (${dur.toFixed(1)} s): rms ${Math.sqrt(soma / n).toFixed(3)} pico ${pico.toFixed(2)}${nan ? ' NaN!' : ''}`)
     }
   }
-  await medir('Assombrado', PARTES_ASSOMBRADO); await medir('Asa sombria', PARTES_ASA_SOMBRIA); await medir('Devora almas', PARTES_DEVORA_ALMAS)
-  return linhas.join('\n')
 }
 
 // ---------- o andar e a corrida ----------
@@ -320,4 +332,4 @@ function ir(x: number, z: number, yaw: number, pitch?: number, andar?: number) {
   return 'ok'
 }
 
-export const provas = { mae, agente, sonsDemonios, assombrado, asaSombria, devora, fotos, limpar, medidas, som: som_, ir, passo, escorrega, qualidade: nivelAtual, sombras: contarSombras, cena: () => ganchos.cena, gl: () => ganchos.gl, fase: () => ganchos.fase }
+export const provas = { mae, agente, sonsDemonios, sonsAgente, assombrado, asaSombria, devora, fotos, limpar, medidas, som: som_, ir, passo, escorrega, qualidade: nivelAtual, sombras: contarSombras, cena: () => ganchos.cena, gl: () => ganchos.gl, fase: () => ganchos.fase }

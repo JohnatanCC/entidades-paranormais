@@ -287,6 +287,23 @@ Fora da mão, um clique a chama de volta: ela voa até a mão. Trocar de arma co
   pouco tempo também.
 - **Leve:** as balas são uma malha só, as faíscas outra e as marcas outra; a procura da parede usa uma grade das caixas.
 
+**Os sons das armas e do agente (escolhidos e feitos em 12/nov):** `src/game/weapons/sons.ts` e `src/game/player/sons.ts`.
+Sintetizados na hora, como os dos demônios; perto da câmera, vão direto para a saída (só onde a bala bate e onde a
+armadilha pousa ficam no lugar).
+- **A pistola é o Sino:** um sino abafado e quente, com o chiado do frasco. Superaquecida, o vidro do frasco estala;
+  esfriou, um sininho descendo.
+- **A escopeta é o Ferro que canta** (mais alto, a pedido): o estalo seco e o ferro amaldiçoado tocando depois, como sinos
+  desafinados, com o sal caindo. A bomba é o ferro deslizando e o trinco batendo. A recarga: a bolsa abre, cada bala
+  entra com um toque de ferro, e a bomba no fim.
+- **Onde a bala bate:** a brasa chiando (pistola) ou o ferro ricocheteando (escopeta); num demônio, um baque molhado. No
+  máximo dois por quadro (os bagos chegam juntos).
+- **A armadilha:** a corrente no arremesso; pousa e a íris abre; volta à mão. **Trocar de arma:** o couro e o metal.
+- **O agente:** os passos a cada pé no chão, mais fortes correndo (no submundo, pedra; no resto, madeira, por enquanto);
+  a cambalhota (o pano, o esforço, o corpo rolando); o golpe (o tranco e um gemido curto); a queda (o gemido caindo, os
+  joelhos, o corpo no chão); o kit (o spray e um sininho subindo, como o Sino). A voz dele é grave e curta, nunca grita.
+- Quem toca cada som no momento certo é `ouvirAgente`, pela animação (no Testar, no jogo e no Ver modelos); o kit e a
+  bala batendo são chamados por quem os usa. `provas.sonsAgente()` mede o volume de cada um.
+
 Quando os atalhos 1/2/3 das armas chegarem, eles deixam de
 mostrar as expressões no Testar (isso fica no Ver modelos).
 

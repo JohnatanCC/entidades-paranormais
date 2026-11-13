@@ -94,7 +94,8 @@ src/
   audio/musica.ts          a trilha: useMusica('menu') toca public/musica/<nome>.mp3 em laço, com o volume das configurações
   audio/sintese.ts         os efeitos sintetizados na hora (do laboratório, sem arquivos): ruído, tom, estalos, a voz com
                            vogais, o grito, o sussurro; liga no primeiro clique; o volume é Geral × Efeitos
-  dev/provas.ts            só no npm run dev (window.provas): fotos, medidas e o volume da Mãe, para conferir pelo console;
+  dev/provas.ts            só no npm run dev (window.provas): fotos, medidas e o volume da Mãe (e dos demônios, das armas e do
+                           agente: sonsDemonios, sonsAgente), para conferir pelo console;
                            provas.ir(x, z, yaw) leva o agente a um ponto no Testar (dev/ganchos.ts), provas.qualidade() diz o nível,
                            provas.sombras() conta as lâmpadas com sombra, provas.cena() dá a cena do Testar para inspecionar, provas.fase() o controle do agente (os alvos das balas),
                            provas.passo() mostra um ciclo do andar em 8 quadros (também de lado e de costas), provas.escorrega() mede o pé de apoio
@@ -162,11 +163,13 @@ src/game/                  (já existem: Testar.tsx, player/, input/, world/, we
                            peso e os gestos de parado), alcancar.ts (o braço alcança um ponto: IK de dois ossos),
                            rosto.ts (as expressões), passada.ts (as curvas de uma passada de verdade: andar e correr),
                            pes.ts (o pé de apoio preso no chão, em qualquer direção: IK da perna), controle.ts
-                           (andar, correr, esquivar; preso e lento), numeros.ts
+                           (andar, correr, esquivar; preso e lento), sons.ts (ouvirAgente: os passos, a cambalhota, o golpe,
+                           a queda, o kit e os sons das armas no momento da animação), numeros.ts
   weapons/                 tiro.ts (o gatilho e a cadência), clarao.ts (o clarão no cano), municao.ts (as 4 balas e a
                            recarga da escopeta, a sobrecarga da pistola, o contador simples), armadilha.ts (jogar: o voo em
                            arco, grudar, chamar de volta, a linha do arco), bala.ts (a bala: a mira de verdade, o voo, bater e
-                           acertar os alvos), impacto.ts (as faíscas e a marca), numeros.ts
+                           acertar os alvos), impacto.ts (as faíscas e a marca), sons.ts (o Sino da pistola, o Ferro que
+                           canta da escopeta, a recarga, a armadilha, onde a bala bate), numeros.ts
   enemies/<nome>/          um inimigo por pasta (mae/, glutao/, assombrado/, asa-sombria/, devora-almas/): IA, ataques, modelo, números; a Mãe já tem
                            modelo.ts (monta o modelo, a saia e o cabelo com molas), pose.ts (as molas da pose, do
                            laboratório), animacao.ts (parada, andar, passar pela porta), rosto.ts (as expressões, os
