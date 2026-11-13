@@ -8,7 +8,6 @@
 import { useEffect, useRef, type MutableRefObject } from 'react'
 import { ARMAS, proximaArma, type Arma } from '../player/arma'
 import { KITS } from '../player/numeros'
-import type { EstadoArmadilha } from '../weapons/armadilha'
 import { MUNICAO } from '../weapons/numeros'
 import './hud.css'
 
@@ -20,9 +19,8 @@ export interface EstadoHud {
   arma: Arma | null
   calor: number; travada: number // a pistola: 0..1 e s que ainda fica travada
   balas: number; recarregando: boolean // a escopeta
-  armadilha: EstadoArmadilha
 }
-export const novoEstadoHud = (): EstadoHud => ({ vida: 1, folego: 1, folegoTravado: false, kits: 0, novoKit: 0, arma: null, calor: 0, travada: 0, balas: 0, recarregando: false, armadilha: 'mao' })
+export const novoEstadoHud = (): EstadoHud => ({ vida: 1, folego: 1, folegoTravado: false, kits: 0, novoKit: 0, arma: null, calor: 0, travada: 0, balas: 0, recarregando: false })
 
 /** O chefe em cima: o nome e cada barra de vida (0..1, da esquerda; a da direita esvazia primeiro). */
 export interface ChefeHud { nome: string; barras: number[] }
@@ -36,7 +34,6 @@ const SILHUETA: Record<Arma | 'kit', string> = {
 }
 const svg = (k: Arma | 'kit') => `<svg viewBox="0 0 64 64" fill="currentColor" stroke="currentColor" stroke-linejoin="round" stroke-linecap="round" aria-hidden="true">${SILHUETA[k]}</svg>`
 const NOME: Record<Arma, string> = Object.fromEntries(ARMAS) as Record<Arma, string>
-const ARMADILHA: Record<EstadoArmadilha, string> = { mao: 'pronta', voando: 'no ar', presa: 'no chão', voltando: 'voltando' }
 
 // os anéis: 3/4 de volta (começa embaixo à esquerda)
 const C_VIDA = 2 * Math.PI * 84, C_FOLEGO = 2 * Math.PI * 69, C_ARMA = 2 * Math.PI * 86, C_KIT = 2 * Math.PI * 36
@@ -88,7 +85,6 @@ export function Hud({ painel }: { painel: MutableRefObject<((e: EstadoHud) => vo
       // a arma: a silhueta, as outras em volta (a de cima é a próxima do Q), o anel, a linha e o nome
       muda('ak', e.arma, (a) => {
         el.aic.innerHTML = a ? svg(a) : ''
-        el.arma.classList.toggle('vazia', !a)
         el.sats[0].innerHTML = svg(proximaArma(a)) // a do Q (só a outra arma de tiro)
         el.atr.style.strokeDasharray = a === 'escopeta' ? pedacos(BALAS) : a === 'pistola' ? arco(C_ARMA, 1) : `0 ${C_ARMA}`
       })
@@ -99,10 +95,7 @@ export function Hud({ painel }: { painel: MutableRefObject<((e: EstadoHud) => vo
       } else if (e.arma === 'escopeta') {
         anel = pedacos(e.balas); linha = e.recarregando ? 'recarregando' : `${e.balas} / ${BALAS}`
         sub = e.recarregando ? 'clique: atirar já' : e.balas < BALAS ? 'R · recarregar' : 'balas'; morno = e.recarregando
-      } else if (e.arma === 'armadilha') {
-        anel = e.armadilha === 'mao' ? arco(C_ARMA, 1) : `0 ${C_ARMA}`; linha = ARMADILHA[e.armadilha]
-        sub = e.armadilha === 'presa' ? 'clique: chamar de volta' : e.armadilha === 'mao' ? 'mire para ver o arco' : ''
-      } else { anel = `0 ${C_ARMA}`; linha = 'mão livre'; sub = 'Q · pegar a pistola' }
+      } else anel = `0 ${C_ARMA}` // sem arma de tiro na mão (o jogo sempre tem uma)
       muda('ar', anel, (v) => (el.afl.style.strokeDasharray = v))
       el.arma.classList.toggle('quente', quente && Math.sin(performance.now() / 70) > -0.3) // pisca travada
       muda('am', morno, (v) => el.arma.classList.toggle('morno', v))

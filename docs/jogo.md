@@ -255,7 +255,8 @@ Os modelos (10/nov) estão em `modelos/armas/` e o agente já segura cada uma (`
   esquerda na bomba, o peito um pouco para trás com o peso; correndo, ela sobe; **mirar também vai ser com as duas**;
 - a armadilha pendurada pela alça, balançando.
 
-No Testar e no jogo, Q troca entre as duas de tiro (da mão vazia, a pistola; depois, uma e outra) e R recarrega a
+No Testar e no jogo, o agente **já começa com a pistola na mão e nunca fica de mão vazia** (12/nov); Q troca entre ela
+e a escopeta e R recarrega a
 escopeta. A armadilha saiu da troca (12/nov): o jogar e o chamar de volta continuam no código, esperando a ação nova.
 
 **Mirar e atirar (10/nov, sem bala ainda):** o botão direito mira; o esquerdo atira (atirar sem mirar levanta a arma
@@ -282,7 +283,8 @@ Fora da mão, um clique a chama de volta: ela voa até a mão. Trocar de arma co
   brilha, da cor do tiro. Vai até 60 m.
 - **Onde bate:** a parede, a porta fechada, os objetos (o guarda-corpo vazado deixa passar), o chão (no mapa sem chão,
   o vazio não para a bala) e o teto: as faíscas e a marca queimada (some em 8 s).
-- **Nos demônios:** cada um se apresenta como esferas (o Assombrado e a Asa, uma; o Devora, a boca, o corpo e a cauda,
+- **Nos demônios:** cada um se apresenta como caixas (12/nov: caixas maiores que o corpo, alinhadas com o mundo, a mira
+  não precisa ser exata; as medidas em `CAIXAS`, `chapters/intro/numeros.ts`; o Assombrado e a Asa, uma; o Devora, a boca, o corpo e a cauda,
   só o que está fora do chão). Acertou: o tranco vem do lado do tiro; zerou a vida (60, 40, 1000), estoura. O Devora: o
   corpo preto leva metade, a boca aberta leva cheio; cada barra que zera o deixa tonto e passa de fase; 120 de dano em
   pouco tempo também.

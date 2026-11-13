@@ -1,8 +1,8 @@
 // A bala de verdade (a etapa 4b, docs/demonios.md): sai do cano para o ponto que a mira cobre (pontoMirado: o primeiro
 // demônio, parede ou chão na linha da câmera), voa (um risco que
 // brilha, da cor do tiro), bate na parede, num objeto, no chão ou no teto (as faíscas e a marca: impacto.ts) e acerta
-// o que tiver na frente: quem pode levar tiro (os demônios) se apresenta numa lista de esferas (Alvejavel), e a bala
-// chama quem acertou. A pistola: uma bala; a escopeta: os bagos em leque. Os números em numeros.ts (BALA).
+// o que tiver na frente: quem pode levar tiro (os demônios) se apresenta numa lista de caixas (Alvejavel: generosas,
+// maiores que o corpo, alinhadas com o mundo), e a bala chama quem acertou. A pistola: uma bala; a escopeta: os bagos em leque. Os números em numeros.ts (BALA).
 // Leve: todas as balas são uma malha só (cópias de um cubo), num estoque fixo; a procura da parede usa uma grade das
 // caixas do mundo (feita uma vez), não o mapa inteiro.
 import * as THREE from 'three'
@@ -11,8 +11,11 @@ import { chaoEm, temChao, tetoEm, type Mundo } from '../world/colisao'
 import { faiscas, marca, type Impactos } from './impacto'
 import { BALA, TIRO } from './numeros'
 
-/** Quem pode levar tiro: uma esfera (o centro, no mundo, e o raio) e o que fazer quando a bala acerta. */
-export interface Alvejavel { c: THREE.Vector3; r: number; acerta: (dano: number, ponto: THREE.Vector3, dir: THREE.Vector3) => void }
+/** Quem pode levar tiro: uma caixa alinhada com o mundo (o centro e as meias medidas, m) e o que fazer quando a bala
+ *  acerta. */
+export interface Alvejavel { c: THREE.Vector3; m: THREE.Vector3; acerta: (dano: number, ponto: THREE.Vector3, dir: THREE.Vector3) => void }
+/** p está dentro da caixa do alvo? */
+export const dentro = (a: Alvejavel, p: THREE.Vector3) => Math.abs(p.x - a.c.x) < a.m.x && Math.abs(p.y - a.c.y) < a.m.y && Math.abs(p.z - a.c.z) < a.m.z
 type ArmaDeTiro = 'pistola' | 'escopeta'
 
 const MAX = 48
@@ -98,7 +101,7 @@ const _r = new THREE.Vector3(), _rn = new THREE.Vector3()
 export function pontoMirado(m: Mundo, alvos: Alvejavel[], de: THREE.Vector3, dir: THREE.Vector3, out: THREE.Vector3, longe = BALA.alcance): THREE.Vector3 {
   for (let t = 0.5; t < longe; t += 0.25) {
     _r.copy(de).addScaledVector(dir, t)
-    const alvo = alvos.find((a) => a.c.distanceToSquared(_r) < a.r * a.r)
+    const alvo = alvos.find((a) => dentro(a, _r))
     if (alvo) return out.copy(alvo.c) // a mira em cima de um demônio: o tiro vai no meio dele (não na borda)
     if (bateNoMundo(m, _r, _rn)) return out.copy(_r)
   }
@@ -117,7 +120,7 @@ export function passoBalas(B: Balas, dt: number, m: Mundo, alvos: Alvejavel[], I
     for (let k = 0; k < passos && b.viva; k++) {
       _p.copy(b.p).addScaledVector(b.v, dt / passos)
       // um alvo (o primeiro que a bala atravessa)
-      const alvo = alvos.find((a) => a.c.distanceToSquared(_p) < a.r * a.r)
+      const alvo = alvos.find((a) => dentro(a, _p))
       if (alvo) { b.viva = false; alvo.acerta(BALA[b.arma].dano, _p.clone(), _dir.clone()); faiscas(I, _p, _n.copy(_dir).negate(), TIRO[b.arma].cor, 3); aoBater?.(_p, b.arma, true); break }
       // o chão (onde tem: no mapa sem chão, o vazio não para a bala), o teto e as caixas (paredes, portas, objetos)
       if (bateNoMundo(m, _p, _n)) { b.viva = false; faiscas(I, _p, _n, TIRO[b.arma].cor); marca(I, _p, _n); aoBater?.(_p, b.arma, false); break }

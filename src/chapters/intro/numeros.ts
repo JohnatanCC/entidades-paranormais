@@ -24,3 +24,11 @@ export const OLHAR = 3
 /** O tornado que fecha a arena: o raio que segura o agente (m), a altura e a largura do funil (m), quantos pedaços de
  *  matéria giram nele, quão rápido forma e desfaz (por s). */
 export const TORNADO = { raio: 1.9, altura: 9, baixo: 0.7, alto: 2.6, pedacos: 180, forma: 1.4, desfaz: 0.9, gira: [2.2, 4.5] }
+
+// As caixas de acerto (as meias medidas, m: x, y, z), alinhadas com o mundo e maiores que o corpo (12/nov: a mira não
+// precisa ser exata). Vê-las: F4 (no npm run dev). O Devora já está na escala dele.
+export const CAIXAS = {
+  assombrado: [0.6, 0.7, 0.6],
+  asa: [0.8, 0.55, 0.8], // as asas abertas
+  devora: { boca: [1.1, 1.1, 1.1], corpo: [1.5, 1.3, 1.5], cauda: [1.2, 1.1, 1.2], tentaculo: [0.55, 0.55, 0.55] },
+} as const

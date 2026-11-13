@@ -190,8 +190,10 @@ src/game/                  (já existem: Testar.tsx, player/, input/, world/, we
                            (no chão: a mancha, os espinhos, a gosma, a marca de mordida, o aviso e o rasgo da investida, os
                            círculos e os tentáculos da chuva) e numeros.ts (ESCALA: ele é 3 vezes o modelo)
   enemies/estouro.ts       o estouro dos Sombrios (os cubos de matéria e a mancha que seca), um estoque só para todos
-  enemies/luta.ts          o que a inteligência dos Sombrios divide: o alvo (o agente), andar no mundo, virar, separar o bando;
+  enemies/luta.ts          o que a inteligência dos Sombrios divide: o alvo (o agente), andar no mundo, virar, desviar dos
+                           obstáculos (rumoLivre), separar o bando;
                            cada um pensa no ia.ts da pasta dele (o Assombrado, a Asa sombria, o Devora almas)
+  enemies/depurar.ts       a vista de depuração da luta (só no npm run dev): F2 as barras de vida, F4 as caixas de acerto
   enemies/sons.ts          o que os sons dos Sombrios dividem: a voz de cada um no espaço, o som num ponto do chão, a bolha
                            e o respingo; os sons de cada um no sons.ts da pasta dele (o Lamento do Assombrado, o Morcego da
                            Asa sombria, o Abismo do Devora almas: ouvirX, depois de animarX, toca cada som no momento da animação)

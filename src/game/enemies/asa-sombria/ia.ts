@@ -1,11 +1,13 @@
 // A inteligência da Asa sombria (docs/demonios.md, "Como lutam"): voa em volta do agente, de longe (a ~7 m, girando
 // devagar), sempre de frente para ele, e cospe a bola de matéria a cada ~3 s (o aviso: as asas batem curto e rápido, a
 // boca abre e o núcleo cresce). Quando o agente mira nela por mais de 0,6 s, desvia para o lado (no máximo a cada 3 s).
-// Fica na arena: o ponto em volta do agente não passa da beirada. Caído ou engolido, ela não cospe.
+// Fica na arena: o ponto em volta do agente não passa da beirada. Caído ou engolido, ela não cospe. No caminho, desvia
+// das pedras e pilares altos (rumoLivre, ../luta.ts, na altura dela) e não entra neles.
 // Os números em numeros.ts (LUTA). Quem a controla aplica o que animarAsaSombria pede (o recuo do cuspe, o desvio) e
 // dispara o projétil (projetil.ts).
 import * as THREE from 'three'
-import { girarPara, sorteado, type Alvo } from '../luta'
+import { empurrar, type Mundo } from '../../world/colisao'
+import { girarPara, rumoLivre, sorteado, type Alvo } from '../luta'
 import { cuspir, desviar } from './animacao'
 import type { AsaSombria } from './modelo'
 import { LUTA } from './numeros'
@@ -17,10 +19,11 @@ export interface Area { p: THREE.Vector3; raio: number }
 
 interface Mente { cospe: number; desvio: number; mirada: number; giro: number; ang: number | null }
 const mentes = new WeakMap<AsaSombria, Mente>()
-const _q = new THREE.Vector3(), _d = new THREE.Vector3()
+const _q = new THREE.Vector3(), _d = new THREE.Vector3(), _ir = { x: 0, z: 0 }
+const CORPO = { abaixo: 0.9, raio: 0.5 } // os "pés" dela para a colisão (m abaixo do root) e o raio
 
 /** Antes de animarAsaSombria: anda em volta do agente, vira para ele, cospe e desvia. Devolve o alvo do cuspe (o peito do agente). */
-export function pensarAsa(a: AsaSombria, alvo: Alvo, mira: Mira, area: Area | null, dt: number, peito: THREE.Vector3): THREE.Vector3 | undefined {
+export function pensarAsa(a: AsaSombria, alvo: Alvo, mira: Mira, area: Area | null, mundo: Mundo, dt: number, peito: THREE.Vector3): THREE.Vector3 | undefined {
   const A = a.anim, r = a.root
   let m = mentes.get(a)
   if (!m) { m = { cospe: sorteado(LUTA.cospe), desvio: 0, mirada: 0, giro: Math.random() < 0.5 ? -1 : 1, ang: null }; mentes.set(a, m) }
@@ -32,12 +35,15 @@ export function pensarAsa(a: AsaSombria, alvo: Alvo, mira: Mira, area: Area | nu
   if (!A.golpe) m.ang += m.giro * LUTA.volta * dt
   _q.set(alvo.p.x + Math.sin(m.ang) * LUTA.distancia, alvo.p.y + LUTA.voo, alvo.p.z + Math.cos(m.ang) * LUTA.distancia)
   if (area) { _d.subVectors(_q, area.p).setY(0); const l = _d.length(); if (l > area.raio) _q.sub(_d.multiplyScalar(1 - area.raio / l)) }
-  if (!A.golpe) { // vai para lá (no golpe, quem manda é ele: o recuo, o desvio)
-    _d.subVectors(_q, r.position); _d.y = 0
-    const l = _d.length(), passo = Math.min(l, LUTA.vel * dt)
-    if (l > 1e-3) r.position.addScaledVector(_d, passo / l)
+  if (!A.golpe) { // vai para lá, pelo caminho livre (no golpe, quem manda é ele: o recuo, o desvio)
+    const pes = r.position.y - CORPO.abaixo, l = Math.hypot(_q.x - r.position.x, _q.z - r.position.z)
+    rumoLivre(r, _q.x, _q.z, mundo, CORPO.raio, dt, _ir, pes, false)
+    _d.set(_ir.x - r.position.x, 0, _ir.z - r.position.z)
+    const ld = _d.length(), passo = Math.min(l, LUTA.vel * dt)
+    if (ld > 1e-3) r.position.addScaledVector(_d, passo / ld)
     r.position.y += Math.sign(_q.y - r.position.y) * Math.min(Math.abs(_q.y - r.position.y), LUTA.sobe * dt) // sobe ou desce até a altura do voo
   }
+  empurrar(mundo, r.position, r.position.y - CORPO.abaixo, CORPO.raio) // não entra nas pedras (nem no recuo e no desvio)
   girarPara(r, alvo.p.x, alvo.p.z, 5, dt)
   // o agente mirando nela: desvia (o cuspe não é cortado)
   _d.subVectors(r.position, mira.de).normalize()

@@ -2,10 +2,12 @@
 // com as duas garras (o aviso de 0,5 s: agacha, ergue os braços, os olhos acendem). Vários juntos: só um ataca por vez
 // (o bando); os outros esperam a vez em volta, sem se amontoar. O golpe pega no pouso do salto, se o agente ainda
 // estiver perto e na frente: esquivar (ou se afastar) no aviso escapa. Caído ou engolido, ninguém ataca. Quem chega
-// pelo lado da câmera dá a volta até o lado do agente antes de atacar: a briga fica onde o jogador vê.
+// pelo lado da câmera dá a volta até o lado do agente antes de atacar: a briga fica onde o jogador vê. No caminho,
+// desvia das paredes, das pedras e da beirada (rumoLivre, ../luta.ts).
 // Os números em numeros.ts (LUTA).
 import type * as THREE from 'three'
-import { girarPara, ateAlvo, anguloAte, sorteado, type Alvo } from '../luta'
+import type { Mundo } from '../../world/colisao'
+import { girarPara, ateAlvo, anguloAte, rumoLivre, sorteado, type Alvo } from '../luta'
 import { atacar } from './animacao'
 import type { Assombrado } from './modelo'
 import { ATAQUE, LUTA } from './numeros'
@@ -16,10 +18,11 @@ export const novoBando = (): Bando => ({ atacando: null })
 
 interface Mente { espera: number; golpe: number } // s até poder atacar de novo; o relógio do golpe no quadro anterior (−1 = sem golpe)
 const mentes = new WeakMap<Assombrado, Mente>()
+const _ir = { x: 0, z: 0 }
 
 /** Antes de animarAssombrado: vira para o agente, ataca quando pode e devolve quanto quer andar (m/s). O golpe pega no
  *  pouso. camera = onde a câmera está (quem está do lado dela contorna). */
-export function pensarAssombrado(a: Assombrado, alvo: Alvo, bando: Bando, dt: number, camera?: THREE.Vector3): number {
+export function pensarAssombrado(a: Assombrado, alvo: Alvo, bando: Bando, mundo: Mundo, dt: number, camera?: THREE.Vector3): number {
   const A = a.anim
   let m = mentes.get(a)
   if (!m) { m = { espera: sorteado(LUTA.espera), golpe: -1 }; mentes.set(a, m) }
@@ -27,6 +30,8 @@ export function pensarAssombrado(a: Assombrado, alvo: Alvo, bando: Bando, dt: nu
   if (bando.atacando === a && (A.estourado || !A.golpe)) { bando.atacando = null; m.espera = sorteado(LUTA.espera) } // o golpe dele acabou
   if (A.estourado || A.surgir || A.voo) return 0
   const r = a.root, dist = ateAlvo(r, alvo.p)
+  // vira para (x, z) pelo caminho livre (colado no agente, direto: o ataque precisa estar de frente)
+  const ir = (x: number, z: number) => { const o = dist > LUTA.alcance ? rumoLivre(r, x, z, mundo, LUTA.raio, dt, _ir) : Object.assign(_ir, { x, z }); girarPara(r, o.x, o.z, LUTA.vira, dt) }
   if (A.golpe) { // o golpe pega no pouso do salto
     const pouso = ATAQUE.aviso + ATAQUE.salto
     if (m.golpe < pouso && A.golpe.t >= pouso && alvo.pode() && dist < LUTA.alcance && Math.abs(anguloAte(r, alvo.p.x, alvo.p.z)) < LUTA.frente) alvo.ferir(LUTA.dano, r.position)
@@ -42,11 +47,11 @@ export function pensarAssombrado(a: Assombrado, alvo: Alvo, bando: Bando, dt: nu
     if (Math.abs(d) < LUTA.camera) {
       const lado = cam + (d >= 0 ? 1 : -1) * Math.PI * 0.55, raio = LUTA.perto * 1.4
       const x = alvo.p.x + Math.sin(lado) * raio, z = alvo.p.z + Math.cos(lado) * raio
-      girarPara(r, x, z, LUTA.vira, dt)
+      ir(x, z)
       return LUTA.vel
     }
   }
-  girarPara(r, alvo.p.x, alvo.p.z, LUTA.vira, dt)
+  ir(alvo.p.x, alvo.p.z)
   if (dist < LUTA.alcance && !bando.atacando && m.espera <= 0) { atacar(a); bando.atacando = a; return 0 }
   const outro = !!bando.atacando && bando.atacando !== a
   return dist > (outro ? LUTA.espaco : LUTA.perto) ? LUTA.vel : 0

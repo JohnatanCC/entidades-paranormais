@@ -175,6 +175,15 @@ Os números vão para `src/game/enemies/<nome>/numeros.ts` quando cada um chegar
 | Ataque | as garras: 22, alcance 1,4 m, aviso de 0,5 s | o projétil: 15, a 8 m/s, a cada 3 s | a mordida: aviso de 0,8 s, a marca com 9 m de largura; engolido, 20/s por 3 s |
 | Especial | vários juntos: só um ataca por vez | desvia quando o agente mira nela por mais de 0,6 s (no máximo a cada 3 s) | embaixo do chão não leva dano; exposto, 3 a 4 s |
 
+**Desviar dos obstáculos (12/nov):** antes de andar até um ponto, o Assombrado e a Asa olham o caminho à frente (1,8 m):
+livre, vão reto; com uma parede, um objeto, uma pedra ou a beirada no caminho (para a Asa, só o que chega na altura do
+voo), escolhem o primeiro rumo livre para um dos lados e ficam nesse lado por um tempo (`rumoLivre`, em
+`enemies/luta.ts`; olham a cada 0,2 s). A Asa também não entra mais nas pedras (antes voava através). O Devora nada
+embaixo do chão e não precisa.
+
+**A vista de depuração (só no npm run dev, 12/nov):** na Demo, **F2** mostra a barra de vida em cima de cada demônio
+(e de cada tentáculo das costas do chefe) e **F4** mostra as caixas de acerto em arame (`enemies/depurar.ts`).
+
 **O aviso que brilha (pedido em 12/nov):** enquanto prepara um ataque, o demônio acende num âmbar que cresce e pulsa
 até o golpe sair (o Assombrado no aviso das garras, a Asa no aviso do cuspe, o Devora na marca, na mira da investida e
 ao se erguer para a ninhada). É o mesmo jeito do brilho vermelho do golpe (`src/render/golpe.ts`, `docs/jogo.md`): no
@@ -216,7 +225,7 @@ marca e o seletor de fase); o dano, a inteligência e os pontos fracos de verdad
   pastas `racha_2` (os flancos e as costas) e `racha_3` (a cabeça, o rosto e a barriga), que aparecem com a fase; tudo
   o que brilha acende 1,4 vez na segunda barra e 1,9 na terceira (`FASES` em `numeros.ts`); tonto, o brilho falha.
 - **Os 3 tentáculos das costas** podem ser destruídos a tiro enquanto ele nada; cada um a menos o deixa **mais lento**
-  (recompensa quem acerta). Feito (12/nov): cada um tem 120 de vida (dobrada junto com a dele) e 3 esferas de acerto (só as que estão fora do
+  (recompensa quem acerta). Feito (12/nov): cada um tem 120 de vida (dobrada junto com a dele) e 3 caixas de acerto (só as que estão fora do
   chão: nadando, as costas são a única coisa que leva tiro); o dano fica no tentáculo, não passa para as barras dele.
   Zerou, é arrancado com um estouro no lugar (`arrancar`) e ele nada 15% mais devagar por tentáculo a menos
   (`LUTA.costas` em `numeros.ts`; `nadarPara`, em `nado.ts`). Arrancados não voltam até ele estourar.

@@ -94,8 +94,8 @@ export const LUTA = {
   investida: { dano: 20, longe: 11, acerto: 2.4 },
   tentaculo: { dano: 12 },
   // os 3 tentáculos das costas levam tiro (só eles: o dano não passa para a vida dele); zerou, é arrancado e ele nada
-  // `lento` mais devagar por tentáculo a menos (o raio de cada esfera de acerto, m, sem a escala)
-  costas: { vida: 120, lento: 0.15, raio: 0.13 }, // a vida dobrou com a dele (era 60)
+  // `lento` mais devagar por tentáculo a menos (as caixas de acerto: CAIXAS, em chapters/intro/numeros.ts)
+  costas: { vida: 120, lento: 0.15 }, // a vida dobrou com a dele (era 60)
   engolido: { porSegundo: 20, lento: 0.2, dura: 4 },
   rastro: { lento: 0.2 },
   cansa: 3,

@@ -42,8 +42,9 @@ import { estourar, novoEstouro, passoEstouro } from '../../game/enemies/estouro'
 import { andarNoMundo, separar, type Alvo } from '../../game/enemies/luta'
 import { calar, somEm } from '../../game/enemies/sons'
 import { soltarGolpe } from '../../render/golpe'
+import { desenharDepuracao, novaDepuracao, type BarraDeVida } from '../../game/enemies/depurar'
 import type { Chunk } from '../../maps/types'
-import { NASCER, ONDAS, TEMPO } from './numeros'
+import { CAIXAS, NASCER, ONDAS, TEMPO } from './numeros'
 import { novoAmbiente, ouvirTornado, passoAmbiente } from './sons'
 import { descartarTornado, novoTornado, passoTornado, type Tornado } from './tornado'
 
@@ -84,6 +85,8 @@ export function Roteiro({ chunks, jogo, aoTexto }: { chunks: Record<string, Chun
   const alvo = useRef<Alvo | null>(null)
   const mira = useMemo<Mira>(() => ({ de: new THREE.Vector3(), dir: new THREE.Vector3(), ativa: false }), []), peito = useMemo(() => new THREE.Vector3(), [])
   const avisa = useRef(aoTexto); avisa.current = aoTexto
+  // a vista de depuração (só no npm run dev): F2 as barras de vida, F4 as caixas de acerto
+  const dep = useMemo(() => (import.meta.env.DEV ? novaDepuracao() : null), []), vidas = useMemo<BarraDeVida[]>(() => [], [])
 
   /** Tira um demônio da cena (sem estouro: o agente voltou e a onda recomeça; ou o estourado já ficou o bastante). */
   const tirar = (v: Vivo) => { const raiz = v.tipo === 'devora' ? v.d.root : v.a.root; grupo.remove(raiz); calar(v.tipo === 'devora' ? v.d : v.a); soltarGolpe(raiz) }
@@ -91,7 +94,12 @@ export function Roteiro({ chunks, jogo, aoTexto }: { chunks: Record<string, Chun
   // a cena: o grupo do roteiro (os demônios, os projéteis, o estouro); saindo, tudo some e se cala (e a música para)
   useEffect(() => {
     scene.add(grupo, E.grupo); grupo.add(P.grupo)
-    const tecla = (e: KeyboardEvent) => { if (e.code === 'KeyH') R.current.destroi = true }
+    if (dep) grupo.add(dep.grupo)
+    const tecla = (e: KeyboardEvent) => {
+      if (e.code === 'KeyH') R.current.destroi = true
+      if (dep && e.code === 'F2') { e.preventDefault(); dep.vidas = !dep.vidas }
+      if (dep && e.code === 'F4') { e.preventDefault(); dep.caixas = !dep.caixas }
+    }
     window.addEventListener('keydown', tecla)
     return () => {
       window.removeEventListener('keydown', tecla)
@@ -102,7 +110,7 @@ export function Roteiro({ chunks, jogo, aoTexto }: { chunks: Record<string, Chun
       vivos.current = []; tornados.current = []
       musica(null)
     }
-  }, [scene, grupo, E, P, jogo])
+  }, [scene, grupo, E, P, jogo, dep])
 
   /** Põe a onda na fila: cada demônio num ponto da arena longe do agente, um depois do outro. */
   function onda(arena: number, n: number, agente: THREE.Vector3) {
@@ -157,17 +165,19 @@ export function Roteiro({ chunks, jogo, aoTexto }: { chunks: Record<string, Chun
     }
   }
 
-  /** Um demônio entra na luta: as esferas onde a bala acerta (o centro anda com ele: alvosDe, a cada quadro). */
+  /** Um demônio entra na luta: as caixas onde a bala acerta (o centro anda com ele: alvosDe, a cada quadro; as medidas
+   *  em CAIXAS, numeros.ts). */
   function entra(v: Vivo) {
-    const E3 = ESCALA, esfera = (r: number, parte = 1): Alvejavel => ({ c: new THREE.Vector3(), r, acerta: (dano, _p, dir) => tiro(v, dano * parte, dir) })
+    const caixa = (m: readonly number[], acerta: Alvejavel['acerta']): Alvejavel => ({ c: new THREE.Vector3(), m: new THREE.Vector3(m[0], m[1], m[2]), acerta })
+    const corpo = (m: readonly number[], parte = 1) => caixa(m, (dano, _p, dir) => tiro(v, dano * parte, dir))
     if (v.tipo === 'devora') {
       // a boca (dano cheio só aberta: tiro() decide), o corpo e a cauda (o corpo preto: dano reduzido)
-      v.alvos = [{ c: new THREE.Vector3(), r: 0.3 * E3, acerta: (dano, _p, dir) => tiro(v, dano * (Math.abs(v.d.mandibula.rotation.x) > 0.35 ? 1 : LUTA_DEVORA.corpo), dir) },
-        esfera(0.42 * E3, LUTA_DEVORA.corpo), esfera(0.32 * E3, LUTA_DEVORA.corpo)]
-      // os 3 tentáculos das costas: 3 esferas em cada (alvos 3 a 11), com a vida de cada um
+      v.alvos = [caixa(CAIXAS.devora.boca, (dano, _p, dir) => tiro(v, dano * (Math.abs(v.d.mandibula.rotation.x) > 0.35 ? 1 : LUTA_DEVORA.corpo), dir)),
+        corpo(CAIXAS.devora.corpo, LUTA_DEVORA.corpo), corpo(CAIXAS.devora.cauda, LUTA_DEVORA.corpo)]
+      // os 3 tentáculos das costas: 3 caixas em cada (alvos 3 a 11), com a vida de cada um
       v.costas = [0, 1, 2].map(() => LUTA_DEVORA.costas.vida)
-      for (let n = 0; n < 3; n++) for (let k = 0; k < 3; k++) v.alvos.push({ c: new THREE.Vector3(), r: LUTA_DEVORA.costas.raio * E3, acerta: (dano, _p, dir) => tiroNoTentaculo(v, n, dano, dir) })
-    } else v.alvos = [esfera(v.tipo === 'assombrado' ? 0.45 : 0.42)]
+      for (let n = 0; n < 3; n++) for (let k = 0; k < 3; k++) v.alvos.push(caixa(CAIXAS.devora.tentaculo, (dano, _p, dir) => tiroNoTentaculo(v, n, dano, dir)))
+    } else v.alvos = [corpo(v.tipo === 'assombrado' ? CAIXAS.assombrado : CAIXAS.asa)]
     vivos.current.push(v)
   }
 
@@ -200,8 +210,9 @@ export function Roteiro({ chunks, jogo, aoTexto }: { chunks: Record<string, Chun
   }
 
   const _a = new THREE.Vector3(), _b = new THREE.Vector3(), _c = new THREE.Vector3()
-  /** As esferas de quem pode levar tiro agora, no lugar dele. O Devora: só o que está fora do chão (cada esfera por si:
-   *  na ninhada a cabeça erguida leva tiro, o resto enterrado não; nadando, nada). */
+  /** As caixas de quem pode levar tiro agora, no lugar dele. O Devora: só o que está fora do chão (cada caixa por si:
+   *  na ninhada a cabeça erguida leva tiro, o resto enterrado não; nadando, só as costas). A ordem conta (a bala acerta
+   *  a primeira): a boca, os tentáculos, o corpo e a cauda. */
   function alvosDe(v: Vivo, lista: Alvejavel[]) {
     if (v.morto >= 0 || v.estoura >= 0) return
     if (v.tipo !== 'devora') { v.a.corpo.getWorldPosition(v.alvos[0].c); lista.push(v.alvos[0]); return }
@@ -220,7 +231,19 @@ export function Roteiro({ chunks, jogo, aoTexto }: { chunks: Record<string, Chun
       e[1].c.copy(e[0].c).lerp(_c, 0.5)
       e[2].c.copy(_c).lerp(e[0].c, -0.6)
     })
-    for (const e of v.alvos) if (e.c.y + e.r * 0.6 > 0) lista.push(e) // pelo menos um pedaço fora do chão
+    const fora = (e: Alvejavel) => { if (e.c.y + e.m.y * 0.6 > 0) lista.push(e) } // pelo menos um pedaço fora do chão
+    fora(v.alvos[0]); for (let i = 3; i < v.alvos.length; i++) fora(v.alvos[i]); fora(v.alvos[1]); fora(v.alvos[2])
+  }
+
+  /** As barras de vida da depuração (F2): em cima de cada demônio vivo e de cada tentáculo das costas do chefe. */
+  function barrasDeVida(lista: BarraDeVida[]) {
+    lista.length = 0
+    for (const v of vivos.current) {
+      if (v.morto >= 0 || v.estoura >= 0) continue
+      if (v.tipo !== 'devora') { lista.push({ p: v.alvos[0].c.clone().setY(v.alvos[0].c.y + v.alvos[0].m.y + 0.2), f: v.vida / (v.tipo === 'assombrado' ? LUTA_ASSOMBRADO.vida : LUTA_ASA.vida) }); continue }
+      lista.push({ p: v.alvos[1].c.clone().setY(Math.max(0.5, v.alvos[1].c.y + v.alvos[1].m.y + 0.4)), f: v.vida / LUTA_DEVORA.vida, largura: 2.4 })
+      for (let n = 0; n < 3; n++) if (v.d.anim.costas[n]) { const e = v.alvos[5 + n * 3]; lista.push({ p: e.c.clone().setY(e.c.y + e.m.y + 0.15), f: v.costas[n] / LUTA_DEVORA.costas.vida, largura: 0.6 }) }
+    }
   }
 
   const fecha = (n: number, quer: boolean) => { for (const o of tornados.current) if (o.n === n) o.quer = quer }
@@ -295,13 +318,13 @@ export function Roteiro({ chunks, jogo, aoTexto }: { chunks: Record<string, Chun
       }
       const vivo = v.morto < 0
       if (v.tipo === 'assombrado') {
-        const andar = vivo ? pensarAssombrado(v.a, A, bando, dt, mira.de) : 0
+        const andar = vivo ? pensarAssombrado(v.a, A, bando, J.mundo, dt, mira.de) : 0
         const s = animarAssombrado(v.a, { andar }, dt)
         if (!v.a.anim.voo) andarNoMundo(v.a.root, s.avanca * dt, J.mundo, LUTA_ASSOMBRADO.raio)
         if (vivo && !v.a.anim.voo && !v.a.anim.surgir) bandoRaizes.push(v.a.root)
         ouvirAssombrado(v.a, dt)
       } else if (v.tipo === 'asa') {
-        const quer = vivo ? pensarAsa(v.a, A, mira, area, dt, peito) : undefined
+        const quer = vivo ? pensarAsa(v.a, A, mira, area, J.mundo, dt, peito) : undefined
         const s = animarAsaSombria(v.a, { alvo: quer }, dt), r = v.a.root
         r.position.addScaledVector(_v.set(Math.cos(r.rotation.y), 0, -Math.sin(r.rotation.y)), s.lado * dt) // o desvio
         r.position.addScaledVector(_v.set(Math.sin(r.rotation.y), 0, Math.cos(r.rotation.y)), -s.recua * dt) // o recuo do cuspe
@@ -335,6 +358,7 @@ export function Roteiro({ chunks, jogo, aoTexto }: { chunks: Record<string, Chun
       v.recente *= Math.exp(-dt / LUTA_DEVORA.atordoa.some); v.tonto -= dt
       alvosDe(v, J.alvos)
     }
+    if (dep) { if (dep.vidas) barrasDeVida(vidas); desenharDepuracao(dep, J.alvos, vidas, camera) } // desligada, só esconde
     // os projéteis: andam, batem no chão, ou acertam o agente
     passoProjeteis(P, dt, E, 0)
     if (A.pode()) { const onde = acertar(P, peito.copy(ag).setY(ag.y + 1.2), LUTA_ASA.acerto, E, 0); if (onde) J.ferir(LUTA_ASA.dano, onde) }

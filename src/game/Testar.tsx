@@ -1,9 +1,11 @@
 // O Testar do criador de mapas: o agente andando no mapa aberto, com a câmera por cima do ombro, colisão, escadas e
-// as lâmpadas acesas, a luz do lugar (a ambientação de cada área do mapa: game/luz) e a arma na mão (Q troca): mira e atira (o coice e o clarão), joga a armadilha e chama de volta,
+// as lâmpadas acesas, a luz do lugar (a ambientação de cada área do mapa: game/luz) e a arma na mão (começa com a pistola,
+// nunca de mão vazia; Q troca entre ela e a escopeta): mira e atira (o coice e o clarão),
 // a escopeta gasta as 4 balas e recarrega, a pistola esquenta e trava (weapons/municao.ts), a bala voa e acerta
 // (weapons/bala.ts); a vida, os kits e a arma vão para o HUD (game/hud: onHud, a cada quadro). Fica dentro do <Canvas>.
 //   clique trava o mouse · WASD anda · Shift corre · Espaço esquiva · E abre e fecha porta · Q troca a arma · R recarrega · mouse olha
-//   botão direito mira · botão esquerdo atira (ou joga a armadilha; com ela fora, chama de volta) · Esc volta ao editor
+//   botão direito mira · botão esquerdo atira · Esc volta ao editor
+//   (a armadilha saiu da troca, 12/nov: o jogar e o chamar de volta continuam aqui, esperando a ação própria dela)
 //   para ver o modelo (só no Testar, não é controle do jogo): 1–6 expressões, 7–9 poses da mão, 0 volta ao automático,
 //   K cai (a queda: a tela escurece e ele volta no começo do teste, que por enquanto é o checkpoint), J toma 25 de dano
 //   de uma direção sorteada (30% ou menos, machucado; zerou, cai) · F usa um kit (+60; zerado, nasce um a cada 1:30)
@@ -99,7 +101,8 @@ export function Testar({ chunks, levels, ambiente, semChao, areas, inicio, yaw, 
     portas.clear(); novasPortas(m).forEach((v, k) => portas.set(k, v))
     return m
   }, [chunks, levels, portas, semChao])
-  const agente = useMemo(() => montarAgente(), []), sombra = useMemo(() => novaSombraDeChao(), [])
+  // o agente já com a pistola na mão
+  const agente = useMemo(() => { const a = montarAgente(); pegarArma(a, 'pistola'); return a }, []), sombra = useMemo(() => novaSombraDeChao(), [])
 
   // a luz assada de onde o agente está (as lâmpadas sem sombra e as janelas), tirada de novo a cada poucos quadros
   const assa = useMemo(() => assadorDe(Object.values(chunks)), [chunks]), luzAgente = useMemo(() => novaLuzVertice(), []), quadro = useRef(0)
@@ -258,8 +261,7 @@ export function Testar({ chunks, levels, ambiente, semChao, areas, inicio, yaw, 
     // as portas: a mais perto na frente (do corpo ou da câmera); E abre, fecha ou diz por que não
     animarPortas(portas, dt)
     const porta = portaPerto(mundo, j.x, j.y, j.z, [j.yaw, s.camYaw])
-    // Q: a próxima arma (pistola, escopeta, armadilha, mão vazia)
-    // (a armadilha fora da mão volta na hora: a mão vai segurar outra coisa)
+    // Q: a outra arma (pistola e escopeta; a mão nunca fica vazia)
     // (trocar corta a recarga: municao.ts, com a outra arma na mão)
     if (acoes.trocarArma() && !caido) { recolher(armadilha); pegarArma(agente, proximaArma(agente.arma)) }
     if (acoes.interagir() && porta && !caido) { const msg = usarPorta(mundo, portas, porta, j.x, j.z); if (msg) { s.msg = msg; s.msgT = 2.5 } }
@@ -310,7 +312,6 @@ export function Testar({ chunks, levels, ambiente, semChao, areas, inicio, yaw, 
     hud.vida = vida.atual / AGENTE.vida; hud.folego = s.j.folego / AGENTE.folego; hud.folegoTravado = s.j.folegoTravado
     hud.kits = vida.kits; hud.novoKit = vida.novoKit; hud.arma = agente.arma
     hud.calor = municao.calor; hud.travada = municao.travada; hud.balas = municao.balas; hud.recarregando = municao.recarga >= 0
-    hud.armadilha = armadilha.estado
     hudRef.current(hud)
 
     // a câmera por cima do ombro direito: o braço encolhe na hora ao bater e estica devagar

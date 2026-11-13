@@ -41,6 +41,55 @@ export function andarNoMundo(raiz: THREE.Object3D, dist: number, mundo: Mundo, r
   P.x = _p.x; P.z = _p.z
 }
 
+// ---------- desviar dos obstáculos (12/nov) ----------
+// Antes de ir até um ponto, ele olha o caminho à frente: livre, vai reto; com uma parede, um objeto, uma pedra ou a
+// beirada no caminho, escolhe o primeiro rumo livre para um dos lados (abrindo aos poucos) e fica nesse lado por um
+// tempo (não fica indeciso entre os dois). Olha a cada OLHAR.cada s (não a cada quadro: são vários no bando).
+const OLHAR = { longe: 1.8, angulos: [0.45, 0.9, 1.35, 1.8, 2.3], cada: 0.2, mantem: 1.2 }
+interface Rumo { t: number; lado: number; manter: number; ang: number | null }
+const rumos = new WeakMap<THREE.Object3D, Rumo>()
+const _o = { x: 0, z: 0 }
+
+/** O caminho de (x, z) na direção `ang` até `dist` m está livre (sem caixa e, se `chao`, com chão)? y = a altura dos pés. */
+function livre(m: Mundo, x: number, z: number, ang: number, dist: number, y: number, r: number, chao: boolean) {
+  for (const f of [0.35, 0.7, 1]) {
+    const px = x + Math.sin(ang) * dist * f, pz = z + Math.cos(ang) * dist * f
+    _o.x = px; _o.z = pz
+    empurrar(m, _o, y, r)
+    if (Math.hypot(_o.x - px, _o.z - pz) > 0.02) return false
+    if (chao && !temChao(m, px, pz, y)) return false
+  }
+  return true
+}
+
+/**
+ * Para onde ir, indo até (x, z) sem bater: o próprio ponto, se o caminho está livre; senão, um ponto à frente no
+ * primeiro rumo livre para o lado. Devolve em `out`. y = a altura dos pés (a Asa, a do corpo dela); chao = precisa de
+ * chão embaixo (quem anda; quem voa, não).
+ */
+export function rumoLivre(raiz: THREE.Object3D, x: number, z: number, m: Mundo, r: number, dt: number, out: { x: number; z: number }, y = raiz.position.y, chao = true) {
+  const P = raiz.position, quer = Math.atan2(x - P.x, z - P.z), dist = Math.min(OLHAR.longe, Math.hypot(x - P.x, z - P.z))
+  let R = rumos.get(raiz)
+  if (!R) { R = { t: 0, lado: Math.random() < 0.5 ? -1 : 1, manter: 0, ang: null }; rumos.set(raiz, R) }
+  R.t -= dt; R.manter -= dt
+  if (R.t <= 0) {
+    R.t = OLHAR.cada
+    if (dist < 0.3 || livre(m, P.x, P.z, quer, dist, y, r, chao)) R.ang = null // reto
+    else {
+      if (R.manter <= 0) { // escolhe o lado mais livre (o primeiro que abre), e fica nele um tempo
+        const abre = (lado: number) => OLHAR.angulos.findIndex((a) => livre(m, P.x, P.z, quer + lado * a, OLHAR.longe, y, r, chao))
+        const e = abre(-1), d = abre(1)
+        R.lado = e < 0 ? 1 : d < 0 ? -1 : e < d ? -1 : d < e ? 1 : R.lado
+        R.manter = OLHAR.mantem
+      }
+      const i = OLHAR.angulos.findIndex((a) => livre(m, P.x, P.z, quer + R!.lado * a, OLHAR.longe, y, r, chao))
+      R.ang = quer + R.lado * OLHAR.angulos[i < 0 ? OLHAR.angulos.length - 1 : i]
+    }
+  }
+  if (R.ang === null) { out.x = x; out.z = z } else { out.x = P.x + Math.sin(R.ang) * 2; out.z = P.z + Math.cos(R.ang) * 2 }
+  return out
+}
+
 /** Os que andam juntos não se atravessam: cada par mais perto que `min` m se afasta (metade cada um). */
 export function separar(raizes: THREE.Object3D[], min: number) {
   for (let i = 0; i < raizes.length; i++) for (let k = i + 1; k < raizes.length; k++) {

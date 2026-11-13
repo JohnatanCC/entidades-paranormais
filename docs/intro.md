@@ -95,6 +95,7 @@ Cada Sombrio pensa no `ia.ts` da pasta dele (os números em `LUTA`, no `numeros.
   ~3 s; na arena 2 as bolas e as garras juntas tiram ~25% em 8 s; o Devora engole quem fica parado na marca. Os números
   são o ponto de partida: ajustar jogando.
 - **As balas (12/nov):** os demônios levam tiro e estouram de verdade (`docs/jogo.md`, "A bala"); a tecla H continua, de teste.
+  No npm run dev, F2 mostra as barras de vida dos demônios e F4 as caixas de acerto.
   Os 3 tentáculos das costas do chefe também levam tiro: arrancados, ele nada mais devagar (`docs/demonios.md`).
 - **O brilho do golpe (12/nov):** quem leva um golpe (o agente, um demônio) acende num vermelho claro por um instante.
 - **Em aberto:** a câmera não desvia dos demônios (um Assombrado muito perto ainda pode ficar na frente); o projétil
