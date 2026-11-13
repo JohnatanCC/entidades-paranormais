@@ -207,7 +207,7 @@ export function VerModelos({ go }: { go: Go }) {
             </div>
             {municao && <span className="municao">{municao}</span>}
             <small>{e.arma === 'armadilha' ? 'Para a frente; mirando, o arco mostra onde ela cai. Presa, ela volta sozinha em 1,5 s.'
-              : e.arma === 'escopeta' ? 'Para a frente. 4 balas; vazia, recarrega sozinha (1,5 s por bala; cada uma vale ao entrar). Atirar corta a recarga; o gatilho preso, não.'
+              : e.arma === 'escopeta' ? 'Para a frente. 4 balas; vazia, recarrega sozinha (1 s por bala; cada uma vale ao entrar). Atirar corta a recarga; o gatilho preso, não.'
               : 'Para a frente. Esquenta 2,5% por tiro; cheia, trava 5 s. Segurando o gatilho, trava em uns 8 s.'}</small>
           </section>}
           <section>

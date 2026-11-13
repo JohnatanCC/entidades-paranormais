@@ -1,6 +1,6 @@
 // A munição de cada arma (decidida em 12/nov, docs/jogo.md). É o estado do jogo; a animação só lê (a recarga em
 // player/recarga.ts, o frasco da pistola em player/arma.ts).
-//   escopeta: 4 balas; a recarga leva 1,5 s por bala que falta e cada bala vale assim que entra na câmara. Recarrega
+//   escopeta: 4 balas; a recarga leva 1 s por bala que falta e cada bala vale assim que entra na câmara. Recarrega
 //     sozinha quando a última sai (e com R antes); esquivar, cair, trocar de arma ou um clique novo no gatilho corta a
 //     recarga (ficam as balas que já entraram; dá para recomeçar)
 //   pistola: nunca acaba, mas esquenta 2,5% por tiro e não esfria enquanto atira; cheia, trava 5 s (esfriando até 30%)

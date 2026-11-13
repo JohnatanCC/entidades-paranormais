@@ -210,16 +210,16 @@ luta não é para ser lenta; os ataques dos inimigos são legíveis para o jogad
 | Arma | Atalho | Tiro | Dano | Limite |
 | --- | --- | --- | --- | --- |
 | Pistola de plasma | Q | a cada 0,2 s, bala a 40 m/s | 5 | **sobrecarga**: +2,5% por tiro; cheia, trava por 5 s. Munição infinita |
-| Escopeta de Demantino (o ferro extraído dos objetos amaldiçoados) | Q | a cada 1 s, 5 bagos em leque 0,065, 46 m/s | 5 × 15 | **balas**: 4 no cano; **a recarga leva 1,5 s por bala que falta** (4 = 6 s), e cada bala vale ao entrar. Sem sobrecarga |
+| Escopeta de Demantino (o ferro extraído dos objetos amaldiçoados) | Q | a cada 1 s, 5 bagos em leque 0,065, 46 m/s | 5 × 15 | **balas**: 4 no cano; **a recarga leva 1 s por bala que falta** (4 = 4 s), e cada bala vale ao entrar. Sem sobrecarga |
 | Armadilha | — | **não se equipa mais** (12/nov): vai virar uma ação própria, que a usa sozinha (a reformular) | — | — |
 | Kit médico | F | — | cura 60 | — |
 
-**A recarga da escopeta (decidida e feita em 12/nov; mudada no mesmo dia):** leva **1,5 s por bala que falta** (1 bala
-= 1,5 s, 4 balas = 6 s; antes eram 2,5 s fixos) e **cada bala vale assim que entra** na câmara. Para o ritmo continuar
+**A recarga da escopeta (decidida e feita em 12/nov; mudada no mesmo dia):** leva **1 s por bala que falta** (1 bala
+= 1 s, 4 balas = 4 s; 13/nov: era 1,5 s por bala, e antes 2,5 s fixos) e **cada bala vale assim que entra** na câmara. Para o ritmo continuar
 rápido: recarrega andando e correndo; recarrega sozinho 0,35 s depois que a última bala sai, e com **R** antes disso;
 atirar vazia também começa. Esquivar, cair ou trocar de arma corta a recarga (ficam as balas que já entraram, e dá
 para recomeçar); **um clique novo no gatilho também corta** (e o tiro sai com o que entrou). Segurando o gatilho, a
-recarga continua até o fim. Os primeiros 0,7 s são pegar o cartucho; os últimos 0,45 s, puxar a bomba; as balas
+recarga continua até o fim. Os primeiros 0,5 s são pegar o cartucho; os últimos 0,35 s, puxar a bomba; as balas
 dividem o resto. A animação (`src/game/player/recarga.ts`):
 - a mão esquerda solta a bomba e vai à bolsa do cinto; puxa o cartucho (`modelos/armas/cartucho.bbmodel`);
 - a direita levanta a arma de pé na frente do ombro direito, com a câmara virada para ele: assim a câmera do jogo,

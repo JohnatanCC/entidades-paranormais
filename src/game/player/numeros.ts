@@ -121,7 +121,7 @@ export const ESCOPETA = {
 }
 
 // A recarga da escopeta (player/recarga.ts). Quanto ela dura e quando cada bala entra é da munição (weapons/numeros.ts,
-// MUNICAO: 1,5 s por bala); aqui, os tempos da pose em s. Pontos e direções no espaço do peito (x = esquerda do agente,
+// MUNICAO: 1 s por bala); aqui, os tempos da pose em s. Pontos e direções no espaço do peito (x = esquerda do agente,
 // y = cima, z = frente)
 export const RECARGA = {
   entra: 14, sai: 10, // quão rápido a pose entra e some (cortada: o cartucho some junto)
@@ -131,14 +131,14 @@ export const RECARGA = {
   bolsa: [0.13, 0.07, 0.2], // o pulso esquerdo na bolsa do cinto
   // s desde o começo: a mão solta a bomba e chega na bolsa, puxa o cartucho (ele aparece no meio) e leva até em cima da
   // câmara (chega em MUNICAO.escopeta.inicio)
-  vai: [0, 0.3], puxa: [0.3, 0.5], leva: [0.5, 0.7],
+  vai: [0, 0.2], puxa: [0.2, 0.36], leva: [0.36, 0.5],
   // cada bala: espera a vez, flutua para fora do cartucho (até `flutua` s, girando, `solta` do caminho) e é puxada
   // (`voo` s), entrando na hora em que a munição diz que ela vale
   flutua: 0.6, solta: 0.25, voo: 0.28,
   acima: 0.15, // m: o cartucho por cima da câmara (as balas atravessam o vão)
   arco: 0.035, // m: o quanto cada bala faz a curva para o lado no caminho (uma para cada lado)
   // s depois da última bala (cabem em MUNICAO.escopeta.fim): o cartucho vazio se desfaz, a mão volta à bomba e puxa
-  some: [0.02, 0.09], volta: [0.05, 0.2], bomba: [0.2, 0.4],
+  some: [0.02, 0.09], volta: [0.04, 0.16], bomba: [0.16, 0.33],
   tranco: 0.012, // m: a arma desce um pouco quando cada bala entra
 }
 

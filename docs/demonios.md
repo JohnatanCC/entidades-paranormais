@@ -264,7 +264,7 @@ dos 3 cuspidos, sobem do chão perto do agente 2 Assombrados (4 na 3ª barra). N
   cuspido fora da ilha e ficava preso. Se mesmo assim o ponto do cuspe não tiver chão, o agente volta no começo da
   arena. Cuspido, ele sai rolando para longe da boca (a cambalhota). A tela escurece só 40% enquanto ele está dentro
   (`ENGOLIDO`, no `numeros.ts` do agente; a queda continua escurecendo tudo).
-- **A horda da luta do chefe:** a cada 20 s, em qualquer barra, sobem do chão perto do agente 3 Assombrados e 1 Asa
+- **A horda da luta do chefe:** a cada 20 s, em qualquer barra, sobem do chão perto do agente 1 Assombrado e 1 Asa
   sombria (`HORDA_CHEFE` em `chapters/intro/numeros.ts`; contam como crias: no máximo 10 vivas).
 
 **As fases: as 3 barras de vida** (decidido em 12/nov: cada barra é uma fase, como as barras da Mãe):

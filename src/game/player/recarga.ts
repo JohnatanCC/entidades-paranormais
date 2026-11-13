@@ -1,5 +1,5 @@
 // A recarga da escopeta (decidida em 12/nov, docs/jogo.md), só a pose: quem decide (o tempo, quando cada bala vale) é
-// weapons/municao.ts: 1,5 s por bala que falta. A mão esquerda solta a bomba, vai à bolsa do cinto e puxa o cartucho
+// weapons/municao.ts: 1 s por bala que falta. A mão esquerda solta a bomba, vai à bolsa do cinto e puxa o cartucho
 // (modelos/armas/cartucho.bbmodel); a direita levanta a arma de pé, com a câmara virada para ele; a esquerda segura o
 // cartucho por cima da câmara e as balas, uma de cada vez (só as que faltavam), flutuam para fora girando e são puxadas
 // pela arma, como mágica; o cartucho vazio se desfaz, a mão volta à bomba e puxa: pronta. Andando e correndo também

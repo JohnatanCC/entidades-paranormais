@@ -16,7 +16,7 @@ export const MUNICAO = {
   //   balas = quantas cabem; porBala = s de recarga por bala que falta (cada uma vale assim que entra); auto = s depois da
   //   última bala até recarregar sozinho; inicio = s até o cartucho chegar em cima da câmara (as balas começam depois);
   //   fim = s depois da última bala (o cartucho some, a mão volta e puxa a bomba)
-  escopeta: { balas: 4, porBala: 1.5, auto: 0.35, inicio: 0.7, fim: 0.45 },
+  escopeta: { balas: 4, porBala: 1, auto: 0.35, inicio: 0.5, fim: 0.35 }, // 13/nov: 1 s por bala (era 1,5; inicio 0,7 e fim 0,45)
   //   tiro = quanto esquenta por tiro (0..1); pausa = s sem atirar até começar a esfriar (atirando sem parar, não esfria);
   //   esfria = por s, e esfriaRapido depois de `espera` s sem atirar; cheia, trava `trava` s e volta em `volta`
   pistola: { tiro: 0.025, pausa: 0.35, esfria: 0.08, esfriaRapido: 0.25, espera: 2, trava: 5, volta: 0.3 },

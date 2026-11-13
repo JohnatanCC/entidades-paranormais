@@ -39,7 +39,7 @@ export const CRIAS = { max: 10 }
 
 // A horda da luta do chefe (13/nov): a cada `cada` s, em qualquer barra de vida, sobem do chão perto do agente (de
 // `longe` m) estes Sombrios (contam como crias: o limite vale)
-export const HORDA_CHEFE = { cada: 20, assombrados: 3, asas: 1, longe: [5, 8] }
+export const HORDA_CHEFE = { cada: 20, assombrados: 1, asas: 1, longe: [5, 8] } // (13/nov: eram 3 Assombrados)
 
 // As poças de líquido preto na borda da arena do chefe (12/nov): quantas, a que fração do raio da arena (a borda), o
 // tamanho (m), de que distância do agente um tentáculo sobe (m) e de quanto em quanto tempo cada uma pode (s, sorteado)
