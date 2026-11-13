@@ -4,6 +4,7 @@
 //   (o passo dela é mais curto: animacao.ts) e com a mão esquerda segurando o lado, quando ela está livre.
 // Os números em numeros.ts (DANO).
 import * as THREE from 'three'
+import { piscar } from '../../render/golpe'
 import { alcancar } from './alcancar'
 import type { Agente } from './modelo'
 import { DANO } from './numeros'
@@ -17,7 +18,7 @@ const sm = (x: number) => { const k = Math.max(0, Math.min(1, x)); return k * k 
 const LADO = new THREE.Vector3(0.17, 0.1, 0.13), POLO = new THREE.Vector3(1, -0.6, -0.6) // a mão esquerda no lado da barriga
 
 /** Um golpe: o tranco começa. dir = de onde veio (no espaço do agente). */
-export function tranco(a: Agente, dir: number) { a.anim.dano.t = 0; a.anim.dano.dir = dir }
+export function tranco(a: Agente, dir: number) { a.anim.dano.t = 0; a.anim.dano.dir = dir; piscar(a.root) } // e acende (render/golpe.ts)
 
 /** No começo do quadro: o relógio do tranco e o machucado chegando (ou passando). */
 export function passoDoDano(a: Agente, ferido: boolean, dt: number) {

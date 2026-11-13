@@ -18,7 +18,7 @@ agente do Testar do criador de mapas (a câmera, a colisão, a luz do lugar, as 
 | A passagem | Durante a horda, **um tornado fecha a passagem** para a próxima arena; limpou, ele some |
 | O chefe | Arena 3: o **Devora almas**, com as crias dele (a ninhada) |
 | Sem balas ainda | Os demônios **vêm e atacam** de verdade (a inteligência de cada um); **uma tecla de teste destrói a horda** para passar adiante, até as balas chegarem |
-| A música | **"O devorador de almas" só na luta do chefe**: começa quando ele sai do chão. Nas arenas 1 e 2, só o ambiente do submundo |
+| A música | **A de batalha nas hordas** (12/nov: `batalha.mp3`, a do laboratório): começa quando a arena fecha e some quando ela abre. **"O devorador de almas" na luta do chefe**: começa quando a arena dele fecha, no ronco do chão, antes de ele sair |
 
 ## O cenário (feito em 12/nov)
 
@@ -63,7 +63,7 @@ acendem (os cristais) continuam soltos, por causa da luz de verdade. O editor co
   fica atordoado, rasteja e passa para a próxima fase; na última, estoura).
 - **A linha do roteiro** no alto da tela: a arena, a onda, quantos Sombrios faltam, a dica do H.
 - **Os sons:** o ambiente do submundo (`sons.ts`: o vento grave sem parar, roncos distantes, um gemido longe de vez em
-  quando, um sussurro raro) e a música do chefe, `public/musica/devorador.mp3` ("O devorador de almas").
+  quando, um sussurro raro) a música das hordas, `public/musica/batalha.mp3`, e a do chefe, `public/musica/devorador.mp3` ("O devorador de almas").
 
 ## As etapas (uma por vez)
 
@@ -95,6 +95,8 @@ Cada Sombrio pensa no `ia.ts` da pasta dele (os números em `LUTA`, no `numeros.
   ~3 s; na arena 2 as bolas e as garras juntas tiram ~25% em 8 s; o Devora engole quem fica parado na marca. Os números
   são o ponto de partida: ajustar jogando.
 - **As balas (12/nov):** os demônios levam tiro e estouram de verdade (`docs/jogo.md`, "A bala"); a tecla H continua, de teste.
+  Os 3 tentáculos das costas do chefe também levam tiro: arrancados, ele nada mais devagar (`docs/demonios.md`).
+- **O brilho do golpe (12/nov):** quem leva um golpe (o agente, um demônio) acende num vermelho claro por um instante.
 - **Em aberto:** a câmera não desvia dos demônios (um Assombrado muito perto ainda pode ficar na frente); o projétil
   ainda atravessa paredes e objetos.
 

@@ -1,12 +1,12 @@
 // O HUD (o conceito C, docs/jogo.md; do laboratório: reference/lab/06-hud.js, dh-vg, dh-kb, dh-wg):
 //   embaixo à esquerda, o anel da vida (em %, a linha do ECG e o estado: bem, cuidado, perigo) com o fôlego por dentro,
 //   e o selo dos kits (zerado, o anel do tempo até o próximo); embaixo à direita, o mostrador da arma (a silhueta, o
-//   anel do calor da pistola ou as 4 balas da escopeta, as outras armas em volta: a de cima é a do Q) e o nome;
+//   anel do calor da pistola ou as 4 balas da escopeta, a outra arma em cima: a do Q) e o nome;
 //   em cima, as barras de vida do chefe (quando tem).
 // Leve: o desenho é feito uma vez; a cada quadro o jogo chama atualizar() e só muda no documento o que mudou.
 // Fica para depois: as legendas (quando houver falas), a roda de armas (Tab) e os avisos de controle.
 import { useEffect, useRef, type MutableRefObject } from 'react'
-import { ARMAS, type Arma } from '../player/arma'
+import { ARMAS, proximaArma, type Arma } from '../player/arma'
 import { KITS } from '../player/numeros'
 import type { EstadoArmadilha } from '../weapons/armadilha'
 import { MUNICAO } from '../weapons/numeros'
@@ -50,7 +50,7 @@ const DESENHO = `
 <div class="hud-vida"><svg viewBox="0 0 200 200" aria-hidden="true"><circle class="bk" cx="100" cy="100" r="97"/><circle class="tr" cx="100" cy="100" r="84" style="stroke-dasharray:${arco(C_VIDA, 1)}"/><circle class="fl" cx="100" cy="100" r="84"/><circle class="str" cx="100" cy="100" r="69" style="stroke-dasharray:${arco(C_FOLEGO, 1)}"/><circle class="sfl" cx="100" cy="100" r="69"/><polyline class="ecg" points="50,112 72,112 80,94 90,134 100,98 108,112 150,112"/></svg><b></b><span></span></div>
 <div class="hud-kit"><div class="selo"><svg class="rg" viewBox="0 0 80 80" aria-hidden="true"><circle class="fl" cx="40" cy="40" r="36"/></svg>${svg('kit')}</div><b></b><span></span></div>
 <div class="hud-arma"><svg viewBox="0 0 200 200" aria-hidden="true"><circle class="bk" cx="100" cy="100" r="97"/><circle class="tr" cx="100" cy="100" r="86"/><circle class="fl" cx="100" cy="100" r="86"/><circle class="in" cx="100" cy="100" r="68"/></svg><div class="ic"></div><em></em>
-  <div class="sat s1"><div class="ic"></div><i>Q</i></div><div class="sat s2"><div class="ic"></div></div></div>
+  <div class="sat s1"><div class="ic"></div><i>Q</i></div></div>
 <div class="hud-nome"></div>`
 
 /** O HUD por cima da cena. `painel` recebe a função que o jogo chama a cada quadro. */
@@ -64,7 +64,7 @@ export function Hud({ painel }: { painel: MutableRefObject<((e: EstadoHud) => vo
       vida: q('.hud-vida'), vfl: q<SVGElement>('.hud-vida .fl'), vsf: q<SVGElement>('.hud-vida .sfl'), vst: q<SVGElement>('.hud-vida .str'), vb: q('.hud-vida b'), vs: q('.hud-vida span'),
       kit: q('.hud-kit'), kb: q('.hud-kit b'), ks: q('.hud-kit span'), kfl: q<SVGElement>('.hud-kit .rg .fl'),
       arma: q('.hud-arma'), atr: q<SVGElement>('.hud-arma .tr'), afl: q<SVGElement>('.hud-arma .fl'), aic: q('.hud-arma > .ic'), aem: q('.hud-arma > em'),
-      sats: [q('.hud-arma .s1 .ic'), q('.hud-arma .s2 .ic')], nome: q('.hud-nome'),
+      sats: [q('.hud-arma .s1 .ic')], nome: q('.hud-nome'),
     }
     const visto: Record<string, unknown> = {} // só mexe no documento quando muda
     const muda = <T,>(k: string, v: T, f: (v: T) => void) => { if (visto[k] !== v) { visto[k] = v; f(v) } }
@@ -89,9 +89,7 @@ export function Hud({ painel }: { painel: MutableRefObject<((e: EstadoHud) => vo
       muda('ak', e.arma, (a) => {
         el.aic.innerHTML = a ? svg(a) : ''
         el.arma.classList.toggle('vazia', !a)
-        const ordem: (Arma | null)[] = [...ARMAS.map(([k]) => k), null], i = ordem.indexOf(a)
-        const outras = [1, 2, 3].map((d) => ordem[(i + d) % ordem.length]).filter((k): k is Arma => !!k).slice(0, 2)
-        el.sats.forEach((s, n) => (s.innerHTML = outras[n] ? svg(outras[n]) : ''))
+        el.sats[0].innerHTML = svg(proximaArma(a)) // a do Q (só a outra arma de tiro)
         el.atr.style.strokeDasharray = a === 'escopeta' ? pedacos(BALAS) : a === 'pistola' ? arco(C_ARMA, 1) : `0 ${C_ARMA}`
       })
       let anel = '', linha = '', sub = '', quente = false, morno = false

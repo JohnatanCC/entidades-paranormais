@@ -14,6 +14,13 @@ export type Tocar = (s: Som, t: number, d: AudioNode) => number
 export type Parte = [nome: string, tocar: Tocar]
 
 const R = Math.random
+const VOLUME = 2 // o quanto os sons dos Sombrios soam acima do que cada um toca (12/nov: pedidos mais altos; era 1)
+/** Uma fonte de demônio no lugar (com o volume dos Sombrios). */
+function fonteDeDemonio(ref: number, volume = VOLUME): Fonte | null {
+  const f = novaFonte(ref)
+  if (f) f.entrada.gain.value = volume
+  return f
+}
 export const sorteio = (a: number, b: number) => a + R() * (b - a)
 
 /** Põe a fonte no lugar já (moverFonte desliza: uma fonte nova viria da origem). */
@@ -29,7 +36,7 @@ export function vozDe(dono: object, onde: THREE.Vector3, ref = 1.6): { s: Som; d
   const s = som()
   if (!s) return null
   let f = fontes.get(dono)
-  if (!f) { const n = novaFonte(ref); if (!n) return null; f = n; fontes.set(dono, f); colocar(f, onde) }
+  if (!f) { const n = fonteDeDemonio(ref); if (!n) return null; f = n; fontes.set(dono, f); colocar(f, onde) }
   else moverFonte(f, onde)
   return { s, d: f.entrada, t: s.ctx.currentTime }
 }
@@ -38,9 +45,10 @@ export function calar(dono: object) {
   const f = fontes.get(dono)
   if (f) { soltarFonte(f); fontes.delete(dono) }
 }
-/** Um som num ponto do mundo (uma fonte só para ele, solta depois que ele acaba). */
-export function somEm(p: THREE.Vector3, tocar: Tocar, ref = 2) {
-  const s = som(), f = s ? novaFonte(ref) : null
+/** Um som num ponto do mundo (uma fonte só para ele, solta depois que ele acaba). volume: o dos Sombrios (os sons do
+ *  agente num ponto, a bala batendo e a armadilha, passam 1). */
+export function somEm(p: THREE.Vector3, tocar: Tocar, ref = 2, volume = VOLUME) {
+  const s = som(), f = s ? fonteDeDemonio(ref, volume) : null
   if (!s || !f) return
   colocar(f, p)
   const dur = tocar(s, s.ctx.currentTime + 0.01, f.entrada)

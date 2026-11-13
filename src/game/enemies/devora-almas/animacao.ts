@@ -22,6 +22,7 @@
 // rompe (a cabeça passou pelo chão: o respingo), mordeu (o alto do salto: quem está na marca é engolido), cuspe (de onde
 // sai quem foi engolido) e cria (um demônio cuspido: qual, de onde sai e para que lado).
 import * as THREE from 'three'
+import { avisar, piscar } from '../../../render/golpe'
 import { animarMolas } from '../../corpo/molas'
 import { estourar, type Estouro } from '../estouro'
 import type { DevoraAlmas, ModoDevora } from './modelo'
@@ -94,6 +95,8 @@ export function arrancar(d: DevoraAlmas, n: number): THREE.Vector3 | null {
 }
 /** Um golpe nele, vindo da direção `de` (rad, no espaço dele: 0 = da frente, +π/2 = do lado esquerdo dele). */
 export function ferir(d: DevoraAlmas, de: number) {
+  if (d.anim.estourado) return
+  piscar(d.root) // acende (render/golpe.ts), mesmo quando o tranco não pega
   if (!livre(d)) return
   const B = d.anim.balanco
   B.vx -= Math.cos(de) * DANO.tranco; B.vz += Math.sin(de) * DANO.tranco
@@ -116,6 +119,15 @@ export function refazerDevora(d: DevoraAlmas) {
   Object.assign(A.balanco, { x: 0, z: 0, vx: 0, vz: 0 }); d.molas.pos = null; d.root.visible = true
 }
 
+/** O quanto da preparação de um ataque já passou (0..1; 0 = não está preparando): a marca (lá embaixo, antes do salto),
+ *  a mira da investida (as costas apontando) e o erguer da ninhada até o primeiro cuspe. */
+function preparo(d: DevoraAlmas): number {
+  const A = d.anim
+  if (A.modo === 'marca' || A.modo === 'mira') return Math.min(1, A.tm / duracao(d))
+  if (A.modo === 'ninhada' && A.tm < NINHADA.cospe[0]) return A.tm / NINHADA.cospe[0]
+  return 0
+}
+
 /** Quanto dura o modo de agora (s). */
 function duracao(d: DevoraAlmas): number {
   const A = d.anim
@@ -136,6 +148,7 @@ const _q = new THREE.Quaternion(), _q2 = new THREE.Quaternion(), _qm = new THREE
 
 /** Um quadro do Devora almas. */
 export function animarDevora(d: DevoraAlmas, dt: number): SaidaDevora {
+  avisar(d.root, d.anim.estourado ? 0 : preparo(d)) // o aviso do ataque acende (render/golpe.ts)
   dt = Math.min(dt, 0.05)
   const A = d.anim, saida: SaidaDevora = { y: A.y, avanca: 0, rompe: false, mordeu: false, cuspe: null, cria: null }
   if (A.estourado) return saida

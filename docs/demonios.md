@@ -170,10 +170,15 @@ Os números vão para `src/game/enemies/<nome>/numeros.ts` quando cada um chegar
 
 | | Assombrado | Asa sombria | Devora almas |
 | --- | --- | --- | --- |
-| Vida | 60 | 40 | 500 |
+| Vida | 60 | 40 | 1000 (dobrada em 12/nov; era 500) |
 | Velocidade | 1,2 m/s (pulando) | 3 m/s voando | nadando 4 m/s |
-| Ataque | as garras: 22, alcance 1,4 m, aviso de 0,5 s | o projétil: 15, a 8 m/s, a cada 3 s | a mordida: aviso de 1 s, a marca com 9 m de largura; engolido, 20/s por 3 s |
+| Ataque | as garras: 22, alcance 1,4 m, aviso de 0,5 s | o projétil: 15, a 8 m/s, a cada 3 s | a mordida: aviso de 0,8 s, a marca com 9 m de largura; engolido, 20/s por 3 s |
 | Especial | vários juntos: só um ataca por vez | desvia quando o agente mira nela por mais de 0,6 s (no máximo a cada 3 s) | embaixo do chão não leva dano; exposto, 3 a 4 s |
+
+**O aviso que brilha (pedido em 12/nov):** enquanto prepara um ataque, o demônio acende num âmbar que cresce e pulsa
+até o golpe sair (o Assombrado no aviso das garras, a Asa no aviso do cuspe, o Devora na marca, na mira da investida e
+ao se erguer para a ninhada). É o mesmo jeito do brilho vermelho do golpe (`src/render/golpe.ts`, `docs/jogo.md`): no
+material, sem luz a mais. Os sons dos Sombrios soam 2 vezes mais alto que antes (`VOLUME` em `enemies/sons.ts`).
 
 ## A luta do Devora almas (decidido em 12/nov)
 
@@ -211,8 +216,15 @@ marca e o seletor de fase); o dano, a inteligência e os pontos fracos de verdad
   pastas `racha_2` (os flancos e as costas) e `racha_3` (a cabeça, o rosto e a barriga), que aparecem com a fase; tudo
   o que brilha acende 1,4 vez na segunda barra e 1,9 na terceira (`FASES` em `numeros.ts`); tonto, o brilho falha.
 - **Os 3 tentáculos das costas** podem ser destruídos a tiro enquanto ele nada; cada um a menos o deixa **mais lento**
-  (recompensa quem acerta). Feito o que se vê: arrancado, o tentáculo some com um estouro no lugar (`arrancar`); ficar
-  mais lento entra com a luta.
+  (recompensa quem acerta). Feito (12/nov): cada um tem 120 de vida (dobrada junto com a dele) e 3 esferas de acerto (só as que estão fora do
+  chão: nadando, as costas são a única coisa que leva tiro); o dano fica no tentáculo, não passa para as barras dele.
+  Zerou, é arrancado com um estouro no lugar (`arrancar`) e ele nada 15% mais devagar por tentáculo a menos
+  (`LUTA.costas` em `numeros.ts`; `nadarPara`, em `nado.ts`). Arrancados não voltam até ele estourar.
+
+**Mais rápido (12/nov, a pedido):** a vida dobrou (1000; os tentáculos das costas, 120; tonto com 120 de dano de uma
+vez) e os ataques ficaram ~20% mais rápidos: menos tempo rodeando entre um ataque e outro (1,5 a 2,5 s), a marca, o
+salto, o mergulho e o emergir mais curtos, a investida com a mira de 0,8 s e a 17 m/s, a chuva com os círculos mais
+seguidos e a ninhada mais rápida. As janelas para atirar (exposto, atordoado, rastejando) continuam do mesmo tamanho.
 
 **As fases: as 3 barras de vida** (decidido em 12/nov: cada barra é uma fase, como as barras da Mãe):
 1. **Primeira barra:** nadar, a marca e o salto, e a investida.

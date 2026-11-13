@@ -1,10 +1,11 @@
 // O roteiro da Demo · Intro (docs/intro.md), dentro do <Canvas> da fase (screens/Jogo.tsx), ao lado do agente (o Testar,
 // que dá o controle dele: AgenteNaFase). Lê os pontos do mapa (maps/intro: arena, nascer, chefe, tornado) e conduz:
 //   arena 1: entrou, os tornados dela formam (a arena fecha) e ali vira o ponto de volta; as ondas de Assombrados surgem
-//     do chão, uma depois da outra; limpou a última, os tornados desfazem e a passagem abre;
+//     do chão, uma depois da outra (com a música de batalha); limpou a última, os tornados desfazem, a passagem abre e a
+//     música some;
 //   arena 2: o mesmo, com Asas sombrias junto (elas sobem do chão até a altura do voo);
-//   arena do chefe: entrou, a arena fecha, o chão ronca (ele nada embaixo) e o Devora almas sai do chão; a música do
-//     chefe começa ("O devorador de almas"). Estourado, a demo acaba.
+//   arena do chefe: entrou, a arena fecha e a música do chefe começa ("O devorador de almas"), o chão ronca (ele nada
+//     embaixo) e o Devora almas sai do chão. Estourado, a demo acaba.
 // A luta (a etapa 3): cada demônio pensa no ia.ts dele (o Assombrado vai atrás e ataca, um por vez; a Asa sombria voa em
 // volta e cospe; o Devora almas escolhe os ataques pela barra de vida) e fere o agente pelo controle da fase. Caindo,
 // o agente volta no começo da arena e a onda recomeça. As balas (a 4b): cada demônio vivo se apresenta ao agente como
@@ -32,7 +33,7 @@ import { LUTA as LUTA_ASA } from '../../game/enemies/asa-sombria/numeros'
 import { acertar, disparar, novosProjeteis, passoProjeteis } from '../../game/enemies/asa-sombria/projetil'
 import { bolaBatendo, ouvirAsaSombria } from '../../game/enemies/asa-sombria/sons'
 import { montarDevoraAlmas, type DevoraAlmas } from '../../game/enemies/devora-almas/modelo'
-import { animarDevora, atordoar, emergir, estourarDevora, fase as faseDevora, ferir as ferirDevora, mergulhar } from '../../game/enemies/devora-almas/animacao'
+import { animarDevora, arrancar, atordoar, emergir, estourarDevora, fase as faseDevora, ferir as ferirDevora, mergulhar } from '../../game/enemies/devora-almas/animacao'
 import { chuvaDeTentaculos, novosEfeitosDevora, passoEfeitosDevora, type EfeitosDevora } from '../../game/enemies/devora-almas/efeitos'
 import { acalmarDevora, golpesDoDevora, pensarDevora, tentaculoAcerta } from '../../game/enemies/devora-almas/ia'
 import { ESCALA, GOSMA, LUTA as LUTA_DEVORA, NINHADA, RESPINGO } from '../../game/enemies/devora-almas/numeros'
@@ -40,6 +41,7 @@ import { avisoChuva, ouvirDevora, tentaculo } from '../../game/enemies/devora-al
 import { estourar, novoEstouro, passoEstouro } from '../../game/enemies/estouro'
 import { andarNoMundo, separar, type Alvo } from '../../game/enemies/luta'
 import { calar, somEm } from '../../game/enemies/sons'
+import { soltarGolpe } from '../../render/golpe'
 import type { Chunk } from '../../maps/types'
 import { NASCER, ONDAS, TEMPO } from './numeros'
 import { novoAmbiente, ouvirTornado, passoAmbiente } from './sons'
@@ -53,9 +55,9 @@ type Etapa = 'fora' | 'comeca' | 'onda' | 'entre' | 'ronco' | 'chefe' | 'fim'
 // t = s desde que surgiu; estoura = s até estourar (a tecla de teste; −1 = não); morto = s desde que estourou (−1 = vivo);
 // cria = cuspido pelo chefe (não conta como onda); vida; alvos = as esferas onde a bala acerta; recente = o dano levado
 // há pouco (o Devora fica tonto com muito de uma vez) e tonto = s até poder ficar tonto de novo
-type Vivo = { t: number; estoura: number; morto: number; cria?: boolean; vida: number; alvos: Alvejavel[]; recente: number; tonto: number }
+type Vivo = { t: number; estoura: number; morto: number; cria?: boolean; vida: number; alvos: Alvejavel[]; recente: number; tonto: number; costas: number[] }
   & ({ tipo: 'assombrado'; a: Assombrado } | { tipo: 'asa'; a: AsaSombria } | { tipo: 'devora'; d: DevoraAlmas })
-const novo = { t: 0, estoura: -1, morto: -1, alvos: [] as Alvejavel[], recente: 0, tonto: 0 }
+const novo = { t: 0, estoura: -1, morto: -1, alvos: [] as Alvejavel[], recente: 0, tonto: 0, costas: [] as number[] }
 
 const DICA_H = 'H · destrói a horda (teste)'
 const DICA_CHEFE = 'H · tira uma barra de vida (teste)'
@@ -84,9 +86,9 @@ export function Roteiro({ chunks, jogo, aoTexto }: { chunks: Record<string, Chun
   const avisa = useRef(aoTexto); avisa.current = aoTexto
 
   /** Tira um demônio da cena (sem estouro: o agente voltou e a onda recomeça; ou o estourado já ficou o bastante). */
-  const tirar = (v: Vivo) => { if (v.tipo === 'devora') { grupo.remove(v.d.root); calar(v.d) } else { grupo.remove(v.a.root); calar(v.a) } }
+  const tirar = (v: Vivo) => { const raiz = v.tipo === 'devora' ? v.d.root : v.a.root; grupo.remove(raiz); calar(v.tipo === 'devora' ? v.d : v.a); soltarGolpe(raiz) }
 
-  // a cena: o grupo do roteiro (os demônios, os projéteis, o estouro); saindo, tudo some e se cala (e a música do chefe para)
+  // a cena: o grupo do roteiro (os demônios, os projéteis, o estouro); saindo, tudo some e se cala (e a música para)
   useEffect(() => {
     scene.add(grupo, E.grupo); grupo.add(P.grupo)
     const tecla = (e: KeyboardEvent) => { if (e.code === 'KeyH') R.current.destroi = true }
@@ -162,6 +164,9 @@ export function Roteiro({ chunks, jogo, aoTexto }: { chunks: Record<string, Chun
       // a boca (dano cheio só aberta: tiro() decide), o corpo e a cauda (o corpo preto: dano reduzido)
       v.alvos = [{ c: new THREE.Vector3(), r: 0.3 * E3, acerta: (dano, _p, dir) => tiro(v, dano * (Math.abs(v.d.mandibula.rotation.x) > 0.35 ? 1 : LUTA_DEVORA.corpo), dir) },
         esfera(0.42 * E3, LUTA_DEVORA.corpo), esfera(0.32 * E3, LUTA_DEVORA.corpo)]
+      // os 3 tentáculos das costas: 3 esferas em cada (alvos 3 a 11), com a vida de cada um
+      v.costas = [0, 1, 2].map(() => LUTA_DEVORA.costas.vida)
+      for (let n = 0; n < 3; n++) for (let k = 0; k < 3; k++) v.alvos.push({ c: new THREE.Vector3(), r: LUTA_DEVORA.costas.raio * E3, acerta: (dano, _p, dir) => tiroNoTentaculo(v, n, dano, dir) })
     } else v.alvos = [esfera(v.tipo === 'assombrado' ? 0.45 : 0.42)]
     vivos.current.push(v)
   }
@@ -184,7 +189,17 @@ export function Roteiro({ chunks, jogo, aoTexto }: { chunks: Record<string, Chun
     if (v.vida <= 0) v.estoura = 0
   }
 
-  const _a = new THREE.Vector3(), _b = new THREE.Vector3()
+  /** Uma bala num tentáculo das costas: só ele perde vida; zerou, é arrancado (estoura no lugar) e o chefe fica mais lento. */
+  function tiroNoTentaculo(v: Vivo, n: number, dano: number, dir: THREE.Vector3) {
+    if (v.tipo !== 'devora' || v.morto >= 0 || v.estoura >= 0 || !v.d.anim.costas[n]) return
+    const y = v.d.root.rotation.y
+    ferirDevora(v.d, Math.atan2(-dir.x * Math.cos(y) + dir.z * Math.sin(y), -dir.x * Math.sin(y) - dir.z * Math.cos(y)))
+    if ((v.costas[n] -= dano) > 0) return
+    const onde = arrancar(v.d, n)
+    if (onde) estourar(E, onde, 0.5 * ESCALA, 0, { cubos: 16, olhos: 0, mancha: false, tamanho: 2 })
+  }
+
+  const _a = new THREE.Vector3(), _b = new THREE.Vector3(), _c = new THREE.Vector3()
   /** As esferas de quem pode levar tiro agora, no lugar dele. O Devora: só o que está fora do chão (cada esfera por si:
    *  na ninhada a cabeça erguida leva tiro, o resto enterrado não; nadando, nada). */
   function alvosDe(v: Vivo, lista: Alvejavel[]) {
@@ -196,6 +211,15 @@ export function Roteiro({ chunks, jogo, aoTexto }: { chunks: Record<string, Chun
     d.mandibula.getWorldPosition(v.alvos[0].c).addScaledVector(_b, 0.1 * ESCALA)
     v.alvos[1].c.copy(_a)
     v.alvos[2].c.copy(_a).addScaledVector(_b, -0.55 * ESCALA)
+    // os tentáculos das costas (os que ainda existem): no segundo osso, entre o segundo e o terceiro, e depois do
+    // terceiro (o último pedaço vai até a ponta)
+    d.tentaculos.filter((t) => t.costas).forEach((t, n) => {
+      const e = v.alvos.slice(3 + n * 3, 6 + n * 3)
+      if (!d.anim.costas[n]) { for (const x of e) x.c.set(0, -999, 0); return } // arrancado: fora do alcance
+      t.ossos[1].getWorldPosition(e[0].c); t.ossos[2].getWorldPosition(_c)
+      e[1].c.copy(e[0].c).lerp(_c, 0.5)
+      e[2].c.copy(_c).lerp(e[0].c, -0.6)
+    })
     for (const e of v.alvos) if (e.c.y + e.r * 0.6 > 0) lista.push(e) // pelo menos um pedaço fora do chão
   }
 
@@ -228,16 +252,17 @@ export function Roteiro({ chunks, jogo, aoTexto }: { chunks: Record<string, Chun
     if (S.etapa === 'fora' && arena && Math.hypot(ag.x - arena.p.x, ag.z - arena.p.z) < arena.raio) {
       fecha(S.arena, true)
       J.pontoDeVolta(ag.x, ag.z, Math.atan2(arena.p.x - ag.x, arena.p.z - ag.z)) // caindo, volta aqui (o começo da arena)
-      if (ondas) { S.etapa = 'comeca'; S.t = TEMPO.comeca } else { chefe(ag); S.etapa = 'ronco'; S.t = TEMPO.chefeRonco }
+      // a música: a de batalha nas hordas; a do chefe já no ronco do chão (antes de ele sair)
+      if (ondas) { S.etapa = 'comeca'; S.t = TEMPO.comeca; musica('batalha') } else { chefe(ag); S.etapa = 'ronco'; S.t = TEMPO.chefeRonco; musica('devorador') }
     } else if ((S.etapa === 'comeca' || S.etapa === 'entre') && (S.t -= dt) <= 0) { onda(S.arena, S.onda, ag); S.etapa = 'onda' }
     else if (S.etapa === 'onda' && !S.fila.length && daOnda.every((v) => v.morto >= 0)) {
       S.onda++; J.darKit(KITS.porOnda) // a onda limpa dá um kit
       if (S.onda < ondas.length) { S.etapa = 'entre'; S.t = TEMPO.entre }
-      else { fecha(S.arena, false); S.arena++; S.onda = 0; S.etapa = 'fora' }
+      else { fecha(S.arena, false); S.arena++; S.onda = 0; S.etapa = 'fora'; musica(null) } // a arena abriu: a música some
     } else if (S.etapa === 'ronco' && (S.t -= dt) <= 0) {
       const v = vivos.current.find((x) => x.tipo === 'devora')
       if (v && v.tipo === 'devora') { v.d.root.rotation.y = Math.atan2(ag.x - v.d.root.position.x, ag.z - v.d.root.position.z); emergir(v.d) }
-      musica('devorador'); S.etapa = 'chefe'
+      S.etapa = 'chefe'
     } else if ((S.etapa === 'chefe' || S.etapa === 'ronco') && vivos.current.some((v) => v.tipo === 'devora' && v.morto >= 0)) {
       fecha(S.arena, false); S.etapa = 'fim'
       vivos.current.forEach((v, i) => { if (v.morto < 0 && v.estoura < 0) v.estoura = i * TEMPO.destroi }) // as crias estouram junto

@@ -112,7 +112,7 @@ export function ouvirAgente(a: Agente, e: EstadoAnim, chao: Chao, armadilha?: Es
   }
   if (v.lanca < 0 && A.lanca >= 0) arremesso(s, t, d)
   if (armadilha && v.armadilha !== armadilha) {
-    if (armadilha === 'presa' && onde) somEm(onde, armadilhaPresa, 3) // no lugar dela
+    if (armadilha === 'presa' && onde) somEm(onde, armadilhaPresa, 3, 1) // no lugar dela
     else if (armadilha === 'mao' && v.armadilha === 'voltando') armadilhaVolta(s, t, d)
   }
 }

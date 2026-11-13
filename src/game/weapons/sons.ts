@@ -129,7 +129,7 @@ let nesteQuadro = 0, quadro = -1
 export function somDaBala(p: THREE.Vector3, arma: 'pistola' | 'escopeta', alvo: boolean, agora: number) {
   if (agora !== quadro) { quadro = agora; nesteQuadro = 0 }
   if (++nesteQuadro > 2) return
-  somEm(p, alvo ? acerta : arma === 'pistola' ? bateBrasa : bateFerro, 3)
+  somEm(p, alvo ? acerta : arma === 'pistola' ? bateBrasa : bateFerro, 3, 1)
 }
 
 /** As partes, para as provas medirem (provas.sonsArmas). */

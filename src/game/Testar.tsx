@@ -19,7 +19,7 @@ import { novaSombraDeChao } from './corpo/sombraDeChao'
 import { Iluminacao } from './luz/Iluminacao'
 import { momento } from './luz/luz'
 import { animarAgente } from './player/animacao'
-import { ARMAS, armadilhaFora, pegarArma } from './player/arma'
+import { armadilhaFora, pegarArma, proximaArma } from './player/arma'
 import { novoJogador, passoJogador } from './player/controle'
 import type { PoseMao } from './player/maos'
 import { montarAgente, type Agente } from './player/modelo'
@@ -30,6 +30,7 @@ import { ganharKit, machucado, novaVida, passoVida, tomarDano, usarKit, voltarVi
 import { novoEstadoHud, type EstadoHud } from './hud/Hud'
 import { ouvirAgente, somDoKit } from './player/sons'
 import { somDaBala } from './weapons/sons'
+import { passoGolpes } from '../render/golpe'
 import { chamar, descartarArco, desenharArco, gatilhoArmadilha, lancar, novaArmadilha, novoArco, passoArmadilha, pontoDeSoltar, recolher, velocidadeDoArremesso } from './weapons/armadilha'
 import { gatilho } from './weapons/tiro'
 import { atirar, novasBalas, passoBalas, pontoMirado, type Alvejavel } from './weapons/bala'
@@ -260,7 +261,7 @@ export function Testar({ chunks, levels, ambiente, semChao, areas, inicio, yaw, 
     // Q: a próxima arma (pistola, escopeta, armadilha, mão vazia)
     // (a armadilha fora da mão volta na hora: a mão vai segurar outra coisa)
     // (trocar corta a recarga: municao.ts, com a outra arma na mão)
-    if (acoes.trocarArma() && !caido) { recolher(armadilha); const i = ARMAS.findIndex(([k]) => k === agente.arma); pegarArma(agente, i + 1 < ARMAS.length ? ARMAS[i + 1][0] : null) }
+    if (acoes.trocarArma() && !caido) { recolher(armadilha); pegarArma(agente, proximaArma(agente.arma)) }
     if (acoes.interagir() && porta && !caido) { const msg = usarPorta(mundo, portas, porta, j.x, j.z); if (msg) { s.msg = msg; s.msgT = 2.5 } }
     acoes.fimDoQuadro()
     s.msgT -= dt
@@ -294,6 +295,7 @@ export function Testar({ chunks, levels, ambiente, semChao, areas, inicio, yaw, 
     // os sons dele e das armas, no momento da animação (o chão: o submundo é pedra; o resto, por enquanto, madeira)
     ouvirAgente(agente, ea, semChao ? 'pedra' : 'madeira', armadilha.estado, armadilha.pos)
     passoImpactos(impactos, dt)
+    passoGolpes(dt) // o brilho de quem levou golpe (o agente e os demônios da fase) apaga
     // a armadilha: o arremesso solta ela no meio da animação; fora, um clique chama de volta; voltando, chega na mão
     if (gatilhoArmadilha(agente, atira, dt)) {
       const de = pontoDeSoltar(agente)

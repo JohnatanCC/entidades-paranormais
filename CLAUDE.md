@@ -102,7 +102,8 @@ src/
   audio/espaco.ts          o som 3D: a voz sai da boca do personagem, no mundo; o ouvido é a câmera (ouvinte, a cada quadro)
   render/                  qualidade.ts (os níveis Baixo, Médio, Alto e Ultra, os recursos ajustáveis um a um e o automático), passeFinal.ts (a passada de
                            tela cheia do Médio e do Alto: bloom, tonemapping, correção de cor, vinheta), contorno.ts (o contorno de luz
-                           dos personagens), brilho.ts (os blocos "luz_" mais fortes que o branco quando o bloom está ligado),
+                           dos personagens e o brilho do golpe), golpe.ts (quem leva um golpe acende vermelho por um instante; o demônio que
+                           prepara um ataque acende âmbar), brilho.ts (os blocos "luz_" mais fortes que o branco quando o bloom está ligado),
                            assada.ts (o cenário e os objetos usam a luz assada: todas as lâmpadas no Baixo; no Médio e no Alto, as que não fazem
                            sombra), remendos.ts (anota as mudanças de shader de cada material, para a cópia levar junto),
                            sombras.ts (as sombras do nível Alto: quais lâmpadas fazem sombra), materiais.ts (nome da textura -> material),
@@ -132,7 +133,8 @@ modelos/                   os modelos do Blockbench (.bbmodel), lidos direto pel
                            nicolas.bbmodel e victor.bbmodel (o mesmo esqueleto do agente), objetos/<tipo>.bbmodel,
                            aberturas/<tipo>.bbmodel (as portas e janelas), armas/<nome>.bbmodel (pistola, escopeta, armadilha; e o cartucho da recarga),
                            fantasmas/<nome>.bbmodel (a Mãe), demonios/<nome>.bbmodel (os Sombrios: o Assombrado, a Asa sombria, o Devora almas)
-public/musica/             as músicas do jogo (menu.mp3: o menu e o criador de mapas; devorador.mp3: o chefe da Demo · Intro)
+public/musica/             as músicas do jogo (menu.mp3: o menu e o criador de mapas; batalha.mp3: as hordas e devorador.mp3:
+                           o chefe, na Demo · Intro)
 reference/                 o laboratório antigo, só para consulta (não importar nada daqui); ost/ = as 4 músicas dele
 docs/                      o que está decidido
 ```

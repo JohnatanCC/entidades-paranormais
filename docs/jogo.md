@@ -209,9 +209,9 @@ luta não é para ser lenta; os ataques dos inimigos são legíveis para o jogad
 
 | Arma | Atalho | Tiro | Dano | Limite |
 | --- | --- | --- | --- | --- |
-| Pistola de plasma | 1 | a cada 0,2 s, bala a 40 m/s | 3 | **sobrecarga**: +3% por tiro; cheia, trava por 5 s. Munição infinita |
-| Escopeta de Demantino (o ferro extraído dos objetos amaldiçoados) | 2 | a cada 1 s, 5 bagos em leque 0,065, 46 m/s | 5 × 10 | **balas**: 4 no cano; **a recarga leva 1,5 s por bala que falta** (4 = 6 s), e cada bala vale ao entrar. Sem sobrecarga |
-| Armadilha | 3 | jogada (mira com o botão direito) | — | — |
+| Pistola de plasma | Q | a cada 0,2 s, bala a 40 m/s | 5 | **sobrecarga**: +2,5% por tiro; cheia, trava por 5 s. Munição infinita |
+| Escopeta de Demantino (o ferro extraído dos objetos amaldiçoados) | Q | a cada 1 s, 5 bagos em leque 0,065, 46 m/s | 5 × 15 | **balas**: 4 no cano; **a recarga leva 1,5 s por bala que falta** (4 = 6 s), e cada bala vale ao entrar. Sem sobrecarga |
+| Armadilha | — | **não se equipa mais** (12/nov): vai virar uma ação própria, que a usa sozinha (a reformular) | — | — |
 | Kit médico | F | — | cura 60 | — |
 
 **A recarga da escopeta (decidida e feita em 12/nov; mudada no mesmo dia):** leva **1,5 s por bala que falta** (1 bala
@@ -229,8 +229,8 @@ dividem o resto. A animação (`src/game/player/recarga.ts`):
   a arma desce um pouco quando ela entra (e o contador sobe);
 - o cartucho vazio se desfaz, a mão volta à bomba e puxa: pronta.
 
-**A sobrecarga da pistola (feita em 12/nov):** +3% por tiro e não esfria enquanto atira: segurando o gatilho, trava no
-34º tiro (uns 7 s). Parando, esfria 8% por segundo, e 25% por segundo depois de 2 s (os números do documento de
+**A sobrecarga da pistola (feita em 12/nov):** +2,5% por tiro (era 3%) e não esfria enquanto atira: segurando o gatilho,
+trava no 40º tiro (uns 8 s). Parando, esfria 8% por segundo, e 25% por segundo depois de 2 s (os números do documento de
 design). Cheia, trava 5 s, esfriando até 30%, e volta. Esfria mesmo guardada (trocar de arma é a saída). O frasco de
 ectoplasma em cima dela mostra: acende mais com o calor, treme perto do limite e, travada, apaga e volta a acender
 devagar até destravar.
@@ -255,7 +255,8 @@ Os modelos (10/nov) estão em `modelos/armas/` e o agente já segura cada uma (`
   esquerda na bomba, o peito um pouco para trás com o peso; correndo, ela sobe; **mirar também vai ser com as duas**;
 - a armadilha pendurada pela alça, balançando.
 
-No Testar, Q troca (pistola, escopeta, armadilha, mão vazia) e R recarrega a escopeta.
+No Testar e no jogo, Q troca entre as duas de tiro (da mão vazia, a pistola; depois, uma e outra) e R recarrega a
+escopeta. A armadilha saiu da troca (12/nov): o jogar e o chamar de volta continuam no código, esperando a ação nova.
 
 **Mirar e atirar (10/nov, sem bala ainda):** o botão direito mira; o esquerdo atira (atirar sem mirar levanta a arma
 antes, e o tiro sai quando ela chega). Mirando, a câmera chega mais perto, mais de lado e fecha (um ponto no meio da
@@ -277,13 +278,13 @@ Fora da mão, um clique a chama de volta: ela voa até a mão. Trocar de arma co
 - **A mira de verdade:** a linha da câmera procura o que está embaixo dela (o demônio, a parede, o chão, até 25 m) e a
   arma e a bala vão para lá. Com a mira em cima de um demônio, o tiro vai no meio dele (senão os bagos da escopeta
   passavam pela borda). A conta da bala começa no peito (0,8 m antes do cano): quem está colado também leva o tiro.
-- **O voo:** a pistola, uma bala a 40 m/s (3 de dano); a escopeta, 5 bagos em leque a 46 m/s (10 cada). Um risco que
+- **O voo:** a pistola, uma bala a 40 m/s (5 de dano); a escopeta, 5 bagos em leque a 46 m/s (15 cada). Um risco que
   brilha, da cor do tiro. Vai até 60 m.
 - **Onde bate:** a parede, a porta fechada, os objetos (o guarda-corpo vazado deixa passar), o chão (no mapa sem chão,
   o vazio não para a bala) e o teto: as faíscas e a marca queimada (some em 8 s).
 - **Nos demônios:** cada um se apresenta como esferas (o Assombrado e a Asa, uma; o Devora, a boca, o corpo e a cauda,
-  só o que está fora do chão). Acertou: o tranco vem do lado do tiro; zerou a vida (60, 40, 500), estoura. O Devora: o
-  corpo preto leva metade, a boca aberta leva cheio; cada barra que zera o deixa tonto e passa de fase; 60 de dano em
+  só o que está fora do chão). Acertou: o tranco vem do lado do tiro; zerou a vida (60, 40, 1000), estoura. O Devora: o
+  corpo preto leva metade, a boca aberta leva cheio; cada barra que zera o deixa tonto e passa de fase; 120 de dano em
   pouco tempo também.
 - **Leve:** as balas são uma malha só, as faíscas outra e as marcas outra; a procura da parede usa uma grade das caixas.
 
@@ -321,6 +322,15 @@ Só a animação (decidido: machucado não muda a velocidade nem o correr). Sem 
 A vida (`src/game/player/vida.ts`): 200, invulnerável 0,9 s depois de um golpe, o kit (F) cura 60 (os kits: a tabela
 acima); zerou, a queda. No Testar: **J** toma 25 de uma direção sorteada, **F** usa um kit e, depois da queda, ele volta
 com a vida cheia. A vida e os kits aparecem no HUD. No Ver modelos: **Tomar dano** e **Machucado**.
+
+## O brilho do golpe (pedido em 12/nov)
+
+Cada golpe que alguém leva (o agente ou um demônio, de bala ou de ataque) faz o corpo acender num **vermelho claro por
+um instante** (apaga em 0,16 s), como nos jogos de luta de desenho: dá para ver que pegou sem olhar a barra. É leve (não
+vira branco) e não muda as partes que já brilham (os olhos, as rachaduras). Feito no material do contorno
+(`src/render/golpe.ts` e `contorno.ts`: a força e o tempo no topo do golpe.ts), sem luz nem chamada de desenho a mais:
+quem leva o primeiro golpe ganha materiais só dele (os demônios dividem o material entre as cópias). Acende sozinho no
+tranco do agente e no `ferir` de cada demônio (no jogo e no Ver modelos).
 
 ## A queda do agente (decidida em 10/nov)
 
@@ -507,8 +517,8 @@ Números da tabela `T` em `buildDemo()` do laboratório (linha ~7674); a lógica
 
 **Feito em 12/nov** (`src/game/hud/`: Hud.tsx e hud.css), no jogo e no Testar do editor: o anel da vida com o fôlego,
 o selo dos kits, o mostrador da arma (a pistola: o anel do calor, "trava 4 s" piscando; a escopeta: o anel em 4
-pedaços, um por bala, "R · recarregar"; a armadilha: pronta, no ar, no chão, voltando; sem arma: "mão livre"). As duas
-armas em volta são as próximas do **Q** (a de cima, com a letra, é a que vem). Em cima, na luta do chefe, o nome e as
+pedaços, um por bala, "R · recarregar"; sem arma: "mão livre"). Em cima dele, a outra arma, a do **Q** (12/nov: só as
+duas de tiro; a armadilha saiu da troca). Em cima, na luta do chefe, o nome e as
 barras de vida dele (a da direita esvazia primeiro; a que está sendo gasta tem o contorno). O desenho é feito uma vez;
 a cada quadro só muda o que mudou. **Ficam para depois:** as legendas (quando houver falas), a roda de armas (Tab, com os
 atalhos 1/2/3) e os avisos de controle.

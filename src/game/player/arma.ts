@@ -15,6 +15,11 @@ import { MUNICAO, TIRO } from '../weapons/numeros'
 
 export type Arma = 'pistola' | 'escopeta' | 'armadilha'
 export const ARMAS: [Arma, string][] = [['pistola', 'Pistola de plasma'], ['escopeta', 'Escopeta de Demantino'], ['armadilha', 'Armadilha']]
+/** As que o Q troca (12/nov): só as duas de tiro. A armadilha não se equipa mais: vai virar uma ação própria (a
+ *  reformular); o jogar e o chamar de volta continuam aqui para ela. */
+export const TROCA: Arma[] = ['pistola', 'escopeta']
+/** A próxima do Q: da mão vazia, a primeira; depois, uma e outra. */
+export const proximaArma = (a: Arma | null): Arma => TROCA[(TROCA.indexOf(a as Arma) + 1) % TROCA.length]
 /** A pose da mão que segura cada uma: pistola e escopeta com o indicador fora do gatilho. */
 export const POSE_DA_ARMA: Record<Arma, PoseMao> = { pistola: 'guarda', escopeta: 'guarda', armadilha: 'segurar' }
 

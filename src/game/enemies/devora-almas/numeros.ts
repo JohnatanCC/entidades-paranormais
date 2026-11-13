@@ -16,8 +16,8 @@ export const MANTO: ConfigMolas = { mola: 24, amortece: 3.4, tranco: 0.6, tranco
 // sobe e desce boiando (fora do chão e nadando)
 export const ALTURA = { solto: 0.75 * E, nado: -0.5 * E, fundo: -1.5 * E, chao: 0.42 * E, boia: 0.04 * E, boiaNado: 0.02 * E }
 
-// quanto dura cada movimento (s)
-export const TEMPO = { mergulho: 0.9, emergir: 1.0, marca: 1.0, salto: 1.0, exposto: 3.5, engolindo: 3.0, cuspe: 0.7 }
+// quanto dura cada movimento (s). 12/nov: os ataques ficaram ~20% mais rápidos (as janelas para atirar, não)
+export const TEMPO = { mergulho: 0.7, emergir: 0.8, marca: 0.8, salto: 0.85, exposto: 3.5, engolindo: 3.0, cuspe: 0.55 }
 
 // o salto: a altura do meio do corpo no alto (m); em que parte do salto ele chega lá em cima e morde; quando pousa; o
 // quique do pouso (m)
@@ -31,18 +31,18 @@ export const CHAO = { mergulho: 1.6 * E, emergir: 1.2 * E, arcoMergulho: 0.4 * E
 // ele sobe para as costas rasgarem o chão (m), a freada (s); o aviso no chão à frente (o comprimento, m, e a largura);
 // o rasgo: os espinhos que sobem atrás (a cada quantos m, a altura, quanto ficam, quanto levam subindo e descendo)
 export const INVESTIDA = {
-  mira: 1.0, miraCurta: 0.55, vel: 14, dura: 1.1, costas: 0.2 * E, freia: 0.8,
+  mira: 0.8, miraCurta: 0.45, vel: 17, dura: 0.9, costas: 0.2 * E, freia: 0.8,
   aviso: { comprimento: 14, largura: 0.5 * E },
   rasgo: { passo: 0.9, alto: 0.35 * E, fica: 1.0, sobe: 0.12, desce: 0.35 },
 }
 // a chuva de tentáculos: ele afunda (s); os círculos acendem um depois do outro (s entre eles); cada um avisa (s) e o
 // tentáculo sobe, fica batendo e volta (s); o tamanho do tentáculo (m) e o raio do círculo (m)
-export const CHUVA = { afunda: 0.6, intervalo: 0.45, aviso: 0.75, sobe: 0.22, fica: 0.45, desce: 0.45, altura: 4.5, grossura: 0.55, raio: 1.3 }
+export const CHUVA = { afunda: 0.45, intervalo: 0.35, aviso: 0.6, sobe: 0.22, fica: 0.45, desce: 0.45, altura: 4.5, grossura: 0.55, raio: 1.3 }
 // cuspir Assombrados: sobe meio corpo para fora do chão (s), cospe nestes instantes (s; quantos ele cospe é quem pede,
 // até 3), dura (s); a altura do root com o corpo meio para fora (m) e o quanto a cabeça aponta para cima (rad: como uma
 // cobra que se ergue); para onde eles vão (m à frente, sorteado)
 // asa = qual dos cuspidos é uma Asa sombria em vez de um Assombrado (o terceiro, decidido em 12/nov): ela sai voando
-export const NINHADA = { sobe: 0.7, cospe: [0.9, 1.25, 1.6], dura: 2.4, altura: -0.03 * E, ergue: 0.95, alcance: [5, 9], asa: 2 }
+export const NINHADA = { sobe: 0.55, cospe: [0.7, 0.95, 1.2], dura: 1.9, altura: -0.03 * E, ergue: 0.95, alcance: [5, 9], asa: 2 }
 // as fases são as 3 barras de vida (decidido em 12/nov): o quanto o que brilha (as rachaduras, os olhos, a boca) acende
 // em cada uma
 export const FASES = { brilho: [1, 1.4, 1.9] }
@@ -87,12 +87,15 @@ export const RESPINGO = { raio: 0.45 * E, estouro: 0.9 * E, cubos: Math.min(1, E
 //   gosma deixa lento enquanto pisa; depois de `cansa` ataques, rasteja (a janela para atirar); quanto cada ataque
 //   aparece em cada barra de vida (as fases)
 export const LUTA = {
-  rodeia: [2.5, 4], roda: 9, chega: 1.2, solto: 1.5, marca: 5, tempoIndo: 6,
+  rodeia: [1.5, 2.5], roda: 9, chega: 1.2, solto: 1.5, marca: 5, tempoIndo: 6,
   // a vida (as 3 barras dividem); o corpo preto leva só esta parte do dano (a boca aberta leva cheio); embaixo do chão,
   // nada; levando `atordoa.dano` em pouco tempo (some em `atordoa.some` s), fica tonto (no máximo a cada `atordoa.espera` s)
-  vida: 500, corpo: 0.5, atordoa: { dano: 60, some: 1, espera: 8 },
+  vida: 1000, corpo: 0.5, atordoa: { dano: 120, some: 1, espera: 8 }, // 12/nov: tudo dobrado (era 500 e 60)
   investida: { dano: 20, longe: 11, acerto: 2.4 },
   tentaculo: { dano: 12 },
+  // os 3 tentáculos das costas levam tiro (só eles: o dano não passa para a vida dele); zerou, é arrancado e ele nada
+  // `lento` mais devagar por tentáculo a menos (o raio de cada esfera de acerto, m, sem a escala)
+  costas: { vida: 120, lento: 0.15, raio: 0.13 }, // a vida dobrou com a dele (era 60)
   engolido: { porSegundo: 20, lento: 0.2, dura: 4 },
   rastro: { lento: 0.2 },
   cansa: 3,

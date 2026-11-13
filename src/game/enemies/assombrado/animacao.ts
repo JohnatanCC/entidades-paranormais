@@ -13,6 +13,7 @@
 // frente dele), e quem controla move o root. Arremessado, quem move o root é o voo. A perna: o pé no chão embaixo dele,
 // o joelho para trás (IK de dois ossos).
 import * as THREE from 'three'
+import { avisar, piscar } from '../../../render/golpe'
 import { animarMolas } from '../../corpo/molas'
 import type { Assombrado } from './modelo'
 import { ARREMESSO, ATAQUE, BALANCO, DANO, PISCAR, PULO, SURGIR } from './numeros'
@@ -35,6 +36,7 @@ export function atacar(a: Assombrado) { if (!a.anim.golpe && !a.anim.estourado) 
 /** Um golpe nele, vindo da direção `de` (rad, no espaço dele: 0 = da frente, +π/2 = do lado esquerdo dele). */
 export function ferir(a: Assombrado, de: number) {
   if (a.anim.estourado) return
+  piscar(a.root) // acende (render/golpe.ts)
   const B = a.anim.balanco
   B.vx -= Math.cos(de) * DANO.tranco; B.vz += Math.sin(de) * DANO.tranco
   a.anim.dano = { t: 0 }
@@ -74,6 +76,7 @@ const X = new THREE.Vector3(1, 0, 0)
 
 /** Um quadro do Assombrado. */
 export function animarAssombrado(a: Assombrado, e: EstadoAssombrado, dt: number): SaidaAssombrado {
+  { const G = a.anim.golpe; avisar(a.root, G && !a.anim.estourado && G.t < ATAQUE.aviso ? G.t / ATAQUE.aviso : 0) } // o aviso do ataque acende (render/golpe.ts)
   dt = Math.min(dt, 0.05)
   const A = a.anim
   if (A.estourado) return { avanca: 0 }

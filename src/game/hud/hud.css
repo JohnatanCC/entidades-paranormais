@@ -47,7 +47,7 @@
 .hud-arma .sat .ic { position: absolute; inset: 15%; }
 .hud-arma .sat:has(.ic:empty) { display: none; }
 .hud-arma .sat i { position: absolute; left: -10%; top: -14%; font-style: normal; font-weight: 600; font-size: calc(var(--w) * .06); color: #9a8f80; text-shadow: 0 1px 2px #000; }
-.hud-arma .s1 { left: -4%; top: -22%; } .hud-arma .s2 { left: -34%; top: 14%; }
+.hud-arma .s1 { left: -4%; top: -22%; }
 .hud-nome { position: absolute; right: calc(max(18px, env(safe-area-inset-right, 0px)) + clamp(124px, 21vmin, 240px) * .98); bottom: calc(22px + env(safe-area-inset-bottom, 0px));
   font-weight: 600; font-size: clamp(12px, 1.7vmin, 19px); letter-spacing: .06em; text-transform: uppercase; color: var(--cream); text-shadow: 0 1px 3px #000; white-space: nowrap; text-align: right; }
 .hud-nome small { display: block; margin-top: 4px; font-weight: 400; font-size: .72em; letter-spacing: .14em; color: #9a8f80; }

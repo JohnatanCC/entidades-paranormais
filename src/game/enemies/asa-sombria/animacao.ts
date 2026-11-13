@@ -9,6 +9,7 @@
 // Quem move o root é quem a controla (a altura do voo, para onde ela vai); a animação devolve o que o movimento pede:
 // o quanto ela anda de lado (desviar) e recua (o cuspe), e, no quadro do cuspe, de onde o projétil sai.
 import * as THREE from 'three'
+import { avisar, piscar } from '../../../render/golpe'
 import { animarMolas } from '../../corpo/molas'
 import { estourar, type Estouro } from '../estouro'
 import type { AsaSombria } from './modelo'
@@ -34,6 +35,7 @@ export function desviar(a: AsaSombria, lado: number) { if (a.anim.golpe?.nome !=
 /** Um golpe nela, vindo da direção `de` (rad, no espaço dela: 0 = da frente, +π/2 = do lado esquerdo dela). */
 export function ferir(a: AsaSombria, de: number) {
   if (a.anim.estourado) return
+  piscar(a.root) // acende (render/golpe.ts)
   const B = a.anim.balanco
   B.vx -= Math.cos(de) * DANO.tranco; B.vz += Math.sin(de) * DANO.tranco
   a.anim.dano = { t: 0 }
@@ -56,6 +58,7 @@ const _p = new THREE.Vector3(), _f = new THREE.Vector3(), _q = new THREE.Quatern
 
 /** Um quadro da Asa sombria. */
 export function animarAsaSombria(a: AsaSombria, e: EstadoAsa, dt: number): SaidaAsa {
+  { const G = a.anim.golpe; avisar(a.root, G?.nome === 'cuspir' && !a.anim.estourado && G.t < CUSPIR.aviso ? G.t / CUSPIR.aviso : 0) } // o aviso do cuspe acende (render/golpe.ts)
   dt = Math.min(dt, 0.05)
   const A = a.anim, saida: SaidaAsa = { lado: 0, recua: 0, cospe: null }
   if (A.estourado) return saida

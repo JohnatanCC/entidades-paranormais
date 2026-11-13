@@ -4,7 +4,8 @@
 import { useEffect } from 'react'
 import { getSettings, useSettings } from '../settings/settings'
 
-export type Faixa = 'menu' | 'devorador' // devorador: "O devorador de almas", a luta do chefe da Demo · Intro
+// devorador: "O devorador de almas", a luta do chefe da Demo · Intro; batalha: as hordas (a do laboratório)
+export type Faixa = 'menu' | 'devorador' | 'batalha'
 
 let audio: HTMLAudioElement | null = null
 let atual: Faixa | null = null

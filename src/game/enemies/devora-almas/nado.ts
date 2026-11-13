@@ -5,7 +5,7 @@
 // A animação mede o giro e a velocidade do root e deita o corpo na curva (animacao.ts).
 import type * as THREE from 'three'
 import type { DevoraAlmas } from './modelo'
-import { NADO } from './numeros'
+import { LUTA, NADO } from './numeros'
 
 const PI = Math.PI
 const angulo = (a: number) => { while (a > PI) a -= 2 * PI; while (a < -PI) a += 2 * PI; return a }
@@ -26,8 +26,10 @@ function seguir(d: DevoraAlmas, giroQuer: number, velQuer: number, dt: number) {
   r.position.x += Math.sin(r.rotation.y) * R.vel * dt; r.position.z += Math.cos(r.rotation.y) * R.vel * dt
 }
 
-/** Um quadro de nado até `alvo` (no chão), na velocidade `vel` (m/s). Devolve a distância que falta (m). */
+/** Um quadro de nado até `alvo` (no chão), na velocidade `vel` (m/s). Devolve a distância que falta (m). Cada
+ *  tentáculo das costas arrancado o deixa mais lento (LUTA.costas.lento). */
 export function nadarPara(d: DevoraAlmas, alvo: THREE.Vector3, dt: number, vel: number = NADO.vel): number {
+  vel *= 1 - LUTA.costas.lento * d.anim.costas.filter((c) => !c).length
   const r = d.root, dx = alvo.x - r.position.x, dz = alvo.z - r.position.z, dist = Math.hypot(dx, dz)
   const erro = dist > 0.05 ? angulo(Math.atan2(dx, dz) - r.rotation.y) : 0
   const curva = Math.max(0.3, Math.cos(Math.min(Math.abs(erro), PI / 2))) // de lado ou de costas para o alvo: quase para e vira

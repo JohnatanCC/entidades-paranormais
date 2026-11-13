@@ -50,6 +50,7 @@ import { ESCALA as ESCALA_DEVORA, NINHADA, RESPINGO } from '../game/enemies/devo
 import { estourar } from '../game/enemies/estouro'
 import { calar, somEm } from '../game/enemies/sons'
 import { ouvirAgente } from '../game/player/sons'
+import { passoGolpes } from '../render/golpe'
 import { ouvirAssombrado } from '../game/enemies/assombrado/sons'
 import { bolaBatendo, ouvirAsaSombria } from '../game/enemies/asa-sombria/sons'
 import { avisoChuva, ouvirDevora, tentaculo } from '../game/enemies/devora-almas/sons'
@@ -136,6 +137,7 @@ export function VerModelos({ go }: { go: Go }) {
       <div className="vista">
         <Canvas camera={{ position: [1.4, 1.4, 3.6], fov: 35, near: 0.02, far: 100 }}>
           <Luzes luz={e.luz} />
+          <Golpes />
           {agente ? <CenaAgente key={e.qual} modelo={e.qual as ModeloAgente} e={e} onInfo={setInfo} onMunicao={setMunicao} /> : mae ? <CenaMae e={e} onInfo={setInfo} /> : e.qual === ASSOMBRADO ? <CenaAssombrado e={e} onInfo={setInfo} /> : e.qual === ASA ? <CenaAsaSombria e={e} onInfo={setInfo} /> : e.qual === DEVORA ? <CenaDevora e={e} onInfo={setInfo} /> : <CenaObjeto key={e.qual} qual={e.qual} girar={e.girar} onInfo={setInfo} />}
           {e.grade && <Grid args={[8, 8]} cellSize={0.5} cellThickness={0.6} cellColor="#6a5a40" sectionSize={1} sectionThickness={1.2} sectionColor="#c89b4a" fadeDistance={14} infiniteGrid />}
           <OrbitControls makeDefault target={[0, 0.95, 0]} minDistance={0.2} maxDistance={e.qual === DEVORA ? 12 * ESCALA_DEVORA : 9} />
@@ -206,7 +208,7 @@ export function VerModelos({ go }: { go: Go }) {
             {municao && <span className="municao">{municao}</span>}
             <small>{e.arma === 'armadilha' ? 'Para a frente; mirando, o arco mostra onde ela cai. Presa, ela volta sozinha em 1,5 s.'
               : e.arma === 'escopeta' ? 'Para a frente. 4 balas; vazia, recarrega sozinha (1,5 s por bala; cada uma vale ao entrar). Atirar corta a recarga; o gatilho preso, não.'
-              : 'Para a frente. Esquenta 3% por tiro; cheia, trava 5 s. Segurando o gatilho, trava em uns 7 s.'}</small>
+              : 'Para a frente. Esquenta 2,5% por tiro; cheia, trava 5 s. Segurando o gatilho, trava em uns 8 s.'}</small>
           </section>}
           <section>
             <b>Dano</b>
@@ -228,6 +230,9 @@ export function VerModelos({ go }: { go: Go }) {
     </div>
   )
 }
+
+/** O brilho de quem levou golpe apaga (render/golpe.ts). */
+function Golpes() { useFrame((_, dt) => passoGolpes(Math.min(dt, 0.05))); return null }
 
 function Luzes({ luz }: { luz: Luz }) {
   // voltando da luz do jogo, a Iluminacao devolve o fundo que achou (o escuro) ao sair: o estúdio repõe o dele depois

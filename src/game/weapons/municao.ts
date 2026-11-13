@@ -3,7 +3,7 @@
 //   escopeta: 4 balas; a recarga leva 1,5 s por bala que falta e cada bala vale assim que entra na câmara. Recarrega
 //     sozinha quando a última sai (e com R antes); esquivar, cair, trocar de arma ou um clique novo no gatilho corta a
 //     recarga (ficam as balas que já entraram; dá para recomeçar)
-//   pistola: nunca acaba, mas esquenta 3% por tiro e não esfria enquanto atira; cheia, trava 5 s (esfriando até 30%)
+//   pistola: nunca acaba, mas esquenta 2,5% por tiro e não esfria enquanto atira; cheia, trava 5 s (esfriando até 30%)
 // Os números em numeros.ts (MUNICAO). A munição da escopeta é infinita por enquanto (a fabricação vem depois).
 import type { Arma } from '../player/arma'
 import { MUNICAO } from './numeros'

@@ -19,7 +19,7 @@ export const MUNICAO = {
   escopeta: { balas: 4, porBala: 1.5, auto: 0.35, inicio: 0.7, fim: 0.45 },
   //   tiro = quanto esquenta por tiro (0..1); pausa = s sem atirar até começar a esfriar (atirando sem parar, não esfria);
   //   esfria = por s, e esfriaRapido depois de `espera` s sem atirar; cheia, trava `trava` s e volta em `volta`
-  pistola: { tiro: 0.03, pausa: 0.35, esfria: 0.08, esfriaRapido: 0.25, espera: 2, trava: 5, volta: 0.3 },
+  pistola: { tiro: 0.025, pausa: 0.35, esfria: 0.08, esfriaRapido: 0.25, espera: 2, trava: 5, volta: 0.3 },
 }
 
 // A armadilha jogada (weapons/armadilha.ts): os números do laboratório (11 m/s para onde mira, mais 1,6 para cima)
@@ -37,8 +37,8 @@ export const ARREMESSO = {
 // saem de uma vez (a escopeta: os bagos) e o leque (rad: o quanto cada uma desvia do centro); tam = o comprimento do
 // risco que ela deixa no ar (m). alcance = até onde ela vai (m); passo = de quanto em quanto a conta procura a parede (m)
 export const BALA = {
-  pistola: { vel: 40, dano: 3, n: 1, leque: 0, tam: 0.45 },
-  escopeta: { vel: 46, dano: 10, n: 5, leque: 0.065, tam: 0.3 },
+  pistola: { vel: 40, dano: 5, n: 1, leque: 0, tam: 0.45 }, // dano: por tiro (12/nov: era 3)
+  escopeta: { vel: 46, dano: 15, n: 5, leque: 0.065, tam: 0.3 }, // dano: por bago (12/nov: era 10)
   alcance: 60, passo: 0.2,
 }
 // O que a bala deixa onde bate (weapons/impacto.ts): as faíscas (quantas, quanto vivem, a velocidade) e a marca
