@@ -26,7 +26,7 @@ import { novoJogador, passoJogador } from './player/controle'
 import type { PoseMao } from './player/maos'
 import { montarAgente, type Agente } from './player/modelo'
 import type { Expressao } from './player/rosto'
-import { AGENTE, CAMERA, QUEDA } from './player/numeros'
+import { AGENTE, CAMERA, ENGOLIDO, QUEDA } from './player/numeros'
 import { tranco } from './player/dano'
 import { ganharKit, machucado, novaVida, passoVida, tomarDano, usarKit, voltarVida } from './player/vida'
 import { novoEstadoHud, type EstadoHud } from './hud/Hud'
@@ -41,7 +41,7 @@ import { atirar, novasBalas, passoBalas, pontoMirado, type Alvejavel } from './w
 import { novosImpactos, passoImpactos } from './weapons/impacto'
 import { grupoDaArma } from './player/arma'
 import { cortarRecarga, gastar, novaMunicao, passoMunicao, recarregar, temTiro } from './weapons/municao'
-import { alcanceCamera, andarDe, chaoEm, montarMundo, tetoEm, type Mundo } from './world/colisao'
+import { alcanceCamera, andarDe, chaoEm, montarMundo, temChao, tetoEm, type Mundo } from './world/colisao'
 import { assadorDe, novaLuzVertice } from '../maps/luzAssada'
 import { iluminarObjeto } from '../render/assada'
 import { animarPortas, dicaDaPorta, novasPortas, portaPerto, usarPorta, type PortasVivas } from './world/portas'
@@ -58,7 +58,7 @@ interface Props {
   onTravado: (travado: boolean) => void // o mouse travou (jogando) ou soltou
   onDica: (texto: string | null) => void // a linha de ação na tela ("E · abrir a porta", "Trancada.")
   onMira: (mirando: boolean) => void // mirando: a tela mostra o ponto da mira
-  onEscuro: (escuro: boolean) => void // a queda: a tela escurece (e clareia quando ele volta)
+  onEscuro: (escuro: number) => void // o quanto a tela escurece (0..1): a queda, tudo; engolido, um pouco
   onHud: (e: EstadoHud) => void // a cada quadro: a vida, o fôlego, os kits e a arma (o HUD só muda o que mudou)
   onSair: () => void
   aoMontar?: (c: AgenteNaFase) => void // quem conduz a fase (o roteiro da Demo · Intro) recebe o controle do agente
@@ -114,7 +114,7 @@ export function Testar({ chunks, levels, ambiente, semChao, areas, inicio, yaw, 
   const est = useRef({
     j: novoJogador(inicio[0], chaoEm(mundo, inicio[0], inicio[2], inicio[1] + 0.3) ?? inicio[1], inicio[2], yaw),
     camYaw: yaw, pitch: -0.12, k: 1, pivX: inicio[0], pivZ: inicio[2], pivY: inicio[1], altura: CAMERA.altura, travou: false,
-    msg: '', msgT: 0, dica: null as string | null, mira: 0, mirando: false, escuro: false, cair: false, golpe: false,
+    msg: '', msgT: 0, dica: null as string | null, mira: 0, mirando: false, escuro: 0, cair: false, golpe: false,
     volta: { x: inicio[0], y: inicio[1], z: inicio[2], yaw }, // onde ele volta depois de cair (o roteiro muda: o começo da arena)
     lento: { quanto: 0, t: 0, dura: 1 }, // a gosma: o quanto e quanto falta para sumir
   })
@@ -128,7 +128,8 @@ export function Testar({ chunks, levels, ambiente, semChao, areas, inicio, yaw, 
   const vida = useMemo(() => novaVida(), []), municao = useMemo(() => novaMunicao(), [])
   // o controle do agente para o roteiro da fase (os inimigos ferem, o Devora engole e cospe, a gosma deixa lento)
   const naFase = useMemo<AgenteNaFase>(() => {
-    const preso = (sim: boolean) => { const s = est.current; s.j.preso = sim; agente.root.visible = !sim; sombra.visible = !sim; if (s.escuro !== sim) { s.escuro = sim; escuroRef.current(sim) } }
+    const escurecer = (k: number) => { const s = est.current; if (s.escuro !== k) { s.escuro = k; escuroRef.current(k) } }
+    const preso = (sim: boolean) => { const s = est.current; s.j.preso = sim; agente.root.visible = !sim; sombra.visible = !sim; escurecer(sim ? ENGOLIDO.escuro : 0) }
     return {
       agente, mundo, aoVoltar: null, alvos: [],
       pode: () => est.current.j.caido < 0 && !est.current.j.preso,
@@ -146,11 +147,15 @@ export function Testar({ chunks, levels, ambiente, semChao, areas, inicio, yaw, 
       },
       engolir: () => preso(true),
       cuspir: (onde, de) => {
-        const j = est.current.j
+        const s = est.current, j = s.j
         if (j.caido >= 0) return // caiu lá dentro: cai onde está
-        j.x = onde.x; j.z = onde.z; j.y = chaoEm(mundo, onde.x, onde.z, onde.y + 0.3) ?? onde.y; j.vx = j.vz = 0
-        j.yaw = Math.atan2(de.x - j.x, de.z - j.z) // olhando para ele
-        preso(false); tranco(agente, 0)
+        // sem chão onde ele cuspiu (a beirada da ilha): volta no começo da arena, nunca fora do mapa
+        const ok = temChao(mundo, onde.x, onde.z, onde.y), x = ok ? onde.x : s.volta.x, z = ok ? onde.z : s.volta.z
+        j.x = x; j.z = z; j.y = chaoEm(mundo, x, z, (ok ? onde.y : s.volta.y) + 0.3) ?? onde.y; j.vx = j.vz = 0
+        // cuspido: sai rolando para longe da boca (a cambalhota, invulnerável no começo) e o corpo sente o tranco
+        const dx = j.x - de.x, dz = j.z - de.z, l = Math.hypot(dx, dz) || 1
+        j.esquiva = 0; j.esquivaDir = [dx / l, dz / l]; j.esquivaRecarga = AGENTE.esquiva.recarga; j.yaw = Math.atan2(dx, dz)
+        preso(false); tranco(agente, Math.PI)
       },
       darKit: (n) => ganharKit(vida, n),
       lentidao: (quanto, dura) => { const L = est.current.lento; if (quanto >= L.quanto * (L.t / L.dura)) Object.assign(L, { quanto, t: dura, dura }) },
@@ -243,13 +248,13 @@ export function Testar({ chunks, levels, ambiente, semChao, areas, inicio, yaw, 
     const caido = j.caido >= 0
     if (caido) {
       j.caido += dt
-      if (j.caido >= QUEDA.escurece && !s.escuro) { s.escuro = true; escuroRef.current(true) }
+      if (j.caido >= QUEDA.escurece && s.escuro < 1) { s.escuro = 1; escuroRef.current(1) }
       if (j.caido >= QUEDA.volta) {
         recolher(armadilha); armadilhaFora(agente, false)
         const V = s.volta // o ponto de volta (o começo do teste; numa fase, o começo da arena)
         s.j = novoJogador(V.x, chaoEm(mundo, V.x, V.z, V.y + 0.3) ?? V.y, V.z, V.yaw)
         s.camYaw = V.yaw; s.pitch = -0.12; s.pivX = V.x; s.pivZ = V.z; s.pivY = s.j.y
-        s.escuro = false; escuroRef.current(false); s.lento.t = 0
+        s.escuro = 0; escuroRef.current(0); s.lento.t = 0
         voltarVida(vida); Object.assign(municao, novaMunicao()) // volta com a vida e a munição cheias (e os kits do começo)
         naFase.aoVoltar?.()
         return // o próximo quadro começa em pé, no lugar novo

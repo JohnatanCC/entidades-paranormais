@@ -96,6 +96,7 @@ Cada Sombrio pensa no `ia.ts` da pasta dele (os números em `LUTA`, no `numeros.
   são o ponto de partida: ajustar jogando.
 - **As balas (12/nov):** os demônios levam tiro e estouram de verdade (`docs/jogo.md`, "A bala"); a tecla H continua, de teste.
   No npm run dev, F2 mostra as barras de vida dos demônios e F4 as caixas de acerto.
+- **A horda do chefe (13/nov):** a cada 20 s de luta, 3 Assombrados e 1 Asa sobem do chão perto do agente.
 - **As poças da arena do chefe (13/nov):** 6 poças de líquido preto na borda da arena (a 80% do raio, onde tem chão).
   Chegando a menos de 4,5 m de uma, um tentáculo sobe da beirada dela mais perto do agente (o círculo de dentes avisa e
   ele bate: 12 de dano, o mesmo da chuva); cada poça pode de novo em 1,8 a 3 s. Os números em `POCAS`

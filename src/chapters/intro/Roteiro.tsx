@@ -48,7 +48,7 @@ import { tremerDe } from '../../game/player/tremor'
 import { TREMOR } from '../../game/player/numeros'
 import { desenharDepuracao, novaDepuracao, type BarraDeVida } from '../../game/enemies/depurar'
 import type { Chunk } from '../../maps/types'
-import { CAIXAS, CRIAS, NASCER, ONDAS, POCAS, TEMPO } from './numeros'
+import { CAIXAS, CRIAS, HORDA_CHEFE, NASCER, ONDAS, POCAS, TEMPO } from './numeros'
 import { novoAmbiente, ouvirTornado, passoAmbiente } from './sons'
 import { descartarTornado, novoTornado, passoTornado, type Tornado } from './tornado'
 
@@ -83,7 +83,7 @@ export function Roteiro({ chunks, jogo, aoTexto }: { chunks: Record<string, Chun
     }
   }, [chunks])
   const grupo = useMemo(() => new THREE.Group(), []), E = useMemo(() => novoEstouro(), []), P = useMemo(() => novosProjeteis(), [])
-  const R = useRef({ arena: 1, etapa: 'fora' as Etapa, onda: 0, t: 0, destroi: false, texto: '', fila: [] as { tipo: 'assombrado' | 'asa'; p: THREE.Vector3; em: number }[] })
+  const R = useRef({ arena: 1, etapa: 'fora' as Etapa, onda: 0, t: 0, horda: HORDA_CHEFE.cada, destroi: false, texto: '', fila: [] as { tipo: 'assombrado' | 'asa'; p: THREE.Vector3; em: number }[] })
   const vivos = useRef<Vivo[]>([]), tornados = useRef<Tornado[]>([]), efeitos = useRef<EfeitosDevora | null>(null)
   const pocas = useRef<{ p: THREE.Vector3; t: number }[]>([]) // as poças da arena do chefe (onde, s até poder de novo)
   const bando = useMemo(() => novoBando(), []), ambiente = useMemo(() => novoAmbiente(), [])
@@ -176,6 +176,18 @@ export function Roteiro({ chunks, jogo, aoTexto }: { chunks: Record<string, Chun
       const ate = Math.min(d, POCAS.raio) / Math.max(d, 1e-3)
       if (tentaculoDaPoca(F, k, _v.set(o.p.x + dx * ate, 0, o.p.z + dz * ate))) o.t = POCAS.cada[0] + Math.random() * (POCAS.cada[1] - POCAS.cada[0])
     })
+  }
+
+  /** Um ponto no chão perto do agente (HORDA_CHEFE.longe m), dentro da arena do chefe; null se não achar chão. */
+  function pertoDoAgente(ag: THREE.Vector3, m: AgenteNaFase['mundo']) {
+    const arena = pontos.arenas.get(3)
+    for (let i = 0; i < 8; i++) {
+      const a = Math.random() * Math.PI * 2, rr = HORDA_CHEFE.longe[0] + Math.random() * (HORDA_CHEFE.longe[1] - HORDA_CHEFE.longe[0])
+      const x = ag.x + Math.sin(a) * rr, z = ag.z + Math.cos(a) * rr
+      if (arena && Math.hypot(x - arena.p.x, z - arena.p.z) > arena.raio - 2) continue
+      if (temChao(m, x, z, 0)) return new THREE.Vector3(x, 0, z)
+    }
+    return null
   }
 
   /** Ainda cabe uma cria do chefe (no máximo CRIAS.max vivas)? */
@@ -317,7 +329,11 @@ export function Roteiro({ chunks, jogo, aoTexto }: { chunks: Record<string, Chun
     } else if (S.etapa === 'ronco' && (S.t -= dt) <= 0) {
       const v = vivos.current.find((x) => x.tipo === 'devora')
       if (v && v.tipo === 'devora') { v.d.root.rotation.y = Math.atan2(ag.x - v.d.root.position.x, ag.z - v.d.root.position.z); emergir(v.d) }
-      S.etapa = 'chefe'
+      S.etapa = 'chefe'; S.horda = HORDA_CHEFE.cada
+    } else if (S.etapa === 'chefe' && A.pode() && (S.horda -= dt) <= 0) { // a horda da luta do chefe, a cada 20 s
+      S.horda = HORDA_CHEFE.cada
+      const tipos = [...Array(HORDA_CHEFE.assombrados).fill('assombrado'), ...Array(HORDA_CHEFE.asas).fill('asa')] as ('assombrado' | 'asa')[]
+      tipos.forEach((tipo) => { const p = pertoDoAgente(ag, J.mundo); if (p && cabeCria()) surgir(tipo, p, ag, true) })
     } else if ((S.etapa === 'chefe' || S.etapa === 'ronco') && vivos.current.some((v) => v.tipo === 'devora' && v.morto >= 0)) {
       fecha(S.arena, false); S.etapa = 'fim'
       vivos.current.forEach((v, i) => { if (v.morto < 0 && v.estoura < 0) v.estoura = i * TEMPO.destroi }) // as crias estouram junto

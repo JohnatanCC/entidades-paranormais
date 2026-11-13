@@ -219,7 +219,7 @@ button { font: inherit; color: inherit; }
 :is(.editor, .jogo) .mira-ponto { position: absolute; left: 50%; top: 50%; width: 4px; height: 4px; transform: translate(-50%, -50%); z-index: 6; pointer-events: none;
   background: var(--amber); box-shadow: 0 0 0 1px rgba(0, 0, 0, .7); } /* o ponto da mira (o HUD de verdade vem com o jogo) */
 :is(.editor, .jogo) .escuro-teste { position: absolute; inset: 0; z-index: 5; pointer-events: none; background: #000; opacity: 0; transition: opacity .8s ease-out; }
-:is(.editor, .jogo) .escuro-teste.ligado { opacity: 1; transition: opacity 1.2s ease-in; } /* a queda: a tela escurece e ele volta no checkpoint */
+:is(.editor, .jogo) .escuro-teste.ligado { transition: opacity 1.2s ease-in; } /* a queda: a tela escurece e ele volta no checkpoint (o quanto: style, do Testar; engolido, só um pouco) */
 /* o Testar ocupa a janela inteira: as ferramentas de construção somem até sair dele */
 .editor.testando .topo, .editor.testando .ferramentas, .editor.testando .gaveta { display: none; }
 .editor.testando .vista { grid-column: 1 / 3; grid-row: 1 / 4; }

@@ -111,7 +111,7 @@ export function MapEditor({ go }: { go: Go }) {
   const [travado, setTravado] = useState(false)
   const [dicaTeste, setDicaTeste] = useState<string | null>(null)
   const [mirando, setMirando] = useState(false)
-  const [escuro, setEscuro] = useState(false)
+  const [escuro, setEscuro] = useState(0)
   const hudTeste = useRef<((e: EstadoHud) => void) | null>(null) // o HUD do Testar (o Testar conta a cada quadro)
   const onHudTeste = useCallback((e: EstadoHud) => hudTeste.current?.(e), [])
   // o estado vivo das portas enquanto testa (o mapa não muda; sair do teste volta tudo como estava)
@@ -442,7 +442,7 @@ export function MapEditor({ go }: { go: Go }) {
         {aviso && <div className="aviso-b">{aviso}</div>}
         {testando && dicaTeste && <div className="dica-teste">{dicaTeste}</div>}
         {testando && mirando && <div className="mira-ponto" />}
-        {testando && <div className={escuro ? 'escuro-teste ligado' : 'escuro-teste'} />}
+        {testando && <div className={escuro >= 1 ? 'escuro-teste ligado' : 'escuro-teste'} style={{ opacity: escuro }} />}
         {testando && <pre className="desempenho-teste" ref={desempenhoRef} />}
         {testando && <Hud painel={hudTeste} />}
         {testando && <div className={travado ? 'teste-b jogando' : 'teste-b'}>

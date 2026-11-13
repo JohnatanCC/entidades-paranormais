@@ -36,7 +36,7 @@ export function Jogo({ go, mapa }: { go: Go; mapa: string }) {
   const definicao = useDefinicao()
   const portas = useMemo<PortasVivas>(() => new Map(), [])
   const [travado, setTravado] = useState(false), [dica, setDica] = useState<string | null>(null), [mirando, setMirando] = useState(false)
-  const [escuro, setEscuro] = useState(false)
+  const [escuro, setEscuro] = useState(0)
   const desempenho = useRef<HTMLPreElement>(null)
   const onDesempenho = useCallback((t: string) => { if (desempenho.current) desempenho.current.textContent = t }, [])
   const sair = useCallback(() => go('menu'), [go])
@@ -62,7 +62,7 @@ export function Jogo({ go, mapa }: { go: Go; mapa: string }) {
       {roteiro && <div className="roteiro-jogo"><b>{roteiro.titulo}</b>{roteiro.dica && <span>{roteiro.dica}</span>}</div>}
       {dica && <div className="dica-teste">{dica}</div>}
       {mirando && <div className="mira-ponto" />}
-      <div className={escuro ? 'escuro-teste ligado' : 'escuro-teste'} />
+      <div className={escuro >= 1 ? 'escuro-teste ligado' : 'escuro-teste'} style={{ opacity: escuro }} />
       <pre className="desempenho-teste" ref={desempenho} />
       <Hud painel={hud} />
       {roteiro?.chefe && <BarrasDoChefe chefe={roteiro.chefe} />}

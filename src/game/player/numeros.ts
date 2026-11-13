@@ -152,6 +152,9 @@ export const MIRA = {
 }
 
 // A queda (player/queda.ts), sem violência: perde as forças, cai de joelhos e tomba de lado; desacordado (respira)
+// Engolido (pelo Devora almas): a tela escurece só até esta parte (13/nov: era tudo; a queda continua escurecendo tudo)
+export const ENGOLIDO = { escuro: 0.4 }
+
 export const QUEDA = {
   cede: 0.3, // s: a cabeça cai, o tronco curva, os joelhos amolecem
   joelhos: [0.22, 0.6], // s: de joelhos (do começo ao fim)

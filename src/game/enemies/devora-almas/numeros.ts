@@ -87,7 +87,9 @@ export const RESPINGO = { raio: 0.45 * E, estouro: 0.9 * E, cubos: Math.min(1, E
 //   gosma deixa lento enquanto pisa; depois de `cansa` ataques, rasteja (a janela para atirar); quanto cada ataque
 //   aparece em cada barra de vida (as fases)
 export const LUTA = {
-  rodeia: [1.5, 2.5], roda: 9, chega: 1.2, solto: 1.5, marca: 5, tempoIndo: 6,
+  // solto = s fora do chão depois de um ataque, antes de mergulhar (13/nov: era 1,5); subir = o ataque de sair do chão
+  // e ficar fora (a janela para atirar): a que distância do agente ele sobe (m) e quanto tempo fica fora (s)
+  rodeia: [1.5, 2.5], roda: 9, chega: 1.2, solto: 2.5, marca: 5, tempoIndo: 6, subir: { longe: 7, fica: [3.5, 5] },
   // a vida (as 3 barras dividem); o corpo preto leva só esta parte do dano (a boca aberta leva cheio); embaixo do chão,
   // nada; levando `atordoa.dano` em pouco tempo (some em `atordoa.some` s), fica tonto (no máximo a cada `atordoa.espera` s)
   vida: 1000, corpo: 0.5, atordoa: { dano: 120, some: 1, espera: 8 }, // 12/nov: tudo dobrado (era 500 e 60)
@@ -96,11 +98,14 @@ export const LUTA = {
   // os 3 tentáculos das costas levam tiro (só eles: o dano não passa para a vida dele); zerou, é arrancado e ele nada
   // `lento` mais devagar por tentáculo a menos (as caixas de acerto: CAIXAS, em chapters/intro/numeros.ts)
   costas: { vida: 120, lento: 0.15 }, // a vida dobrou com a dele (era 60)
-  engolido: { porSegundo: 20, lento: 0.2, dura: 4 },
+  // engolido: o dano (por s), a gosma de quando sai (lento por `dura` s) e o quanto ele se arrasta por s até o centro da
+  // arena enquanto mastiga (13/nov: cospe sempre lá; perto da beirada, o agente saía fora da ilha)
+  engolido: { porSegundo: 20, lento: 0.2, dura: 4, leva: 6 },
   rastro: { lento: 0.2 },
   cansa: 3,
   // 12/nov: a ninhada (cuspir demônios) bem mais frequente da 2ª barra em diante
-  pesos: { 1: { marca: 1, investida: 1, chuva: 0, ninhada: 0 }, 2: { marca: 1, investida: 1, chuva: 1, ninhada: 1.8 }, 3: { marca: 0.8, investida: 1.2, chuva: 1.2, ninhada: 2.2 } } as Record<number, Record<'marca' | 'investida' | 'chuva' | 'ninhada', number>>,
+  // (13/nov: subir, sair do chão e ficar fora, em todas as barras)
+  pesos: { 1: { marca: 1, investida: 1, chuva: 0, ninhada: 0, subir: 1.2 }, 2: { marca: 1, investida: 1, chuva: 1, ninhada: 1.8, subir: 1.2 }, 3: { marca: 0.8, investida: 1.2, chuva: 1.2, ninhada: 2.2, subir: 1 } } as Record<number, Record<'marca' | 'investida' | 'chuva' | 'ninhada' | 'subir', number>>,
   // mais agressivo a partir da barra `desde` (12/nov): nada `nado` vezes mais rápido embaixo do chão, rodeia só `rodeia`
   // do tempo entre um ataque e outro, e na ninhada sobem do chão perto do agente `doChao` Assombrados (por barra)
   agressivo: { desde: 2, nado: 1.5, rodeia: 0.65, doChao: { 2: 2, 3: 4 } as Record<number, number> },

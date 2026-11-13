@@ -34,8 +34,12 @@ export const CAIXAS = {
 } as const
 
 // As crias do chefe (o que ele cospe e o que sobe do chão): no máximo `max` vivas ao mesmo tempo (12/nov: ele invoca
-// bem mais da 2ª barra em diante; o limite segura a arena e o celular)
-export const CRIAS = { max: 8 }
+// bem mais da 2ª barra em diante, e a horda a cada 20 s; o limite segura a arena e o celular)
+export const CRIAS = { max: 10 }
+
+// A horda da luta do chefe (13/nov): a cada `cada` s, em qualquer barra de vida, sobem do chão perto do agente (de
+// `longe` m) estes Sombrios (contam como crias: o limite vale)
+export const HORDA_CHEFE = { cada: 20, assombrados: 3, asas: 1, longe: [5, 8] }
 
 // As poças de líquido preto na borda da arena do chefe (12/nov): quantas, a que fração do raio da arena (a borda), o
 // tamanho (m), de que distância do agente um tentáculo sobe (m) e de quanto em quanto tempo cada uma pode (s, sorteado)

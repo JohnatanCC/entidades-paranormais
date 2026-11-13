@@ -256,6 +256,17 @@ tempo entre os ataques, e a ninhada vira o ataque mais comum (peso 1,8 na 2ª ba
 dos 3 cuspidos, sobem do chão perto do agente 2 Assombrados (4 na 3ª barra). No máximo 8 crias vivas ao mesmo tempo
 (`CRIAS` em `chapters/intro/numeros.ts`). Os números em `LUTA.agressivo` e `LUTA.pesos`.
 
+**Mais tempo fora do chão e o engolido seguro (13/nov, a pedido):**
+- **Subir:** um ataque novo em todas as barras: ele nada até uns 7 m na frente do agente, sai do chão e fica fora de 3,5
+  a 5 s, virado para ele (a janela para atirar; ele passava tempo demais escondido). Depois de qualquer ataque também
+  fica fora 2,5 s (era 1,5) antes de mergulhar (`LUTA.subir`, `LUTA.solto`).
+- **Engolido:** mastigando, ele se arrasta até o centro da arena (6 m/s) e cospe lá: perto da beirada, o agente era
+  cuspido fora da ilha e ficava preso. Se mesmo assim o ponto do cuspe não tiver chão, o agente volta no começo da
+  arena. Cuspido, ele sai rolando para longe da boca (a cambalhota). A tela escurece só 40% enquanto ele está dentro
+  (`ENGOLIDO`, no `numeros.ts` do agente; a queda continua escurecendo tudo).
+- **A horda da luta do chefe:** a cada 20 s, em qualquer barra, sobem do chão perto do agente 3 Assombrados e 1 Asa
+  sombria (`HORDA_CHEFE` em `chapters/intro/numeros.ts`; contam como crias: no máximo 10 vivas).
+
 **As fases: as 3 barras de vida** (decidido em 12/nov: cada barra é uma fase, como as barras da Mãe):
 1. **Primeira barra:** nadar, a marca e o salto, e a investida.
 2. **Segunda barra:** entram a chuva de tentáculos e o cuspe de demônios.
