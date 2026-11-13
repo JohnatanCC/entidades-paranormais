@@ -28,10 +28,12 @@ function ferroToca(s: Som, t: number, d: AudioNode, k = 1, f = 1) {
 }
 
 // ---------- a pistola de plasma: o Sino ----------
+// 13/nov, suavizado (estava irritante: são 5 por segundo): a nota mais grave, sem o parcial mais agudo, o toque mais
+// curto (não empilha um no outro), mais abafado e com menos eco; o ataque um pouco mais macio
 export const tiroPistola: Tocar = (s, t, d) => {
-  const w = comEco(s, d, 0.45), f0 = 600 + R() * 60
-  for (const [h, g] of [[1, 0.27], [2.0, 0.135], [2.76, 0.1], [5.4, 0.045]]) tom(s, { t, f: f0 * h, dur: 0.01, a: 0.002, r: 0.45 + 0.2 / h, gain: g, lp: 2200, dest: w })
-  ruido(s, { t, dur: 0.06, a: 0.002, r: 0.08, tipo: 'highpass', f: 3200, gain: 0.12, dest: d }) // o chiado do frasco
+  const w = comEco(s, d, 0.3), f0 = 500 + R() * 40
+  for (const [h, g] of [[1, 0.24], [2.0, 0.07], [2.76, 0.035]]) tom(s, { t, f: f0 * h, dur: 0.01, a: 0.005, r: 0.2 + 0.08 / h, gain: g, lp: 1500, dest: w })
+  ruido(s, { t, dur: 0.05, a: 0.003, r: 0.06, tipo: 'highpass', f: 3200, gain: 0.08, dest: d }) // o chiado do frasco
   pancada(s, t, 170, 0.3, d) // o coice
   return 0.6
 }
