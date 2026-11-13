@@ -14,11 +14,13 @@ export type Tocar = (s: Som, t: number, d: AudioNode) => number
 export type Parte = [nome: string, tocar: Tocar]
 
 const R = Math.random
-const VOLUME = 2 // o quanto os sons dos Sombrios soam acima do que cada um toca (12/nov: pedidos mais altos; era 1)
-/** Uma fonte de demônio no lugar (com o volume dos Sombrios). */
+// o volume dos Sombrios: quanto soam acima do que cada um toca, até que distância soam cheios (m) e quanto caem depois
+// (12/nov: pedidos mais altos e audíveis de longe na arena; o volume era 1, a distância 1,6 m e a queda 1,1)
+const VOLUME = 2.5, PERTO = 4, QUEDA = 0.7
+/** Uma fonte de demônio no lugar (com o volume dos Sombrios). ref = até onde soa cheio (os grandes, mais). */
 function fonteDeDemonio(ref: number, volume = VOLUME): Fonte | null {
-  const f = novaFonte(ref)
-  if (f) f.entrada.gain.value = volume
+  const f = novaFonte(Math.max(ref, PERTO))
+  if (f) { f.entrada.gain.value = volume; f.pan.rolloffFactor = QUEDA }
   return f
 }
 export const sorteio = (a: number, b: number) => a + R() * (b - a)
@@ -31,12 +33,13 @@ function colocar(f: Fonte, p: THREE.Vector3) {
 
 const fontes = new WeakMap<object, Fonte>()
 /** A voz de um demônio, no lugar dele (`onde`, no mundo). Chame a cada quadro: devolve o som, para onde tocar e o
- *  agora; null enquanto o som não ligou. ref = até que distância soa cheio (m: os grandes mais). */
-export function vozDe(dono: object, onde: THREE.Vector3, ref = 1.6): { s: Som; d: AudioNode; t: number } | null {
+ *  agora; null enquanto o som não ligou. ref = até que distância soa cheio (m: os grandes mais); volume = o do chefe
+ *  pode ser maior. */
+export function vozDe(dono: object, onde: THREE.Vector3, ref = 1.6, volume = VOLUME): { s: Som; d: AudioNode; t: number } | null {
   const s = som()
   if (!s) return null
   let f = fontes.get(dono)
-  if (!f) { const n = fonteDeDemonio(ref); if (!n) return null; f = n; fontes.set(dono, f); colocar(f, onde) }
+  if (!f) { const n = fonteDeDemonio(ref, volume); if (!n) return null; f = n; fontes.set(dono, f); colocar(f, onde) }
   else moverFonte(f, onde)
   return { s, d: f.entrada, t: s.ctx.currentTime }
 }

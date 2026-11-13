@@ -165,7 +165,8 @@ src/game/                  (já existem: Testar.tsx, player/, input/, world/, we
                            peso e os gestos de parado), alcancar.ts (o braço alcança um ponto: IK de dois ossos),
                            rosto.ts (as expressões), passada.ts (as curvas de uma passada de verdade: andar e correr),
                            pes.ts (o pé de apoio preso no chão, em qualquer direção: IK da perna), controle.ts
-                           (andar, correr, esquivar; preso e lento), sons.ts (ouvirAgente: os passos, a cambalhota, o golpe,
+                           (andar, correr, esquivar; preso e lento), tremor.ts (o tremor da tela: quem causa chama tremerDe;
+                           o Testar aplica na câmera), sons.ts (ouvirAgente: os passos, a cambalhota, o golpe,
                            a queda, o kit e os sons das armas no momento da animação), numeros.ts
   weapons/                 tiro.ts (o gatilho e a cadência), clarao.ts (o clarão no cano), municao.ts (as 4 balas e a
                            recarga da escopeta, a sobrecarga da pistola, o contador simples), armadilha.ts (jogar: o voo em
@@ -188,7 +189,8 @@ src/game/                  (já existem: Testar.tsx, player/, input/, world/, we
                            que são as 3 barras de vida, e arrancar; a curva no corpo), nado.ts (o rumo com transição:
                            acelera, freia, a curva com raio; a inteligência usa), efeitos.ts
                            (no chão: a mancha, os espinhos, a gosma, a marca de mordida, o aviso e o rasgo da investida, os
-                           círculos e os tentáculos da chuva) e numeros.ts (ESCALA: ele é 3 vezes o modelo)
+                           círculos e os tentáculos da chuva e das poças), tremor.ts (o que faz a tela tremer) e numeros.ts
+                           (ESCALA: ele é 3 vezes o modelo)
   enemies/estouro.ts       o estouro dos Sombrios (os cubos de matéria e a mancha que seca), um estoque só para todos
   enemies/luta.ts          o que a inteligência dos Sombrios divide: o alvo (o agente), andar no mundo, virar, desviar dos
                            obstáculos (rumoLivre), separar o bando;

@@ -31,6 +31,8 @@ import { tranco } from './player/dano'
 import { ganharKit, machucado, novaVida, passoVida, tomarDano, usarKit, voltarVida } from './player/vida'
 import { novoEstadoHud, type EstadoHud } from './hud/Hud'
 import { ouvirAgente, somDoKit } from './player/sons'
+import { ouvinte } from '../audio/espaco'
+import { aplicarTremor } from './player/tremor'
 import { somDaBala } from './weapons/sons'
 import { passoGolpes } from '../render/golpe'
 import { chamar, descartarArco, desenharArco, gatilhoArmadilha, lancar, novaArmadilha, novoArco, passoArmadilha, pontoDeSoltar, recolher, velocidadeDoArremesso } from './weapons/armadilha'
@@ -298,6 +300,7 @@ export function Testar({ chunks, levels, ambiente, semChao, areas, inicio, yaw, 
     ouvirAgente(agente, ea, semChao ? 'pedra' : 'madeira', armadilha.estado, armadilha.pos)
     passoImpactos(impactos, dt)
     passoGolpes(dt) // o brilho de quem levou golpe (o agente e os demônios da fase) apaga
+    ouvinte(cam) // o ouvido do som 3D é a câmera (sem isto ele fica na origem do mapa e os demônios longe dela somem)
     // a armadilha: o arremesso solta ela no meio da animação; fora, um clique chama de volta; voltando, chega na mão
     if (gatilhoArmadilha(agente, atira, dt)) {
       const de = pontoDeSoltar(agente)
@@ -334,6 +337,7 @@ export function Testar({ chunks, levels, ambiente, semChao, areas, inicio, yaw, 
     const teto = tetoEm(mundo, cam.position.x, cam.position.z, j.y)
     cam.position.y = Math.max(j.y + 0.25, teto !== null ? Math.min(cam.position.y, teto - 0.2) : cam.position.y)
     cam.lookAt(cam.position.x + v.f.x, cam.position.y + v.f.y, cam.position.z + v.f.z)
+    aplicarTremor(cam, dt) // o tremor da tela (o Devora entrando e saindo do chão, a investida...)
     const fov = CAMERA.fov + CAMERA.fovCorrendo * j.corrida + (M.fov - CAMERA.fov) * mk
     if (Math.abs(cam.fov - fov) > 0.01) { cam.fov = fov; cam.updateProjectionMatrix() }
   })

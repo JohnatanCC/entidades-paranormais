@@ -3,11 +3,13 @@
 // cada som toca no momento da animação (ouvirDevora, depois de animarDevora, com o que ela devolveu):
 //   fora do chão: respira gemendo de vez em quando; nadando: um ronco embaixo do chão e o gemido lento, sem parar;
 //   romper o chão (entrando, saindo, o salto, a investida, a ninhada): a pedra racha, as pedrinhas caem, o baque grave;
+//   entrar no chão: ruge curto, a terra engole (o ar, o baque, a pedra) e borbulha; sair: o rugido e o chão rompendo;
 //   o ataque da marca: o chão ronca crescendo embaixo (o aviso), ele sai rugindo e a boca fecha num baque pesado;
 //     errou: se debate batendo no chão; pegou: mastiga (estalos e um gemido abafado) e cospe (a ânsia e o respingo);
-//   a investida: ruge na mira (o aviso), rasga o chão correndo e derrapa freando;
+//   a investida: ruge na mira (o aviso), rasga o chão correndo (os espinhos subindo atrás, um baque de pedra atrás do
+//     outro) e derrapa freando;
 //   a chuva: geme afundando; em cada círculo o chão ronca no aviso e o tentáculo rompe (somEm, no ponto do círculo);
-//   a ninhada: geme subindo e cada cria sai num cuspe;
+//   a ninhada: a garganta enche, borbulhando e roncando, e cada cria sai num cuspe;
 //   atordoado: o baque da queda e o gemido tremendo; rastejando: arrasta a barriga a cada puxada, gemendo;
 //   o dano: um grunhido; um tentáculo arrancado: o rugido de dor e o respingo; a barra nova (a fase): o rugido grande;
 //   estourar: o rugido caindo, o chão rompendo e o respingo enorme.
@@ -19,7 +21,8 @@ import { CHUVA, INVESTIDA, RASTEJO, TEMPO } from './numeros'
 import { bolha, respingo, sorteio, vozDe, type Parte, type Tocar } from '../sons'
 
 const R = Math.random
-const REF = 4 // m: até onde a voz dele soa cheia (ele é enorme)
+const REF = 6 // m: até onde a voz dele soa cheia (ele é enorme)
+const VOLUME = 4 // o volume dele (os outros Sombrios: 2,5): o chefe tem que se impor (13/nov)
 
 /** O chão rompendo (k = o tamanho): a pedra racha, as pedrinhas caem e o baque grave. */
 function romper(s: Som, t: number, d: AudioNode, k = 1) {
@@ -52,13 +55,15 @@ const respira: Tocar = (s, t, d) => {
   voz(s, { t, dur: 1.3, a: 0.4, r: 0.4, f: 52, f2: 44, vogal: 'o', vogal2: 'u', sc: 0.45, grit: 1.6, ar: 0.8, gain: 0.07, dest: d })
   return 1.6
 }
-const saiDoChao: Tocar = (s, t, d) => { voz(s, { t, dur: 0.9, f: 60, f2: 85, vogal: 'a', sc: 0.5, grit: 3, ar: 0.5, gain: 0.12, dest: d }); return 1 }
-const mergulho: Tocar = (s, t, d) => {
-  ruido(s, { t, dur: 0.5, a: 0.1, f: 600, f2: 180, q: 0.8, gain: 0.12, dest: d })
-  for (let i = 0; i < 5; i++) bolha(s, t + 0.3 + R() * 0.6, d, 0.06, 150)
-  return 1
+const saiDoChao: Tocar = (s, t, d) => { rugir(s, t, d, 0.9, 0.9); return 1.2 } // (o chão rompendo vem junto: s.rompe)
+const mergulho: Tocar = (s, t, d) => { // a terra engole: ruge curto, o ar, o baque, a pedra e as bolhas
+  voz(s, { t, dur: 0.6, f: 72, f2: 48, vogal: 'a', vogal2: 'u', sc: 0.5, grit: 3, ar: 0.5, gain: 0.13, dest: d })
+  ruido(s, { t, dur: 0.55, a: 0.08, f: 700, f2: 160, q: 0.8, gain: 0.25, dest: d })
+  romper(s, t + 0.3, d, 0.8)
+  for (let i = 0; i < 8; i++) bolha(s, t + 0.45 + R() * 0.7, d, 0.08, 140)
+  return 1.3
 }
-const marca: Tocar = (s, t, d) => { ronco(s, t, d, TEMPO.marca); return TEMPO.marca }
+const marca: Tocar = (s, t, d) => { ronco(s, t, d, TEMPO.marca, 1.4); return TEMPO.marca }
 const fecha: Tocar = (s, t, d) => { // a boca fecha lá em cima
   pancada(s, t, 55, 0.4, d); racha(s, t, 0.35, d)
   tom(s, { t, f: 70, f2: 35, dur: 0.2, r: 0.3, gain: 0.25, lp: 150, dest: d })
@@ -79,23 +84,30 @@ const cuspe: Tocar = (s, t, d) => {
   respingo(s, t + 0.05, d, 1.4)
   return 0.8
 }
-const investida: Tocar = (s, t, d) => { // rasga o chão correndo
-  ruido(s, { t, dur: INVESTIDA.dura, a: 0.05, r: 0.2, tipo: 'lowpass', f: 300, gain: 0.55, dest: d })
-  estalos(s, { t, n: 40, i0: 0.025, i1: 0.03, f: 900, q: 3, gain: 0.22, dest: d })
-  ruido(s, { t, dur: INVESTIDA.dura, a: 0.05, r: 0.2, f: 1600, q: 0.7, gain: 0.07, dest: d }) // o ar
+const investida: Tocar = (s, t, d) => { // rasga o chão correndo, os espinhos subindo atrás
+  ruido(s, { t, dur: INVESTIDA.dura, a: 0.05, r: 0.2, tipo: 'lowpass', f: 300, gain: 0.6, dest: d })
+  estalos(s, { t, n: 40, i0: 0.025, i1: 0.03, f: 900, q: 3, gain: 0.25, dest: d })
+  ruido(s, { t, dur: INVESTIDA.dura, a: 0.05, r: 0.2, f: 1600, q: 0.7, gain: 0.09, dest: d }) // o ar
+  for (let u = 0.05; u < INVESTIDA.dura; u += 0.11) { pancada(s, t + u, 52 + R() * 12, 0.28, d); racha(s, t + u + 0.01, 0.16, d) } // os espinhos
   return INVESTIDA.dura
 }
 const freia: Tocar = (s, t, d) => {
-  ruido(s, { t, dur: INVESTIDA.freia, a: 0.02, r: 0.2, tipo: 'lowpass', f: 700, f2: 150, gain: 0.25, dest: d })
-  estalos(s, { t, n: 16, i0: 0.03, i1: 0.07, f: 800, q: 3, gain: 0.08, forma: (u) => 1 - u, dest: d })
+  ruido(s, { t, dur: INVESTIDA.freia, a: 0.02, r: 0.2, tipo: 'lowpass', f: 700, f2: 150, gain: 0.55, dest: d })
+  estalos(s, { t, n: 16, i0: 0.03, i1: 0.07, f: 800, q: 3, gain: 0.18, forma: (u) => 1 - u, dest: d })
   return INVESTIDA.freia
 }
+/** A ninhada: a garganta enche (borbulha e ronca subindo) antes dos cuspes. */
+const garganta: Tocar = (s, t, d) => {
+  voz(s, { t, dur: 0.9, a: 0.2, f: 46, f2: 78, glide: 0.8, vogal: 'u', vogal2: 'a', sc: 0.45, grit: 3.5, fry: 0.45, fryHz: 18, ar: 0.4, gain: 0.2, dest: d })
+  for (let i = 0; i < 10; i++) bolha(s, t + R() * 0.8, d, 0.1, 120 + R() * 90)
+  return 1
+}
 const geme: Tocar = (s, t, d) => {
-  voz(s, { t, dur: 1.4, a: 0.3, f: 50, f2: 66, f3: 46, glide: 0.7, vogal: 'o', vogal2: 'u', sc: 0.45, grit: 1.8, vib: [1.2, 40], gain: 0.11, dest: d })
+  voz(s, { t, dur: 1.4, a: 0.3, f: 50, f2: 66, f3: 46, glide: 0.7, vogal: 'o', vogal2: 'u', sc: 0.45, grit: 1.8, vib: [1.2, 40], gain: 0.18, dest: d })
   return 1.6
 }
 /** A chuva: o chão ronca embaixo de um círculo (o aviso; somEm, no ponto dele). */
-export const avisoChuva: Tocar = (s, t, d) => { ronco(s, t, d, CHUVA.aviso, 0.7); return CHUVA.aviso }
+export const avisoChuva: Tocar = (s, t, d) => { ronco(s, t, d, CHUVA.aviso, 1.1); return CHUVA.aviso }
 /** A chuva: o tentáculo rompe o chão e sobe (somEm, no ponto do círculo). */
 export const tentaculo: Tocar = (s, t, d) => {
   romper(s, t, d, 0.7)
@@ -103,7 +115,7 @@ export const tentaculo: Tocar = (s, t, d) => {
   return 0.8
 }
 const cria: Tocar = (s, t, d) => {
-  voz(s, { t, dur: 0.3, f: 90, f2: 120, vogal: 'a', sc: 0.55, grit: 5, fry: 0.4, fryHz: 26, ar: 0.6, gain: 0.11, dest: d })
+  voz(s, { t, dur: 0.3, f: 90, f2: 120, vogal: 'a', sc: 0.55, grit: 5, fry: 0.4, fryHz: 26, ar: 0.6, gain: 0.16, dest: d })
   ruido(s, { t: t + 0.05, dur: 0.06, tipo: 'lowpass', f: 1100, gain: 0.2, dest: d }) // o cuspe
   bolha(s, t + 0.1, d, 0.07, 180)
   return 0.4
@@ -136,14 +148,14 @@ const estouro: Tocar = (s, t, d) => {
 export const PARTES_DEVORA_ALMAS: Parte[] = [
   ['nadando', nadando], ['respira', respira], ['romper', (s, t, d) => { romper(s, t, d); return 0.8 }], ['sai do chão', saiDoChao], ['mergulho', mergulho],
   ['marca', marca], ['rugido', (s, t, d) => rugir(s, t, d)], ['fecha', fecha], ['debate', debate], ['mastiga', mastiga], ['cuspe', cuspe],
-  ['investida', investida], ['freia', freia], ['geme', geme], ['aviso da chuva', avisoChuva], ['tentáculo', tentaculo], ['cria', cria],
+  ['investida', investida], ['freia', freia], ['geme', geme], ['garganta', garganta], ['aviso da chuva', avisoChuva], ['tentáculo', tentaculo], ['cria', cria],
   ['atordoado', atordoado], ['arrasta', arrasta], ['dano', dano], ['arrancado', arrancado], ['estouro', estouro],
 ]
 
 /** O que toca ao entrar em cada modo (os que têm som próprio). */
 const AO_ENTRAR: Partial<Record<ModoDevora, Tocar>> = {
   mergulho, emergir: saiDoChao, marca, salto: (s, t, d) => rugir(s, t, d, 0.9), mira: (s, t, d) => rugir(s, t, d, INVESTIDA.mira),
-  investida, freia, chuva: geme, ninhada: geme, atordoado,
+  investida, freia, chuva: geme, ninhada: garganta, atordoado,
 }
 
 // o que a animação era no quadro anterior, e quanto falta para os sons que se repetem (nadando, respirando, mastigando,
@@ -164,7 +176,7 @@ export function ouvirDevora(d: DevoraAlmas, s: SaidaDevora, dt: number) {
   const A = d.anim
   let b = antes.get(d)
   if (!b) { b = { modo: A.modo, dano: A.dano, estourado: A.estourado, fase: A.fase, costas: costas(d), repete: sorteio(0.5, 2) }; antes.set(d, b) }
-  const v = vozDe(d, d.corpo.getWorldPosition(_p), REF)
+  const v = vozDe(d, d.corpo.getWorldPosition(_p), REF, VOLUME)
   if (v) {
     const { s: S, d: D, t } = v
     if (A.estourado && !b.estourado) estouro(S, t, D)

@@ -34,7 +34,8 @@ import { acertar, disparar, novosProjeteis, passoProjeteis } from '../../game/en
 import { bolaBatendo, ouvirAsaSombria } from '../../game/enemies/asa-sombria/sons'
 import { montarDevoraAlmas, type DevoraAlmas } from '../../game/enemies/devora-almas/modelo'
 import { animarDevora, arrancar, atordoar, emergir, estourarDevora, fase as faseDevora, ferir as ferirDevora, mergulhar } from '../../game/enemies/devora-almas/animacao'
-import { chuvaDeTentaculos, novosEfeitosDevora, passoEfeitosDevora, type EfeitosDevora } from '../../game/enemies/devora-almas/efeitos'
+import { chuvaDeTentaculos, novosEfeitosDevora, passoEfeitosDevora, pocasNoChao, tentaculoDaPoca, type EfeitosDevora } from '../../game/enemies/devora-almas/efeitos'
+import { temChao } from '../../game/world/colisao'
 import { acalmarDevora, golpesDoDevora, pensarDevora, tentaculoAcerta } from '../../game/enemies/devora-almas/ia'
 import { ESCALA, GOSMA, LUTA as LUTA_DEVORA, NINHADA, RESPINGO } from '../../game/enemies/devora-almas/numeros'
 import { avisoChuva, ouvirDevora, tentaculo } from '../../game/enemies/devora-almas/sons'
@@ -42,9 +43,12 @@ import { estourar, novoEstouro, passoEstouro } from '../../game/enemies/estouro'
 import { andarNoMundo, separar, type Alvo } from '../../game/enemies/luta'
 import { calar, somEm } from '../../game/enemies/sons'
 import { soltarGolpe } from '../../render/golpe'
+import { tremorDoDevora } from '../../game/enemies/devora-almas/tremor'
+import { tremerDe } from '../../game/player/tremor'
+import { TREMOR } from '../../game/player/numeros'
 import { desenharDepuracao, novaDepuracao, type BarraDeVida } from '../../game/enemies/depurar'
 import type { Chunk } from '../../maps/types'
-import { CAIXAS, NASCER, ONDAS, TEMPO } from './numeros'
+import { CAIXAS, CRIAS, NASCER, ONDAS, POCAS, TEMPO } from './numeros'
 import { novoAmbiente, ouvirTornado, passoAmbiente } from './sons'
 import { descartarTornado, novoTornado, passoTornado, type Tornado } from './tornado'
 
@@ -81,6 +85,7 @@ export function Roteiro({ chunks, jogo, aoTexto }: { chunks: Record<string, Chun
   const grupo = useMemo(() => new THREE.Group(), []), E = useMemo(() => novoEstouro(), []), P = useMemo(() => novosProjeteis(), [])
   const R = useRef({ arena: 1, etapa: 'fora' as Etapa, onda: 0, t: 0, destroi: false, texto: '', fila: [] as { tipo: 'assombrado' | 'asa'; p: THREE.Vector3; em: number }[] })
   const vivos = useRef<Vivo[]>([]), tornados = useRef<Tornado[]>([]), efeitos = useRef<EfeitosDevora | null>(null)
+  const pocas = useRef<{ p: THREE.Vector3; t: number }[]>([]) // as poças da arena do chefe (onde, s até poder de novo)
   const bando = useMemo(() => novoBando(), []), ambiente = useMemo(() => novoAmbiente(), [])
   const alvo = useRef<Alvo | null>(null)
   const mira = useMemo<Mira>(() => ({ de: new THREE.Vector3(), dir: new THREE.Vector3(), ativa: false }), []), peito = useMemo(() => new THREE.Vector3(), [])
@@ -148,10 +153,37 @@ export function Roteiro({ chunks, jogo, aoTexto }: { chunks: Record<string, Chun
     for (let i = 0; i < 240 && d.anim.modo !== 'nadando'; i++) d.root.position.y = animarDevora(d, 1 / 60).y // termina de mergulhar (fora da vista)
     grupo.add(d.root, F.grupo); efeitos.current = F
     entra({ ...novo, alvos: [], tipo: 'devora', d, vida: LUTA_DEVORA.vida })
+    // as poças na borda da arena: espalhadas em volta, cada uma onde tem chão (se não, um pouco mais para dentro)
+    const arena = pontos.arenas.get(3), m = jogo.current?.mundo
+    if (arena && m) {
+      const giro = Math.random() * Math.PI * 2
+      pocas.current = Array.from({ length: POCAS.n }, (_, i) => {
+        const a = giro + (i / POCAS.n) * Math.PI * 2
+        for (let k = POCAS.borda; k > 0.4; k -= 0.05) { const x = arena.p.x + Math.sin(a) * arena.raio * k, z = arena.p.z + Math.cos(a) * arena.raio * k; if (temChao(m, x, z, 0)) return { p: new THREE.Vector3(x, 0, z), t: 0 } }
+        return null
+      }).filter((x): x is { p: THREE.Vector3; t: number } => !!x)
+      pocasNoChao(F, pocas.current.map((x) => x.p), POCAS.raio)
+    }
   }
+
+  /** As poças, a cada quadro na luta do chefe: perto delas, um tentáculo sobe da beirada mais perto do agente (o aviso
+   *  do círculo e depois o golpe: o mesmo da chuva, tentaculoAcerta). */
+  function passoPocas(F: EfeitosDevora, A: Alvo, dt: number) {
+    pocas.current.forEach((o, k) => {
+      o.t -= dt
+      const dx = A.p.x - o.p.x, dz = A.p.z - o.p.z, d = Math.hypot(dx, dz)
+      if (o.t > 0 || d > POCAS.alcance || !A.pode()) return
+      const ate = Math.min(d, POCAS.raio) / Math.max(d, 1e-3)
+      if (tentaculoDaPoca(F, k, _v.set(o.p.x + dx * ate, 0, o.p.z + dz * ate))) o.t = POCAS.cada[0] + Math.random() * (POCAS.cada[1] - POCAS.cada[0])
+    })
+  }
+
+  /** Ainda cabe uma cria do chefe (no máximo CRIAS.max vivas)? */
+  const cabeCria = () => vivos.current.filter((v) => v.cria && v.morto < 0 && v.estoura < 0).length < CRIAS.max
 
   /** O que o chefe cospe (a ninhada): o Assombrado voa em arco até o chão à frente; a Asa sai voando da boca. */
   function cria(c: { tipo: 'assombrado' | 'asa'; de: THREE.Vector3; frente: THREE.Vector3 }) {
+    if (!cabeCria()) return
     const f = _f.copy(c.frente).setY(0).normalize(), dist = NINHADA.alcance[0] + Math.random() * (NINHADA.alcance[1] - NINHADA.alcance[0])
     const para = new THREE.Vector3(c.de.x + f.x * dist + (Math.random() - 0.5) * 3, 0, c.de.z + f.z * dist + (Math.random() - 0.5) * 3)
     const arena = pontos.arenas.get(3)
@@ -334,18 +366,19 @@ export function Roteiro({ chunks, jogo, aoTexto }: { chunks: Record<string, Chun
         const F = efeitos.current
         const pedido = vivo && S.etapa === 'chefe' ? pensarDevora(v.d, A, pontos.arenas.get(3) ?? null, dt) : {}
         if (pedido.chuva && F) chuvaDeTentaculos(F, pedido.chuva)
-        pedido.doChao?.forEach((p) => surgir('assombrado', p, ag, true))
+        pedido.doChao?.forEach((p) => { if (cabeCria()) surgir('assombrado', p, ag, true) })
         const s = animarDevora(v.d, dt), r = v.d.root
         r.position.y = s.y
         r.position.x += Math.sin(r.rotation.y) * s.avanca * dt; r.position.z += Math.cos(r.rotation.y) * s.avanca * dt
         if (s.rompe) estourar(E, _v.set(Math.sin(r.rotation.y), 0, Math.cos(r.rotation.y)).multiplyScalar(0.8 * ESCALA).add(r.position).setY(0.05), RESPINGO.raio, 0, { cubos: 18, olhos: 0, mancha: false, tamanho: 2 * RESPINGO.cubos })
         golpesDoDevora(v.d, s, A, dt)
         if (s.cria) cria(s.cria)
-        ouvirDevora(v.d, s, dt)
+        ouvirDevora(v.d, s, dt); tremorDoDevora(v.d, s) // os sons e o tremor da tela, no momento da animação
         if (F) {
+          if (S.etapa === 'chefe' && vivo) passoPocas(F, A, dt)
           passoEfeitosDevora(F, v.d, 0, dt, E)
           for (const p of F.sons.aviso) somEm(p, avisoChuva, 4)
-          for (const p of F.sons.rompe) { somEm(p, tentaculo, 4); tentaculoAcerta(p, A) }
+          for (const p of F.sons.rompe) { somEm(p, tentaculo, 4); tentaculoAcerta(p, A); tremerDe(p, TREMOR.leve, 0.35) } // a chuva e as poças
           // o rastro de gosma: pisando, fica lento
           if (A.pode() && F.gotas.some((g) => g.t < GOSMA.dura && Math.hypot(g.p.x - ag.x, g.p.z - ag.z) < g.tam * 0.45)) J.lentidao(LUTA_DEVORA.rastro.lento, 0.3)
         }

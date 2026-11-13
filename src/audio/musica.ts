@@ -1,5 +1,5 @@
 // A trilha: uma faixa por vez, em laço, chamada por NOME (os arquivos ficam em public/musica/<nome>.mp3).
-// O volume é o geral × o da música (as configurações). O navegador só deixa tocar depois do primeiro clique ou tecla:
+// O volume é o geral × o da música (as configurações), um pouco abaixo dos efeitos (NIVEL). O navegador só deixa tocar depois do primeiro clique ou tecla:
 // até lá a faixa fica esperando e começa sozinha na primeira interação. Trocar de faixa faz um fade curto.
 import { useEffect } from 'react'
 import { getSettings, useSettings } from '../settings/settings'
@@ -11,7 +11,9 @@ let audio: HTMLAudioElement | null = null
 let atual: Faixa | null = null
 let fade = 0
 
-const alvo = () => { const s = getSettings(); return (s.volume / 100) * (s.musica / 100) }
+// a música fica um pouco abaixo dos efeitos (13/nov: ela cobria os demônios); as configurações multiplicam por cima
+const NIVEL = 0.6
+const alvo = () => { const s = getSettings(); return NIVEL * (s.volume / 100) * (s.musica / 100) }
 
 function rampa(a: HTMLAudioElement, para: number, ms: number, fim?: () => void) {
   cancelAnimationFrame(fade)
@@ -53,5 +55,5 @@ export function musica(f: Faixa | null) {
 export function useMusica(f: Faixa | null) {
   const { volume, musica: vm } = useSettings()
   useEffect(() => { musica(f) }, [f])
-  useEffect(() => { if (audio && atual) { cancelAnimationFrame(fade); audio.volume = (volume / 100) * (vm / 100) } }, [volume, vm])
+  useEffect(() => { if (audio && atual) { cancelAnimationFrame(fade); audio.volume = NIVEL * (volume / 100) * (vm / 100) } }, [volume, vm])
 }

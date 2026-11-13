@@ -27,9 +27,11 @@ function seguir(d: DevoraAlmas, giroQuer: number, velQuer: number, dt: number) {
 }
 
 /** Um quadro de nado até `alvo` (no chão), na velocidade `vel` (m/s). Devolve a distância que falta (m). Cada
- *  tentáculo das costas arrancado o deixa mais lento (LUTA.costas.lento). */
+ *  tentáculo das costas arrancado o deixa mais lento (LUTA.costas.lento); da 2ª barra em diante, nada mais rápido
+ *  (LUTA.agressivo.nado). */
 export function nadarPara(d: DevoraAlmas, alvo: THREE.Vector3, dt: number, vel: number = NADO.vel): number {
   vel *= 1 - LUTA.costas.lento * d.anim.costas.filter((c) => !c).length
+  if (d.anim.fase >= LUTA.agressivo.desde) vel *= LUTA.agressivo.nado // da 2ª barra em diante, bem mais rápido
   const r = d.root, dx = alvo.x - r.position.x, dz = alvo.z - r.position.z, dist = Math.hypot(dx, dz)
   const erro = dist > 0.05 ? angulo(Math.atan2(dx, dz) - r.rotation.y) : 0
   const curva = Math.max(0.3, Math.cos(Math.min(Math.abs(erro), PI / 2))) // de lado ou de costas para o alvo: quase para e vira

@@ -32,3 +32,11 @@ export const CAIXAS = {
   asa: [0.8, 0.55, 0.8], // as asas abertas
   devora: { boca: [1.1, 1.1, 1.1], corpo: [1.5, 1.3, 1.5], cauda: [1.2, 1.1, 1.2], tentaculo: [0.55, 0.55, 0.55] },
 } as const
+
+// As crias do chefe (o que ele cospe e o que sobe do chão): no máximo `max` vivas ao mesmo tempo (12/nov: ele invoca
+// bem mais da 2ª barra em diante; o limite segura a arena e o celular)
+export const CRIAS = { max: 8 }
+
+// As poças de líquido preto na borda da arena do chefe (12/nov): quantas, a que fração do raio da arena (a borda), o
+// tamanho (m), de que distância do agente um tentáculo sobe (m) e de quanto em quanto tempo cada uma pode (s, sorteado)
+export const POCAS = { n: 6, borda: 0.8, raio: 1.8, alcance: 4.5, cada: [1.8, 3] }

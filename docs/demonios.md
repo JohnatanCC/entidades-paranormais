@@ -187,7 +187,23 @@ embaixo do chão e não precisa.
 **O aviso que brilha (pedido em 12/nov):** enquanto prepara um ataque, o demônio acende num âmbar que cresce e pulsa
 até o golpe sair (o Assombrado no aviso das garras, a Asa no aviso do cuspe, o Devora na marca, na mira da investida e
 ao se erguer para a ninhada). É o mesmo jeito do brilho vermelho do golpe (`src/render/golpe.ts`, `docs/jogo.md`): no
-material, sem luz a mais. Os sons dos Sombrios soam 2 vezes mais alto que antes (`VOLUME` em `enemies/sons.ts`).
+material, sem luz a mais.
+
+**Os sons no jogo (consertado em 13/nov):** na Demo, os demônios estavam mudos: o jogo não dizia ao áudio onde a câmera
+estava, e o ouvido ficava parado na origem do mapa, a 20 a 100 m das arenas (o som 3D some depois de 60 m). Agora o
+Testar põe o ouvido na câmera a cada quadro (`ouvinte`). E soam mais alto e de mais longe: 2,5 vezes o que cada um toca,
+cheios até 4 m e caindo devagar depois (`VOLUME`, `PERTO` e `QUEDA` em `enemies/sons.ts`).
+
+**O Devora almas se impõe (13/nov):** a voz dele soa mais alto que a dos outros (volume 4, cheia até 6 m) e cada ataque
+ganhou peso: entrar no chão ruge curto, a terra engole e borbulha; sair ruge com o chão rompendo; a investida rasga o
+chão com um baque de pedra a cada espinho que sobe atrás; a ninhada enche a garganta (borbulha e ronca) antes dos
+cuspes; a freada, o gemido da chuva e o aviso dos círculos ficaram mais fortes (`devora-almas/sons.ts`).
+
+**O tremor da tela (13/nov):** o Devora faz a câmera tremer (`player/tremor.ts`, os números em `TREMOR`, no
+`numeros.ts` do agente; o que treme e quando, em `devora-almas/tremor.ts`): forte ao romper o chão (sair, o salto, a
+ninhada), médio ao entrar nele, na freada e no tombo de atordoado, leve e crescendo no ronco da marca, o tempo todo na
+investida (os espinhos), leve em cada tentáculo da chuva e das poças, e o mais forte ao estourar. A força cai com a
+distância da câmera (some a 30 m).
 
 ## A luta do Devora almas (decidido em 12/nov)
 
@@ -234,6 +250,11 @@ marca e o seletor de fase); o dano, a inteligência e os pontos fracos de verdad
 vez) e os ataques ficaram ~20% mais rápidos: menos tempo rodeando entre um ataque e outro (1,5 a 2,5 s), a marca, o
 salto, o mergulho e o emergir mais curtos, a investida com a mira de 0,8 s e a 17 m/s, a chuva com os círculos mais
 seguidos e a ninhada mais rápida. As janelas para atirar (exposto, atordoado, rastejando) continuam do mesmo tamanho.
+
+**Mais agressivo da 2ª barra em diante (13/nov, a pedido):** nada 50% mais rápido embaixo do chão, rodeia só 65% do
+tempo entre os ataques, e a ninhada vira o ataque mais comum (peso 1,8 na 2ª barra e 2,2 na 3ª); em cada ninhada, além
+dos 3 cuspidos, sobem do chão perto do agente 2 Assombrados (4 na 3ª barra). No máximo 8 crias vivas ao mesmo tempo
+(`CRIAS` em `chapters/intro/numeros.ts`). Os números em `LUTA.agressivo` e `LUTA.pesos`.
 
 **As fases: as 3 barras de vida** (decidido em 12/nov: cada barra é uma fase, como as barras da Mãe):
 1. **Primeira barra:** nadar, a marca e o salto, e a investida.

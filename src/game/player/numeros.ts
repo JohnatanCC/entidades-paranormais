@@ -33,6 +33,10 @@ export const CABELO = {
 }
 
 // A câmera por cima do ombro direito, como no RE4 remake; mirando, ela chega mais perto e fecha (mira)
+// O tremor da tela (player/tremor.ts): a força de cada tipo (m que a câmera anda), até que distância se sente (m),
+// quão rápido treme e o quanto gira junto (rad por m de força)
+export const TREMOR = { leve: 0.03, medio: 0.07, forte: 0.14, longe: 30, rapidez: 38, giro: 0.35 }
+
 export const CAMERA = {
   atras: 2.5, // m atrás do agente
   lado: 0.56, // m para a direita

@@ -99,5 +99,9 @@ export const LUTA = {
   engolido: { porSegundo: 20, lento: 0.2, dura: 4 },
   rastro: { lento: 0.2 },
   cansa: 3,
-  pesos: { 1: { marca: 1, investida: 1, chuva: 0, ninhada: 0 }, 2: { marca: 1, investida: 1, chuva: 1, ninhada: 0.8 }, 3: { marca: 0.8, investida: 1.2, chuva: 1.2, ninhada: 1 } } as Record<number, Record<'marca' | 'investida' | 'chuva' | 'ninhada', number>>,
+  // 12/nov: a ninhada (cuspir demônios) bem mais frequente da 2ª barra em diante
+  pesos: { 1: { marca: 1, investida: 1, chuva: 0, ninhada: 0 }, 2: { marca: 1, investida: 1, chuva: 1, ninhada: 1.8 }, 3: { marca: 0.8, investida: 1.2, chuva: 1.2, ninhada: 2.2 } } as Record<number, Record<'marca' | 'investida' | 'chuva' | 'ninhada', number>>,
+  // mais agressivo a partir da barra `desde` (12/nov): nada `nado` vezes mais rápido embaixo do chão, rodeia só `rodeia`
+  // do tempo entre um ataque e outro, e na ninhada sobem do chão perto do agente `doChao` Assombrados (por barra)
+  agressivo: { desde: 2, nado: 1.5, rodeia: 0.65, doChao: { 2: 2, 3: 4 } as Record<number, number> },
 }

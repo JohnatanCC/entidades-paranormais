@@ -7,7 +7,9 @@
 //     disparada, o rasgo: espinhos grandes subindo atrás dele e afundando de novo;
 //   a chuva de tentáculos (chuvaDeTentaculos): os círculos de dentes acendem um depois do outro; de cada um sobe um
 //     tentáculo, que bate (dobra por cima do círculo) e volta para o chão. Todos os tentáculos são uma malha só (os
-//     pedaços, com o degradê do preto ao vermelho) e as pontas outra (brilham).
+//     pedaços, com o degradê do preto ao vermelho) e as pontas outra (brilham);
+//   as poças (12/nov, a arena do chefe): manchas de líquido preto paradas no chão (pocasNoChao), de onde um tentáculo
+//     sobe quando o agente chega perto (tentaculoDaPoca): o mesmo tentáculo da chuva, nas vagas depois das dela.
 // Os efeitos ficam no mundo: ponha `grupo` na cena, fora do root dele. chao = a altura do chão.
 import * as THREE from 'three'
 import { aplicarBrilho } from '../../../render/brilho'
@@ -15,7 +17,8 @@ import { estourar, type Estouro } from '../estouro'
 import type { DevoraAlmas } from './modelo'
 import { CHUVA, ESCALA, ESPINHOS, GOSMA, INVESTIDA, MANCHA, MARCA, SALTO } from './numeros'
 
-const N_GOSMA = 40, N_RASGO = 30, N_CHUVA = 5, PEDACOS = 8
+const N_GOSMA = 40, N_RASGO = 30, N_CHUVA = 5, N_POCAS = 8, PEDACOS = 8
+const N_TENTACULOS = N_CHUVA + N_POCAS // as vagas da chuva primeiro, depois as das poças
 const PISO = { transparent: true, depthWrite: false, polygonOffset: true, polygonOffsetFactor: -2, polygonOffsetUnits: -4 }
 
 /** Um material de chão desenhado várias vezes (InstancedMesh), cada cópia com a sua força (a opacidade, no atributo
@@ -89,6 +92,7 @@ export interface EfeitosDevora {
   aviso: THREE.Mesh; avisoMat: THREE.MeshBasicMaterial
   rasgo: THREE.InstancedMesh; espinhosRasgo: { p: THREE.Vector3; giro: number; t: number }[]; proxRasgo: number; andou: number; ultimo: THREE.Vector3 | null
   circulos: THREE.InstancedMesh; circuloForca: THREE.InstancedBufferAttribute
+  pocas: THREE.InstancedMesh
   pedacos: THREE.InstancedMesh; pontas: THREE.InstancedMesh
   chuva: { p: THREE.Vector3; eixo: THREE.Vector3; t: number; ativo: boolean; subiu: boolean }[]
   /** a chuva neste quadro, para os sons: os círculos que começaram o aviso e os tentáculos que romperam o chão */
@@ -122,20 +126,22 @@ export function novosEfeitosDevora(): EfeitosDevora {
   const rasgo = varias(new THREE.ConeGeometry(0.22 * ESCALA, 1, 4).translate(0, 0.5, 0), new THREE.MeshBasicMaterial({ color: '#0c0a10' }), N_RASGO)
   // a chuva: os círculos (a textura da marca, cada um com a sua força), os pedaços dos tentáculos (o degradê na cor de
   // cada pedaço) e as pontas, que brilham
-  const geoCirc = plano(), circuloForca = new THREE.InstancedBufferAttribute(new Float32Array(N_CHUVA), 1)
+  const geoCirc = plano(), circuloForca = new THREE.InstancedBufferAttribute(new Float32Array(N_TENTACULOS), 1)
   geoCirc.setAttribute('aForca', circuloForca)
-  const circulos = varias(geoCirc, materialComForca(T.marca, 'circulos-devora'), N_CHUVA); circulos.renderOrder = 2
-  const pedacos = varias(new THREE.BoxGeometry(1, 1, 1), new THREE.MeshLambertMaterial(), N_CHUVA * PEDACOS)
+  const circulos = varias(geoCirc, materialComForca(T.marca, 'circulos-devora'), N_TENTACULOS); circulos.renderOrder = 2
+  const pedacos = varias(new THREE.BoxGeometry(1, 1, 1), new THREE.MeshLambertMaterial(), N_TENTACULOS * PEDACOS)
   const preto = new THREE.Color('#0c0a10'), vermelho = new THREE.Color('#9a1c18'), cor = new THREE.Color()
-  for (let i = 0; i < N_CHUVA * PEDACOS; i++) { const k = (i % PEDACOS) / (PEDACOS - 1); pedacos.setColorAt(i, cor.copy(preto).lerp(vermelho, Math.max(0, (k - 0.35) / 0.65) ** 1.5)) }
-  const pontas = varias(new THREE.BoxGeometry(1, 1, 1), aplicarBrilho(new THREE.MeshBasicMaterial({ color: '#ff3c24' })), N_CHUVA)
-  grupo.add(gosma, mancha, espinhos, marca, aviso, rasgo, circulos, pedacos, pontas)
+  for (let i = 0; i < N_TENTACULOS * PEDACOS; i++) { const k = (i % PEDACOS) / (PEDACOS - 1); pedacos.setColorAt(i, cor.copy(preto).lerp(vermelho, Math.max(0, (k - 0.35) / 0.65) ** 1.5)) }
+  const pontas = varias(new THREE.BoxGeometry(1, 1, 1), aplicarBrilho(new THREE.MeshBasicMaterial({ color: '#ff3c24' })), N_TENTACULOS)
+  // as poças: a mesma gosma, mais escura e parada (cópias de um plano)
+  const pocas = varias(plano(), new THREE.MeshBasicMaterial({ map: T.gosma, ...PISO, color: '#6a5a66' }), N_POCAS); pocas.renderOrder = 1
+  grupo.add(gosma, mancha, espinhos, marca, aviso, rasgo, circulos, pedacos, pontas, pocas)
   return {
     grupo, mancha, manchaMat, espinhos, gosma, gosmaForca, marca, marcaMat, forcaNado: 0,
     gotas: Array.from({ length: N_GOSMA }, () => ({ p: new THREE.Vector3(), giro: 0, tam: 1, t: 99 })), prox: 0, solta: 0,
     aviso, avisoMat, rasgo, espinhosRasgo: Array.from({ length: N_RASGO }, () => ({ p: new THREE.Vector3(), giro: 0, t: 99 })), proxRasgo: 0, andou: 0, ultimo: null,
-    circulos, circuloForca, pedacos, pontas,
-    chuva: Array.from({ length: N_CHUVA }, () => ({ p: new THREE.Vector3(), eixo: new THREE.Vector3(), t: 0, ativo: false, subiu: false })),
+    circulos, circuloForca, pedacos, pontas, pocas,
+    chuva: Array.from({ length: N_TENTACULOS }, () => ({ p: new THREE.Vector3(), eixo: new THREE.Vector3(), t: 0, ativo: false, subiu: false })),
     sons: { aviso: [], rompe: [] },
   }
 }
@@ -147,6 +153,22 @@ export function chuvaDeTentaculos(F: EfeitosDevora, pontos: THREE.Vector3[]) {
     const c = F.chuva[i], a = Math.random() * Math.PI * 2
     c.p.copy(p); c.eixo.set(Math.cos(a), 0, Math.sin(a)); c.t = -(CHUVA.afunda + i * CHUVA.intervalo); c.ativo = true; c.subiu = false
   })
+}
+
+/** As poças de líquido preto no chão (no máximo 8), do tamanho `raio` (m). */
+export function pocasNoChao(F: EfeitosDevora, pontos: THREE.Vector3[], raio: number) {
+  const m = new THREE.Matrix4(), q = new THREE.Quaternion(), s = new THREE.Vector3(raio * 2, 1, raio * 2)
+  pontos.slice(0, N_POCAS).forEach((p, i) => F.pocas.setMatrixAt(i, m.compose(new THREE.Vector3(p.x, p.y + 0.008, p.z), q.setFromAxisAngle(new THREE.Vector3(0, 1, 0), i * 1.7), s)))
+  F.pocas.visible = pontos.length > 0
+  F.pocas.instanceMatrix.needsUpdate = true
+}
+/** Um tentáculo sobe da poça k, em p (o aviso do círculo começa agora). false = o dela ainda está fora. */
+export function tentaculoDaPoca(F: EfeitosDevora, k: number, p: THREE.Vector3): boolean {
+  const c = F.chuva[N_CHUVA + k]
+  if (!c || c.ativo) return false
+  const a = Math.random() * Math.PI * 2
+  c.p.copy(p); c.eixo.set(Math.cos(a), 0, Math.sin(a)); c.t = -1e-3; c.ativo = true; c.subiu = false // (logo antes do zero: o som do aviso toca)
+  return true
 }
 
 const _p = new THREE.Vector3(), _f = new THREE.Vector3(), _l = new THREE.Vector3(), _q = new THREE.Quaternion(), _s = new THREE.Vector3(), _e = new THREE.Vector3(), _m = new THREE.Matrix4(), UP = new THREE.Vector3(0, 1, 0)

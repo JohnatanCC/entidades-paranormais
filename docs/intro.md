@@ -18,7 +18,7 @@ agente do Testar do criador de mapas (a câmera, a colisão, a luz do lugar, as 
 | A passagem | Durante a horda, **um tornado fecha a passagem** para a próxima arena; limpou, ele some |
 | O chefe | Arena 3: o **Devora almas**, com as crias dele (a ninhada) |
 | Sem balas ainda | Os demônios **vêm e atacam** de verdade (a inteligência de cada um); **uma tecla de teste destrói a horda** para passar adiante, até as balas chegarem |
-| A música | **A de batalha nas hordas** (12/nov: `batalha.mp3`, a do laboratório): começa quando a arena fecha e some quando ela abre. **"O devorador de almas" na luta do chefe**: começa quando a arena dele fecha, no ronco do chão, antes de ele sair |
+| A música | (13/nov: a música toca a 60% do volume das configurações, para os demônios aparecerem) **A de batalha nas hordas** (12/nov: `batalha.mp3`, a do laboratório): começa quando a arena fecha e some quando ela abre. **"O devorador de almas" na luta do chefe**: começa quando a arena dele fecha, no ronco do chão, antes de ele sair |
 
 ## O cenário (feito em 12/nov)
 
@@ -96,6 +96,10 @@ Cada Sombrio pensa no `ia.ts` da pasta dele (os números em `LUTA`, no `numeros.
   são o ponto de partida: ajustar jogando.
 - **As balas (12/nov):** os demônios levam tiro e estouram de verdade (`docs/jogo.md`, "A bala"); a tecla H continua, de teste.
   No npm run dev, F2 mostra as barras de vida dos demônios e F4 as caixas de acerto.
+- **As poças da arena do chefe (13/nov):** 6 poças de líquido preto na borda da arena (a 80% do raio, onde tem chão).
+  Chegando a menos de 4,5 m de uma, um tentáculo sobe da beirada dela mais perto do agente (o círculo de dentes avisa e
+  ele bate: 12 de dano, o mesmo da chuva); cada poça pode de novo em 1,8 a 3 s. Os números em `POCAS`
+  (`chapters/intro/numeros.ts`); os tentáculos são os da chuva, nas vagas depois das dela (`devora-almas/efeitos.ts`).
   Os 3 tentáculos das costas do chefe também levam tiro: arrancados, ele nada mais devagar (`docs/demonios.md`).
 - **O brilho do golpe (12/nov):** quem leva um golpe (o agente, um demônio) acende num vermelho claro por um instante.
 - **Em aberto:** a câmera não desvia dos demônios (um Assombrado muito perto ainda pode ficar na frente); o projétil

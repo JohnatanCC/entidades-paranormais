@@ -6,8 +6,9 @@
 //   a investida: nada para longe, vira para o agente e dispara (o aviso: a mira); acerta quem estiver no caminho;
 //   a chuva (a partir da 2ª barra): os círculos em volta do agente, o primeiro em cima dele (quem faz os círculos é quem
 //     o controla: pedido.chuva); o tentáculo acerta quem estiver no círculo quando rompe o chão;
-//   a ninhada (a partir da 2ª barra): vira para o agente e cospe 2 Assombrados e uma Asa sombria (na 3ª, mais 2 sobem
-//     do chão perto do agente: pedido.doChao).
+//   a ninhada (a partir da 2ª barra, frequente): vira para o agente e cospe 2 Assombrados e uma Asa sombria, e sobem
+//     do chão perto do agente mais 2 (na 3ª, 4) Assombrados: pedido.doChao.
+// Da 2ª barra em diante ele fica mais agressivo (LUTA.agressivo): nada mais rápido e descansa menos entre os ataques.
 // Depois de alguns ataques seguidos, cansa e rasteja (a janela para atirar). Fica dentro da arena.
 // Os números em numeros.ts (LUTA). pensarDevora antes de animarDevora; golpesDoDevora depois, com o que ela devolveu.
 import * as THREE from 'three'
@@ -33,6 +34,9 @@ const mente = (d: DevoraAlmas) => {
 /** Recomeça devagar (o agente voltou depois de cair): rodeia antes do próximo ataque. */
 export function acalmarDevora(d: DevoraAlmas) { const m = mente(d); m.plano = 'rodear'; m.t = 3; m.ataques = 0 }
 
+/** Quanto ele rodeia antes do próximo ataque (s): menos da 2ª barra em diante. */
+const descanso = (d: DevoraAlmas) => sorteado(LUTA.rodeia) * (d.anim.fase >= LUTA.agressivo.desde ? LUTA.agressivo.rodeia : 1)
+
 /** Um ataque sorteado pelos pesos da fase (nunca o mesmo duas vezes seguidas, se der). */
 function escolher(fase: number, ultimo: Plano): Plano {
   const pesos = Object.entries(LUTA.pesos[fase] ?? LUTA.pesos[1]).filter(([k, p]) => p > 0 && k !== ultimo) as [Plano, number][]
@@ -55,7 +59,7 @@ function naArena(p: THREE.Vector3, arena: Arena | null, folga = 3) {
 export function pensarDevora(d: DevoraAlmas, alvo: Alvo, arena: Arena | null, dt: number): PedidoDevora {
   const A = d.anim, m = mente(d), r = d.root, pedido: PedidoDevora = {}
   if (A.estourado) return pedido
-  if (A.modo === 'solto') { m.t = Math.min(m.t, LUTA.solto); if ((m.t -= dt) <= 0) { mergulhar(d); m.plano = 'rodear'; m.t = sorteado(LUTA.rodeia) } return pedido } // fora do chão: logo mergulha
+  if (A.modo === 'solto') { m.t = Math.min(m.t, LUTA.solto); if ((m.t -= dt) <= 0) { mergulhar(d); m.plano = 'rodear'; m.t = descanso(d) } return pedido } // fora do chão: logo mergulha
   if (A.modo === 'mira') { virarPara(d, alvo.p, dt); m.acertou = false; return pedido } // na mira, ele acompanha o agente
   if (A.modo !== 'nadando') return pedido
   m.t -= dt
@@ -66,33 +70,34 @@ export function pensarDevora(d: DevoraAlmas, alvo: Alvo, arena: Arena | null, dt
       const ang = Math.atan2(r.position.x - alvo.p.x, r.position.z - alvo.p.z) + m.giro * 0.7
       nadarPara(d, naArena(_p.set(alvo.p.x + Math.sin(ang) * LUTA.roda, 0, alvo.p.z + Math.cos(ang) * LUTA.roda), arena), dt)
       if (m.t <= 0 && alvo.pode()) {
-        if (++m.ataques > LUTA.cansa) { rastejar(d); m.ataques = 0; m.t = sorteado(LUTA.rodeia); break } // cansou: rasteja
+        if (++m.ataques > LUTA.cansa) { rastejar(d); m.ataques = 0; m.t = descanso(d); break } // cansou: rasteja
         m.plano = escolher(fase, m.plano); m.t = LUTA.tempoIndo; m.virando = false
       }
       break
     }
     case 'marca': // até embaixo do agente; chegando (ou demorando demais), marca
-      if (nadarPara(d, alvo.p, dt, LUTA.marca) < LUTA.chega || m.t <= 0) { marcar(d, false); m.plano = 'rodear'; m.t = sorteado(LUTA.rodeia) }
+      if (nadarPara(d, alvo.p, dt, LUTA.marca) < LUTA.chega || m.t <= 0) { marcar(d, false); m.plano = 'rodear'; m.t = descanso(d) }
       break
     case 'investida': { // de longe, do outro lado do agente (pelo meio da arena), virado para ele
       _d.subVectors(arena?.p ?? r.position, alvo.p).setY(0)
       if (_d.lengthSq() < 1) _d.set(Math.sin(r.rotation.y), 0, Math.cos(r.rotation.y))
       const de = naArena(_p.copy(alvo.p).addScaledVector(_d.normalize(), LUTA.investida.longe), arena, 2)
       if (!m.virando) { if (nadarPara(d, de, dt) < LUTA.chega * 2 || m.t <= 0) m.virando = true } // primeiro chega...
-      else if (virarPara(d, alvo.p, dt) < 0.06 || m.t <= -2) { investir(d, fase >= 3 ? 2 : 1); m.plano = 'rodear'; m.t = sorteado(LUTA.rodeia) } // ...depois vira e dispara
+      else if (virarPara(d, alvo.p, dt) < 0.06 || m.t <= -2) { investir(d, fase >= 3 ? 2 : 1); m.plano = 'rodear'; m.t = descanso(d) } // ...depois vira e dispara
       break
     }
     case 'chuva': { // os círculos: o primeiro em cima do agente, os outros em volta
       const n = fase >= 3 ? 5 : 3, pontos = [alvo.p.clone().setY(0)]
       for (let i = 1; i < n; i++) { const a = (i / (n - 1)) * Math.PI * 2 + Math.random(), rr = 2.5 + Math.random() * 1.5; pontos.push(naArena(new THREE.Vector3(alvo.p.x + Math.cos(a) * rr, 0, alvo.p.z + Math.sin(a) * rr), arena, 1)) }
-      chover(d, n); pedido.chuva = pontos; m.plano = 'rodear'; m.t = sorteado(LUTA.rodeia)
+      chover(d, n); pedido.chuva = pontos; m.plano = 'rodear'; m.t = descanso(d)
       break
     }
-    case 'ninhada': // de frente para o agente, cospe; na 3ª barra, mais 2 do chão
+    case 'ninhada': // de frente para o agente, cospe; e mais do chão (2 na 2ª barra, 4 na 3ª)
       if (virarPara(d, alvo.p, dt) < 0.1 || m.t <= 0) {
         ninhada(d, 3)
-        if (fase >= 3) pedido.doChao = [0, 1].map(() => { const a = Math.random() * Math.PI * 2, rr = 3 + Math.random() * 2; return naArena(new THREE.Vector3(alvo.p.x + Math.cos(a) * rr, 0, alvo.p.z + Math.sin(a) * rr), arena, 1) })
-        m.plano = 'rodear'; m.t = sorteado(LUTA.rodeia)
+        const n = LUTA.agressivo.doChao[fase] ?? 0
+        if (n) pedido.doChao = Array.from({ length: n }, () => { const a = Math.random() * Math.PI * 2, rr = 3 + Math.random() * 2.5; return naArena(new THREE.Vector3(alvo.p.x + Math.cos(a) * rr, 0, alvo.p.z + Math.sin(a) * rr), arena, 1) })
+        m.plano = 'rodear'; m.t = descanso(d)
       }
       break
   }
