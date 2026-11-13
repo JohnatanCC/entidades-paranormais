@@ -1,0 +1,869 @@
+{
+ "cx": 2,
+ "cz": 3,
+ "walls": [],
+ "floors": [
+  {
+   "level": 0,
+   "x": 32,
+   "z": 49,
+   "top": "rocha-negra",
+   "bottom": "rocha-negra"
+  },
+  {
+   "level": 0,
+   "x": 32,
+   "z": 50,
+   "top": "rocha-negra",
+   "bottom": "rocha-negra"
+  },
+  {
+   "level": 0,
+   "x": 32,
+   "z": 51,
+   "top": "rocha-negra",
+   "bottom": "rocha-negra"
+  },
+  {
+   "level": 0,
+   "x": 33,
+   "z": 49,
+   "top": "rocha-negra",
+   "bottom": "rocha-negra"
+  },
+  {
+   "level": 0,
+   "x": 33,
+   "z": 50,
+   "top": "rocha-negra",
+   "bottom": "rocha-negra"
+  },
+  {
+   "level": 0,
+   "x": 33,
+   "z": 51,
+   "top": "rocha-negra",
+   "bottom": "rocha-negra"
+  },
+  {
+   "level": 0,
+   "x": 34,
+   "z": 49,
+   "top": "rocha-negra",
+   "bottom": "rocha-negra"
+  },
+  {
+   "level": 0,
+   "x": 34,
+   "z": 50,
+   "top": "rocha-negra",
+   "bottom": "rocha-negra"
+  },
+  {
+   "level": 0,
+   "x": 34,
+   "z": 51,
+   "top": "rocha-negra",
+   "bottom": "rocha-negra"
+  },
+  {
+   "level": 0,
+   "x": 35,
+   "z": 49,
+   "top": "rocha-negra",
+   "bottom": "rocha-negra"
+  },
+  {
+   "level": 0,
+   "x": 35,
+   "z": 50,
+   "top": "rocha-negra",
+   "bottom": "rocha-negra"
+  },
+  {
+   "level": 0,
+   "x": 35,
+   "z": 51,
+   "top": "rocha-negra",
+   "bottom": "rocha-negra"
+  },
+  {
+   "level": 0,
+   "x": 36,
+   "z": 49,
+   "top": "rocha-negra",
+   "bottom": "rocha-negra"
+  },
+  {
+   "level": 0,
+   "x": 36,
+   "z": 50,
+   "top": "rocha-negra",
+   "bottom": "rocha-negra"
+  },
+  {
+   "level": 0,
+   "x": 36,
+   "z": 51,
+   "top": "rocha-negra",
+   "bottom": "rocha-negra"
+  },
+  {
+   "level": 0,
+   "x": 37,
+   "z": 49,
+   "top": "rocha-negra",
+   "bottom": "rocha-negra"
+  },
+  {
+   "level": 0,
+   "x": 37,
+   "z": 50,
+   "top": "rocha-negra",
+   "bottom": "rocha-negra"
+  },
+  {
+   "level": 0,
+   "x": 37,
+   "z": 51,
+   "top": "rocha-negra",
+   "bottom": "rocha-negra"
+  },
+  {
+   "level": 0,
+   "x": 38,
+   "z": 49,
+   "top": "rocha-negra",
+   "bottom": "rocha-negra"
+  },
+  {
+   "level": 0,
+   "x": 38,
+   "z": 50,
+   "top": "rocha-negra",
+   "bottom": "rocha-negra"
+  },
+  {
+   "level": 0,
+   "x": 38,
+   "z": 51,
+   "top": "rocha-negra",
+   "bottom": "rocha-negra"
+  },
+  {
+   "level": 0,
+   "x": 39,
+   "z": 49,
+   "top": "rocha-negra",
+   "bottom": "rocha-negra"
+  },
+  {
+   "level": 0,
+   "x": 39,
+   "z": 50,
+   "top": "rocha-negra",
+   "bottom": "rocha-negra"
+  },
+  {
+   "level": 0,
+   "x": 40,
+   "z": 48,
+   "top": "rocha-negra",
+   "bottom": "rocha-negra"
+  },
+  {
+   "level": 0,
+   "x": 40,
+   "z": 49,
+   "top": "rocha-negra",
+   "bottom": "rocha-negra"
+  },
+  {
+   "level": 0,
+   "x": 40,
+   "z": 50,
+   "top": "rocha-negra",
+   "bottom": "rocha-negra"
+  },
+  {
+   "level": 0,
+   "x": 41,
+   "z": 48,
+   "top": "cinza",
+   "bottom": "rocha-negra"
+  },
+  {
+   "level": 0,
+   "x": 41,
+   "z": 49,
+   "top": "cinza",
+   "bottom": "rocha-negra"
+  },
+  {
+   "level": 0,
+   "x": 41,
+   "z": 50,
+   "top": "rocha-negra",
+   "bottom": "rocha-negra"
+  },
+  {
+   "level": 0,
+   "x": 41,
+   "z": 51,
+   "top": "rocha-negra",
+   "bottom": "rocha-negra"
+  },
+  {
+   "level": 0,
+   "x": 42,
+   "z": 48,
+   "top": "cinza",
+   "bottom": "rocha-negra"
+  },
+  {
+   "level": 0,
+   "x": 42,
+   "z": 49,
+   "top": "rocha-negra",
+   "bottom": "rocha-negra"
+  },
+  {
+   "level": 0,
+   "x": 42,
+   "z": 50,
+   "top": "rocha-negra",
+   "bottom": "rocha-negra"
+  },
+  {
+   "level": 0,
+   "x": 42,
+   "z": 51,
+   "top": "rocha-negra",
+   "bottom": "rocha-negra"
+  },
+  {
+   "level": 0,
+   "x": 42,
+   "z": 52,
+   "top": "rocha-negra",
+   "bottom": "rocha-negra"
+  },
+  {
+   "level": 0,
+   "x": 42,
+   "z": 53,
+   "top": "rocha-negra",
+   "bottom": "rocha-negra"
+  },
+  {
+   "level": 0,
+   "x": 43,
+   "z": 48,
+   "top": "rocha-negra",
+   "bottom": "rocha-negra"
+  },
+  {
+   "level": 0,
+   "x": 43,
+   "z": 49,
+   "top": "rocha-negra",
+   "bottom": "rocha-negra"
+  },
+  {
+   "level": 0,
+   "x": 43,
+   "z": 50,
+   "top": "rocha-negra",
+   "bottom": "rocha-negra"
+  },
+  {
+   "level": 0,
+   "x": 43,
+   "z": 51,
+   "top": "rocha-negra",
+   "bottom": "rocha-negra"
+  },
+  {
+   "level": 0,
+   "x": 43,
+   "z": 52,
+   "top": "rocha-negra",
+   "bottom": "rocha-negra"
+  },
+  {
+   "level": 0,
+   "x": 43,
+   "z": 53,
+   "top": "rocha-negra",
+   "bottom": "rocha-negra"
+  },
+  {
+   "level": 0,
+   "x": 43,
+   "z": 54,
+   "top": "rocha-negra",
+   "bottom": "rocha-negra"
+  },
+  {
+   "level": 0,
+   "x": 43,
+   "z": 55,
+   "top": "rocha-negra",
+   "bottom": "rocha-negra"
+  },
+  {
+   "level": 0,
+   "x": 43,
+   "z": 56,
+   "top": "rocha-negra",
+   "bottom": "rocha-negra"
+  },
+  {
+   "level": 0,
+   "x": 44,
+   "z": 48,
+   "top": "rocha-negra",
+   "bottom": "rocha-negra"
+  },
+  {
+   "level": 0,
+   "x": 44,
+   "z": 49,
+   "top": "rocha-negra",
+   "bottom": "rocha-negra"
+  },
+  {
+   "level": 0,
+   "x": 44,
+   "z": 50,
+   "top": "rocha-negra",
+   "bottom": "rocha-negra"
+  },
+  {
+   "level": 0,
+   "x": 44,
+   "z": 51,
+   "top": "rocha-negra",
+   "bottom": "rocha-negra"
+  },
+  {
+   "level": 0,
+   "x": 44,
+   "z": 52,
+   "top": "rocha-negra",
+   "bottom": "rocha-negra"
+  },
+  {
+   "level": 0,
+   "x": 44,
+   "z": 53,
+   "top": "rocha-negra",
+   "bottom": "rocha-negra"
+  },
+  {
+   "level": 0,
+   "x": 44,
+   "z": 54,
+   "top": "rocha-negra",
+   "bottom": "rocha-negra"
+  },
+  {
+   "level": 0,
+   "x": 44,
+   "z": 55,
+   "top": "rocha-negra",
+   "bottom": "rocha-negra"
+  },
+  {
+   "level": 0,
+   "x": 44,
+   "z": 56,
+   "top": "rocha-negra",
+   "bottom": "rocha-negra"
+  },
+  {
+   "level": 0,
+   "x": 44,
+   "z": 57,
+   "top": "cinza",
+   "bottom": "rocha-negra"
+  },
+  {
+   "level": 0,
+   "x": 44,
+   "z": 58,
+   "top": "cinza",
+   "bottom": "rocha-negra"
+  },
+  {
+   "level": 0,
+   "x": 45,
+   "z": 48,
+   "top": "rocha-negra",
+   "bottom": "rocha-negra"
+  },
+  {
+   "level": 0,
+   "x": 45,
+   "z": 49,
+   "top": "rocha-negra",
+   "bottom": "rocha-negra"
+  },
+  {
+   "level": 0,
+   "x": 45,
+   "z": 50,
+   "top": "rocha-negra",
+   "bottom": "rocha-negra"
+  },
+  {
+   "level": 0,
+   "x": 45,
+   "z": 51,
+   "top": "rocha-negra",
+   "bottom": "rocha-negra"
+  },
+  {
+   "level": 0,
+   "x": 45,
+   "z": 52,
+   "top": "rocha-negra",
+   "bottom": "rocha-negra"
+  },
+  {
+   "level": 0,
+   "x": 45,
+   "z": 53,
+   "top": "rocha-negra",
+   "bottom": "rocha-negra"
+  },
+  {
+   "level": 0,
+   "x": 45,
+   "z": 54,
+   "top": "rocha-negra",
+   "bottom": "rocha-negra"
+  },
+  {
+   "level": 0,
+   "x": 45,
+   "z": 55,
+   "top": "rocha-negra",
+   "bottom": "rocha-negra"
+  },
+  {
+   "level": 0,
+   "x": 45,
+   "z": 56,
+   "top": "rocha-negra",
+   "bottom": "rocha-negra"
+  },
+  {
+   "level": 0,
+   "x": 45,
+   "z": 57,
+   "top": "rocha-negra",
+   "bottom": "rocha-negra"
+  },
+  {
+   "level": 0,
+   "x": 45,
+   "z": 58,
+   "top": "cinza",
+   "bottom": "rocha-negra"
+  },
+  {
+   "level": 0,
+   "x": 45,
+   "z": 59,
+   "top": "cinza",
+   "bottom": "rocha-negra"
+  },
+  {
+   "level": 0,
+   "x": 46,
+   "z": 48,
+   "top": "rocha-negra",
+   "bottom": "rocha-negra"
+  },
+  {
+   "level": 0,
+   "x": 46,
+   "z": 49,
+   "top": "rocha-negra",
+   "bottom": "rocha-negra"
+  },
+  {
+   "level": 0,
+   "x": 46,
+   "z": 50,
+   "top": "rocha-negra",
+   "bottom": "rocha-negra"
+  },
+  {
+   "level": 0,
+   "x": 46,
+   "z": 51,
+   "top": "rocha-negra",
+   "bottom": "rocha-negra"
+  },
+  {
+   "level": 0,
+   "x": 46,
+   "z": 52,
+   "top": "rocha-negra",
+   "bottom": "rocha-negra"
+  },
+  {
+   "level": 0,
+   "x": 46,
+   "z": 53,
+   "top": "rocha-negra",
+   "bottom": "rocha-negra"
+  },
+  {
+   "level": 0,
+   "x": 46,
+   "z": 54,
+   "top": "rocha-negra",
+   "bottom": "rocha-negra"
+  },
+  {
+   "level": 0,
+   "x": 46,
+   "z": 55,
+   "top": "rocha-negra",
+   "bottom": "rocha-negra"
+  },
+  {
+   "level": 0,
+   "x": 46,
+   "z": 56,
+   "top": "rocha-negra",
+   "bottom": "rocha-negra"
+  },
+  {
+   "level": 0,
+   "x": 46,
+   "z": 57,
+   "top": "rocha-negra",
+   "bottom": "rocha-negra"
+  },
+  {
+   "level": 0,
+   "x": 46,
+   "z": 58,
+   "top": "rocha-negra",
+   "bottom": "rocha-negra"
+  },
+  {
+   "level": 0,
+   "x": 46,
+   "z": 59,
+   "top": "rocha-negra",
+   "bottom": "rocha-negra"
+  },
+  {
+   "level": 0,
+   "x": 46,
+   "z": 60,
+   "top": "rocha-negra",
+   "bottom": "rocha-negra"
+  },
+  {
+   "level": 0,
+   "x": 47,
+   "z": 48,
+   "top": "rocha-negra",
+   "bottom": "rocha-negra"
+  },
+  {
+   "level": 0,
+   "x": 47,
+   "z": 49,
+   "top": "rocha-negra",
+   "bottom": "rocha-negra"
+  },
+  {
+   "level": 0,
+   "x": 47,
+   "z": 50,
+   "top": "rocha-negra",
+   "bottom": "rocha-negra"
+  },
+  {
+   "level": 0,
+   "x": 47,
+   "z": 51,
+   "top": "rocha-negra",
+   "bottom": "rocha-negra"
+  },
+  {
+   "level": 0,
+   "x": 47,
+   "z": 52,
+   "top": "rocha-negra",
+   "bottom": "rocha-negra"
+  },
+  {
+   "level": 0,
+   "x": 47,
+   "z": 53,
+   "top": "rocha-negra",
+   "bottom": "rocha-negra"
+  },
+  {
+   "level": 0,
+   "x": 47,
+   "z": 54,
+   "top": "rocha-negra",
+   "bottom": "rocha-negra"
+  },
+  {
+   "level": 0,
+   "x": 47,
+   "z": 55,
+   "top": "rocha-negra",
+   "bottom": "rocha-negra"
+  },
+  {
+   "level": 0,
+   "x": 47,
+   "z": 56,
+   "top": "rocha-negra",
+   "bottom": "rocha-negra"
+  },
+  {
+   "level": 0,
+   "x": 47,
+   "z": 57,
+   "top": "rocha-negra",
+   "bottom": "rocha-negra"
+  },
+  {
+   "level": 0,
+   "x": 47,
+   "z": 58,
+   "top": "rocha-negra",
+   "bottom": "rocha-negra"
+  },
+  {
+   "level": 0,
+   "x": 47,
+   "z": 59,
+   "top": "rocha-negra",
+   "bottom": "rocha-negra"
+  },
+  {
+   "level": 0,
+   "x": 47,
+   "z": 60,
+   "top": "rocha-negra",
+   "bottom": "rocha-negra"
+  }
+ ],
+ "openings": [],
+ "stairs": [],
+ "props": [
+  {
+   "id": "base-ilha-33",
+   "type": "base-ilha",
+   "level": 0,
+   "pos": [
+    46.97,
+    0,
+    57.64
+   ],
+   "rot": [
+    0,
+    315,
+    0
+   ]
+  },
+  {
+   "id": "base-ilha-34",
+   "type": "base-ilha",
+   "level": 0,
+   "pos": [
+    45.46,
+    0,
+    54.62
+   ],
+   "rot": [
+    0,
+    90,
+    0
+   ]
+  },
+  {
+   "id": "base-ilha-35",
+   "type": "base-ilha",
+   "level": 0,
+   "pos": [
+    43.97,
+    0,
+    51.67
+   ],
+   "rot": [
+    0,
+    135,
+    0
+   ]
+  },
+  {
+   "id": "base-ilha-36",
+   "type": "base-ilha",
+   "level": 0,
+   "pos": [
+    43.16,
+    0,
+    48.19
+   ],
+   "rot": [
+    0,
+    315,
+    0
+   ]
+  },
+  {
+   "id": "pedregulho-47",
+   "type": "pedregulho",
+   "level": 0,
+   "pos": [
+    46.69,
+    0,
+    58.56
+   ],
+   "rot": [
+    0,
+    315,
+    0
+   ]
+  },
+  {
+   "id": "rocha-media-48",
+   "type": "rocha-media",
+   "level": 0,
+   "pos": [
+    44.22,
+    0,
+    55.83
+   ],
+   "rot": [
+    0,
+    90,
+    0
+   ]
+  },
+  {
+   "id": "pilar-ruina-116",
+   "type": "pilar-ruina",
+   "level": 0,
+   "pos": [
+    47.34,
+    0,
+    53.15
+   ],
+   "rot": [
+    0,
+    210,
+    0
+   ]
+  },
+  {
+   "id": "destrocos-122",
+   "type": "destrocos",
+   "level": 0,
+   "pos": [
+    45.85,
+    0,
+    50.34
+   ],
+   "rot": [
+    0,
+    45,
+    0
+   ]
+  },
+  {
+   "id": "rocha-flutuante-172",
+   "type": "rocha-flutuante",
+   "level": 0,
+   "pos": [
+    38.64,
+    -3.1,
+    56.68
+   ],
+   "rot": [
+    12.700988154579875,
+    75.9,
+    15.508010276135067
+   ],
+   "free": true
+  },
+  {
+   "id": "rocha-flutuante-174",
+   "type": "rocha-flutuante",
+   "level": 0,
+   "pos": [
+    33.37,
+    3.36,
+    56.37
+   ],
+   "rot": [
+    22.427178893636146,
+    37,
+    -16.40431454070314
+   ],
+   "free": true
+  },
+  {
+   "id": "rocha-flutuante-183",
+   "type": "rocha-flutuante",
+   "level": 0,
+   "pos": [
+    33.66,
+    5.44,
+    61.77
+   ],
+   "rot": [
+    14.232957888611551,
+    135.5,
+    13.323318155783525
+   ],
+   "free": true
+  },
+  {
+   "id": "rocha-flutuante-191",
+   "type": "rocha-flutuante",
+   "level": 0,
+   "pos": [
+    33.2,
+    4.78,
+    58.96
+   ],
+   "rot": [
+    12.117117398527562,
+    191.9,
+    2.3922178683730024
+   ],
+   "free": true
+  }
+ ],
+ "decals": [],
+ "points": [
+  {
+   "id": "tornado-19",
+   "kind": "tornado",
+   "level": 0,
+   "pos": [
+    41.5,
+    0,
+    49.47
+   ],
+   "params": {
+    "n": 2
+   }
+  }
+ ]
+}

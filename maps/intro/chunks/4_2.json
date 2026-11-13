@@ -1,0 +1,78 @@
+{
+ "cx": 4,
+ "cz": 2,
+ "walls": [],
+ "floors": [
+  {
+   "level": 0,
+   "x": 64,
+   "z": 44,
+   "top": "rocha-negra",
+   "bottom": "rocha-negra"
+  },
+  {
+   "level": 0,
+   "x": 64,
+   "z": 45,
+   "top": "rocha-negra",
+   "bottom": "rocha-negra"
+  },
+  {
+   "level": 0,
+   "x": 64,
+   "z": 46,
+   "top": "rocha-negra",
+   "bottom": "rocha-negra"
+  },
+  {
+   "level": 0,
+   "x": 64,
+   "z": 47,
+   "top": "rocha-negra",
+   "bottom": "rocha-negra"
+  },
+  {
+   "level": 0,
+   "x": 65,
+   "z": 47,
+   "top": "rocha-negra",
+   "bottom": "rocha-negra"
+  },
+  {
+   "level": 0,
+   "x": 66,
+   "z": 47,
+   "top": "rocha-negra",
+   "bottom": "rocha-negra"
+  },
+  {
+   "level": 0,
+   "x": 79,
+   "z": 47,
+   "top": "rocha-negra",
+   "bottom": "rocha-negra"
+  }
+ ],
+ "openings": [],
+ "stairs": [],
+ "props": [
+  {
+   "id": "rocha-flutuante-163",
+   "type": "rocha-flutuante",
+   "level": 0,
+   "pos": [
+    71.32,
+    -8.08,
+    36.8
+   ],
+   "rot": [
+    -21.81299163197446,
+    66,
+    -10.949992235703387
+   ],
+   "free": true
+  }
+ ],
+ "decals": [],
+ "points": []
+}

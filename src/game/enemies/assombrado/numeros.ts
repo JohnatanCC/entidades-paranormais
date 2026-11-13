@@ -25,5 +25,19 @@ export const ATAQUE = { aviso: 0.5, salto: 0.3, pouso: 0.16, volta: 0.45, avanco
 // tomar dano: o tranco no balanço (rad/s), os olhos apagados (s), o corpo amassa (quanto)
 export const DANO = { tranco: 2.6, olhos: 0.18, amassa: 0.12, dura: 0.35 }
 
+// arremessado (cuspido pelo Devora almas): a velocidade no ar (m/s; o tempo de voo sai dela, entre o mínimo e o
+// máximo, s), a altura do arco por metro de distância, as voltas que ele dá encolhido
+export const ARREMESSO = { vel: 8, dur: [0.55, 1.2], arco: 0.22, voltas: 1.5 }
+// surgir do líquido preto: quanto dura (s), de que fundo ele sobe (m) e quando o corpo rompe a superfície (o respingo)
+export const SURGIR = { dura: 1.1, fundo: 1.7, rompe: 0.3 }
+
 // os olhos piscam um de cada vez, fora de ordem: o intervalo (s, sorteado) e quanto dura uma piscada (s)
 export const PISCAR = { intervalo: [1.2, 4.2], dura: 0.13 }
+
+// a luta (ia.ts; docs/demonios.md, "Como lutam"): o dano e o alcance das garras (m) e o quanto o agente pode estar de
+// lado na hora do pouso (rad); a velocidade pulando (m/s); de quão perto ele para; quão rápido vira (rad/s); a espera
+// entre um ataque e o próximo dele (s, sorteada); esperando a vez (outro do bando atacando), fica a esta distância;
+// o raio do corpo (bate nas coisas) e a distância mínima entre dois do bando (m); do lado da câmera (dentro de
+// `camera` rad da linha câmera-agente, mais perto que `contorna` m), ele dá a volta até o lado do agente antes de atacar
+// (senão tapa a vista)
+export const LUTA = { dano: 22, alcance: 1.4, frente: 1.0, vel: 1.2, perto: 1.2, vira: 4, espera: [1.2, 2.2], espaco: 2.2, raio: 0.35, separa: 0.9, camera: 0.9, contorna: 5 }

@@ -2,7 +2,7 @@
 // esquivar. Um núcleo vermelho (brilha: com o bloom ligado, faz halo) com pedras de matéria girando em volta, e um
 // rastro de cubinhos que encolhem. Bate no chão (ou vai longe demais) e estoura pequeno, com uma mancha.
 // Leve: todos os projéteis e o rastro são uma malha só (InstancedMesh), num estoque fixo; só desenha com algo vivo.
-// Ponha `grupo` na cena uma vez. A colisão com as paredes e com o agente entra com a etapa da luta.
+// Ponha `grupo` na cena uma vez. Acertar o agente: acertar() (a luta); as paredes ainda não seguram a bola.
 import * as THREE from 'three'
 import { aplicarBrilho } from '../../../render/brilho'
 import { estourar, type Estouro } from '../estouro'
@@ -16,6 +16,7 @@ export interface Projeteis {
   grupo: THREE.Group; malha: THREE.InstancedMesh
   bolas: Bola[]
   rastro: { p: THREE.Vector3; t: number }[]; prox: number
+  bateu: THREE.Vector3[] // onde as bolas bateram neste quadro (o som do respingo)
 }
 
 export function novosProjeteis(): Projeteis {
@@ -32,7 +33,7 @@ export function novosProjeteis(): Projeteis {
     viva: false, p: new THREE.Vector3(), v: new THREE.Vector3(), t: 0, dist: 0,
     eixos: Array.from({ length: PROJETIL.pedras }, () => new THREE.Vector3()), fases: [], tams: [], rastro: 0,
   }))
-  return { grupo, malha, bolas, rastro: Array.from({ length: N_RASTRO }, () => ({ p: new THREE.Vector3(), t: 99 })), prox: 0 }
+  return { grupo, malha, bolas, rastro: Array.from({ length: N_RASTRO }, () => ({ p: new THREE.Vector3(), t: 99 })), prox: 0, bateu: [] }
 }
 
 /** Dispara de `de` (a boca) na direção de `para` (no mundo). */
@@ -49,6 +50,7 @@ const _m = new THREE.Matrix4(), _q = new THREE.Quaternion(), _s = new THREE.Vect
 export function passoProjeteis(P: Projeteis, dt: number, E: Estouro, chao: number) {
   const C = PROJETIL
   let algo = false
+  P.bateu.length = 0
   P.bolas.forEach((b, n) => {
     const i0 = n * POR_BOLA
     if (!b.viva) return
@@ -56,6 +58,7 @@ export function passoProjeteis(P: Projeteis, dt: number, E: Estouro, chao: numbe
     if (b.p.y <= chao + C.nucleo || b.dist > C.alcance) { // bateu: estoura pequeno (sem olhos), e some
       b.viva = false
       estourar(E, _o.copy(b.p).setY(Math.max(b.p.y, chao + 0.05)), 0.12, chao, { cubos: 9, olhos: 0 })
+      P.bateu.push(_o.clone())
       for (let i = 0; i < POR_BOLA; i++) P.malha.setMatrixAt(i0 + i, _m.makeScale(0, 0, 0))
       algo = true
       return
@@ -85,4 +88,18 @@ export function passoProjeteis(P: Projeteis, dt: number, E: Estouro, chao: numbe
   })
   P.malha.visible = algo
   if (algo) P.malha.instanceMatrix.needsUpdate = true
+}
+
+/** Uma bola acertou alguém (uma esfera: o peito do agente, raio r)? Ela estoura pequena ali e some; devolve onde (ou null). */
+export function acertar(P: Projeteis, p: THREE.Vector3, r: number, E: Estouro, chao: number): THREE.Vector3 | null {
+  for (const [n, b] of P.bolas.entries()) {
+    if (!b.viva || b.p.distanceTo(p) > r) continue
+    b.viva = false
+    estourar(E, b.p, 0.12, chao, { cubos: 9, olhos: 0 })
+    for (let i = 0; i < POR_BOLA; i++) P.malha.setMatrixAt(n * POR_BOLA + i, _m.makeScale(0, 0, 0))
+    P.malha.instanceMatrix.needsUpdate = true
+    P.bateu.push(b.p.clone())
+    return b.p.clone()
+  }
+  return null
 }

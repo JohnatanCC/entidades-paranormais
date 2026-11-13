@@ -45,6 +45,10 @@ export const TEXTURAS: Record<string, TexDef> = {
   'carpete-vinho':       { nome: 'Carpete vinho', usos: ['piso'], cor: '#4d2427', brilho: 0 },
   'grama':               { nome: 'Grama', usos: ['piso'], cor: '#141a10', brilho: 0 },
   'cascalho':            { nome: 'Cascalho', usos: ['piso'], cor: '#3a362f', brilho: 0.05 },
+  // o submundo (a Demo · Intro)
+  'rocha-negra':         { nome: 'Rocha negra', usos: ['piso', 'parede'], cor: '#221e24', brilho: 0.1 },
+  'chao-rachado':        { nome: 'Chão rachado (brasa)', usos: ['piso'], cor: '#2c2226', brilho: 0.1 },
+  'cinza':               { nome: 'Cinza', usos: ['piso'], cor: '#342e30', brilho: 0 },
   'gesso':               { nome: 'Estuque manchado', usos: ['teto'], cor: '#86806f' },
   'forro-madeira':       { nome: 'Forro de madeira', usos: ['teto'], cor: '#36231a', brilho: 0.2 },
   'forro-placas':        { nome: 'Forro de placas', usos: ['teto'], cor: '#76726a' },

@@ -38,7 +38,7 @@ function molde(caminho: string, opc: { corte?: boolean } = {}): THREE.Object3D {
 export const abertura3d = (tipo: string): THREE.Object3D => molde(`aberturas/${tipo}`, { corte: true }).clone()
 
 /** Uma cópia da arma (modelos/armas/<nome>.bbmodel): o cano para +z; as pastas empunhadura e cano marcam onde a mão
- *  segura e de onde sai o tiro; a bomba da escopeta é a pasta bomba. */
+ *  segura e de onde sai o tiro; a bomba da escopeta é a pasta bomba. Também o cartucho da recarga (armas/cartucho). */
 export const arma3d = (nome: string): THREE.Object3D => molde(`armas/${nome}`).clone()
 
 /** O contorno do objeto: a "casca invertida" (cada bloco um pouco maior, desenhado só por dentro, numa cor só). */

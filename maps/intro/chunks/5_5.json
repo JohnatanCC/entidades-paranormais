@@ -1,0 +1,28 @@
+{
+ "cx": 5,
+ "cz": 5,
+ "walls": [],
+ "floors": [],
+ "openings": [],
+ "stairs": [],
+ "props": [
+  {
+   "id": "rocha-flutuante-187",
+   "type": "rocha-flutuante",
+   "level": 0,
+   "pos": [
+    95.07,
+    -6.89,
+    80.86
+   ],
+   "rot": [
+    -0.527525018460608,
+    225.5,
+    -16.11278549871667
+   ],
+   "free": true
+  }
+ ],
+ "decals": [],
+ "points": []
+}

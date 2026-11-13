@@ -24,7 +24,7 @@ Plano original e decisões: `docs/design/criador-de-mapas-plano.md`. Este arquiv
 | Lâmpadas de teto | normal, falhando, apagada |
 | Detalhes | quadros, sujeira, manchas (decalques colados na superfície) |
 | Ambientação | Cada lugar tem a sua luz (a luz ambiente, a neblina, o tom de cor): o mapa tem uma ambientação padrão e **áreas retangulares** com outra, pelo nome de uma predefinição (decidido em 11/nov). Os números de cada uma ficam em `src/maps/ambientes.ts`. Ver `docs/iluminacao.md` |
-| Scripts | Depois do mapa: gatilhos, cenas, nascimento de monstros. O formato já reserva `points` |
+| Scripts | Depois do mapa: gatilhos, cenas, nascimento de monstros. O formato reserva `points`; a Demo · Intro já usa (`arena`, `nascer`, `chefe`, `tornado`: `docs/intro.md`). Mexer neles no editor vem depois |
 | Capítulos | **Cada capítulo é um mapa próprio** (`maps/mansao-cap1`, `maps/mansao-cap2`...). A mansão que muda é uma troca de mapa; o mapa do capítulo seguinte nasce como cópia do anterior. A arena do chefe é outro mapa, atrás de uma porta e de uma tela de carregamento (o capítulo 1 tem `mansao-cap1` e `bercario-cap1`) |
 | A demo | É o **capítulo 1 inteiro**: o primeiro mapa de verdade é `mansao-cap1` |
 | Gerenciar mapas | Novo, abrir, salvar, copiar a partir de outro, apagar (digitando o nome), exportar e importar. Exportar gera um `.json` único (`{ formato, meta, chunks }`, o mapa inteiro) para backup ou para mandar a alguém; importar lê esse arquivo e cria a pasta em `maps/`. Gravar, apagar e importar só no `npm run dev` |
@@ -41,7 +41,7 @@ Plano original e decisões: `docs/design/criador-de-mapas-plano.md`. Este arquiv
   - onde ficam os objetos ligados e a chave: pontos marcados no mapa (`points`), um ou vários candidatos por objeto;
   - o piso **não** faz barulho (decidido em 9/nov): o barulho vem de quebrar objetos, porta aberta com força e tiros.
 
-## O formato (versão 2)
+## O formato (versão 3)
 
 ```
 maps/
@@ -55,17 +55,21 @@ maps/
 `map.json` (tipo `MapMeta` em `src/maps/types.ts`):
 
 ```json
-{ "formato": 2, "id": "teste", "nome": "Sala de teste", "levels": 1, "levelH": 3.5, "chunkSize": 16,
+{ "formato": 3, "id": "teste", "nome": "Sala de teste", "levels": 1, "levelH": 3.5, "chunkSize": 16,
   "spawn": { "pos": [3, 0, 4], "yaw": 0, "level": 0 },
   "ambiente": "mansao", "areas": [{ "id": "area-1", "level": 0, "x": 12, "z": 4, "w": 8, "d": 4, "ambiente": "corredor" }],
-  "chunks": ["0_0"] }
+  "semChao": false, "chunks": ["0_0"] }
 ```
 
 - **A ambientação** (formato 2, 11/nov): `ambiente` é a do mapa inteiro (o nome no catálogo `src/maps/ambientes.ts`);
   `areas` são retângulos de (x, z) a (x+w, z+d) num andar, cada um com outra ambientação. Onde duas áreas se cruzam,
   vale a menor. Ficam no cabeçalho (são poucas e atravessam os blocos). Nome que não existe no catálogo cai na padrão.
-- **A conversão**: um mapa do formato 1 (sem ambientação) é lido como se tivesse `"ambiente": "mansao"` e nenhuma área
-  (`src/maps/formato.ts`, usado pelo jogo e pelo editor). O arquivo só muda no disco quando o mapa é salvo de novo.
+- **Sem chão** (formato 3, 12/nov): `semChao: true` faz o térreo ter chão só onde há piso (o submundo da Demo · Intro,
+  `docs/intro.md`: as ilhas no vazio); a beirada segura o agente como uma parede que não se vê. Sem isso (a casa), o
+  térreo é chão em toda parte. No editor: a caixa "Sem chão" na ferramenta Ambientação.
+- **A conversão**: um mapa do formato 1 (sem ambientação) é lido como se tivesse `"ambiente": "mansao"` e nenhuma área;
+  um do formato 2, como `"semChao": false` (`src/maps/formato.ts`, usado pelo jogo e pelo editor). O arquivo só muda no
+  disco quando o mapa é salvo de novo.
 
 Cada bloco (tipo `Chunk`) tem as listas `walls`, `floors`, `openings`, `stairs`, `props`, `decals`, `points`.
 Regra de dono: **cada coisa pertence ao bloco do quadrado onde ela começa** (x, z arredondados para baixo).

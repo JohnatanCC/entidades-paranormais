@@ -33,3 +33,9 @@ export const BALANCO = { mola: 40, amortece: 5 }
 // o projétil (projetil.ts): m/s, até onde vai (m), o tamanho do núcleo (m), as pedras de matéria que giram em volta
 // dele (quantas, o tamanho, o raio da volta, quão rápido), o rastro (a cada quantos s, quanto vive, o tamanho)
 export const PROJETIL = { vel: 8, alcance: 16, nucleo: 0.1, pedras: 5, pedra: [0.06, 0.1], raio: 0.11, gira: 9, rastro: 0.035, rastroVida: 0.35, rastroTam: 0.06 }
+
+// a luta (ia.ts; docs/demonios.md, "Como lutam"): o dano do projétil e o raio em que ele acerta o agente (m); a
+// distância que ela mantém do agente (m), girando em volta dele (rad/s), a velocidade (m/s) e a altura do voo (m); a
+// espera entre um cuspe e o próximo (s, sorteada) e até onde ela cospe (m); desvia quando o agente mira nela (dentro de
+// `cone` rad) por mais de `mirada` s, no máximo a cada `desvio` s
+export const LUTA = { dano: 15, acerto: 0.55, distancia: 7, volta: 0.35, vel: 3, voo: 2, sobe: 2, cospe: [2.6, 3.4], alcance: 13, cone: 0.12, mirada: 0.6, desvio: 3 }

@@ -9,6 +9,7 @@ e captura entidades. Este projeto começa pelo **Modo desenvolvedor → Criador 
 2. `docs/iluminacao.md` — a luz do jogo: as decisões, as ambientações, os níveis de qualidade e as 4 etapas (qual é a próxima).
    `docs/jogo.md` — o que já foi decidido e jogado (a história do portal, agente, armas, captura, fantasmas, HUD, a demo Intro).
    `docs/demonios.md` — os Sombrios (Assombrado, Asa sombria, Devora almas): o desenho, os modelos, como lutam e as etapas.
+   `docs/intro.md` — a Demo · Intro nova (o submundo): as três arenas, as hordas, o chefe e as etapas (qual é a próxima).
    `docs/mansao-cap1.md` — a planta da mansão do capítulo 1 (cômodos, escadas, rota, onde ficam os objetos da Mãe).
    `docs/blockbench.md` — como os personagens são feitos (Blockbench, as regras das juntas, a escala, a exportação).
 3. `docs/portando-do-laboratorio.md` — onde está cada coisa no laboratório antigo e o que **não** trazer.
@@ -22,7 +23,7 @@ e captura entidades. Este projeto começa pelo **Modo desenvolvedor → Criador 
 - **Pergunte antes** quando a decisão mudar o que será construído (formato do mapa, controles, regras). Detalhes de implementação, decida e conte.
 - Ele prefere **instruções passo a passo** para o que ele mesmo tem que fazer (rodar, testar, configurar), em vez de você operar o computador dele.
 - **Conferir no navegador:** no `npm run dev`, use `window.provas` (`src/dev/provas.ts`) pelo console em vez de montar
-  o teste à mão: `provas.mae(golpe, t)` monta a Mãe num instante (`provas.assombrado(acao, t)` e `provas.asaSombria(acao, t)`, os demônios), `provas.fotos([...])` tira fotos de vários ângulos,
+  o teste à mão: `provas.mae(golpe, t)` monta a Mãe num instante (`provas.assombrado(acao, t)`, `provas.asaSombria(acao, t)` e `provas.devora(acao, t)`, os demônios; `provas.agente(arma, acao, t)`, o Matheus com a arma: a recarga, o tiro), `provas.fotos([...])` tira fotos de vários ângulos,
   `provas.medidas(c)` dá as mãos, a cabeça e as mechas, `provas.som([...])` mede o volume de cada trecho. Recarregue a
   página antes; o som só liga depois de um clique de verdade; com o painel escondido a página não desenha (as provas
   funcionam mesmo assim).
@@ -79,11 +80,13 @@ npm run typecheck  # só os tipos
 index.html                 a página (fontes VT323 e IBM Plex Mono)
 vite.config.ts             o Vite + o plugin que salva mapas (tools/mapsDevApi.ts)
 tools/mapsDevApi.ts        a API dos mapas (só no npm run dev): listar, ler, salvar, apagar em maps/
-maps/<id>/                 os mapas (JSON). map.json = cabeçalho; chunks/<cx>_<cz>.json = um bloco de 16 × 16 m
+maps/<id>/                 os mapas (JSON). map.json = cabeçalho; chunks/<cx>_<cz>.json = um bloco de 16 × 16 m;
+                           maps/intro = a Demo · Intro (o submundo, sem chão: docs/intro.md)
 src/
-  main.tsx, App.tsx        as telas (menu → configurações | modo desenvolvedor → criador de mapas)
+  main.tsx, App.tsx        as telas (menu → novo jogo → Demo · Intro | configurações | modo desenvolvedor → criador de mapas)
   styles.css               a paleta e as telas
-  screens/                 MainMenu, SettingsScreen (com PreviaQualidade ao lado: a sala do mapa teste-iluminacao com a
+  screens/                 MainMenu, NovoJogo (a Demo · Intro), Jogo (uma fase: o mapa da pasta com o agente do Testar, em
+                           tela cheia), SettingsScreen (com PreviaQualidade ao lado: a sala do mapa teste-iluminacao com a
                            qualidade escolhida, ao vivo, e o fps; e TesteDesempenho: a mansão inteira nível por nível, com a
                            média e o mínimo de quadros), DevMenu, VerModelos (o personagem, o fantasma ou o demônio de perto: animação, expressão, mãos, ações, luz)
   settings/settings.ts     configurações no localStorage (useSettings / setSettings): a qualidade da imagem (o nível e os
@@ -107,8 +110,9 @@ src/
                            bbmodel.ts (lê um modelo do Blockbench: pastas = juntas, blocos = malhas; "luz_" brilha; os
                            personagens viram uma malha só com ossos: vestir; os que se repetem, os demônios, são cópias
                            de um molde que dividem tudo: copiaDoMolde),
-                           objetos3d.ts (cada tipo de objeto, porta, janela e arma montado uma vez; o mapa usa cópias que dividem tudo)
-  maps/                    types.ts (o formato v2), formato.ts (a conversão dos mapas antigos), ambientes.ts (o catálogo das
+                           objetos3d.ts (cada tipo de objeto, porta, janela e arma montado uma vez; o mapa usa cópias que dividem tudo),
+                           instancias.ts (no jogo, os objetos repetidos juntados: uma malha de cópias por peça de cada tipo)
+  maps/                    types.ts (o formato v3), formato.ts (a conversão dos mapas antigos), ambientes.ts (o catálogo das
                            ambientações e dos momentos de luz: os números de cada uma), luzAssada.ts (a luz de cada lâmpada
                            e de cada janela num ponto, com as paredes bloqueando), loader.ts (o jogo lê a pasta), storage.ts (o editor lê, grava,
                            exporta e importa; o pacote MapBundle), textures.ts (o catálogo: cada nome, o uso e a cor; a imagem é texturas/<nome>.png),
@@ -125,9 +129,9 @@ src/
 texturas/                  as texturas do cenário: <nome>.png, 32 × 32 px por bloco de 1 m, pintadas em pixel e sem costura
 modelos/                   os modelos do Blockbench (.bbmodel), lidos direto pelo jogo: agente.bbmodel, lara.bbmodel,
                            nicolas.bbmodel e victor.bbmodel (o mesmo esqueleto do agente), objetos/<tipo>.bbmodel,
-                           aberturas/<tipo>.bbmodel (as portas e janelas), armas/<nome>.bbmodel (pistola, escopeta, armadilha),
-                           fantasmas/<nome>.bbmodel (a Mãe), demonios/<nome>.bbmodel (os Sombrios: o Assombrado, a Asa sombria)
-public/musica/             as músicas do jogo (menu.mp3: o menu e o criador de mapas)
+                           aberturas/<tipo>.bbmodel (as portas e janelas), armas/<nome>.bbmodel (pistola, escopeta, armadilha; e o cartucho da recarga),
+                           fantasmas/<nome>.bbmodel (a Mãe), demonios/<nome>.bbmodel (os Sombrios: o Assombrado, a Asa sombria, o Devora almas)
+public/musica/             as músicas do jogo (menu.mp3: o menu e o criador de mapas; devorador.mp3: o chefe da Demo · Intro)
 reference/                 o laboratório antigo, só para consulta (não importar nada daqui); ost/ = as 4 músicas dele
 docs/                      o que está decidido
 ```
@@ -139,26 +143,29 @@ ficam num arquivo próprio de cada pasta, para ajustar sem caçar no código.
 
 ```
 src/game/                  (já existem: Testar.tsx, player/, input/, world/, weapons/, corpo/, luz/, enemies/mae/, enemies/assombrado/,
-                           enemies/asa-sombria/ — o resto entra
+                           enemies/asa-sombria/, enemies/devora-almas/ — o resto entra
                            quando a etapa chegar)
   luz/                     a luz do jogo: Iluminacao.tsx (a luz ambiente, o preenchimento, o luar, a neblina, a imagem final; entra
                            em toda cena de jogo), ceu.ts (o céu da noite: a cúpula com o degradê, as estrelas e a lua), luz.ts (a ambientação de onde o agente está, a troca suave, os momentos:
                            momento('mae-chegando'))
   corpo/                   o que serve a todo personagem: molas.ts (o que pendura e balança: cabelo, saia), sombraDeChao.ts
                            (o círculo escuro embaixo dele)
-  Testar.tsx               o Testar do editor: o agente andando no mapa aberto (câmera, colisão, luz do jogo), em tela cheia
+  Testar.tsx               o Testar do editor: o agente andando no mapa aberto (câmera, colisão, luz do jogo), em tela cheia;
+                           numa fase, dá ao roteiro o controle do agente (AgenteNaFase: ferir, engolir, cuspir, a gosma, o ponto de volta)
   Desempenho.tsx           o medidor de uma cena de jogo: os quadros por segundo e, com F3, o detalhe (desenhos, triângulos,
                            memória da placa, nível, lâmpadas)
   player/                  o agente: modelo.ts (liga modelos/agente.bbmodel no esqueleto), animacao.ts, maos.ts (os dedos),
-                           arma.ts (a arma na mão; a escopeta com as duas mãos ou no ombro; o pêndulo da armadilha; Q troca
-                           no Testar), mira.ts (mirar: a pose, o coice, a bomba depois do tiro), queda.ts (cair sem violência), dano.ts (o tranco de um golpe,
+                           arma.ts (a arma na mão; a escopeta com as duas mãos ou no ombro; o pêndulo da armadilha; o frasco
+                           da pistola com o calor; Q troca no Testar), mira.ts (mirar: a pose, o coice, a bomba depois do tiro),
+                           recarga.ts (a recarga da escopeta: a bolsa, o cartucho, as balas puxadas pela arma), queda.ts (cair sem violência), dano.ts (o tranco de um golpe,
                            machucado), vida.ts (a vida, a invulnerabilidade, o kit), parado.ts (a respiração, o
                            peso e os gestos de parado), alcancar.ts (o braço alcança um ponto: IK de dois ossos),
                            rosto.ts (as expressões), passada.ts (as curvas de uma passada de verdade: andar e correr),
                            pes.ts (o pé de apoio preso no chão, em qualquer direção: IK da perna), controle.ts
-                           (andar, correr, esquivar), numeros.ts
-  weapons/                 tiro.ts (o gatilho e a cadência), clarao.ts (o clarão no cano), armadilha.ts (jogar: o voo em
-                           arco, grudar, chamar de volta, a linha do arco), numeros.ts; depois a bala e a sobrecarga
+                           (andar, correr, esquivar; preso e lento), numeros.ts
+  weapons/                 tiro.ts (o gatilho e a cadência), clarao.ts (o clarão no cano), municao.ts (as 4 balas e a
+                           recarga da escopeta, a sobrecarga da pistola, o contador simples), armadilha.ts (jogar: o voo em
+                           arco, grudar, chamar de volta, a linha do arco), numeros.ts; depois a bala
   enemies/<nome>/          um inimigo por pasta (mae/, glutao/, assombrado/, asa-sombria/, devora-almas/): IA, ataques, modelo, números; a Mãe já tem
                            modelo.ts (monta o modelo, a saia e o cabelo com molas), pose.ts (as molas da pose, do
                            laboratório), animacao.ts (parada, andar, passar pela porta), rosto.ts (as expressões, os
@@ -169,16 +176,29 @@ src/game/                  (já existem: Testar.tsx, player/, input/, world/, we
                            os respingos, o aviso) e numeros.ts; o Assombrado tem modelo.ts (o molde e as cópias que dividem
                            tudo), animacao.ts (o joão-bobo, os pulos, o ataque, o dano, estourar; a perna por IK) e numeros.ts;
                            a Asa sombria tem modelo.ts, animacao.ts (voar, planar, cuspir, desviar, o dano, estourar),
-                           projetil.ts (a bola de matéria com o núcleo e o rastro, uma malha só para todas) e numeros.ts
+                           projetil.ts (a bola de matéria com o núcleo e o rastro, uma malha só para todas) e numeros.ts;
+                           o Devora almas tem modelo.ts, animacao.ts (os modos: mergulhar, nadar, emergir, a marca, o salto,
+                           exposto, engolindo, o cuspe, a investida, a chuva, a ninhada, atordoado, rastejando; as fases,
+                           que são as 3 barras de vida, e arrancar; a curva no corpo), nado.ts (o rumo com transição:
+                           acelera, freia, a curva com raio; a inteligência usa), efeitos.ts
+                           (no chão: a mancha, os espinhos, a gosma, a marca de mordida, o aviso e o rasgo da investida, os
+                           círculos e os tentáculos da chuva) e numeros.ts (ESCALA: ele é 3 vezes o modelo)
   enemies/estouro.ts       o estouro dos Sombrios (os cubos de matéria e a mancha que seca), um estoque só para todos
+  enemies/luta.ts          o que a inteligência dos Sombrios divide: o alvo (o agente), andar no mundo, virar, separar o bando;
+                           cada um pensa no ia.ts da pasta dele (o Assombrado, a Asa sombria, o Devora almas)
+  enemies/sons.ts          o que os sons dos Sombrios dividem: a voz de cada um no espaço, o som num ponto do chão, a bolha
+                           e o respingo; os sons de cada um no sons.ts da pasta dele (o Lamento do Assombrado, o Morcego da
+                           Asa sombria, o Abismo do Devora almas: ouvirX, depois de animarX, toca cada som no momento da animação)
   enemies/pastas.ts        achar as pastas de uma cópia de modelo pelo nome (avisa se faltar) e as mecha_ que balançam
   capture/                 a poça e a captura
   allies/                  Lara e Nicolas
   hud/                     o HUD conceito C
   input/                   acoes.ts: ações do jogador (teclado e mouse; depois controle e toque): o jogo lê ações, nunca teclas
-  world/                   colisao.ts (paredes, portas, móveis, corrimão, chão, escadas, braço da câmera, a armadilha jogada), portas.ts (abrir e fechar
+  world/                   colisao.ts (paredes, portas, móveis, corrimão, chão, escadas, braço da câmera, a armadilha jogada, a beirada do mapa sem chão, os bloqueios do roteiro), portas.ts (abrir e fechar
                            com E, o estado vivo das portas); depois carregar por blocos
 src/chapters/cap1/         o roteiro do capítulo: qual mapa, gatilhos, cenas, chefe
+src/chapters/intro/        (já existe) o roteiro da Demo · Intro: Roteiro.tsx (as arenas, as ondas, o chefe, a tecla H de teste),
+                           tornado.ts (fecha a arena), sons.ts (o ambiente do submundo, o vento do tornado), numeros.ts
 ```
 
 O jogo vai para o **celular** depois: por isso a camada `input/` desde o início, e cuidado com o peso das cenas

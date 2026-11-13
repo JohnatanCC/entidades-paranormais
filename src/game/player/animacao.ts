@@ -14,6 +14,8 @@ import { balancoDaArma, gestoParado, pesoParado } from './parado'
 import { pesoDaQueda, poseDaQueda } from './queda'
 import { doendo, maoNoLado, passoDoDano, poseDoTranco, troncoMachucado } from './dano'
 import { animarRosto, type Expressao } from './rosto'
+import { poseDaRecarga, voarBalas } from './recarga'
+import type { Municao } from '../weapons/municao'
 
 export interface EstadoAnim {
   velocidade: number // m/s no chão
@@ -25,6 +27,7 @@ export interface EstadoAnim {
   queda?: number // s desde que caiu (sem = em pé)
   ferido?: boolean // machucado (30% da vida ou menos): curvado, mancando, a mão no lado (o tranco de um golpe: dano.ts, tranco)
   mover?: [number, number] // a velocidade no espaço dele (m/s): x para a esquerda, z para a frente; sem = para a frente
+  municao?: Municao // a munição (weapons/municao.ts): a recarga da escopeta e o calor da pistola aparecem no corpo e na arma
 }
 
 const STAND = 0.42 // a altura do quadril dentro do pivô da cambalhota, antes de acertar os pés no chão
@@ -196,14 +199,17 @@ export function animarAgente(a: Agente, e: EstadoAnim, dt: number): void {
 
   // ---------- a escopeta com as duas mãos (ou no ombro); parado: o balanço da pistola e os gestos, por cima da pose ----------
   troncoMachucado(a, m.tempo) // machucado: curvado, inclinado para o lado, respirando pesado (as armas vêm por cima)
-  const mirando = !!e.mira?.quer && q < 0, parado = quieto > 0.97 && sp < 0.05 && !mirando && q < 0, solto = (1 - tuck) * (1 - kq)
+  // recarregando a escopeta: a arma não levanta para mirar, nem vai ao ombro, nem faz gesto (a recarga manda nos braços)
+  const M = e.municao, recarga = M && a.arma === 'escopeta' && M.recarga >= 0 ? { t: M.recarga, n: M.faltavam } : null
+  const mirando = !!e.mira?.quer && q < 0 && !recarga, parado = quieto > 0.97 && sp < 0.05 && !mirando && !recarga && q < 0, solto = (1 - tuck) * (1 - kq)
   posturaDaEscopeta(a, { parado, amp, run, ph, solto }, dt)
   posturaDaMira(a, mirando, e.mira?.alvo ?? null, dt, solto)
   balancoDaArma(a, quieto * solto * (1 - a.anim.arma.mira))
   const gesto = gestoParado(a, parado && fk < 0.5, dt) // machucado, ele não fica fazendo gestos
+  const maoRecarga = poseDaRecarga(a, recarga, solto, dt)
   maoNaBomba(a) // a mão esquerda na bomba, onde a escopeta estiver agora
   // machucado: a mão esquerda segura o lado, quando está livre (não está na bomba, na pistola mirando, apontando ou jogando)
-  const Ar = a.anim.arma, ocupada = Math.max(Ar.esquerda, a.arma === 'pistola' || (a.arma === 'armadilha' && !Ar.fora) ? Ar.mira : 0, Ar.lanca >= 0 ? 1 : 0)
+  const Ar = a.anim.arma, ocupada = Math.max(Ar.esquerda, a.arma === 'pistola' || (a.arma === 'armadilha' && !Ar.fora) ? Ar.mira : 0, Ar.lanca >= 0 ? 1 : 0, Ar.recarga)
   const noLado = maoNoLado(a, (1 - ocupada) * solto)
   poseDoTranco(a) // o tranco de um golpe: por cima de tudo, até da mira
 
@@ -217,7 +223,7 @@ export function animarAgente(a: Agente, e: EstadoAnim, dt: number): void {
   const A = a.anim.arma, mirada = A.mira > 0.5 && (a.arma === 'pistola' || a.arma === 'escopeta')
   const direita: PoseMao | undefined = !a.arma ? gesto[0] : a.arma === 'armadilha' && A.fora ? (A.lanca >= 0 ? 'aberta' : gesto[0]) : mirada ? 'segurar' : POSE_DA_ARMA[a.arma]
   const aponta = a.arma === 'armadilha' && !A.fora && A.mira > 0.5 && A.lanca < 0
-  const forca: typeof gesto = [direita, A.esquerda > 0.5 || (mirada && a.arma === 'pistola') ? 'segurar' : aponta ? 'apontar' : gesto[1]]
+  const forca: typeof gesto = [direita, maoRecarga ?? (A.esquerda > 0.5 || (mirada && a.arma === 'pistola') ? 'segurar' : aponta ? 'apontar' : gesto[1])]
   if (noLado > 0.5 && !forca[1]) forca[1] = 'aberta' // a mão espalmada no lado
   if (q >= 0) forca[1] = undefined // caído: a mão livre solta (a da arma continua nela)
   if (e.mao) animarMaos(a, e.mao, 1, dt, m.tempo, forca)
@@ -234,6 +240,8 @@ export function animarAgente(a: Agente, e: EstadoAnim, dt: number): void {
   }
   // ---------- o cabelo: as mechas balançam com o movimento da cabeça (depois de tudo posto no lugar) ----------
   if (a.cabelo) animarMolas(a.cabelo, a.root, dt)
-  // ---------- a armadilha balança pela alça (depois do braço no lugar) ----------
+  // ---------- a arma (depois do braço no lugar): as balas da recarga voam, o frasco da pistola, a armadilha balança ----------
+  voarBalas(a)
+  A.calor = e.municao?.calor ?? 0; A.travada = e.municao?.travada ?? 0
   animarArma(a, dt)
 }

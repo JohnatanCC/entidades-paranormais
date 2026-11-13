@@ -83,6 +83,7 @@ button { font: inherit; color: inherit; }
 .vermodelo .escolha { background: var(--bg2); border: 1px solid var(--line); color: var(--fg); padding: 5px 8px; font: inherit; }
 .vermodelo .marcas label { display: flex; gap: 8px; align-items: center; cursor: pointer; }
 .vermodelo .info span { color: var(--muted); }
+.vermodelo .municao { color: var(--amber); font-family: var(--display); font-size: 19px; letter-spacing: .04em; } /* o contador da arma (o HUD vem depois) */
 .vermodelo .painel small { color: var(--muted); }
 
 .editor { position: fixed; inset: 0; display: grid; grid-template-columns: 52px minmax(0, 1fr); grid-template-rows: 46px minmax(0, 1fr) auto; background: var(--bg); font-size: 13px; }
@@ -215,20 +216,32 @@ button { font: inherit; color: inherit; }
 .editor .teste-b b { font-family: var(--display); font-weight: 400; font-size: 32px; letter-spacing: .1em; color: var(--amber); text-transform: uppercase; }
 .editor .teste-b.jogando { top: auto; bottom: 10px; transform: translateX(-50%); padding: 4px 12px; background: rgba(16, 14, 11, .7); font-size: 12px; color: var(--muted); }
 /* a linha de ação do Testar (perto de uma porta: "E · abrir a porta"; ou o aviso: "Trancada.") */
-.editor .mira-ponto { position: absolute; left: 50%; top: 50%; width: 4px; height: 4px; transform: translate(-50%, -50%); z-index: 6; pointer-events: none;
+:is(.editor, .jogo) .mira-ponto { position: absolute; left: 50%; top: 50%; width: 4px; height: 4px; transform: translate(-50%, -50%); z-index: 6; pointer-events: none;
   background: var(--amber); box-shadow: 0 0 0 1px rgba(0, 0, 0, .7); } /* o ponto da mira (o HUD de verdade vem com o jogo) */
-.editor .escuro-teste { position: absolute; inset: 0; z-index: 5; pointer-events: none; background: #000; opacity: 0; transition: opacity .8s ease-out; }
-.editor .escuro-teste.ligado { opacity: 1; transition: opacity 1.2s ease-in; } /* a queda: a tela escurece e ele volta no checkpoint */
+:is(.editor, .jogo) .escuro-teste { position: absolute; inset: 0; z-index: 5; pointer-events: none; background: #000; opacity: 0; transition: opacity .8s ease-out; }
+:is(.editor, .jogo) .escuro-teste.ligado { opacity: 1; transition: opacity 1.2s ease-in; } /* a queda: a tela escurece e ele volta no checkpoint */
 /* o Testar ocupa a janela inteira: as ferramentas de construção somem até sair dele */
 .editor.testando .topo, .editor.testando .ferramentas, .editor.testando .gaveta { display: none; }
 .editor.testando .vista { grid-column: 1 / 3; grid-row: 1 / 4; }
-.editor .desempenho-teste { position: absolute; right: 12px; top: 12px; z-index: 6; pointer-events: none; margin: 0; padding: 4px 10px; background: rgba(16, 14, 11, .7);
+:is(.editor, .jogo) .desempenho-teste { position: absolute; right: 12px; top: 12px; z-index: 6; pointer-events: none; margin: 0; padding: 4px 10px; background: rgba(16, 14, 11, .7);
   font: 12px/1.5 var(--body); color: var(--fg); text-align: right; white-space: pre; }
-.editor .desempenho-teste:empty { display: none; }
-.editor .vida-teste { position: absolute; left: 12px; top: 12px; z-index: 6; pointer-events: none; padding: 2px 10px; background: rgba(16, 14, 11, .7);
+:is(.editor, .jogo) .desempenho-teste:empty { display: none; }
+:is(.editor, .jogo) .vida-teste { position: absolute; left: 12px; top: 12px; z-index: 6; pointer-events: none; padding: 2px 10px; background: rgba(16, 14, 11, .7);
   color: var(--amber); font-family: var(--display); font-size: 22px; letter-spacing: .06em; } /* a vida no Testar (o HUD de verdade vem depois) */
-.editor .vida-teste.perigo { color: var(--accent); }
-.editor .dica-teste { position: absolute; left: 50%; bottom: 90px; transform: translateX(-50%); z-index: 6; pointer-events: none;
+:is(.editor, .jogo) .vida-teste.perigo { color: var(--accent); }
+:is(.editor, .jogo) .arma-teste { position: absolute; left: 12px; top: 48px; z-index: 6; pointer-events: none; padding: 1px 10px; background: rgba(16, 14, 11, .7);
+  color: var(--amber); font-family: var(--display); font-size: 19px; letter-spacing: .04em; } /* a munição da arma na mão (o HUD conceito C vem depois) */
+:is(.editor, .jogo) .arma-teste.perigo { color: var(--accent); }
+:is(.editor, .jogo) .dica-teste { position: absolute; left: 50%; bottom: 90px; transform: translateX(-50%); z-index: 6; pointer-events: none;
   background: rgba(16, 14, 11, .85); border: 1px solid var(--brass); padding: 2px 14px; color: var(--amber);
   font-family: var(--display); font-size: 22px; letter-spacing: .04em; white-space: nowrap; }
+/* uma fase do jogo (screens/Jogo.tsx): a cena na tela inteira, com as mesmas linhas do Testar por cima */
+.jogo { position: fixed; inset: 0; background: #000; }
+.jogo .roteiro-jogo { position: absolute; left: 50%; top: 14px; transform: translateX(-50%); z-index: 6; pointer-events: none; display: flex; flex-direction: column;
+  align-items: center; gap: 2px; padding: 3px 16px; background: rgba(16, 14, 11, .72); text-align: center; white-space: nowrap; } /* a linha do roteiro (o HUD vem depois) */
+.jogo .roteiro-jogo b { font-family: var(--display); font-weight: 400; font-size: 24px; letter-spacing: .06em; color: var(--amber); }
+.jogo .roteiro-jogo span { font-size: 12px; color: var(--muted); }
+.jogo .teste-b { position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%); z-index: 6; display: flex; flex-direction: column; gap: 6px;
+  background: rgba(16, 14, 11, .92); border: 1px solid var(--brass); padding: 14px 22px; color: var(--cream); pointer-events: none; text-align: center; }
+.jogo .teste-b b { font-family: var(--display); font-weight: 400; font-size: 32px; letter-spacing: .1em; color: var(--amber); text-transform: uppercase; }
 .editor .teste-b.jogando b { font-family: inherit; font-size: inherit; letter-spacing: 0; color: var(--amber); text-transform: none; }

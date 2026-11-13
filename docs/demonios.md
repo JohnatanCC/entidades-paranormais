@@ -16,8 +16,8 @@ Substituem o Espectral, que saiu do projeto.
 - **O corpo de matéria escura:** preto, quase sem textura; as bordas de cada bloco um pouco mais claras (um cinza-arroxeado
   bem escuro), para a silhueta ler no escuro junto com o contorno de luz.
 - **O tecido vermelho-escuro rasgado** (capuz, manto), com a dobra mais escura pintada: é a única cor do corpo.
-- **O vermelho vivo que brilha** (blocos `luz_`): os olhos do Assombrado, o núcleo da boca da Asa sombria e os dentes do
-  Devora almas. É o que o jogador vê primeiro no escuro.
+- **O vermelho vivo que brilha** (blocos `luz_`): os olhos do Assombrado, o núcleo da boca da Asa sombria e os olhos, os
+  dentes e o interior da boca do Devora almas. É o que o jogador vê primeiro no escuro.
 - **A matéria pingando em cubos:** pingos pendurados embaixo do corpo, que balançam.
 - **A referência é só de clima** (as sombras do Don't Starve, imagens do desenvolvedor): a mancha preta, o vermelho e os
   pingos. Não copiar o desenho deles: nada da boca branca em zigue-zague, da faixa amarrada no corpo nem do corpo em
@@ -61,8 +61,11 @@ o material e a textura (o primeiro é o molde; os outros são cópias com os oss
   - **dano:** o tranco no balanço para longe do golpe, o corpo amassa e os três olhos apagam por um instante;
   - **estourar:** o corpo some; os cubos de matéria (alguns vermelhos do capuz, e os olhos) voam, caem, grudam no chão
     e encolhem; a mancha no chão seca em uns 3,5 s (`src/game/enemies/estouro.ts`, o mesmo para todos os Sombrios);
-  - **surgir** (proposta, não feito): sobe de uma mancha escura no chão, de baixo para cima.
-- **Falta (na etapa da luta):** os sons, a inteligência (ir atrás do agente, um atacando por vez), o dano de verdade.
+  - **surgir** (12/nov, para os que sobem do líquido preto na luta do Devora): a poça aparece, o capuz rompe a
+    superfície com um respingo, ele sobe esticado e de braços erguidos, os olhos acendem quando a cabeça sai, e assenta;
+  - **arremessado** (12/nov, cuspido pelo Devora): voa em arco, encolhido, dando voltas, e pousa amassando.
+- **A luta (12/nov):** os sons (o Lamento) e a inteligência (`ia.ts`: ir atrás do agente, um atacando por vez, contornar
+  pelo lado da câmera; `docs/intro.md`, "A luta"). Falta levar tiro (as balas, a 4b).
 
 ### Asa sombria (morcego de capuz) ✅ modelo e animações (12/nov)
 
@@ -94,28 +97,72 @@ chamadas de desenho (o corpo e o núcleo), e várias Asas dividem a geometria, o
 - **O projétil** (`projetil.ts`): um núcleo vermelho (brilha; com o bloom, faz halo) com cinco pedras de matéria girando
   em volta e um rastro de cubinhos; a 8 m/s. Batendo no chão (ou depois de 16 m), estoura pequeno, com uma mancha. Todos
   os projéteis são uma malha só. A colisão com as paredes e com o agente entra com a luta.
-- **Falta (na etapa da luta):** os sons, a inteligência (rodear o agente, quando cuspir, quando desviar), a colisão do
-  projétil, o dano de verdade.
+- **A luta (12/nov):** os sons (o Morcego) e a inteligência (`ia.ts`: rodear o agente, cuspir, desviar quando miram
+  nela); o projétil acerta o agente (`acertar`). Falta: o projétil bater nas paredes e levar tiro (a 4b).
 
-### Devora almas (tubarão-lula)
+### Devora almas (tubarão-lula) ✅ modelo e animações (12/nov)
 
-O mini-chefe. A frente é um tubarão de matéria escura com os dentes vermelhos; a metade de trás vira tentáculos no lugar
-do rabo. Um manto vermelho rasgado cobre a junção. **Uns 4 m** de comprimento (1,8 m de cabeça e corpo) e **1,4 m** de
-altura.
+O mini-chefe. A frente é um tubarão de matéria escura, **rachado e com pedaços faltando**; por dentro dele aparece o
+vermelho do submundo (brilha): nos buracos dos olhos, na boca, nas feridas e nas rachaduras, como a ruptura da mansão
+(o desenho revisto em 12/nov, a pedido, para ficar único). A metade de trás vira tentáculos no lugar do rabo; nas
+costas, três tentáculos compridos no lugar da barbatana. Um manto vermelho rasgado cobre a junção. O modelo de partida
+(`modelos/demonios/devora-almas.bbmodel`, 311 blocos, textura 512 × 576) nasceu de um gerador, para retocar no
+Blockbench. **A origem é o meio do corpo**: o jogo põe o root na altura que a animação pede. No jogo: 2 chamadas de
+desenho (o corpo e o que brilha).
 
-- **A boca:** a `mandibula` abre muito; os dentes vermelhos brilham fraco (`luz_`). Sem olhos, como a Asa sombria (a cor
-  é só o manto e os dentes).
-- **Os tentáculos:** seis, cada um em três pastas encadeadas, que o código move como uma onda.
-- **As pastas:** `raiz` › `corpo` › `cabeca` › `mandibula`; `barbatana` (a de cima: é o que aparece quando nada);
-  `tentaculo_1` › `tentaculo_1b` › `tentaculo_1c`, até o 6; o manto em `saia_1`, `saia_2`… (balança, como a saia da Mãe).
-- **As animações:**
-  - **nadar no chão:** do corpo só aparece a barbatana, e em volta dela o chão escurece numa mancha com ondulações e
-    espinhos baixos, que anda como uma cobra (a ideia da poça que anda, das referências);
-  - **a marca:** perto do agente, ele para embaixo dele e uma marca de mordida aparece no chão (um anel de dentes);
-  - **o salto:** sai de boca aberta para cima, os tentáculos abrindo, e fecha a boca no ar;
-  - **exposto:** depois do salto fica alguns segundos no chão, se debatendo nos tentáculos. É a janela para atirar;
-  - **mergulhar:** afunda de novo na mancha;
-  - **dano** e **estourar**, como os outros.
+- **O tamanho (decidido em 12/nov: 3 vezes maior, para uma arena bem grande):** no Blockbench ele tem 3,3 m; no jogo,
+  `ESCALA = 3` (`numeros.ts`) faz ele ter uns **10 m de comprimento e 4,4 m de altura**. Todas as medidas acompanham (as
+  alturas, o salto, o avanço, a marca de 9 m de largura, a mancha, a gosma, os espinhos, o respingo); mudando o número,
+  o resto vai junto. O que isso pede da arena: **chão grande e teto alto** (no salto, o meio do corpo sobe a 4,5 m e a
+  boca passa dos 7 m: uns 9 m de pé-direito) e nada embaixo do chão. A textura fica com o pixel 3 vezes maior (uns 21 px
+  por metro): se ficar grosso demais de perto, dá para refazer o modelo já no tamanho grande com mais pixels (a textura
+  cresce, mas é um só por arena).
+
+- **Os olhos:** um buraco fundo de verdade de cada lado da cabeça, atrás do focinho (10 cm de fundo), com o fundo em
+  vermelho brilhante (`luz_`, o meio quase branco) e as paredes vermelho-escuras; por cima, a sobrancelha de osso caindo
+  para a frente (a cara de raiva).
+- **Os pedaços faltando:** buracos de verdade na forma (o gerador corta os blocos em volta): uma mordida nas costas e uma
+  ferida no flanco esquerdo, as duas com o fundo brilhando; um pedaço embaixo, no flanco direito; o canto do focinho; um
+  lasco no queixo. As paredes de dentro são vermelho-escuras.
+- **As rachaduras:** em zigue-zague pelos dois flancos, finas, vermelhas e brilhando (`luz_`).
+- **A boca:** a `mandibula` abre muito pela dobra, atrás da boca; os dentes vermelhos (`luz_`) aparecem um pouco com a
+  boca entreaberta. Dentro, **a garganta e o chão da boca em vermelho vivo** (`luz_`): fechada, fica uma fresta vermelha
+  entre os dentes; aberta, a boca inteira brilha. Guelras vermelho-escuras pintadas dos lados do peito.
+- **Os três tentáculos das costas:** compridos (1,1 m o do meio, os dos lados um pouco menores e abertos), curvados para
+  trás; balançam devagar e, nadando, são o que corta o chão (no tamanho do jogo, passam uns 1,8 m).
+- **As nadadeiras do peito:** para os lados, varridas para trás.
+- **Os seis tentáculos de trás:** em volta da junção, cada um em três pastas encadeadas, com anéis de ventosas pintados.
+- **O degradê:** todos os tentáculos vão do preto ao vermelho até a ponta, e a pontinha brilha (`luz_`).
+- **As pastas:** `raiz` › `corpo` (o corpo, a cabeça, a garganta, os dentes de cima, os olhos, as rachaduras, as
+  nadadeiras) › `mandibula` (com os dentes de baixo e a língua), `tentaculo_1` › `tentaculo_1b` › `tentaculo_1c` até o
+  6, `costas_1` › `costas_1b` › `costas_1c` até o 3, e o manto em `mecha_manto_1` a `_8` (balança). A curva dos
+  tentáculos das costas vem do giro das pastas no arquivo; o jogo balança a partir dela.
+- **As animações** (`src/game/enemies/devora-almas/animacao.ts`, os números em `numeros.ts`): ele passa de um modo para
+  o outro; quem o controla só pede mergulhar, emergir e marcar, e o resto segue sozinho.
+  - **fora do chão** (para ver o modelo): boia de leve, a boca entreaberta respirando, os tentáculos em onda;
+  - **mergulhar** e **emergir** (0,9 e 1 s): entra e sai do chão de cabeça, com um respingo de matéria;
+  - **nadar no chão:** só os tentáculos das costas passam do chão, balançando; em volta, a mancha escura e os espinhos baixos ondulando
+    atrás, como uma cobra (a ideia da poça que anda, das referências); o rastro de gosma fica 3 s no chão;
+  - **a marca** (1 s): embaixo do alvo, ele fica em pé lá no fundo, a boca abrindo; no chão, o anel de dentes pulsa;
+  - **o salto** (1 s): sai de boca aberta para cima com os tentáculos abertos, morde no alto (o meio do corpo a 4,5 m) e cai deitado;
+  - **exposto** (3,5 s, quando erra): se debate no chão, a boca abrindo e fechando. É a janela para atirar;
+  - **engolindo** (3 s, quando pega): mastiga deitado, a barriga mexendo; depois **cospe** (0,7 s) quem engoliu;
+  - depois de exposto ou do cuspe, **mergulha** de novo;
+  - **dano** (o tranco e a mordida no ar) e **estourar**, como os outros.
+- **O rumo com transição** (pedido em 12/nov: a virada no chão estava travada; `nado.ts`): nadando, ele acelera e
+  freia (3 e 5 m/s²), o giro cresce e diminui aos poucos sem passar do ponto, a curva tem um raio mínimo (4,5 m) e nas
+  curvas fechadas ele quase para (a 30% da velocidade) para virar; chegando num ponto, vem freando. Virando no lugar
+  (de frente para o alvo, na mira), o giro é de 0,7 rad/s. Na curva, o corpo deita para dentro, a cabeça vai um pouco na
+  frente, os tentáculos de trás ficam para trás (dobram ao contrário da curva, mais na ponta) e os das costas abrem para
+  fora; a ondulação e o remar acompanham a velocidade (parado, quase não ondula). Os números em `NADO`. A inteligência
+  usa as mesmas funções (`nadarPara`, `virarPara`, `pararNado`).
+- **Os efeitos no chão** (`efeitos.ts`): a mancha, os espinhos, a gosma e a marca, cada um uma malha só, só enquanto
+  aparece. A gosma ainda é só o desenho: deixar lento entra com a luta.
+- **O chão de verdade:** nadando, o corpo fica embaixo do chão, e quem o esconde é o próprio chão (no Ver modelos, um
+  chão escuro só para ele). Por isso a arena dele não pode ter um andar embaixo (o corpo apareceria no teto de lá).
+- **A luta (12/nov):** os sons (o Abismo), a inteligência (`ia.ts`: rodear, escolher o ataque pela fase, cansar), o
+  agente engolido de verdade (o dano, a tela escura, a gosma deixando lento), na arena da Demo · Intro
+  (`docs/intro.md`). Falta: os pontos fracos e levar tiro (as balas, a 4b); as barras, por enquanto, só com a tecla H.
 
 ## Como lutam (o ponto de partida, para ajustar no teste)
 
@@ -125,8 +172,57 @@ Os números vão para `src/game/enemies/<nome>/numeros.ts` quando cada um chegar
 | --- | --- | --- | --- |
 | Vida | 60 | 40 | 500 |
 | Velocidade | 1,2 m/s (pulando) | 3 m/s voando | nadando 4 m/s |
-| Ataque | as garras: 22, alcance 1,4 m, aviso de 0,5 s | o projétil: 15, a 8 m/s, a cada 3 s | a mordida: aviso de 1 s, a marca com uns 3 m; engolido, 20/s por 3 s |
+| Ataque | as garras: 22, alcance 1,4 m, aviso de 0,5 s | o projétil: 15, a 8 m/s, a cada 3 s | a mordida: aviso de 1 s, a marca com 9 m de largura; engolido, 20/s por 3 s |
 | Especial | vários juntos: só um ataca por vez | desvia quando o agente mira nela por mais de 0,6 s (no máximo a cada 3 s) | embaixo do chão não leva dano; exposto, 3 a 4 s |
+
+## A luta do Devora almas (decidido em 12/nov)
+
+Ele virou o chefe do tutorial, no fim do caminho das ilhas (`docs/jogo.md`), numa ilha flutuante grande, com **pouco
+dano** (é o tutorial). Além de nadar, marcar e saltar, ele tem estes ataques. Cada um tem um aviso que o jogador vê e um
+jeito de escapar. **✅ As animações e os efeitos estão feitos (12/nov)** e se veem no Ver modelos (com o Matheus parado na
+marca e o seletor de fase); o dano, a inteligência e os pontos fracos de verdade entram com a luta.
+
+- **Investida rasante:** nadando, ele mira o agente de longe; os 3 tentáculos das costas param de balançar e apontam
+  para a frente, e uma rachadura vermelha cresce no chão à frente, por onde ele vai passar (o aviso, 1 s); dispara em
+  linha reta a 14 m/s, subindo o bastante para as costas rasgarem o chão, com espinhos grandes subindo atrás e
+  afundando de novo; passa do ponto e freia (0,8 s). Escapar: esquiva de lado. A freada é a janela para atirar nos
+  tentáculos das costas. Na terceira barra, duas seguidas (a segunda com a mira curta, 0,55 s).
+- **Chuva de tentáculos:** ele afunda e de 3 a 5 círculos de dentes acendem no chão em volta do agente (o primeiro em
+  cima dele), um depois do outro; de cada um sobe um tentáculo de 4,5 m (rompendo o chão com um respingo), que bate
+  dobrando por cima do círculo e volta para o chão. Escapar: sair dos círculos, no ritmo. Obriga a andar. Todos os
+  tentáculos são uma malha só (os pedaços, com o degradê) e as pontas outra (brilham).
+- **Cuspir demônios:** ele se ergue meio corpo para fora do chão, como uma cobra, a garganta acesa, e cospe 3
+  demônios (a cabeça vai para a frente e a boca abre de vez a cada um): **dois Assombrados e, o terceiro, uma Asa
+  sombria** (decidido em 12/nov). Os Assombrados voam em arco, encolhidos e girando, e pousam de 5 a 9 m à frente; a Asa
+  sai voando da boca, sobe até a altura do voo e fica pairando lá na frente. Estouram fácil, mas distraem. Na terceira
+  barra, mais 2 Assombrados sobem do chão, do líquido preto, perto do agente. (O Assombrado ganhou as duas animações:
+  arremessado e surgir. Qual dos cuspidos é a Asa: `NINHADA.asa`, em `numeros.ts`.)
+- **Atordoado e rastejando** (pedido em 12/nov): quando leva **muito dano de uma vez** e também **quando uma barra de
+  vida zera** (decidido em 12/nov, como a Mãe; é aí que ele passa para a próxima fase), ele é arrancado do chão (com o respingo, se estava embaixo), cai de lado e fica tonto: a boca
+  solta, os tentáculos moles, o brilho falhando e piscando (3,5 s); se desvira sacudindo e **rasteja devagar** pela
+  superfície (4,5 s), arrastando a barriga e puxando o corpo com os tentáculos, a boca aberta ofegando: **a janela para
+  o jogador atirar**. Depois mergulha. O rastejar também vem sozinho (cansado: proposta, depois de uns ataques
+  seguidos; quando, exatamente, é da inteligência, na luta). Os números em `ATORDOADO` e `RASTEJO`.
+
+**Os pontos fracos** (dão sentido às feridas e às rachaduras):
+- **A boca aberta e as feridas** levam dano cheio; o corpo preto leva dano reduzido (o mesmo princípio do núcleo do
+  Glutão). Combina com a escopeta de balas contadas: guardar o tiro forte para a boca aberta.
+- **As rachaduras** acendem mais e se espalham a cada fase: o jogador vê que está ganhando. Feito: as novas ficam nas
+  pastas `racha_2` (os flancos e as costas) e `racha_3` (a cabeça, o rosto e a barriga), que aparecem com a fase; tudo
+  o que brilha acende 1,4 vez na segunda barra e 1,9 na terceira (`FASES` em `numeros.ts`); tonto, o brilho falha.
+- **Os 3 tentáculos das costas** podem ser destruídos a tiro enquanto ele nada; cada um a menos o deixa **mais lento**
+  (recompensa quem acerta). Feito o que se vê: arrancado, o tentáculo some com um estouro no lugar (`arrancar`); ficar
+  mais lento entra com a luta.
+
+**As fases: as 3 barras de vida** (decidido em 12/nov: cada barra é uma fase, como as barras da Mãe):
+1. **Primeira barra:** nadar, a marca e o salto, e a investida.
+2. **Segunda barra:** entram a chuva de tentáculos e o cuspe de demônios.
+3. **Terceira barra** (decidida em 12/nov, só com os ataques escolhidos): as rachaduras brilham forte e tudo
+   fica mais rápido: duas investidas seguidas, a chuva com 5 círculos e os Assombrados saindo também do chão (do
+   líquido preto), além da boca. O rugido da garganta, a maré de gosma e o chicote dos tentáculos ficaram de fora.
+
+**Os cuidados:** os avisos ficam no chão (círculos, a marca, o rastro), legíveis no celular; a chuva de tentáculos são
+cópias de um tentáculo só; nenhuma luz nova. Zerado, ele estoura (o estouro grande, como os outros demônios).
 
 ## Ser engolido e a gosma (decidido em 12/nov)
 
@@ -145,12 +241,43 @@ Os números vão para `src/game/enemies/<nome>/numeros.ts` quando cada um chegar
 
 - **Onde ele nada.** Ele é grande demais para os corredores (3,6 m) e as portas (2,1 m), e nadar por baixo das paredes
   desmontaria a colisão. **Por enquanto (12/nov): uma área grande só de teste**, para testar o fluxo (nadar, a marca, o
-  salto, engolir, a gosma). O lugar dele no capítulo fica para depois.
+  salto, engolir, a gosma). **A arena** (12/nov): uma ilha flutuante bem espaçosa no fim do caminho das ilhas, no
+  submundo (`docs/jogo.md`); grossa no meio, porque o corpo dele desce dentro dela.
 - **A mira na Asa sombria no celular:** voar e desviar pede assistência de mira na versão de toque.
 - **O Glutão e a Intro:** a Intro vai ser reformulada (12/nov, para depois). O que o Glutão cospe e devora (proposta:
   Assombrados) entra nessa reformulação.
-- **Combater depende das armas:** a bala, o dano, a sobrecarga e a munição da escopeta ainda não existem. A luta de
-  cada Sombrio vem depois da etapa das armas; o modelo e as animações podem vir antes.
+- **Combater depende das armas:** a munição já existe (a 4a); a bala e o dano ainda não (a 4b). A luta de cada Sombrio
+  vem depois; o modelo e as animações podem vir antes.
+
+## Os sons (escolhidos em 12/nov)
+
+Foram feitas **duas ideias para cada Sombrio** e o desenvolvedor escolheu uma de cada (as outras saíram do projeto).
+**Os sons estão presos às animações (12/nov):** cada demônio tem uma voz que sai do corpo dele, no espaço (o ouvido é a
+câmera; o Devora soa cheio até 4 m, os outros até 1,6 m), e cada som toca no momento da animação. Sintetizados na hora,
+como os da Mãe (`src/audio/sintese.ts`), no `sons.ts` de cada pasta; o que eles dividem (a voz no espaço, o som num ponto
+do chão, a bolha, o respingo) em `src/game/enemies/sons.ts`. No Ver modelos, cada ação toca o som dela.
+`provas.sonsDemonios()` mede o volume de cada som.
+
+- **Assombrado (Lamento):** parado, sussurra e geme baixo de vez em quando; o pulo, o ar ao sair e o baque abafado ao
+  pousar; o ataque, o lamento que sobe até um grito fino no aviso e no salto, e o baque do pouso; o dano, o susto e um
+  gemido; estourar, um suspiro com um vidro fino; arremessado pelo Devora, um gemido caindo; surgir, sobe gemendo e
+  rompe o líquido.
+- **Asa sombria (Morcego):** cada batida de asa (planando, nada) e os cliques de vez em quando; cuspir, os cliques
+  aceleram e ela guincha no aviso, e quando a bola sai, o chiado e o estalo; a bola batendo espirra onde bateu;
+  desviar, o ar e um guincho; o dano, um guincho; estourar, as asas falham, o guincho cai e ela espirra.
+- **Devora almas (Abismo):** fora do chão, respira gemendo; nadando, o ronco embaixo do chão e o gemido de baleia;
+  romper o chão, a pedra racha e o baque grave; a marca, o chão ronca crescendo (o aviso), o salto ruge e a boca fecha
+  num baque; errou, se debate; pegou, mastiga e cospe; a investida, ruge na mira (o aviso), rasga o chão e derrapa; a
+  chuva, geme afundando, e em cada círculo o chão ronca no aviso e o tentáculo rompe (o som sai do círculo); a ninhada,
+  geme e cada cria sai num cuspe; atordoado, a queda e o gemido tremendo; rastejando, arrasta a barriga a cada puxada;
+  o dano, um grunhido; um tentáculo arrancado, o rugido de dor; a barra nova, o rugido grande; estourar, o rugido
+  caindo e o chão rompendo.
+
+| Sombrio | A | B | Escolhido |
+| --- | --- | --- | --- |
+| Assombrado | Gosma: molhado, borbulhante, um guincho afogado | Lamento: oco, soprado, sussurro e gemido | **B · Lamento** |
+| Asa sombria | Morcego: asas de couro, cliques e guinchos agudos | Trapo: asas de pano rasgado, respiração rouca | **A · Morcego** |
+| Devora almas | Abismo: grave, gemido de baleia, rugido fundo | Moedor: dentes e pedra moendo, guincho metálico | **A · Abismo** |
 
 ## As etapas (uma por vez)
 
@@ -158,7 +285,13 @@ Os números vão para `src/game/enemies/<nome>/numeros.ts` quando cada um chegar
    animações (parado, andar, ataque, dano, estourar) no Ver modelos (Modelo → Demônios → O Assombrado).
 2. ✅ **A Asa sombria** (12/nov): o modelo de partida e as animações (voar, planar, cuspir, desviar, dano, estourar), e o
    projétil, no Ver modelos (Modelo → Demônios → A Asa sombria).
-3. **O Devora almas:** o modelo, os tentáculos em onda, o nadar (a barbatana e a mancha), a marca e o salto.
-4. **As armas novas** (`docs/jogo.md`, "As armas"): a pistola de plasma e a escopeta de Demantino com as 4 balas e a
-   recarga (a munição infinita por enquanto).
-5. **A luta:** cada Sombrio no Testar, atrás do agente, tomando tiro e estourando.
+3. ✅ **O Devora almas** (12/nov): o modelo de partida, os tentáculos, o nadar (os tentáculos das costas, a mancha, os espinhos e a
+   gosma), a marca, o salto, exposto, engolir e cuspir, no Ver modelos (Modelo → Demônios → O Devora almas), com o
+   Matheus em cima da marca no "Atacar (engole o agente)".
+4. **As armas novas** (`docs/jogo.md`, "As armas"), em duas partes:
+   - **4a. Feita (12/nov).** a escopeta de Demantino com as 4 balas e a recarga nova (1,5 s por bala, cada uma vale ao entrar; a animação do
+     cartucho e das balas puxadas pela arma), e a pistola de plasma com a sobrecarga (esquenta, trava 5 s); contadores
+     simples no Testar e no Ver modelos (o HUD conceito C vem depois). Como ficou: `docs/jogo.md`, "As armas";
+   - **4b.** a bala de verdade: o tiro sai, voa, bate na parede (a faísca e a marca) e acerta o que tiver na frente.
+5. **A luta:** ✅ atrás do agente e atacando, na Demo · Intro (12/nov, `docs/intro.md`); falta tomar tiro e estourar pelas
+   balas (depois da 4b).

@@ -1,0 +1,418 @@
+{
+ "cx": 6,
+ "cz": 1,
+ "walls": [],
+ "floors": [
+  {
+   "level": 0,
+   "x": 96,
+   "z": 30,
+   "top": "cinza",
+   "bottom": "rocha-negra"
+  },
+  {
+   "level": 0,
+   "x": 96,
+   "z": 31,
+   "top": "cinza",
+   "bottom": "rocha-negra"
+  },
+  {
+   "level": 0,
+   "x": 97,
+   "z": 29,
+   "top": "rocha-negra",
+   "bottom": "rocha-negra"
+  },
+  {
+   "level": 0,
+   "x": 97,
+   "z": 30,
+   "top": "cinza",
+   "bottom": "rocha-negra"
+  },
+  {
+   "level": 0,
+   "x": 97,
+   "z": 31,
+   "top": "cinza",
+   "bottom": "rocha-negra"
+  },
+  {
+   "level": 0,
+   "x": 98,
+   "z": 29,
+   "top": "cinza",
+   "bottom": "rocha-negra"
+  },
+  {
+   "level": 0,
+   "x": 98,
+   "z": 30,
+   "top": "cinza",
+   "bottom": "rocha-negra"
+  },
+  {
+   "level": 0,
+   "x": 98,
+   "z": 31,
+   "top": "cinza",
+   "bottom": "rocha-negra"
+  },
+  {
+   "level": 0,
+   "x": 99,
+   "z": 29,
+   "top": "cinza",
+   "bottom": "rocha-negra"
+  },
+  {
+   "level": 0,
+   "x": 99,
+   "z": 30,
+   "top": "cinza",
+   "bottom": "rocha-negra"
+  },
+  {
+   "level": 0,
+   "x": 99,
+   "z": 31,
+   "top": "cinza",
+   "bottom": "rocha-negra"
+  },
+  {
+   "level": 0,
+   "x": 100,
+   "z": 29,
+   "top": "rocha-negra",
+   "bottom": "rocha-negra"
+  },
+  {
+   "level": 0,
+   "x": 100,
+   "z": 30,
+   "top": "cinza",
+   "bottom": "rocha-negra"
+  },
+  {
+   "level": 0,
+   "x": 100,
+   "z": 31,
+   "top": "cinza",
+   "bottom": "rocha-negra"
+  },
+  {
+   "level": 0,
+   "x": 101,
+   "z": 28,
+   "top": "rocha-negra",
+   "bottom": "rocha-negra"
+  },
+  {
+   "level": 0,
+   "x": 101,
+   "z": 29,
+   "top": "rocha-negra",
+   "bottom": "rocha-negra"
+  },
+  {
+   "level": 0,
+   "x": 101,
+   "z": 30,
+   "top": "cinza",
+   "bottom": "rocha-negra"
+  },
+  {
+   "level": 0,
+   "x": 101,
+   "z": 31,
+   "top": "cinza",
+   "bottom": "rocha-negra"
+  },
+  {
+   "level": 0,
+   "x": 102,
+   "z": 28,
+   "top": "rocha-negra",
+   "bottom": "rocha-negra"
+  },
+  {
+   "level": 0,
+   "x": 102,
+   "z": 29,
+   "top": "rocha-negra",
+   "bottom": "rocha-negra"
+  },
+  {
+   "level": 0,
+   "x": 102,
+   "z": 30,
+   "top": "rocha-negra",
+   "bottom": "rocha-negra"
+  },
+  {
+   "level": 0,
+   "x": 102,
+   "z": 31,
+   "top": "rocha-negra",
+   "bottom": "rocha-negra"
+  },
+  {
+   "level": 0,
+   "x": 103,
+   "z": 28,
+   "top": "rocha-negra",
+   "bottom": "rocha-negra"
+  },
+  {
+   "level": 0,
+   "x": 103,
+   "z": 29,
+   "top": "rocha-negra",
+   "bottom": "rocha-negra"
+  },
+  {
+   "level": 0,
+   "x": 103,
+   "z": 30,
+   "top": "rocha-negra",
+   "bottom": "rocha-negra"
+  },
+  {
+   "level": 0,
+   "x": 103,
+   "z": 31,
+   "top": "rocha-negra",
+   "bottom": "rocha-negra"
+  },
+  {
+   "level": 0,
+   "x": 104,
+   "z": 28,
+   "top": "rocha-negra",
+   "bottom": "rocha-negra"
+  },
+  {
+   "level": 0,
+   "x": 104,
+   "z": 29,
+   "top": "rocha-negra",
+   "bottom": "rocha-negra"
+  },
+  {
+   "level": 0,
+   "x": 104,
+   "z": 30,
+   "top": "rocha-negra",
+   "bottom": "rocha-negra"
+  },
+  {
+   "level": 0,
+   "x": 104,
+   "z": 31,
+   "top": "rocha-negra",
+   "bottom": "rocha-negra"
+  },
+  {
+   "level": 0,
+   "x": 105,
+   "z": 29,
+   "top": "rocha-negra",
+   "bottom": "rocha-negra"
+  },
+  {
+   "level": 0,
+   "x": 105,
+   "z": 30,
+   "top": "rocha-negra",
+   "bottom": "rocha-negra"
+  },
+  {
+   "level": 0,
+   "x": 105,
+   "z": 31,
+   "top": "rocha-negra",
+   "bottom": "rocha-negra"
+  },
+  {
+   "level": 0,
+   "x": 106,
+   "z": 29,
+   "top": "rocha-negra",
+   "bottom": "rocha-negra"
+  },
+  {
+   "level": 0,
+   "x": 106,
+   "z": 30,
+   "top": "rocha-negra",
+   "bottom": "rocha-negra"
+  },
+  {
+   "level": 0,
+   "x": 106,
+   "z": 31,
+   "top": "rocha-negra",
+   "bottom": "rocha-negra"
+  },
+  {
+   "level": 0,
+   "x": 107,
+   "z": 29,
+   "top": "rocha-negra",
+   "bottom": "rocha-negra"
+  },
+  {
+   "level": 0,
+   "x": 107,
+   "z": 30,
+   "top": "rocha-negra",
+   "bottom": "rocha-negra"
+  },
+  {
+   "level": 0,
+   "x": 107,
+   "z": 31,
+   "top": "rocha-negra",
+   "bottom": "rocha-negra"
+  },
+  {
+   "level": 0,
+   "x": 108,
+   "z": 30,
+   "top": "rocha-negra",
+   "bottom": "rocha-negra"
+  },
+  {
+   "level": 0,
+   "x": 108,
+   "z": 31,
+   "top": "rocha-negra",
+   "bottom": "rocha-negra"
+  },
+  {
+   "level": 0,
+   "x": 109,
+   "z": 30,
+   "top": "rocha-negra",
+   "bottom": "rocha-negra"
+  },
+  {
+   "level": 0,
+   "x": 109,
+   "z": 31,
+   "top": "rocha-negra",
+   "bottom": "rocha-negra"
+  },
+  {
+   "level": 0,
+   "x": 110,
+   "z": 31,
+   "top": "rocha-negra",
+   "bottom": "rocha-negra"
+  },
+  {
+   "level": 0,
+   "x": 111,
+   "z": 31,
+   "top": "rocha-negra",
+   "bottom": "rocha-negra"
+  }
+ ],
+ "openings": [],
+ "stairs": [],
+ "props": [
+  {
+   "id": "base-ilha-78",
+   "type": "base-ilha",
+   "level": 0,
+   "pos": [
+    98.81,
+    0,
+    31.75
+   ],
+   "rot": [
+    0,
+    30,
+    0
+   ]
+  },
+  {
+   "id": "base-ilha-79",
+   "type": "base-ilha",
+   "level": 0,
+   "pos": [
+    102.24,
+    0,
+    30.96
+   ],
+   "rot": [
+    0,
+    45,
+    0
+   ]
+  },
+  {
+   "id": "base-ilha-80",
+   "type": "base-ilha",
+   "level": 0,
+   "pos": [
+    105.74,
+    0,
+    31.23
+   ],
+   "rot": [
+    0,
+    30,
+    0
+   ]
+  },
+  {
+   "id": "rocha-grande-102",
+   "type": "rocha-grande",
+   "level": 0,
+   "pos": [
+    102.28,
+    0,
+    30.09
+   ],
+   "rot": [
+    0,
+    120,
+    0
+   ]
+  },
+  {
+   "id": "rocha-media-103",
+   "type": "rocha-media",
+   "level": 0,
+   "pos": [
+    106.42,
+    0,
+    30.87
+   ],
+   "rot": [
+    0,
+    285,
+    0
+   ]
+  },
+  {
+   "id": "rocha-grande-104",
+   "type": "rocha-grande",
+   "level": 0,
+   "pos": [
+    108.17,
+    0,
+    31.48
+   ],
+   "rot": [
+    0,
+    15,
+    0
+   ]
+  }
+ ],
+ "decals": [],
+ "points": []
+}

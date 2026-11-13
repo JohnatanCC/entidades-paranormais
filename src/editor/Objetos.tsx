@@ -1,7 +1,8 @@
 // Os objetos do mapa: cada um é uma cópia do modelo do Blockbench do tipo dele (render/objetos3d.ts), que divide a
 // geometria e a textura com os outros do mesmo tipo. Objeto com luz no catálogo (as lâmpadas, o lustre, a arandela, o
 // abajur, o castiçal...) acende de verdade, uma luz pontual: normal, falhando (pisca) ou apagada. Tipo sem modelo aparece
-// como uma caixa vermelha de arame, para você ver e trocar.
+// como uma caixa vermelha de arame, para você ver e trocar. No jogo (juntar), os que não acendem viram uma malha de
+// cópias por peça de cada tipo (render/instancias.ts): bem menos chamadas de desenho.
 import { memo, useEffect, useMemo, useRef } from 'react'
 import { useFrame } from '@react-three/fiber'
 import * as THREE from 'three'
@@ -10,6 +11,7 @@ import { assadorDe, idLampada, novaLuzVertice, type Assador } from '../maps/luzA
 import type { Chunk, Prop } from '../maps/types'
 import { ASSADA, iluminarObjeto, materiaisDoObjeto } from '../render/assada'
 import { casca3d, objeto3d } from '../render/objetos3d'
+import { objetosJuntos } from '../render/instancias'
 import { lampadaNaCena } from '../render/sombras'
 
 export const COR_ESCOLHIDO = '#f2c14e', COR_MIRA = '#9a7a40'
@@ -72,11 +74,16 @@ function Luz({ modo, luz: l }: { modo: string; luz: NonNullable<ObjDef['luz']> }
   return <pointLight ref={luz} position={l.pos} color={l.cor ?? FORCA_LUZ.cor} intensity={forca} distance={l.alcance ?? FORCA_LUZ.alcance} decay={1.6} />
 }
 
-export function Objetos({ chunks, maxLevel, ocultar }: { chunks: Chunk[]; maxLevel: number; ocultar?: string | null }) {
-  const lista = useMemo(() => chunks.flatMap((c) => c.props).filter((p) => p.level <= maxLevel && p.id !== ocultar), [chunks, maxLevel, ocultar])
+export function Objetos({ chunks, maxLevel, ocultar, juntar }: { chunks: Chunk[]; maxLevel: number; ocultar?: string | null; juntar?: boolean }) {
+  const todos = useMemo(() => chunks.flatMap((c) => c.props).filter((p) => p.level <= maxLevel && p.id !== ocultar), [chunks, maxLevel, ocultar])
   const assa = useMemo(() => assadorDe(chunks), [chunks])
+  // juntando: os que acendem ficam soltos (cada um tem a luz de verdade dele); os outros, juntos
+  const lista = useMemo(() => (juntar ? todos.filter((p) => OBJETOS[p.type]?.luz) : todos), [todos, juntar])
+  const juntos = useMemo(() => (juntar ? objetosJuntos(todos.filter((p) => !OBJETOS[p.type]?.luz && OBJETOS[p.type]), assa) : null), [todos, juntar, assa, objetosJuntos])
+  useEffect(() => () => juntos?.descartar(), [juntos])
   return (
     <group>
+      {juntos && <primitive object={juntos.grupo} />}
       {lista.map((p) => (
         <Colocado key={p.id} p={p}>
           <Modelo type={p.type} params={p.params} luz={{ assa, p }} />

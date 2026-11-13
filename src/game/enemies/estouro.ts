@@ -67,16 +67,17 @@ export function novoEstouro(): Estouro {
 const sorteio = (ab: number[]) => ab[0] + Math.random() * (ab[1] - ab[0])
 
 /** Estoura no centro (o meio do corpo), com o tamanho do corpo (raio, m), sobre o chão na altura `chao`. o: quantos
- *  cubos e quantos deles são olhos (vermelho vivo), e se deixa a mancha (o projétil que bate: poucos cubos, sem olhos). */
-export function estourar(E: Estouro, centro: THREE.Vector3, raio: number, chao: number, o: { cubos?: number; olhos?: number; mancha?: boolean } = {}) {
-  const C = ESTOURO, olhos = o.olhos ?? 3
+ *  cubos e quantos deles são olhos (vermelho vivo), o tamanho dos cubos (vezes o normal; sem ele, acompanha o raio até
+ *  o normal) e se deixa a mancha (o projétil que bate: poucos cubos, sem olhos). */
+export function estourar(E: Estouro, centro: THREE.Vector3, raio: number, chao: number, o: { cubos?: number; olhos?: number; mancha?: boolean; tamanho?: number } = {}) {
+  const C = ESTOURO, olhos = o.olhos ?? 3, tam = o.tamanho ?? Math.min(1, raio / 0.3)
   for (let n = 0; n < (o.cubos ?? C.cubos); n++) {
     const i = E.prox; E.prox = (E.prox + 1) % E.t.length
     const a = Math.random() * Math.PI * 2, fora = sorteio(C.vel)
     E.p.set([centro.x + Math.cos(a) * raio * 0.5 * Math.random(), centro.y + (Math.random() - 0.4) * raio, centro.z + Math.sin(a) * raio * 0.5 * Math.random()], i * 3)
     E.v.set([Math.cos(a) * fora, sorteio(C.sobe), Math.sin(a) * fora], i * 3)
     E.rot.set([Math.random() * 6, Math.random() * 6, Math.random() * 6], i * 3)
-    E.tam[i] = sorteio(C.tamanho) * (n < olhos ? 0.7 : 1) * Math.min(1, raio / 0.3); E.t[i] = 0; E.vida[i] = sorteio(C.vida); E.chao[i] = chao
+    E.tam[i] = sorteio(C.tamanho) * (n < olhos ? 0.7 : 1) * tam; E.t[i] = 0; E.vida[i] = sorteio(C.vida); E.chao[i] = chao
     E.cubos.setColorAt(i, n < olhos ? OLHO : Math.random() < C.pano ? PANO : MATERIA)
   }
   if (E.cubos.instanceColor) E.cubos.instanceColor.needsUpdate = true

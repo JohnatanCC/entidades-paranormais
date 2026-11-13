@@ -64,7 +64,7 @@ export function slug(nome: string) {
 }
 
 export function mapaVazio(id: string, nome: string): MapBundle {
-  return { formato: FORMATO, meta: { formato: FORMATO, id, nome, levels: 1, levelH: LEVEL_H, chunkSize: CHUNK, spawn: { pos: [2, 0, 2], yaw: 0, level: 0 }, ambiente: AMBIENTE_PADRAO, areas: [], chunks: [] }, chunks: [] }
+  return { formato: FORMATO, meta: { formato: FORMATO, id, nome, levels: 1, levelH: LEVEL_H, chunkSize: CHUNK, spawn: { pos: [2, 0, 2], yaw: 0, level: 0 }, ambiente: AMBIENTE_PADRAO, areas: [], semChao: false, chunks: [] }, chunks: [] }
 }
 
 export const vazio = (c: Chunk) => !c.walls.length && !c.floors.length && !c.openings.length && !c.stairs.length && !c.props.length && !c.decals.length && !c.points.length

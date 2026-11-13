@@ -1,9 +1,10 @@
 // Ver modelos (Modo desenvolvedor): um modelo sozinho na tela, para olhar de perto e decidir o que melhorar.
-// Não edita nada: o Matheus vem de modelos/agente.bbmodel, a Lara, o Nicolas e o Victor de modelos/lara.bbmodel, nicolas.bbmodel e victor.bbmodel (o mesmo esqueleto), os fantasmas de modelos/fantasmas/<nome>.bbmodel (a Mãe), os demônios de modelos/demonios/<nome>.bbmodel (o Assombrado: parado, andando, atacar, dano, estourar; a Asa sombria: voando, cuspir com o projétil, desviar, dano, estourar), as armas de modelos/armas/<nome>.bbmodel e os objetos de
+// Não edita nada: o Matheus vem de modelos/agente.bbmodel, a Lara, o Nicolas e o Victor de modelos/lara.bbmodel, nicolas.bbmodel e victor.bbmodel (o mesmo esqueleto), os fantasmas de modelos/fantasmas/<nome>.bbmodel (a Mãe), os demônios de modelos/demonios/<nome>.bbmodel (o Assombrado: parado, andando, atacar, dano, estourar; a Asa sombria: voando, cuspir com o projétil, desviar, dano, estourar; o Devora almas, num chão de verdade: fora do chão, nadando, o ataque que erra e o que engole o Matheus, dano, estourar), as armas de modelos/armas/<nome>.bbmodel e os objetos de
 // modelos/objetos/<tipo>.bbmodel (salvar no
 // Blockbench atualiza aqui no npm run dev). A câmera gira em volta (botão esquerdo gira, direito move, rodinha aproxima).
 // Para o Matheus o painel troca a animação, a expressão, a pose das mãos, a arma na mão e o ângulo, faz os gestos de
-// parado na hora (sem esperar) e mira e atira com a pistola ou a escopeta, ou joga a armadilha (para a frente, num chão
+// parado na hora (sem esperar) e mira e atira com a pistola ou a escopeta (as balas e a recarga da escopeta, o calor da
+// pistola, com o contador; o gatilho pode ficar preso), ou joga a armadilha (para a frente, num chão
 // sem paredes; ela volta sozinha), toma dano e fica machucado; para todos, a luz (estúdio, ou uma
 // lâmpada da mansão no escuro, como no jogo).
 import { useEffect, useMemo, useRef, useState } from 'react'
@@ -18,6 +19,7 @@ import { montarAgente, type Agente, type ModeloAgente } from '../game/player/mod
 import { fazerGesto, gestosDe, type Gesto } from '../game/player/parado'
 import { tranco } from '../game/player/dano'
 import { gatilho } from '../game/weapons/tiro'
+import { cortarRecarga, gastar, novaMunicao, passoMunicao, recarregar, temTiro, textoDaMunicao } from '../game/weapons/municao'
 import { chamar, descartarArco, desenharArco, gatilhoArmadilha, lancar, novaArmadilha, novoArco, passoArmadilha, pontoDeSoltar, recolher, velocidadeDoArremesso } from '../game/weapons/armadilha'
 import { montarMundo } from '../game/world/colisao'
 import { armadilhaFora } from '../game/player/arma'
@@ -34,12 +36,22 @@ import { pararSonsMae } from '../game/enemies/mae/sons'
 import { ouvinte } from '../audio/espaco'
 import { abertura3d } from '../render/objetos3d'
 import { Iluminacao } from '../game/luz/Iluminacao'
-import { montarAssombrado } from '../game/enemies/assombrado/modelo'
-import { animarAssombrado, atacar, estourarAssombrado, ferir, refazer } from '../game/enemies/assombrado/animacao'
+import { montarAssombrado, type Assombrado } from '../game/enemies/assombrado/modelo'
+import { animarAssombrado, arremessar, atacar, estourarAssombrado, ferir, refazer, surgirAssombrado } from '../game/enemies/assombrado/animacao'
 import { novoEstouro, passoEstouro } from '../game/enemies/estouro'
-import { montarAsaSombria } from '../game/enemies/asa-sombria/modelo'
+import { montarAsaSombria, type AsaSombria } from '../game/enemies/asa-sombria/modelo'
 import { animarAsaSombria, cuspir, desviar, estourarAsa, ferir as ferirAsa, refazerAsa } from '../game/enemies/asa-sombria/animacao'
 import { disparar, novosProjeteis, passoProjeteis } from '../game/enemies/asa-sombria/projetil'
+import { montarDevoraAlmas } from '../game/enemies/devora-almas/modelo'
+import { animarDevora, arrancar, atordoar, chover, emergir, estourarDevora, fase, ferir as ferirDevora, investir, marcar, mergulhar, ninhada, rastejar, refazerDevora } from '../game/enemies/devora-almas/animacao'
+import { chuvaDeTentaculos, novosEfeitosDevora, passoEfeitosDevora } from '../game/enemies/devora-almas/efeitos'
+import { nadarPara as nadarParaDevora, virarPara as virarParaDevora } from '../game/enemies/devora-almas/nado'
+import { ESCALA as ESCALA_DEVORA, NINHADA, RESPINGO } from '../game/enemies/devora-almas/numeros'
+import { estourar } from '../game/enemies/estouro'
+import { calar, somEm } from '../game/enemies/sons'
+import { ouvirAssombrado } from '../game/enemies/assombrado/sons'
+import { bolaBatendo, ouvirAsaSombria } from '../game/enemies/asa-sombria/sons'
+import { avisoChuva, ouvirDevora, tentaculo } from '../game/enemies/devora-almas/sons'
 
 type Anim = 'parado' | 'andando' | 'correndo' | 'esquiva' | 'queda' | 'porta'
 type Camera = 'corpo' | 'rosto' | 'maos' | 'pes' | 'costas'
@@ -52,18 +64,23 @@ const ARMA = 'arma:' // o id de uma arma no seletor: arma:pistola
 const MAE = 'fantasma:mae'
 const ANIMS_MAE: [Anim, string][] = [['parado', 'Parada'], ['andando', 'Andando (em roda)'], ['porta', 'Passando pela porta']]
 // os demônios (docs/demonios.md): o id é o nome do arquivo em modelos/demonios/
-const ASSOMBRADO = 'demonio:assombrado', ASA = 'demonio:asa-sombria'
-type AcaoDemonio = 'atacar' | 'cuspir' | 'desviar' | 'dano' | 'estourar'
+const ASSOMBRADO = 'demonio:assombrado', ASA = 'demonio:asa-sombria', DEVORA = 'demonio:devora-almas'
+type AcaoDemonio = 'atacar' | 'engolir' | 'investida' | 'chuva' | 'ninhada' | 'arrancar' | 'atordoar' | 'rastejar' | 'surgir' | 'cuspir' | 'desviar' | 'dano' | 'estourar'
 const DEMONIOS: Record<string, { nome: string; arquivo: string; anims: [Anim, string][]; acoes: [AcaoDemonio, string][]; ajuda: string }> = {
   [ASSOMBRADO]: {
     nome: 'O Assombrado', arquivo: 'demonios/assombrado', anims: [['parado', 'Parado'], ['andando', 'Andando (em roda)']],
-    acoes: [['atacar', 'Atacar'], ['dano', 'Tomar dano'], ['estourar', 'Estourar']],
-    ajuda: 'O ataque sai de trás contra o alvo marcado no chão. O dano vem de uma direção sorteada. Estourado, ele volta em 2,5 s.',
+    acoes: [['atacar', 'Atacar'], ['surgir', 'Surgir do chão'], ['dano', 'Tomar dano'], ['estourar', 'Estourar']],
+    ajuda: 'O ataque sai de trás contra o alvo marcado no chão. Surgir: sobe do líquido preto. O dano vem de uma direção sorteada. Estourado, ele volta em 2,5 s.',
   },
   [ASA]: {
     nome: 'A Asa sombria', arquivo: 'demonios/asa-sombria', anims: [['parado', 'Voando no lugar'], ['andando', 'Voando (em roda)']],
     acoes: [['cuspir', 'Cuspir'], ['desviar', 'Desviar'], ['dano', 'Tomar dano'], ['estourar', 'Estourar']],
     ajuda: 'Ela voa a 2 m. Cospe no alvo marcado a 4 m, na altura do peito do agente. Desvia um lado de cada vez. Estourada, volta em 2,5 s.',
+  },
+  [DEVORA]: {
+    nome: 'O Devora almas', arquivo: 'demonios/devora-almas', anims: [['parado', 'Fora do chão'], ['andando', 'Nadando no chão (em roda)']],
+    acoes: [['atacar', 'Atacar (erra)'], ['engolir', 'Atacar (engole o agente)'], ['investida', 'Investida rasante'], ['chuva', 'Chuva de tentáculos'], ['ninhada', 'Cuspir demônios'], ['arrancar', 'Arrancar um tentáculo das costas'], ['atordoar', 'Atordoar (muito dano)'], ['rastejar', 'Rastejar (cansado)'], ['dano', 'Tomar dano'], ['estourar', 'Estourar']],
+    ajuda: 'Num chão de verdade (ele nada por baixo), contra o Matheus parado na marca. Cospe dois Assombrados e uma Asa sombria. Na terceira barra: duas investidas seguidas, 5 círculos na chuva e Assombrados também do chão. Atordoado, cai de lado tonto e depois rasteja (a janela para atirar). Os tentáculos arrancados voltam quando ele estoura e volta (2,5 s).',
   },
 }
 // os ataques no Ver modelos: cada botão é uma sequência de golpes (contra um alvo marcado no chão)
@@ -88,7 +105,7 @@ const MAOS: [PoseMao | null, string][] = [[null, 'Automática'], ['solta', 'Solt
 const CAMERAS: [Camera, string][] = [['corpo', 'Corpo'], ['rosto', 'Rosto'], ['maos', 'Mãos'], ['pes', 'Pés'], ['costas', 'Costas']]
 const LUZES: [Luz, string][] = [['estudio', 'Estúdio'], ['jogo', 'Jogo (lâmpada no escuro)']]
 
-interface Escolhas { qual: string; anim: Anim; exp: Expressao | null; mao: PoseMao | null; arma: Arma | null; gesto: { g: Gesto; n: number } | null; mirando: boolean; tiros: number; golpes: number; ferido: boolean; ataque: { nome: string; n: number } | null; rostoMae: ExpressaoMae | null; fase4: boolean; caca: boolean; demonio: { acao: AcaoDemonio; n: number } | null; camera: Camera; luz: Luz; girar: boolean; grade: boolean }
+interface Escolhas { qual: string; anim: Anim; exp: Expressao | null; mao: PoseMao | null; arma: Arma | null; gesto: { g: Gesto; n: number } | null; mirando: boolean; tiros: number; gatilho: boolean; recargas: number; golpes: number; ferido: boolean; ataque: { nome: string; n: number } | null; rostoMae: ExpressaoMae | null; fase4: boolean; caca: boolean; demonio: { acao: AcaoDemonio; n: number } | null; faseDevora: number; camera: Camera; luz: Luz; girar: boolean; grade: boolean }
 interface Info { linhas: string[] }
 
 function Opcoes<T>({ titulo, lista, valor, onEscolher }: { titulo: string; lista: [T, string][]; valor: T; onEscolher: (v: T) => void }) {
@@ -101,8 +118,9 @@ function Opcoes<T>({ titulo, lista, valor, onEscolher }: { titulo: string; lista
 }
 
 export function VerModelos({ go }: { go: Go }) {
-  const [e, setE] = useState<Escolhas>({ qual: AGENTE_ID, anim: 'parado', exp: null, mao: null, arma: null, gesto: null, mirando: false, tiros: 0, golpes: 0, ferido: false, ataque: null, rostoMae: null, fase4: false, caca: false, demonio: null, camera: 'corpo', luz: 'estudio', girar: false, grade: true })
+  const [e, setE] = useState<Escolhas>({ qual: AGENTE_ID, anim: 'parado', exp: null, mao: null, arma: null, gesto: null, mirando: false, tiros: 0, gatilho: false, recargas: 0, golpes: 0, ferido: false, ataque: null, rostoMae: null, fase4: false, caca: false, demonio: null, faseDevora: 1, camera: 'corpo', luz: 'estudio', girar: false, grade: true })
   const [info, setInfo] = useState<Info | null>(null)
+  const [municao, setMunicao] = useState<string | null>(null) // o contador da arma na mão (as balas, o calor)
   const muda = (p: Partial<Escolhas>) => setE((v) => ({ ...v, ...p }))
   const humano = HUMANOS.find(([id]) => id === e.qual), agente = !!humano, arma = e.qual.startsWith(ARMA) ? e.qual.slice(ARMA.length) : null, mae = e.qual === MAE
   const demonio = DEMONIOS[e.qual]
@@ -117,9 +135,9 @@ export function VerModelos({ go }: { go: Go }) {
       <div className="vista">
         <Canvas camera={{ position: [1.4, 1.4, 3.6], fov: 35, near: 0.02, far: 100 }}>
           <Luzes luz={e.luz} />
-          {agente ? <CenaAgente key={e.qual} modelo={e.qual as ModeloAgente} e={e} onInfo={setInfo} /> : mae ? <CenaMae e={e} onInfo={setInfo} /> : e.qual === ASSOMBRADO ? <CenaAssombrado e={e} onInfo={setInfo} /> : e.qual === ASA ? <CenaAsaSombria e={e} onInfo={setInfo} /> : <CenaObjeto key={e.qual} qual={e.qual} girar={e.girar} onInfo={setInfo} />}
+          {agente ? <CenaAgente key={e.qual} modelo={e.qual as ModeloAgente} e={e} onInfo={setInfo} onMunicao={setMunicao} /> : mae ? <CenaMae e={e} onInfo={setInfo} /> : e.qual === ASSOMBRADO ? <CenaAssombrado e={e} onInfo={setInfo} /> : e.qual === ASA ? <CenaAsaSombria e={e} onInfo={setInfo} /> : e.qual === DEVORA ? <CenaDevora e={e} onInfo={setInfo} /> : <CenaObjeto key={e.qual} qual={e.qual} girar={e.girar} onInfo={setInfo} />}
           {e.grade && <Grid args={[8, 8]} cellSize={0.5} cellThickness={0.6} cellColor="#6a5a40" sectionSize={1} sectionThickness={1.2} sectionColor="#c89b4a" fadeDistance={14} infiniteGrid />}
-          <OrbitControls makeDefault target={[0, 0.95, 0]} minDistance={0.2} maxDistance={9} />
+          <OrbitControls makeDefault target={[0, 0.95, 0]} minDistance={0.2} maxDistance={e.qual === DEVORA ? 12 * ESCALA_DEVORA : 9} />
         </Canvas>
         <div className="ajuda">Botão esquerdo gira · direito move · rodinha aproxima</div>
       </div>
@@ -159,11 +177,13 @@ export function VerModelos({ go }: { go: Go }) {
           <small>No lugar. Atordoada e enfraquecida: de joelhos, o Luto escorrendo dos olhos.</small>
         </section>}
         {demonio && <Opcoes titulo="Animação" lista={demonio.anims} valor={e.anim} onEscolher={(anim) => muda({ anim })} />}
+        {e.qual === DEVORA && <Opcoes titulo="Barra de vida (a fase: as rachaduras e o brilho)" lista={[[1, 'Primeira'], [2, 'Segunda'], [3, 'Terceira']] as [number, string][]} valor={e.faseDevora} onEscolher={(faseDevora) => muda({ faseDevora })} />}
         {demonio && <section>
           <b>Ações</b>
           <div className="opcoes">{demonio.acoes.map(([acao, nome]) => <button key={acao} onClick={() => muda({ ...(acao === 'atacar' || acao === 'cuspir' ? { anim: 'parado', girar: false } : {}), demonio: { acao, n: (e.demonio?.n ?? 0) + 1 } })}>{nome}</button>)}</div>
-          <small>{demonio.ajuda}</small>
+          <small>{demonio.ajuda} Os sons tocam com a animação (o ouvido é a câmera: perto, mais alto); sem som, clique uma vez na página antes.</small>
         </section>}
+
         {agente && <>
           <Opcoes titulo="Animação" lista={ANIMS} valor={e.anim} onEscolher={(anim) => muda({ anim })} />
           <Opcoes titulo="Expressão" lista={EXPS} valor={e.exp} onEscolher={(exp) => muda({ exp })} />
@@ -179,8 +199,13 @@ export function VerModelos({ go }: { go: Go }) {
             <div className="opcoes">
               <button aria-pressed={e.mirando} onClick={() => muda({ mirando: !e.mirando })}>Mirando</button>
               <button onClick={() => muda({ tiros: e.tiros + 1 })}>{e.arma === 'armadilha' ? 'Arremessar' : 'Atirar'}</button>
+              {e.arma !== 'armadilha' && <button aria-pressed={e.gatilho} onClick={() => muda({ gatilho: !e.gatilho })}>Segurar o gatilho</button>}
+              {e.arma === 'escopeta' && <button onClick={() => muda({ recargas: e.recargas + 1 })}>Recarregar</button>}
             </div>
-            <small>{e.arma === 'armadilha' ? 'Para a frente; mirando, o arco mostra onde ela cai. Presa, ela volta sozinha em 1,5 s.' : 'Para a frente. Atirar sem estar mirando levanta a arma antes.'}</small>
+            {municao && <span className="municao">{municao}</span>}
+            <small>{e.arma === 'armadilha' ? 'Para a frente; mirando, o arco mostra onde ela cai. Presa, ela volta sozinha em 1,5 s.'
+              : e.arma === 'escopeta' ? 'Para a frente. 4 balas; vazia, recarrega sozinha (1,5 s por bala; cada uma vale ao entrar). Atirar corta a recarga; o gatilho preso, não.'
+              : 'Para a frente. Esquenta 3% por tiro; cheia, trava 5 s. Segurando o gatilho, trava em uns 7 s.'}</small>
           </section>}
           <section>
             <b>Dano</b>
@@ -266,12 +291,15 @@ function enquadra(c: Camera, a: Agente): { alvo: THREE.Vector3; de: THREE.Vector
   return { alvo: new THREE.Vector3(0, 0.95, 0), de: new THREE.Vector3(1.4, 1.4, 3.6) }
 }
 
-function CenaAgente({ modelo, e, onInfo }: { modelo: ModeloAgente; e: Escolhas; onInfo: (i: Info) => void }) {
+function CenaAgente({ modelo, e, onInfo, onMunicao }: { modelo: ModeloAgente; e: Escolhas; onInfo: (i: Info) => void; onMunicao: (t: string | null) => void }) {
   // montarAgente na lista: salvar o .bbmodel recarrega o módulo e o modelo é montado de novo
   const a = useMemo(() => montarAgente(modelo), [montarAgente, modelo])
   const { pronto, voar } = useVoo()
   const esq = useRef(0)
   const tiros = useRef(e.tiros) // os tiros pedidos que já saíram
+  // a munição (as balas da escopeta, o calor da pistola) e o contador que a tela mostra (só quando muda)
+  const municao = useMemo(() => novaMunicao(), []), contador = useRef<string | null | undefined>(undefined)
+  const recargas = useRef(e.recargas)
   const alvo = useMemo(() => new THREE.Vector3(0, 1.45, 8), []) // a mira: para a frente, na altura do peito
   // a armadilha jogada: num mundo só com o chão; o arco e a cópia solta ficam na cena
   const { scene } = useThree()
@@ -288,7 +316,7 @@ function CenaAgente({ modelo, e, onInfo }: { modelo: ModeloAgente; e: Escolhas; 
     onInfo({ linhas: [`Altura: ${(b.max.y - Math.max(0, b.min.y)).toFixed(2)} m`, `${c.blocos} blocos em ${c.juntas} juntas`, `${c.desenhos} chamadas de desenho`] })
   }, [a, onInfo])
   useEffect(() => { if (pronto) { const { alvo, de } = enquadra(e.camera, a); voar(alvo, de) } }, [e.camera, a, pronto])
-  useEffect(() => { recolher(jogo.arm); pegarArma(a, e.arma) }, [a, e.arma, jogo])
+  useEffect(() => { recolher(jogo.arm); pegarArma(a, e.arma); cortarRecarga(municao) }, [a, e.arma, jogo, municao])
   useEffect(() => { if (e.gesto) fazerGesto(a, e.gesto.g) }, [a, e.gesto])
   useEffect(() => { if (e.golpes) tranco(a, Math.random() * Math.PI * 2) }, [a, e.golpes])
 
@@ -303,9 +331,19 @@ function CenaAgente({ modelo, e, onInfo }: { modelo: ModeloAgente; e: Escolhas; 
     const velocidade = e.anim === 'andando' ? AGENTE.andar : e.anim === 'correndo' ? AGENTE.correr : 0
     const pede = e.tiros !== tiros.current // um tiro (ou arremesso) pedido: levanta a arma e solta quando ela chegar
     const naMao = a.arma === 'armadilha' && !a.anim.arma.fora
-    animarAgente(a, { velocidade, corrida: e.anim === 'correndo' ? 1 : 0, esquiva, expressao: e.exp ?? undefined, mao: e.mao ?? undefined, mira: { quer: (e.mirando || pede) && (a.arma !== 'armadilha' || naMao), alvo }, queda, ferido: e.ferido }, dt)
+    // a munição, como no Testar: o botão Atirar com bala corta a recarga (o gatilho preso, não); vazia, recarrega; a
+    // pistola travada não atira (o pedido se perde)
+    const M = municao, atira = (pede || e.gatilho) && a.arma !== 'armadilha'
+    if (a.arma === 'escopeta' && (e.recargas !== recargas.current || (atira && M.balas === 0))) recarregar(M)
+    else if (a.arma === 'escopeta' && pede && M.balas > 0) cortarRecarga(M)
+    recargas.current = e.recargas
+    if (pede && a.arma === 'pistola' && M.travada > 0) tiros.current = e.tiros
+    passoMunicao(M, a.arma, esquiva < 0 && queda === undefined, dt)
+    animarAgente(a, { velocidade, corrida: e.anim === 'correndo' ? 1 : 0, esquiva, expressao: e.exp ?? undefined, mao: e.mao ?? undefined, mira: { quer: (e.mirando || pede || e.gatilho) && (a.arma !== 'armadilha' || naMao), alvo }, queda, ferido: e.ferido, municao: M }, dt)
     const J = jogo
-    if (gatilho(a, pede, dt)) tiros.current = e.tiros
+    if (gatilho(a, atira && temTiro(M, a.arma), dt)) { gastar(M, a.arma); tiros.current = e.tiros }
+    const texto = textoDaMunicao(M, a.arma)
+    if (texto !== contador.current) { contador.current = texto; onMunicao(texto) }
     if (gatilhoArmadilha(a, pede && naMao, dt)) {
       const de = pontoDeSoltar(a); lancar(J.arm, scene, de, velocidadeDoArremesso(de, alvo, J.vel)); armadilhaFora(a, true); tiros.current = e.tiros
     }
@@ -398,6 +436,8 @@ function CenaAssombrado({ e, onInfo }: { e: Escolhas; onInfo: (i: Info) => void 
   const ALVO_Z = 1.1
   const alvo = useMemo(() => { const g = new THREE.Mesh(new THREE.RingGeometry(0.3, 0.38, 24).rotateX(-Math.PI / 2), new THREE.MeshBasicMaterial({ color: '#c2453a' })); g.position.set(0, 0.01, ALVO_Z); return g }, [])
   const noLugar = (z: number) => { a.root.position.set(0, 0, z); a.root.rotation.y = 0; a.molas.pos = null; a.anim.yaw = null } // pula sem o tranco nas molas
+  const camera = useThree((st) => st.camera)
+  useEffect(() => () => calar(a), [a]) // saindo da tela, ele se cala
   useEffect(() => {
     const c = contas(a.root)
     a.root.updateMatrixWorld(true)
@@ -412,6 +452,7 @@ function CenaAssombrado({ e, onInfo }: { e: Escolhas; onInfo: (i: Info) => void 
     if (!p) return
     if (a.anim.estourado) { refazer(a); noLugar(0) }
     if (p.acao === 'atacar') { noLugar(-0.6); atacar(a); I.ataque = true; I.espera = 0 }
+    else if (p.acao === 'surgir') { noLugar(0); surgirAssombrado(a, E, 0) }
     else if (p.acao === 'dano') ferir(a, Math.random() * Math.PI * 2)
     else { estourarAssombrado(a, E, 0); I.volta = 2.5 }
   }, [e.demonio])
@@ -427,6 +468,7 @@ function CenaAssombrado({ e, onInfo }: { e: Escolhas; onInfo: (i: Info) => void 
       a.root.position.z += s.avanca * dt
       if (!a.anim.golpe && (I.espera += dt) > 0.9) { I.ataque = false; noLugar(0) }
     } else if (e.girar) a.root.rotation.y += dt * 0.5
+    ouvinte(camera); ouvirAssombrado(a, dt)
     passoEstouro(E, dt)
   })
   return <>
@@ -447,6 +489,8 @@ function CenaAsaSombria({ e, onInfo }: { e: Escolhas; onInfo: (i: Info) => void 
   const anel = useMemo(() => { const g = new THREE.Mesh(new THREE.RingGeometry(0.22, 0.3, 24), new THREE.MeshBasicMaterial({ color: '#c2453a', side: THREE.DoubleSide })); g.position.copy(alvo); return g }, [alvo])
   const ida = useRef({ ang: 0, lado: 1, volta: 0 })
   const _d = useMemo(() => new THREE.Vector3(), [])
+  const camera = useThree((st) => st.camera)
+  useEffect(() => () => calar(a), [a])
   useEffect(() => { a.root.position.set(0, ALTURA, 0); a.anim.ultimo = null; a.molas.pos = null }, [a])
   useEffect(() => {
     const c = contas(a.root)
@@ -484,7 +528,9 @@ function CenaAsaSombria({ e, onInfo }: { e: Escolhas; onInfo: (i: Info) => void 
     r.position.addScaledVector(_d.set(Math.cos(r.rotation.y), 0, -Math.sin(r.rotation.y)), s.lado * dt)
     r.position.addScaledVector(_d.set(Math.sin(r.rotation.y), 0, Math.cos(r.rotation.y)), -s.recua * dt)
     if (s.cospe) disparar(P, s.cospe, alvo)
+    ouvinte(camera); ouvirAsaSombria(a, dt)
     passoProjeteis(P, dt, E, 0)
+    for (const p of P.bateu) somEm(p, bolaBatendo)
     passoEstouro(E, dt)
   })
   return <>
@@ -492,6 +538,166 @@ function CenaAsaSombria({ e, onInfo }: { e: Escolhas; onInfo: (i: Info) => void 
     <primitive object={E.grupo} />
     <primitive object={P.grupo} />
     {e.demonio?.acao === 'cuspir' && <primitive object={anel} />}
+  </>
+}
+
+function CenaDevora({ e, onInfo }: { e: Escolhas; onInfo: (i: Info) => void }) {
+  // montarDevoraAlmas na lista: salvar o .bbmodel recarrega o módulo e ele é montado de novo
+  const d = useMemo(() => montarDevoraAlmas(), [montarDevoraAlmas])
+  const F = useMemo(() => novosEfeitosDevora(), []), E = useMemo(() => novoEstouro(), [])
+  // o agente (o alvo dos ataques), em cima da marca; no "Atacar (engole o agente)", é ele que vai para dentro
+  const ag = useMemo(() => { const a = montarAgente('agente'); a.root.visible = false; return a }, [montarAgente])
+  // os demônios que ele cospe (dois Assombrados e uma Asa sombria) e os que surgem do chão (na terceira barra): somem
+  // sozinhos depois de um tempo. A Asa sai voando da boca até a altura do voo, num ponto à frente, e fica lá.
+  type Cria = { t: number } & ({ a: Assombrado } | { asa: AsaSombria; de: THREE.Vector3; para: THREE.Vector3 })
+  const crias = useRef<Cria[]>([]), grupoCrias = useMemo(() => new THREE.Group(), [])
+  // um chão de verdade: esconde o corpo quando ele nada por baixo (como o chão do mapa)
+  // (as distâncias da cena acompanham o tamanho dele: ESCALA)
+  const k = ESCALA_DEVORA
+  const chao = useMemo(() => { const m = new THREE.Mesh(new THREE.PlaneGeometry(16 * k, 16 * k).rotateX(-Math.PI / 2), new THREE.MeshStandardMaterial({ color: '#2a292e', roughness: 1 })); m.position.y = -0.004; return m }, [])
+  // a marca (onde o agente fica); de onde ele parte para a marca, para a investida e para cuspir Assombrados
+  const MARCA = useMemo(() => new THREE.Vector3(0, 0, 2.5 * k), []), PARTIDA = useMemo(() => new THREE.Vector3(-3 * k, 0, -1.5 * k), [])
+  const LONGE = useMemo(() => new THREE.Vector3(-3 * k, 0, -3 * k), []), NINHO = useMemo(() => new THREE.Vector3(3 * k, 0, -1 * k), [])
+  const RAIO = 3 * k // nadando em roda: o raio (m)
+  // o controle (faz as vezes da inteligência): livre (segue a animação escolhida), indo (nada pelos pontos do ataque e,
+  // se ele pede, vira para o agente), atacando (o ataque segue sozinho até ele voltar a nadar)
+  const I = useRef({ fase: 'livre' as 'livre' | 'indo' | 'atacando', acao: null as AcaoDemonio | null, pontos: [] as THREE.Vector3[], ponto: 0, pega: false, volta: 0 })
+  const { pronto, voar } = useVoo()
+  const _v = useMemo(() => new THREE.Vector3(), [])
+  const camera = useThree((st) => st.camera)
+  useEffect(() => () => { calar(d); crias.current.forEach((c) => calar('a' in c ? c.a : c.asa)) }, [d])
+  useEffect(() => { d.root.position.set(0, d.anim.y, 0) }, [d])
+  useEffect(() => { fase(d, e.faseDevora) }, [d, e.faseDevora])
+  useEffect(() => {
+    const c = contas(d.root)
+    d.root.updateMatrixWorld(true)
+    const b = new THREE.Box3().setFromObject(d.root)
+    onInfo({ linhas: [`Comprimento: ${(b.max.z - b.min.z).toFixed(2)} m`, `Altura: ${(b.max.y - b.min.y).toFixed(2)} m`, `${c.blocos} blocos em ${c.juntas} juntas`, `${c.desenhos} chamadas de desenho`] })
+  }, [d, onInfo])
+  useEffect(() => {
+    const k = ESCALA_DEVORA
+    if (pronto) voar(new THREE.Vector3(0, 0.4 * k, 0.4 * k), e.anim === 'andando' ? new THREE.Vector3(7.5 * k, 6.2 * k, 8 * k) : new THREE.Vector3(6.2 * k, 3.6 * k, 6.4 * k))
+  }, [pronto, e.anim])
+  useEffect(() => {
+    const p = e.demonio, C = I.current
+    if (!p) return
+    if (d.anim.estourado) { refazerDevora(d); fase(d, e.faseDevora); d.root.position.set(0, d.anim.y, 0); C.fase = 'livre' }
+    const ataques: Partial<Record<AcaoDemonio, THREE.Vector3[]>> = { atacar: [PARTIDA, MARCA], engolir: [PARTIDA, MARCA], investida: [LONGE], chuva: [], ninhada: [NINHO] }
+    const pontos = ataques[p.acao]
+    if (pontos) {
+      Object.assign(C, { fase: 'indo', acao: p.acao, pontos, ponto: 0, pega: p.acao === 'engolir' })
+      ag.root.visible = true // o agente em cima da marca, olhando para onde ele vem
+      ag.root.position.copy(MARCA); ag.root.rotation.y = Math.atan2(PARTIDA.x - MARCA.x, PARTIDA.z - MARCA.z)
+      mergulhar(d)
+    } else if (p.acao === 'atordoar' || p.acao === 'rastejar') {
+      Object.assign(C, { fase: 'atacando', acao: p.acao }) // no lugar onde ele está; acabando, volta a nadar
+      if (p.acao === 'atordoar') atordoar(d); else rastejar(d)
+    } else if (p.acao === 'arrancar') {
+      const n = d.anim.costas.indexOf(true), onde = n >= 0 ? arrancar(d, n) : null
+      if (onde) estourar(E, onde, 0.5 * k, 0, { cubos: 16, olhos: 0, mancha: false, tamanho: 2 })
+    } else if (p.acao === 'dano') ferirDevora(d, Math.random() * Math.PI * 2)
+    else if (p.acao === 'estourar') { estourarDevora(d, E, 0); C.volta = 2.5 }
+  }, [e.demonio])
+  /** Um Assombrado novo: arremessado da boca dele até `para`, ou surgindo do chão em `para`. */
+  const cria = (para: THREE.Vector3, de?: THREE.Vector3) => {
+    const a = montarAssombrado()
+    grupoCrias.add(a.root)
+    if (de) arremessar(a, de, para)
+    else { a.root.position.copy(para); a.root.rotation.y = Math.atan2(MARCA.x - para.x, MARCA.z - para.z); surgirAssombrado(a, E, 0) }
+    crias.current.push({ a, t: 0 })
+  }
+  /** Começa o ataque pedido (ele já está nadando no lugar certo). */
+  const comecar = (acao: AcaoDemonio) => {
+    const C = I.current, f3 = d.anim.fase >= 3
+    if (acao === 'atacar' || acao === 'engolir') marcar(d, C.pega)
+    else if (acao === 'investida') investir(d, f3 ? 2 : 1)
+    else if (acao === 'chuva') { // os círculos: o primeiro no agente, os outros em volta dele
+      const n = f3 ? 5 : 3, pontos = [MARCA.clone()]
+      for (let i = 1; i < n; i++) { const a = (i / (n - 1)) * Math.PI * 2 + Math.random(), r = 2.5 + Math.random() * 1.5; pontos.push(new THREE.Vector3(MARCA.x + Math.cos(a) * r, 0, MARCA.z + Math.sin(a) * r)) }
+      chover(d, n); chuvaDeTentaculos(F, pontos)
+    } else if (acao === 'ninhada') {
+      ninhada(d, 3)
+      if (f3) for (let i = 0; i < 2; i++) { const a = Math.random() * Math.PI * 2, r = 3 + Math.random() * 2; cria(new THREE.Vector3(MARCA.x + Math.cos(a) * r, 0, MARCA.z + Math.sin(a) * r)) } // na fase 3, também do chão
+    }
+    C.fase = 'atacando'
+  }
+  // nadando: o rumo com transição (acelera, freia, a curva com raio: devora-almas/nado.ts)
+  const nadarPara = (alvo: THREE.Vector3, dt: number) => nadarParaDevora(d, alvo, dt)
+  const virarPara = (alvo: THREE.Vector3, dt: number) => virarParaDevora(d, alvo, dt)
+  const CHEGOU = 0.5 // m: perto o bastante de um ponto do caminho
+  useFrame((_, dtBruto) => {
+    const dt = Math.min(dtBruto, 0.05), C = I.current, r = d.root
+    if (d.anim.estourado) { if ((C.volta -= dt) <= 0) { refazerDevora(d); r.position.set(0, d.anim.y, 0); r.rotation.y = 0; C.fase = 'livre' } }
+    const s = animarDevora(d, dt), modo = d.anim.modo
+    ouvinte(camera); ouvirDevora(d, s, dt)
+    r.position.y = s.y
+    r.position.x += Math.sin(r.rotation.y) * s.avanca * dt; r.position.z += Math.cos(r.rotation.y) * s.avanca * dt
+    if (!d.anim.estourado) {
+      if (C.fase === 'indo' && modo === 'nadando' && C.acao) {
+        if (C.ponto < C.pontos.length) { if (nadarPara(C.pontos[C.ponto], dt) < CHEGOU) C.ponto++ } // os pontos do caminho
+        else if ((C.acao !== 'investida' && C.acao !== 'ninhada') || virarPara(MARCA, dt) < 0.03) comecar(C.acao) // de frente para o agente
+      } else if (C.fase === 'atacando') {
+        if (modo === 'mira') virarPara(MARCA, dt) // na mira, ele acompanha o agente
+        if (modo === 'nadando') C.fase = 'livre' // acabou: voltou a nadar
+      }
+      else if (e.anim === 'andando') { // em roda: sempre um pouco à frente na roda
+        if (modo === 'solto') mergulhar(d)
+        else if (modo === 'nadando') { const a = Math.atan2(r.position.z, r.position.x) + 0.6; nadarPara(_v.set(Math.cos(a) * RAIO, 0, Math.sin(a) * RAIO), dt) }
+      } else if (modo === 'nadando') { // fora do chão: volta para o meio, vira de frente (+z) e sai
+        if (Math.hypot(r.position.x, r.position.z) > CHEGOU) nadarPara(_v.set(0, 0, 0), dt)
+        else if (virarPara(_v.set(r.position.x, 0, r.position.z + 10), dt) < 0.05) emergir(d)
+      }
+    }
+    // o que aconteceu: o respingo quando a cabeça passa pelo chão; o agente engolido e cuspido
+    if (s.rompe) estourar(E, _v.set(Math.sin(r.rotation.y), 0, Math.cos(r.rotation.y)).multiplyScalar(0.8 * ESCALA_DEVORA).add(r.position).setY(0.05), RESPINGO.raio, 0, { cubos: 18, olhos: 0, mancha: false, tamanho: 2 * RESPINGO.cubos })
+    if (s.mordeu && C.pega) ag.root.visible = false
+    if (s.cuspe && C.pega) {
+      ag.root.visible = true
+      ag.root.position.set(s.cuspe.x + Math.sin(r.rotation.y) * 0.9 * ESCALA_DEVORA, 0, s.cuspe.z + Math.cos(r.rotation.y) * 0.9 * ESCALA_DEVORA)
+      ag.root.rotation.y = r.rotation.y + Math.PI // olhando para ele, jogado para trás
+      tranco(ag, 0)
+    }
+    // um demônio cuspido: o Assombrado voa da boca para a frente (5 a 9 m) até o chão; a Asa sombria sai voando
+    if (s.cria) {
+      const f = _v.copy(s.cria.frente).setY(0).normalize(), dist = NINHADA.alcance[0] + Math.random() * (NINHADA.alcance[1] - NINHADA.alcance[0])
+      const para = new THREE.Vector3(s.cria.de.x + f.x * dist + (Math.random() - 0.5) * 3, 0, s.cria.de.z + f.z * dist + (Math.random() - 0.5) * 3)
+      if (s.cria.tipo === 'asa') {
+        const asa = montarAsaSombria()
+        asa.root.position.copy(s.cria.de); asa.root.rotation.y = Math.atan2(f.x, f.z); grupoCrias.add(asa.root)
+        crias.current.push({ asa, de: s.cria.de.clone(), para: para.setY(2.0), t: 0 })
+      } else cria(para, s.cria.de)
+    }
+    crias.current = crias.current.filter((c) => { // os cuspidos: andam (ou pairam) sozinhos um pouco e estouram (no Ver modelos)
+      c.t += dt
+      const raiz = 'a' in c ? c.a.root : c.asa.root
+      if ('a' in c) {
+        animarAssombrado(c.a, {}, dt)
+        if (c.t > 6 && !c.a.anim.estourado) estourarAssombrado(c.a, E, 0)
+        ouvirAssombrado(c.a, dt)
+      } else {
+        const u = Math.min(1, c.t / 0.9), sai = 1 - (1 - u) * (1 - u) // sai da boca rápido e freia lá na frente, subindo
+        c.asa.root.position.lerpVectors(c.de, c.para, sai); c.asa.root.position.y += 0.8 * Math.sin(Math.PI * u)
+        if (u >= 1) c.asa.root.rotation.y = Math.atan2(MARCA.x - c.para.x, MARCA.z - c.para.z) // pairando, de frente para o agente
+        animarAsaSombria(c.asa, {}, dt)
+        if (c.t > 6 && !c.asa.anim.estourado) estourarAsa(c.asa, E, 0)
+        ouvirAsaSombria(c.asa, dt)
+      }
+      if (c.t > 6.5) { grupoCrias.remove(raiz); calar('a' in c ? c.a : c.asa); return false }
+      return true
+    })
+    if (ag.root.visible) animarAgente(ag, { velocidade: 0, corrida: 0, esquiva: -1 }, dt)
+    passoEfeitosDevora(F, d, 0, dt, E)
+    for (const p of F.sons.aviso) somEm(p, avisoChuva, 4)
+    for (const p of F.sons.rompe) somEm(p, tentaculo, 4)
+    passoEstouro(E, dt)
+  })
+  return <>
+    <primitive object={chao} />
+    <primitive object={d.root} />
+    <primitive object={ag.root} />
+    <primitive object={grupoCrias} />
+    <primitive object={F.grupo} />
+    <primitive object={E.grupo} />
   </>
 }
 

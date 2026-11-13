@@ -8,7 +8,7 @@
 import { aoMudarConfig, getSettings } from '../settings/settings'
 
 export type Vogal = 'm' | 'u' | 'o' | 'a' | 'e' | 'i'
-export interface Som { ctx: AudioContext; saida: GainNode; eco: ConvolverNode; ruido: AudioBuffer; glote: PeriodicWave }
+export interface Som { ctx: BaseAudioContext; saida: GainNode; eco: ConvolverNode; ruido: AudioBuffer; glote: PeriodicWave }
 
 let S: Som | null = null
 const R = Math.random
@@ -18,9 +18,15 @@ const nivel = () => { const c = getSettings(); return NIVEL * (c.volume / 100) *
 function criar(): Som | null {
   const AC = window.AudioContext ?? (window as unknown as { webkitAudioContext?: typeof AudioContext }).webkitAudioContext
   if (!AC) return null
-  const ctx = new AC()
+  const s = montarSom(new AC(), nivel())
+  aoMudarConfig(() => s.saida.gain.setTargetAtTime(nivel(), s.ctx.currentTime, 0.05))
+  return s
+}
+
+/** A cadeia inteira num contexto de áudio (o do jogo, ou um fora da tela para as provas medirem): volume = o da saída. */
+export function montarSom(ctx: BaseAudioContext, volume: number): Som {
   const comp = ctx.createDynamicsCompressor(); comp.threshold.value = -16; comp.ratio.value = 5; comp.attack.value = 0.003; comp.release.value = 0.2
-  const saida = ctx.createGain(); saida.gain.value = nivel()
+  const saida = ctx.createGain(); saida.gain.value = volume
   const suave = ctx.createBiquadFilter(); suave.type = 'lowpass'; suave.frequency.value = 6500; suave.Q.value = 0.4
   const agudos = ctx.createBiquadFilter(); agudos.type = 'highshelf'; agudos.frequency.value = 2500; agudos.gain.value = -5
   saida.connect(suave); suave.connect(agudos); agudos.connect(comp); comp.connect(ctx.destination)
@@ -35,13 +41,12 @@ function criar(): Som | null {
   const H = 56, re = new Float32Array(H), im = new Float32Array(H)
   for (let k = 1; k < H; k++) im[k] = Math.pow(k, -1.25) * (k % 2 ? 1 : 0.72)
   const glote = ctx.createPeriodicWave(re, im)
-  aoMudarConfig(() => saida.gain.setTargetAtTime(nivel(), ctx.currentTime, 0.05))
   return { ctx, saida, eco, ruido, glote }
 }
 
 /** Liga o som na primeira interação (o navegador exige) e o retoma se ele for suspenso. Chame uma vez, no começo. */
 export function prepararSom() {
-  const liga = () => { if (!S) S = criar(); else if (S.ctx.state === 'suspended') void S.ctx.resume() }
+  const liga = () => { if (!S) S = criar(); else if (S.ctx.state === 'suspended') void (S.ctx as AudioContext).resume() }
   addEventListener('pointerdown', liga); addEventListener('keydown', liga)
 }
 

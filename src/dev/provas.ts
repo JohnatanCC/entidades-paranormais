@@ -3,10 +3,17 @@
 //   const c = await provas.mae('grito', 1.1)                 a Mãe num instante (null = parada; estado = EstadoMae)
 //   const s = await provas.assombrado('atacar', 0.6, 0)      o Assombrado num instante ('atacar', 'dano' ou null; andar m/s)
 //   const v = await provas.asaSombria('cuspir', 0.5, 0.2)    a Asa sombria a 2 m ('cuspir', 'desviar', 'dano' ou null; a fase das asas)
+//   const d = await provas.devora('erra', 1.4, 1)             o Devora almas ('solto', 'nadando', ou o ataque: 'erra', 'engole',
+//                                                             'investida', 'chuva', 'ninhada', 'atordoar', 'rastejar';
+//                                                             e a barra de vida, de 1 a 3)
+//   const g = await provas.agente('escopeta', 'recarga', 1.2)  o Matheus com a arma num instante ('recarga': a escopeta
+//                                                             recarregando, com `balas` no cano antes (0 = vazia); 'tiro':
+//                                                             mirando para a frente, atirando; ou null; andar m/s)
 //   await provas.fotos([['grito', c, 'lado'], ['rosto', c, 'rosto']])   as fotos num quadro por cima da tela
 //   provas.limpar()                                          tira o quadro
 //   provas.medidas(c)                                        mãos, cabeça, quadril; o ângulo de cada mecha
 //   await provas.som([['andando', 4000, { anda: 0.95 }], ['grito', 2000, { golpe: 'grito' }]])   o volume de cada trecho
+//   await provas.sonsDemonios()                               o volume de cada som dos Sombrios (sem tocar)
 //   provas.ir(x, z, yaw, pitch?, andar?)                    no Testar aberto: leva o agente a um ponto (fotos do mesmo lugar)
 //   provas.sombras()                                         quantas lâmpadas na cena e quantas fazem sombra agora
 //   provas.cena()                                            a cena do Testar aberto (luzes, malhas), para inspecionar
@@ -21,17 +28,26 @@ import { animarMae, golpear, type EstadoMae } from '../game/enemies/mae/animacao
 import type { NomeGolpe } from '../game/enemies/mae/golpes'
 import { pararSonsMae } from '../game/enemies/mae/sons'
 import { ouvinte } from '../audio/espaco'
-import { som } from '../audio/sintese'
+import { montarSom, som } from '../audio/sintese'
+import type { Parte } from '../game/enemies/sons'
+import { PARTES_ASSOMBRADO } from '../game/enemies/assombrado/sons'
+import { PARTES_ASA_SOMBRIA } from '../game/enemies/asa-sombria/sons'
+import { PARTES_DEVORA_ALMAS } from '../game/enemies/devora-almas/sons'
 import { ganchos } from './ganchos'
 import { nivelAtual } from '../render/qualidade'
 import { contarSombras } from '../render/sombras'
 import { montarAgente, type Agente, type ModeloAgente } from '../game/player/modelo'
 import { animarAgente } from '../game/player/animacao'
 import { pegarArma, type Arma } from '../game/player/arma'
+import { gastar, novaMunicao, passoMunicao, recarregar, temTiro } from '../game/weapons/municao'
+import { gatilho } from '../game/weapons/tiro'
 import { montarAssombrado } from '../game/enemies/assombrado/modelo'
 import { animarAssombrado, atacar, ferir } from '../game/enemies/assombrado/animacao'
 import { montarAsaSombria } from '../game/enemies/asa-sombria/modelo'
 import { animarAsaSombria, cuspir as cuspirAsa, desviar as desviarAsa, ferir as ferirAsa } from '../game/enemies/asa-sombria/animacao'
+import { montarDevoraAlmas } from '../game/enemies/devora-almas/modelo'
+import { animarDevora, atordoar, chover, fase as faseDevora, investir, marcar as marcarDevora, mergulhar as mergulharDevora, ninhada, rastejar } from '../game/enemies/devora-almas/animacao'
+import { chuvaDeTentaculos, novosEfeitosDevora, passoEfeitosDevora } from '../game/enemies/devora-almas/efeitos'
 
 /** m: a Mãe (as cenas do Assombrado não têm) */
 export interface Cena { m: Mae | null; sc: THREE.Scene }
@@ -51,6 +67,30 @@ async function mae(golpe: NomeGolpe | null, ate: number, estado: EstadoMae & { d
   m.root.updateMatrixWorld(true)
   await new Promise((ok) => setTimeout(ok, 600)) // a textura chegar
   return { m, sc }
+}
+
+/** O Matheus com uma arma num instante, no lugar: 'recarga' (a escopeta com `balas` no cano começa a recarregar),
+ *  'tiro' (mirando para a frente, segurando o gatilho) ou null; animado até `ate` s. andar = m/s (no lugar, como no Ver modelos). */
+async function agente(arma: Arma | null, acao: 'recarga' | 'tiro' | null, ate: number, andar = 0, balas = 0): Promise<Cena> {
+  const a = montarAgente(), sc = new THREE.Scene(), M = novaMunicao(), alvo = new THREE.Vector3(0, 1.45, 8)
+  sc.background = new THREE.Color('#1c1a1e')
+  sc.add(new THREE.HemisphereLight('#ffffff', '#4a4640', 1))
+  const d = new THREE.DirectionalLight('#ffffff', 1.3); d.position.set(1, 3, 3); sc.add(d)
+  sc.add(new THREE.Mesh(new THREE.PlaneGeometry(6, 6).rotateX(-Math.PI / 2), new THREE.MeshStandardMaterial({ color: '#333' })))
+  sc.add(a.root)
+  if (arma) pegarArma(a, arma)
+  a.anim.parado.espera = 99 // sem gesto sorteado: a foto sai igual
+  const e = (mira: boolean) => ({ velocidade: andar, corrida: andar > 3 ? 1 : 0, esquiva: -1, municao: M, mira: { quer: mira, alvo } })
+  for (let i = 0; i < 60; i++) animarAgente(a, e(false), 1 / 60)
+  if (acao === 'recarga') { M.balas = balas; recarregar(M) }
+  for (let t = 0; t < ate; t += 1 / 60) {
+    passoMunicao(M, a.arma, true, 1 / 60)
+    animarAgente(a, e(acao === 'tiro'), 1 / 60)
+    if (gatilho(a, acao === 'tiro' && temTiro(M, a.arma), 1 / 60)) gastar(M, a.arma)
+  }
+  a.root.updateMatrixWorld(true)
+  await new Promise((ok) => setTimeout(ok, 600))
+  return { m: null, sc }
 }
 
 /** O Assombrado num instante: assenta parado, começa a ação (atacar; dano vindo da frente) e anima até `ate` s;
@@ -89,6 +129,32 @@ async function asaSombria(acao: 'cuspir' | 'desviar' | 'dano' | null, ate: numbe
   }
   if (fase !== undefined) { a.anim.fase = (fase - 1 / 60 / 0.42 + 1) % 1; animarAsaSombria(a, {}, 1 / 60) }
   a.root.updateMatrixWorld(true)
+  await new Promise((ok) => setTimeout(ok, 600))
+  return { m: null, sc }
+}
+
+/** O Devora almas num instante, num chão de verdade: 'solto' (fora do chão), 'nadando' (embaixo, só os tentáculos das costas), ou
+ *  um ataque a partir do nado ('erra', 'engole', 'investida', 'chuva' com 5 círculos em volta de (0, 0, 7,5), 'ninhada'),
+ *  animado até `ate` s depois de começar; f = a fase (1 a 3). */
+async function devora(acao: 'solto' | 'nadando' | 'erra' | 'engole' | 'investida' | 'chuva' | 'ninhada' | 'atordoar' | 'rastejar', ate: number, f = 1): Promise<Cena> {
+  const d = montarDevoraAlmas(), F = novosEfeitosDevora(), sc = new THREE.Scene()
+  faseDevora(d, f)
+  sc.background = new THREE.Color('#1c1a1e')
+  sc.add(new THREE.HemisphereLight('#ffffff', '#4a4640', 1))
+  const l = new THREE.DirectionalLight('#ffffff', 1.3); l.position.set(1, 3, 3); sc.add(l)
+  sc.add(new THREE.Mesh(new THREE.PlaneGeometry(40, 40).rotateX(-Math.PI / 2), new THREE.MeshStandardMaterial({ color: '#333' })))
+  sc.add(d.root, F.grupo)
+  const passo = () => { d.root.position.y = animarDevora(d, 1 / 60).y; passoEfeitosDevora(F, d, 0, 1 / 60) }
+  for (let i = 0; i < 30; i++) passo()
+  if (acao !== 'solto') { mergulharDevora(d); for (let i = 0; i < 90 && d.anim.modo !== 'nadando'; i++) passo(); d.root.position.set(0, d.anim.y, 0) }
+  if (acao === 'erra' || acao === 'engole') marcarDevora(d, acao === 'engole')
+  else if (acao === 'investida') investir(d, f >= 3 ? 2 : 1)
+  else if (acao === 'chuva') { chover(d, 5); chuvaDeTentaculos(F, [0, 1, 2, 3, 4].map((i) => new THREE.Vector3(i ? Math.cos(i * 1.6) * 3 : 0, 0, 7.5 + (i ? Math.sin(i * 1.6) * 3 : 0)))) }
+  else if (acao === 'ninhada') ninhada(d, 3)
+  else if (acao === 'atordoar') atordoar(d)
+  else if (acao === 'rastejar') rastejar(d)
+  for (let t = 0; t < ate; t += 1 / 60) { const s = animarDevora(d, 1 / 60); d.root.position.y = s.y; d.root.position.z += s.avanca / 60; passoEfeitosDevora(F, d, 0, 1 / 60) }
+  d.root.updateMatrixWorld(true)
   await new Promise((ok) => setTimeout(ok, 600))
   return { m: null, sc }
 }
@@ -167,6 +233,24 @@ async function som_(roteiro: [string, number, EstadoMae & { golpe?: NomeGolpe; a
   return linhas.join('\n')
 }
 
+/** Os sons dos Sombrios (o sons.ts de cada um), cada parte tocada fora da tela, com o volume no máximo:
+ *  o RMS (do trecho com som) e o pico de cada uma, e se saiu NaN. */
+async function sonsDemonios() {
+  const linhas: string[] = []
+  const medir = async (quem: string, partes: Parte[]) => {
+    for (const [nome, tocar] of partes) {
+      const sr = 22050, ctx = new OfflineAudioContext(2, sr * 4, sr), s = montarSom(ctx, 0.55)
+      const dur = tocar(s, 0.05, s.saida)
+      const b = await ctx.startRendering(), d = b.getChannelData(0), n = Math.min(d.length, Math.ceil((dur + 0.3) * sr))
+      let soma = 0, pico = 0, nan = false
+      for (let i = 0; i < n; i++) { const x = d[i]; if (Number.isNaN(x)) nan = true; soma += x * x; pico = Math.max(pico, Math.abs(x)) }
+      linhas.push(`${quem} · ${nome} (${dur.toFixed(1)} s): rms ${Math.sqrt(soma / n).toFixed(3)} pico ${pico.toFixed(2)}${nan ? ' NaN!' : ''}`)
+    }
+  }
+  await medir('Assombrado', PARTES_ASSOMBRADO); await medir('Asa sombria', PARTES_ASA_SOMBRIA); await medir('Devora almas', PARTES_DEVORA_ALMAS)
+  return linhas.join('\n')
+}
+
 // ---------- o andar e a corrida ----------
 interface OpcPasso { corrida?: number; arma?: Arma; frente?: boolean; mover?: [number, number] } // mover: de lado ou de costas (no espaço dele)
 const PASSO_DT = 1 / 240
@@ -235,4 +319,4 @@ function ir(x: number, z: number, yaw: number, pitch?: number, andar?: number) {
   return 'ok'
 }
 
-export const provas = { mae, assombrado, asaSombria, fotos, limpar, medidas, som: som_, ir, passo, escorrega, qualidade: nivelAtual, sombras: contarSombras, cena: () => ganchos.cena, gl: () => ganchos.gl }
+export const provas = { mae, agente, sonsDemonios, assombrado, asaSombria, devora, fotos, limpar, medidas, som: som_, ir, passo, escorrega, qualidade: nivelAtual, sombras: contarSombras, cena: () => ganchos.cena, gl: () => ganchos.gl }

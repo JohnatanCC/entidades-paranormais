@@ -5,7 +5,7 @@
 // Referencial: origem no centro da base do objeto; +z é a FRENTE (o lado que fica para a sala quando encosta na parede).
 import { LEVEL_H } from './types'
 
-export type Grupo = 'casa' | 'intro' | 'luz'
+export type Grupo = 'casa' | 'intro' | 'submundo' | 'luz'
 
 export interface ObjDef {
   nome: string
@@ -65,6 +65,20 @@ export const OBJETOS: Record<string, ObjDef> = {
   'caixa-madeira': { nome: 'Caixa de madeira', grupo: 'intro', tam: [0.8, 0.8, 0.8] },
   'banco': { nome: 'Banco', grupo: 'intro', tam: [1.6, 0.45, 0.4] },
   'monitor': { nome: 'Monitor', grupo: 'intro', tam: [0.44, 0.4, 0.4] },
+  // --- o submundo (a Demo · Intro): as ilhas de rocha negra no vazio, as ruínas e o vermelho ---
+  'rocha-grande': { nome: 'Rocha grande', grupo: 'submundo', tam: [2.4, 1.8, 2.0] },
+  'rocha-media': { nome: 'Rocha média', grupo: 'submundo', tam: [1.2, 0.9, 1.0] },
+  'pedregulho': { nome: 'Pedregulho', grupo: 'submundo', tam: [1.2, 0.3, 1.0] },
+  'espinho-rocha': { nome: 'Espinho de rocha', grupo: 'submundo', tam: [0.9, 3.4, 0.9] },
+  'rocha-flutuante': { nome: 'Rocha flutuante (no ar)', grupo: 'submundo', tam: [2.0, 1.8, 1.8] },
+  // embaixo da beirada de uma ilha (pendurada para baixo do chão): não bate em nada
+  'base-ilha': { nome: 'Base da ilha (embaixo)', grupo: 'submundo', tam: [5.6, 0.1, 5.6] },
+  'pilar-ruina': { nome: 'Pilar em ruína', grupo: 'submundo', tam: [0.9, 2.9, 0.9] },
+  'pilar-caido': { nome: 'Pilar caído', grupo: 'submundo', tam: [0.9, 0.6, 3.4] },
+  'arco-ruina': { nome: 'Arco em ruína', grupo: 'submundo', tam: [4.1, 4.2, 0.9] },
+  'muro-ruina': { nome: 'Muro em ruína', grupo: 'submundo', tam: [3.0, 1.9, 0.6] },
+  'destrocos': { nome: 'Destroços', grupo: 'submundo', tam: [2.0, 0.6, 1.8] },
+  'cristal-vermelho': { nome: 'Cristal vermelho', grupo: 'submundo', tam: [0.7, 1.4, 0.7], params: MODO, luz: { pos: [0, 0.9, 0], cor: '#ff3a24', forca: 7, alcance: 8 } },
   // --- a luz ---
   'lampada-teto': { nome: 'Lâmpada de teto', grupo: 'luz', tam: [0.56, 0.32, 0.56], apoio: 'teto', params: MODO, luz: { pos: [0, -0.4, 0] } },
   'lustre': { nome: 'Lustre', grupo: 'luz', tam: [0.95, 0.62, 0.95], apoio: 'teto', params: MODO, luz: { pos: [0, -0.45, 0], forca: 13, alcance: 9 } },
@@ -75,4 +89,4 @@ export const OBJETOS: Record<string, ObjDef> = {
   'lamparina': { nome: 'Lamparina', grupo: 'luz', tam: [0.16, 0.45, 0.16], params: MODO, luz: { pos: [0, 0.29, 0], cor: '#ffb060', forca: 2.6, alcance: 3.5 } },
 }
 
-export const GRUPOS: [Grupo, string][] = [['casa', 'A casa'], ['intro', 'A Intro'], ['luz', 'Luz']]
+export const GRUPOS: [Grupo, string][] = [['casa', 'A casa'], ['intro', 'A Intro'], ['submundo', 'O submundo'], ['luz', 'Luz']]

@@ -1,5 +1,5 @@
-// A arma na mão direita do agente: só o modelo e como a mão segura (atirar, a sobrecarga e a armadilha jogada vêm na
-// etapa das armas). O modelo é modelos/armas/<nome>.bbmodel; a pasta "empunhadura" dele é o ponto que vai na mão.
+// A arma na mão direita do agente: o modelo e como a mão segura (mirar e atirar: mira.ts; a recarga: recarga.ts; jogar a
+// armadilha: weapons/armadilha.ts). O modelo é modelos/armas/<nome>.bbmodel; a pasta "empunhadura" dele é o ponto que vai na mão.
 // O espaço da mão direita (o do modelo do agente): os dedos para −y, a palma para +z, o polegar para −x.
 // A escopeta, pesada, vai com as duas mãos (a esquerda na bomba); parado um tempo, ele apoia no ombro (posturaDaEscopeta).
 // A armadilha vai pendurada pela alça e balança (animarArma). Os números em numeros.ts (ESCOPETA, ARMADILHA).
@@ -9,9 +9,9 @@ import { arma3d } from '../../render/objetos3d'
 import { alcancar } from './alcancar'
 import type { PoseMao } from './maos'
 import type { Agente, Braco } from './modelo'
-import { ARMADILHA, ESCOPETA } from './numeros'
+import { ARMADILHA, ESCOPETA, PISTOLA } from './numeros'
 import { novoClarao } from '../weapons/clarao'
-import { TIRO } from '../weapons/numeros'
+import { MUNICAO, TIRO } from '../weapons/numeros'
 
 export type Arma = 'pistola' | 'escopeta' | 'armadilha'
 export const ARMAS: [Arma, string][] = [['pistola', 'Pistola de plasma'], ['escopeta', 'Escopeta de Demantino'], ['armadilha', 'Armadilha']]
@@ -48,21 +48,27 @@ export function pegarArma(a: Agente, nome: Arma | null) {
   if (pega) obj.position.copy(pega.getWorldPosition(new THREE.Vector3())).negate()
   const g = new THREE.Group(); g.name = NOME
   g.position.copy(p.ponto); g.quaternion.copy(p.giro)
-  // o vidro da armadilha "respira": um material só desta cópia (os outros modelos da armadilha não piscam junto)
-  const luz = nome === 'armadilha' ? (obj.getObjectByName('#luz') as THREE.Mesh | undefined) : undefined
+  // o vidro da armadilha "respira" e o frasco da pistola esquenta: um material só desta cópia (os outros modelos não piscam junto)
+  const luz = nome === 'armadilha' || nome === 'pistola' ? (obj.getObjectByName('#luz') as THREE.Mesh | undefined) : undefined
   if (luz) { luz.material = aplicarBrilho((luz.material as THREE.MeshBasicMaterial).clone()); g.userData.luz = luz.material }
   // a bomba da escopeta corre para trás no gesto (e, depois, no tiro): guarda a peça e onde ela fica parada
   const bomba = obj.getObjectByName('bomba')
   if (bomba) { g.userData.bomba = bomba; g.userData.bombaZ = bomba.position.z }
+  // a câmara da escopeta: para onde as balas vão na recarga (o marcador no meio do bloco)
+  const camara = obj.getObjectByName('camara_sal')
+  if (camara) g.userData.camara = camara
   // o clarão do tiro: escondido na pasta "cano" (a pistola e a escopeta)
   const cano = obj.getObjectByName('cano')
   if (cano && (nome === 'pistola' || nome === 'escopeta')) { const c = novoClarao(TIRO[nome].cor); c.scale.setScalar(TIRO[nome].tamanho); cano.add(c); g.userData.clarao = c }
   g.add(obj); mao.add(g)
 }
 
+/** O grupo da arma na mão direita (o modelo e o que a animação guarda nele), ou undefined de mão vazia. */
+export const grupoDaArma = (a: Agente) => a.arms[0].hd.getObjectByName(NOME)
+
 /** A armadilha saiu da mão (fora = true) ou voltou: a da mão some ou aparece (e o pêndulo recomeça parado). */
 export function armadilhaFora(a: Agente, fora: boolean) {
-  const g = a.arms[0].hd.getObjectByName(NOME)
+  const g = grupoDaArma(a)
   a.anim.arma.fora = fora
   if (g) g.visible = !fora
   if (!fora) a.anim.arma.solta = true
@@ -75,16 +81,21 @@ export function armadilhaFora(a: Agente, fora: boolean) {
  *  o tiro (mira.ts, weapons/tiro.ts): mira = quanto a arma está levantada (0..1); cd = quanto falta para o próximo tiro;
  *  coice = o tranco do último tiro (1 no tiro, passa); tiroT = s desde o último tiro; clarao = s que o clarão ainda fica.
  *  a armadilha jogada (weapons/armadilha.ts): lanca = s desde o começo do arremesso (−1 = não está jogando); fora = ela
- *  está fora da mão (voando, presa, voltando). */
+ *  está fora da mão (voando, presa, voltando).
+ *  a recarga da escopeta (recarga.ts): recarga = o quanto a pose está valendo (0..1); rt = s desde o começo e rn =
+ *  quantas balas entram (os da recarga de agora, ou da última, enquanto a pose some).
+ *  a pistola (weapons/municao.ts): calor = 0..1 e travada = a sobrecarga; o frasco acende com o calor e apaga travado. */
 export interface AnimArma {
   bob: THREE.Vector3; ant: THREE.Vector3; solta: boolean; t: number; giro: number; brilho: number
   ombro: number; parado: number; esquerda: number; bomba: number
   mira: number; cd: number; coice: number; tiroT: number; clarao: number
   lanca: number; fora: boolean
+  recarga: number; rt: number; rn: number
+  calor: number; travada: number
 }
 export const novaAnimArma = (): AnimArma => ({
   bob: new THREE.Vector3(), ant: new THREE.Vector3(), solta: true, t: 0, giro: 0, brilho: 0, ombro: 0, parado: 0, esquerda: 0, bomba: 0,
-  mira: 0, cd: 0, coice: 0, tiroT: 9, clarao: 0, lanca: -1, fora: false,
+  mira: 0, cd: 0, coice: 0, tiroT: 9, clarao: 0, lanca: -1, fora: false, recarga: 0, rt: 0, rn: 0, calor: 0, travada: 0,
 })
 
 // ---------- levar a arma (e as mãos) até uma pose, no espaço do peito ----------
@@ -144,7 +155,7 @@ export function posturaDaEscopeta(a: Agente, e: { parado: boolean; amp: number; 
 /** A mão esquerda na bomba da escopeta, onde a arma estiver agora (guarda, gesto ou no meio do caminho), e a bomba
  *  correndo para trás quando um gesto pede. Depois da postura e dos gestos. */
 export function maoNaBomba(a: Agente) {
-  const A = a.anim.arma, g = a.arms[0].hd.getObjectByName(NOME)
+  const A = a.anim.arma, g = grupoDaArma(a)
   const bomba = g?.userData.bomba as THREE.Object3D | undefined
   if (!g || !bomba) return
   bomba.position.z = (g.userData.bombaZ as number) - ESCOPETA.bomba.curso * A.bomba
@@ -168,10 +179,12 @@ export function maoNaBomba(a: Agente) {
 const _piv = new THREE.Vector3(), _dir = new THREE.Vector3(), _vel = new THREE.Vector3(), _qm = new THREE.Quaternion(), _qg = new THREE.Quaternion()
 const BAIXO = new THREE.Vector3(0, -1, 0), CIMA = new THREE.Vector3(0, 1, 0)
 
-/** Depois da pose do corpo: a armadilha balança pela alça (a gravidade e o tranco da mão) e o vidro respira. */
+/** Depois da pose do corpo: o clarão do tiro, o frasco da pistola (o calor), e a armadilha balança pela alça (a
+ *  gravidade e o tranco da mão) e o vidro respira. */
 export function animarArma(a: Agente, dt: number) {
   const L = a.anim.arma
-  const g = a.arms[0].hd.getObjectByName(NOME)
+  const g = grupoDaArma(a)
+  L.t += dt
   // o clarão do tiro: aparece no tiro, girado e de tamanho sorteados, e some logo
   const clarao = g?.userData.clarao as THREE.Mesh | undefined
   if (clarao) {
@@ -179,6 +192,15 @@ export function animarArma(a: Agente, dt: number) {
     clarao.visible = L.clarao > 0
   }
   L.clarao = Math.max(0, L.clarao - dt)
+  // o frasco da pistola: acende mais com o calor (e treme perto do limite); travado, apaga e volta a acender devagar
+  // enquanto esfria (o tempo que falta para destravar)
+  const frasco = a.arma === 'pistola' ? (g?.userData.luz as THREE.MeshBasicMaterial | undefined) : undefined
+  if (frasco) {
+    const F = PISTOLA.frasco, c = L.calor
+    frasco.color.setScalar(L.travada > 0
+      ? F.apagado + (1 - F.apagado) * (1 - L.travada / MUNICAO.pistola.trava) ** 2 * (0.85 + 0.15 * Math.sin(L.t * 9))
+      : 1 + F.acende * c + F.treme * Math.max(0, c - 0.7) / 0.3 * Math.sin(L.t * 37))
+  }
   if (!g || a.arma !== 'armadilha' || dt <= 0) { L.giro = L.brilho = 0; return }
   const P = ARMADILHA.pendulo
   a.root.updateMatrixWorld(true)
@@ -197,7 +219,6 @@ export function animarArma(a: Agente, dt: number) {
   _dir.applyQuaternion(_qm)
   g.quaternion.setFromUnitVectors(BAIXO, _dir).multiply(_qg.setFromAxisAngle(CIMA, L.giro))
   // o vidro respira devagar (e acende mais quando um gesto pede)
-  L.t += dt
   const luz = g.userData.luz as THREE.MeshBasicMaterial | undefined
   if (luz) { const B = ARMADILHA.brilho; luz.color.setScalar(B.minimo + (1 - B.minimo) * (0.5 + 0.5 * Math.sin((L.t / B.volta) * Math.PI * 2)) + L.brilho) }
   L.giro = L.brilho = 0 // os gestos escrevem de novo a cada quadro

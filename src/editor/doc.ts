@@ -421,6 +421,8 @@ export function andarTemCoisa(doc: MapDoc, level: number) {
 const comAreas = (doc: MapDoc, areas: AreaAmbiente[]): MapDoc => ({ ...doc, meta: { ...doc.meta, areas } })
 
 export const comAmbiente = (doc: MapDoc, ambiente: string): MapDoc => ({ ...doc, meta: { ...doc.meta, ambiente } })
+/** Liga ou desliga o mapa sem chão (o térreo só onde há piso: o submundo). */
+export const comSemChao = (doc: MapDoc, semChao: boolean): MapDoc => ({ ...doc, meta: { ...doc.meta, semChao } })
 
 /** Põe uma área nova (o id sai sozinho: area-1, area-2...). */
 export function comArea(doc: MapDoc, a: Omit<AreaAmbiente, 'id'>): { doc: MapDoc; id: string } {

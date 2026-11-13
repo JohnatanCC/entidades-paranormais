@@ -190,6 +190,10 @@ desenvolvedor; os traços, não o personagem dela):
 - Bloco `luz_` brilha sozinho: o frasco de ectoplasma da pistola e o vidro da armadilha.
 - Como a mão segura cada uma (o giro e o ponto na palma) fica em `src/game/player/arma.ts`: a pistola e a escopeta com o
   cano seguindo os dedos, a armadilha pendurada pela alça.
+- `modelos/armas/cartucho.bbmodel` (12/nov): o cartucho da recarga da escopeta, na mão esquerda. A origem é o meio da tira
+  (onde os dedos seguram) e as balas descem para −y. As balas são as pastas `bala_1` a `bala_4` (a origem de cada uma
+  no topo dela, onde encaixa na tira), todas `luz_` (o Demantino brilha): a recarga tira cada pasta da tira e leva
+  até o bloco `camara_sal` da escopeta (`src/game/player/recarga.ts`).
 
 ## Passo a passo
 
@@ -239,14 +243,22 @@ desenvolvedor; os traços, não o personagem dela):
 
 ## Os demônios (12/nov)
 
-- `modelos/demonios/<nome>.bbmodel`, com 64 px por metro, como os personagens: o Assombrado (`assombrado.bbmodel`) e a
-  Asa sombria (`asa-sombria.bbmodel`). As pastas de cada um, o desenho e as animações estão em `docs/demonios.md`.
+- `modelos/demonios/<nome>.bbmodel`, com 64 px por metro, como os personagens: o Assombrado (`assombrado.bbmodel`), a
+  Asa sombria (`asa-sombria.bbmodel`) e o Devora almas (`devora-almas.bbmodel`). As pastas de cada um, o desenho e as
+  animações estão em `docs/demonios.md`.
 - **Não têm o esqueleto do Matheus:** cada um tem as juntas do próprio corpo (o Assombrado: `quadril`, `corpo`, os três
   olhos, os braços com a `garra`, a perna `coxa` › `canela` › `pe`; a Asa sombria: `corpo`, as quatro pétalas da boca,
-  o `nucleo`, as asas com a ponta). O nome das pastas é o que o código procura.
-- **A Asa sombria voa:** a origem dela é o centro do corpo, não o chão (no Blockbench ela fica metade abaixo da grade).
-  As pétalas giram pela pasta: o ponto de giro de cada uma é a dobra, na ponta de fora do losango da boca.
-- **O que balança:** toda pasta `mecha_...` (a ponta do capuz, os pingos de matéria) balança com mola, presa no `corpo`.
+  o `nucleo`, as asas com a ponta; o Devora almas: `corpo`, a `mandibula`, os três tentáculos das costas e os seis de trás, de três
+  pastas). O nome das pastas é o que o código procura.
+- **A Asa sombria e o Devora almas:** a origem é o meio do corpo, não o chão (no Blockbench eles ficam metade abaixo da
+  grade). As pétalas da Asa giram pela pasta: o ponto de giro de cada uma é a dobra, na ponta de fora do losango da
+  boca. A frente do Devora é +z, como a de todos: a cabeça de tubarão para a frente, os tentáculos para trás.
+- **O Devora almas cresce no jogo:** no arquivo ele tem 3,3 m; o jogo o deixa 3 vezes maior (`ESCALA` em
+  `src/game/enemies/devora-almas/numeros.ts`). Modele no tamanho do arquivo.
+- **As rachaduras das fases do Devora:** as pastas `racha_2` e `racha_3` ficam escondidas e aparecem na fase 2 e na 3.
+  Rachadura nova para uma fase: um bloco `luz_` fino dentro da pasta dela.
+- **O que balança:** toda pasta `mecha_...` (a ponta do capuz, os pingos de matéria, o manto do Devora) balança com mola,
+  presa no `corpo`.
 - **O que brilha:** blocos `luz_`, cada um na sua pasta (os olhos do Assombrado, o núcleo da Asa): é a pasta que pisca,
   apaga e cresce.
 - **A perna do Assombrado é calculada no jogo:** a dobra que aparece no Blockbench vem do giro das pastas da perna, só
@@ -265,5 +277,6 @@ desenvolvedor; os traços, não o personagem dela):
 3. **Os fantasmas no mesmo estilo:** ✅ a Mãe (o modelo, 10/nov; as animações em etapas) e o Glutão (ver
    "A identidade visual" em `docs/jogo.md`).
 4. **Os demônios, os Sombrios** (12/nov): em `modelos/demonios/`, com as pastas de cada um em `docs/demonios.md`.
-   ✅ O Assombrado (`assombrado.bbmodel`) e a Asa sombria (`asa-sombria.bbmodel`): os modelos de partida, para retocar.
+   ✅ O Assombrado (`assombrado.bbmodel`), a Asa sombria (`asa-sombria.bbmodel`) e o Devora almas (`devora-almas.bbmodel`):
+   os modelos de partida, para retocar.
 5. **Lara e Nicolas**: ✅ os modelos (11/nov, acima); a lanterna da Lara, as rotas, as falas e as cenas quando a demo Intro for trazida.

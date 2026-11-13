@@ -79,6 +79,21 @@ export const AMBIENTES: Record<string, Ambiente> = {
     exposicao: 1.25, brilho: 0.6,
     sombras: '#d6e2ff', luzes: '#eef3ff', contraste: 1.08, saturacao: 0.92, vinheta: 0.3,
   },
+  // o submundo (a Demo · Intro): sem céu de noite; a névoa vermelha engole o vazio em volta das ilhas, o alto é quase
+  // preto, uma luz vermelha fraca de cima (como uma brasa enorme atrás da névoa) e o vermelho dos cristais e das fendas.
+  // A névoa (12/nov, a pedido): densa a média distância, ~50% a 25 m e mais de 90% a 46 m (a largura da arena do
+  // chefe): cada arena se vê inteira, a seguinte some no vermelho; a luz mais clara que a da casa (é um lugar aberto)
+  submundo: {
+    nome: 'Submundo', cor: '#c2453a',
+    neblina: '#4a1712', densidade: 0.034,
+    zenite: '#120405', estrelas: 0, lua: 0,
+    ceu: '#e08a7c', chao: '#5a2620', forca: 2.6,
+    preenchimento: '#e0a090', forcaPreenchimento: 0.9,
+    luar: '#ff8a6a', forcaLuar: 1.9,
+    contorno: '#ffb4a4', forcaContorno: 1.0,
+    exposicao: 1.45, brilho: 0.75,
+    sombras: '#ffe2dc', luzes: '#ffe6da', contraste: 1.15, saturacao: 1.05, vinheta: 0.45,
+  },
 }
 
 /** A ambientação de um mapa que não diz qual (os mapas do formato 1) e a de um nome que não existe no catálogo. */

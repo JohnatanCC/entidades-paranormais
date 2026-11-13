@@ -1,0 +1,44 @@
+{
+ "cx": 0,
+ "cz": 4,
+ "walls": [],
+ "floors": [],
+ "openings": [],
+ "stairs": [],
+ "props": [
+  {
+   "id": "rocha-flutuante-168",
+   "type": "rocha-flutuante",
+   "level": 0,
+   "pos": [
+    12.37,
+    9.62,
+    66.2
+   ],
+   "rot": [
+    19.465411472567737,
+    209.5,
+    5.170662752511596
+   ],
+   "free": true
+  },
+  {
+   "id": "rocha-flutuante-188",
+   "type": "rocha-flutuante",
+   "level": 0,
+   "pos": [
+    8.53,
+    -5.5,
+    66.14
+   ],
+   "rot": [
+    19.187302905309295,
+    328.7,
+    -19.00002499483528
+   ],
+   "free": true
+  }
+ ],
+ "decals": [],
+ "points": []
+}

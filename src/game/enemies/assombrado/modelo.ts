@@ -34,6 +34,8 @@ export interface Assombrado {
     piscar: { prox: number; t: number }[] // por olho: quanto falta para piscar e há quanto tempo está piscando (−1 = não)
     estourado: boolean
     yaw: number | null; giro: number // para medir o quanto ele vira (o balanço inclina para dentro da curva)
+    voo: { de: THREE.Vector3; para: THREE.Vector3; t: number; dur: number; alto: number } | null // arremessado (cuspido pelo Devora)
+    surgir: { t: number; respingo: (() => void) | null } | null // subindo do líquido preto
   }
 }
 
@@ -55,7 +57,7 @@ export function montarAssombrado(): Assombrado {
     base: { quadril: quadril.position.y, coxa: coxa.position.clone(), L1: canela.position.length(), L2: pe.position.length(), tornozelo, braco: Math.abs(bracos[0].braco.rotation.z) },
     anim: {
       t: Math.random() * 10, vel: 0, pulo: -1, balanco: { x: 0, z: 0, vx: 0, vz: 0, prox: 1 }, golpe: null, dano: null,
-      piscar: [0, 1, 2].map(() => ({ prox: 0.5 + Math.random() * 3, t: -1 })), estourado: false, yaw: null, giro: 0,
+      piscar: [0, 1, 2].map(() => ({ prox: 0.5 + Math.random() * 3, t: -1 })), estourado: false, yaw: null, giro: 0, voo: null, surgir: null,
     },
   }
   return a

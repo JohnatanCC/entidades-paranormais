@@ -19,11 +19,51 @@ Vale sobre `docs/design/historia.md` onde discordarem; os detalhes ainda vão se
 - **A mansão é um portal para o submundo.** Nela há uma ruptura na realidade, que está crescendo. Uma ruptura abre onde
   houve muitas mortes trágicas, desespero, dor e trauma: o Palacete Monteval e o que a família viveu em 1930.
 - **A C.R.O.S. envia três agentes**, o Matheus, a Lara e o Nicolas, com uma ferramenta que repara essas rachaduras. A
-  ruptura aumenta e suga os três, e cada um cai num lugar diferente da **mansão do submundo**, uma versão distorcida da casa.
+  ruptura aumenta e suga os três, e cada um cai num lugar diferente do **submundo**. Para chegar à **mansão do submundo**
+  (uma versão distorcida da casa), o Matheus atravessa antes o caminho das ilhas (abaixo).
 - **Só o Matheus é jogável** (por enquanto). Ele procura a saída e os outros dois e captura os fantasmas, que **fortalecem
   o portal e a mansão**: a cada chefe capturado a mansão muda (ver "Capítulos" acima).
 - **Fantasmas e demônios:** os fantasmas foram gente (a família Monteval) e são os chefes, capturados. Os demônios são
   do submundo, os **Sombrios** (`docs/demonios.md`): os inimigos comuns e o mini-chefe, só destruídos.
+
+## O caminho das ilhas: a chegada ao submundo (12/nov)
+
+Puxado pelo portal, o Matheus cai num lugar do submundo antes da mansão. Ele segue um caminho enfrentando os Sombrios e
+**aprendendo as mecânicas**; no fim, um chefe mais difícil, o **Devora almas**, e só depois de vencê-lo ele chega de
+verdade à mansão.
+
+- **O lugar:** um vazio com **pedaços de rocha negra flutuando**, como ilhas, e uma **névoa vermelha densa** em volta.
+  Há um **líquido preto com partículas vermelhas**: é de onde os demônios surgem.
+- **A arena do Devora almas:** uma ilha flutuante bem espaçosa; ele surge do chão dela (nada embaixo da ilha, só o vazio).
+  A ilha precisa ser grossa no meio (uma ponta de rocha para baixo, como um iceberg): no salto, o corpo dele desce uns
+  9 m dentro dela. E o teto não existe: o salto (a boca passa dos 7 m) cabe.
+- **O que encaixa:** é o lugar natural para a Intro reformulada (ensinar aos poucos e terminar num chefe); os Sombrios
+  saindo do líquido dão sentido ao "surgir" do Assombrado; a névoa densa é barata e ajuda no celular (esconde o longe).
+- **O que pede de novo:** uma ambientação (`submundo`, em `src/maps/ambientes.ts`: a névoa vermelha, a luz baixa e
+  avermelhada, sem lua nem luar de janela); a textura da rocha negra e a do líquido preto (as partículas, de leve); as
+  rochas flutuantes como objetos do Blockbench; a regra de cair da beira da ilha. O formato do mapa não muda: as ilhas
+  são pisos sem paredes.
+
+**Decidido (12/nov):**
+- **É o tutorial do jogo**, e o **Devora almas é o chefe dele**: ataques diferentes (`docs/demonios.md`), mas **pouco
+  dano**, justamente por ser o tutorial (os números entram com a luta; o engolido de 20 por segundo será revisto).
+- **Sem captura no caminho:** nenhum desses demônios é capturado, todos só morrem (estouram). A armadilha e a poça ficam
+  para depois do caminho.
+- **Não se cai da ilha:** uma barreira invisível na beira das ilhas impede.
+- **O mapa é conteúdo novo** no criador de mapas (as rochas como objetos, a textura do líquido, a barreira), sem mudar o
+  formato do mapa.
+
+**Para depois (o desenvolvedor decide quando chegar lá):**
+- **O mapa do tutorial** no criador de mapas e os **pontos de horda** (os scripts).
+- **A arena trancada na horda:** como não há portas, quando uma horda começa um **tornado em volta do cenário** empurra o
+  agente para dentro; ele passa quando a horda é derrotada. Cuidado: a luta da Mãe já tem um tornado (o do berçário); os
+  dois precisam ser bem diferentes de ver.
+
+**Em aberto:**
+- **A Intro antiga e o Glutão:** a instalação da C.R.O.S. deixa de ser o tutorial, e o Glutão deixa de ser o chefe dele.
+  Onde os dois entram (se entram) fica para decidir.
+- **A Lara e o Nicolas:** cada um caiu num lugar. No caminho o Matheus está sozinho; o Nicolas pode falar pelo rádio
+  (ele é o da comunicação) e ser a voz que ensina (sugestão).
 
 ## A identidade visual (10/nov)
 
@@ -164,22 +204,47 @@ não colidem com ele, e só "lutam" nas cutscenes. Usam a mesma animação de an
 ## As armas
 
 Mudado em 12/nov: a pistola nunca acaba, mas esquenta; a escopeta é forte, mas a munição é contada. O jogador decide
-quando gastar um cartucho, e a pistola cobre o resto sem deixá-lo parado.
+quando gastar um cartucho, e a pistola cobre o resto sem deixá-lo parado. **O ritmo é dinâmico** (decidido em 12/nov): a
+luta não é para ser lenta; os ataques dos inimigos são legíveis para o jogador entender, desviar e atacar.
 
 | Arma | Atalho | Tiro | Dano | Limite |
 | --- | --- | --- | --- | --- |
 | Pistola de plasma | 1 | a cada 0,2 s, bala a 40 m/s | 3 | **sobrecarga**: +3% por tiro; cheia, trava por 5 s. Munição infinita |
-| Escopeta de Demantino (o ferro extraído dos objetos amaldiçoados) | 2 | a cada 1 s, 5 bagos em leque 0,065, 46 m/s | 5 × 10 | **balas**: 4 no cano, recarga de 2,5 s por bala. Sem sobrecarga |
+| Escopeta de Demantino (o ferro extraído dos objetos amaldiçoados) | 2 | a cada 1 s, 5 bagos em leque 0,065, 46 m/s | 5 × 10 | **balas**: 4 no cano; **a recarga leva 1,5 s por bala que falta** (4 = 6 s), e cada bala vale ao entrar. Sem sobrecarga |
+| Armadilha | 3 | jogada (mira com o botão direito) | — | — |
+| Kit médico | F | — | cura 60 | — |
+
+**A recarga da escopeta (decidida e feita em 12/nov; mudada no mesmo dia):** leva **1,5 s por bala que falta** (1 bala
+= 1,5 s, 4 balas = 6 s; antes eram 2,5 s fixos) e **cada bala vale assim que entra** na câmara. Para o ritmo continuar
+rápido: recarrega andando e correndo; recarrega sozinho 0,35 s depois que a última bala sai, e com **R** antes disso;
+atirar vazia também começa. Esquivar, cair ou trocar de arma corta a recarga (ficam as balas que já entraram, e dá
+para recomeçar); **um clique novo no gatilho também corta** (e o tiro sai com o que entrou). Segurando o gatilho, a
+recarga continua até o fim. Os primeiros 0,7 s são pegar o cartucho; os últimos 0,45 s, puxar a bomba; as balas
+dividem o resto. A animação (`src/game/player/recarga.ts`):
+- a mão esquerda solta a bomba e vai à bolsa do cinto; puxa o cartucho (`modelos/armas/cartucho.bbmodel`);
+- a direita levanta a arma de pé na frente do ombro direito, com a câmara virada para ele: assim a câmera do jogo,
+  por cima do ombro, vê a recarga ao lado da cabeça (na frente do peito, o corpo escondia tudo);
+- a esquerda segura o cartucho por cima da câmara e as balas, que brilham, vêm uma de cada vez (só as que faltavam):
+  cada uma flutua para fora do cartucho girando e pulsando, e então é puxada pela arma, acelerando e fazendo a curva;
+  a arma desce um pouco quando ela entra (e o contador sobe);
+- o cartucho vazio se desfaz, a mão volta à bomba e puxa: pronta.
+
+**A sobrecarga da pistola (feita em 12/nov):** +3% por tiro e não esfria enquanto atira: segurando o gatilho, trava no
+34º tiro (uns 7 s). Parando, esfria 8% por segundo, e 25% por segundo depois de 2 s (os números do documento de
+design). Cheia, trava 5 s, esfriando até 30%, e volta. Esfria mesmo guardada (trocar de arma é a saída). O frasco de
+ectoplasma em cima dela mostra: acende mais com o calor, treme perto do limite e, travada, apaga e volta a acender
+devagar até destravar.
+
+Os números ficam em `src/game/weapons/numeros.ts` (MUNICAO) e os tempos da animação em `src/game/player/numeros.ts`
+(RECARGA). Por enquanto, um contador simples: no Testar, embaixo da vida ("Escopeta 3/4 · recarregando", "Pistola ·
+calor 42%", "travada 3 s"); no Ver modelos, na parte de atirar, com os botões "Segurar o gatilho" e "Recarregar".
 
 **A munição da escopeta (12/nov): infinita por enquanto**, para testar. Mais tarde, as balas são **fabricadas** com o que
 se junta dos objetos destruídos e dos demônios mortos, num sistema de fabricação de munição e de aprimoramento (para
 depois: é grande, mexe no HUD, num menu novo e no que cada inimigo solta; desenhar antes de construir).
 
-**Em aberto (decidir na etapa das armas):** se a recarga, bala por bala, pode ser interrompida pelo tiro;
-os 2,5 s por bala (10 s para as 4) no teste; a cor do clarão e do tiro de plasma; o vidro da "câmara de sal" no modelo
+**Em aberto (decidir na etapa das armas):** a cor do clarão e do tiro de plasma; o vidro da "câmara de sal" no modelo
 da escopeta (o gesto de parado virou "conferir os cartuchos") e os cartuchos de sal do traje, que viram de Demantino.
-| Armadilha | 3 | jogada (mira com o botão direito) | — | — | — |
-| Kit médico | F | — | cura 60 | — | — |
 
 Trocar: 1/2/3, Q (alterna), rodinha do mouse, ou **Tab segurado = roda de armas**.
 Mirar: botão direito. Atirar: botão esquerdo. Correr: Shift. Interagir: E.
@@ -190,7 +255,7 @@ Os modelos (10/nov) estão em `modelos/armas/` e o agente já segura cada uma (`
   esquerda na bomba, o peito um pouco para trás com o peso; correndo, ela sobe; **mirar também vai ser com as duas**;
 - a armadilha pendurada pela alça, balançando.
 
-No Testar, Q troca (pistola, escopeta, armadilha, mão vazia).
+No Testar, Q troca (pistola, escopeta, armadilha, mão vazia) e R recarrega a escopeta.
 
 **Mirar e atirar (10/nov, sem bala ainda):** o botão direito mira; o esquerdo atira (atirar sem mirar levanta a arma
 antes, e o tiro sai quando ela chega). Mirando, a câmera chega mais perto, mais de lado e fecha (um ponto no meio da
@@ -208,8 +273,8 @@ acompanha para baixo. Ela voa girando e **gruda no chão (em pé) ou na parede (
 Fora da mão, um clique a chama de volta: ela voa até a mão. Trocar de arma com ela fora a recolhe na hora
 (`src/game/weapons/armadilha.ts`). A captura (abrir a íris, o raio, puxar a poça) vem com o primeiro fantasma.
 
-A bala, o dano e a sobrecarga vêm na etapa das armas. Quando ela chegar,
-1/2/3 deixam de mostrar as expressões no Testar (isso fica no Ver modelos).
+A bala e o dano vêm na etapa 4b (`docs/demonios.md`). Quando os atalhos 1/2/3 das armas chegarem, eles deixam de
+mostrar as expressões no Testar (isso fica no Ver modelos).
 
 ## Tomar dano e ficar machucado (10/nov)
 
@@ -432,7 +497,7 @@ Com a regra de destruir ou capturar (10/nov), a Intro muda assim (vale sobre o `
 - o **tutorial da armadilha passa para a usina**: o aviso aparece na primeira poça do Glutão;
 - os menores que o Glutão cospe são destruídos a tiro, e destruir antes que ele os devore continua impedindo a cura.
 
-**A Intro vai ser reformulada** (12/nov, para depois): sem o Espectral, ela perdeu os inimigos das ondas e os que o
+**A Intro foi reformulada** (12/nov): a Demo · Intro nova é o submundo, `docs/intro.md`. O texto abaixo é de antes: sem o Espectral, ela perdeu os inimigos das ondas e os que o
 Glutão cospe. O que está acima é como ela foi feita no laboratório.
 
 ## Fica de fora (não trazer do laboratório)

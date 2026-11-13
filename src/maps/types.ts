@@ -3,9 +3,10 @@
 //   chunks/<cx>_<cz>.json  um arquivo por bloco de 16 × 16 m (cx, cz = índice do bloco)
 // Tudo o que está no mapa pertence ao bloco do quadrado onde ele começa (a posição x, z arredondada para baixo).
 // Unidades: metros; ângulos em graus; o eixo y é para cima; o andar 0 é o térreo.
-// A versão 2 (11/nov) trouxe a ambientação; um mapa da versão 1 é convertido ao ser lido (formato.ts).
+// A versão 2 (11/nov) trouxe a ambientação e a 3 (12/nov), o mapa sem chão (o submundo); um mapa antigo é convertido
+// ao ser lido (formato.ts).
 
-export const FORMATO = 2
+export const FORMATO = 3
 
 export const GRID = 1 // as paredes ficam nas linhas desta grade (m)
 export const SNAP_OBJ = 0.25 // os objetos encaixam a cada (m)
@@ -144,6 +145,9 @@ export interface MapMeta {
   spawn: { pos: Vec3; yaw: number; level: number }
   ambiente: string // a ambientação do mapa onde nenhuma área diz outra (o nome no catálogo)
   areas: AreaAmbiente[] // as áreas com outra ambientação; onde duas se cruzam, vale a menor
+  // sem chão: o térreo só tem chão onde há piso (o submundo, as ilhas no vazio): a beirada segura o agente, como uma
+  // parede que não se vê. Sem isso (a casa), o térreo é chão em toda parte
+  semChao: boolean
   chunks: string[] // "cx_cz" de cada bloco que existe
 }
 

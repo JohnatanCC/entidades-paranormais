@@ -7,7 +7,9 @@
 // Vale para dois tipos de material:
 //   - o cenário (paredes, pisos, tetos, escadas): a luz vem em cada vértice da malha (aplicarAssada);
 //   - os objetos (móveis, portas, janelas, personagens, armas): a luz é uma amostra só para o objeto inteiro, tirada
-//     no lugar onde ele está (aplicarLuzObjeto + iluminarObjeto). Sem direção: o objeto clareia por igual.
+//     no lugar onde ele está (aplicarLuzObjeto + iluminarObjeto). Sem direção: o objeto clareia por igual;
+//   - os objetos repetidos juntados numa malha só, no jogo (render/instancias.ts): a amostra de cada cópia vem com
+//     ela, nos atributos da instância (aplicarLuzInstancias).
 // A luz das janelas vem sempre daqui. As lâmpadas "falhando" piscam todas juntas no jogo (um número só).
 import { ShaderChunk, Vector3, Vector4, type Material, type Mesh, type Object3D } from 'three'
 import type { LuzVertice } from '../maps/luzAssada'
@@ -39,24 +41,32 @@ vec3 lampadaDaMalha( vec4 l ) { float id = abs( l.a ); return ( id == uComSombra
 interface LuzObjeto { a: { value: Vector4 }; b: { value: Vector4 }; resto: { value: Vector3 }; indireta: { value: Vector3 } }
 const doObjeto = new WeakMap<Material, LuzObjeto>()
 
-function remendar(mat: Material, objeto: LuzObjeto | null) {
+// de onde vem a luz: a malha do cenário (cada vértice), um objeto (os uniforms dele) ou as cópias juntadas (os
+// atributos de cada instância)
+type Fonte = LuzObjeto | 'instancias' | null
+const somaDoObjeto = (a: string, b: string, resto: string, indireta: string) =>
+  `vLuzIndireta = ${indireta} * uIndireta;\nvLuzMalha = vec3( 0.0 );\n#if defined( LUZ_ASSADA ) || defined( LUZ_MISTA )\nvLuzMalha = ${resto} + lampadaDaMalha( ${a} ) + lampadaDaMalha( ${b} );\n#endif`
+
+function remendar(mat: Material, objeto: Fonte) {
   const prev = mat.onBeforeCompile
   mat.onBeforeCompile = (s, r) => {
     prev?.call(mat, s, r)
     s.uniforms.uPisca = ASSADA.pisca
     s.uniforms.uComSombra = ASSADA.comSombra
     s.uniforms.uIndireta = ASSADA.indireta
-    if (objeto) { s.uniforms.uObjA = objeto.a; s.uniforms.uObjB = objeto.b; s.uniforms.uObjResto = objeto.resto; s.uniforms.uObjIndireta = objeto.indireta }
-    const dados = objeto ? 'uniform vec4 uObjA; uniform vec4 uObjB; uniform vec3 uObjResto; uniform vec3 uObjIndireta;\n' : 'attribute vec4 luzA; attribute vec4 luzB; attribute vec3 luzResto; attribute vec3 luzJanela; attribute vec3 luzIndireta;\n'
-    const soma = objeto
-      ? 'vLuzIndireta = uObjIndireta * uIndireta;\nvLuzMalha = vec3( 0.0 );\n#if defined( LUZ_ASSADA ) || defined( LUZ_MISTA )\nvLuzMalha = uObjResto + lampadaDaMalha( uObjA ) + lampadaDaMalha( uObjB );\n#endif'
+    if (objeto && objeto !== 'instancias') { s.uniforms.uObjA = objeto.a; s.uniforms.uObjB = objeto.b; s.uniforms.uObjResto = objeto.resto; s.uniforms.uObjIndireta = objeto.indireta }
+    const dados = objeto === 'instancias' ? 'attribute vec4 iLuzA; attribute vec4 iLuzB; attribute vec3 iLuzResto; attribute vec3 iLuzIndireta;\n'
+      : objeto ? 'uniform vec4 uObjA; uniform vec4 uObjB; uniform vec3 uObjResto; uniform vec3 uObjIndireta;\n'
+      : 'attribute vec4 luzA; attribute vec4 luzB; attribute vec3 luzResto; attribute vec3 luzJanela; attribute vec3 luzIndireta;\n'
+    const soma = objeto === 'instancias' ? somaDoObjeto('iLuzA', 'iLuzB', 'iLuzResto', 'iLuzIndireta')
+      : objeto ? somaDoObjeto('uObjA', 'uObjB', 'uObjResto', 'uObjIndireta')
       : 'vLuzIndireta = luzIndireta * uIndireta;\nvLuzMalha = luzJanela;\n#if defined( LUZ_ASSADA ) || defined( LUZ_MISTA )\nvLuzMalha += luzResto + lampadaDaMalha( luzA ) + lampadaDaMalha( luzB );\n#endif'
     s.vertexShader = dados + LAMPADA + s.vertexShader.replace('#include <begin_vertex>', '#include <begin_vertex>\n' + soma)
     s.fragmentShader = 'varying vec3 vLuzMalha; varying vec3 vLuzIndireta;\n' + s.fragmentShader
       .replace('#include <lights_fragment_begin>', LUZES)
       .replace('#include <lights_fragment_end>', '#include <lights_fragment_end>\nreflectedLight.directDiffuse += vLuzMalha * BRDF_Lambert( material.diffuseColor );\nreflectedLight.indirectDiffuse += vLuzIndireta * BRDF_Lambert( material.diffuseColor );')
   }
-  mat.customProgramCacheKey = () => (objeto ? 'assada-objeto' : 'assada')
+  mat.customProgramCacheKey = () => (objeto === 'instancias' ? 'assada-instancias' : objeto ? 'assada-objeto' : 'assada')
   const d = DEFINE[ASSADA.modo]
   if (d) mat.defines = { ...mat.defines, [d]: '' }
   materiais.add(mat)
@@ -74,6 +84,13 @@ export function aplicarLuzObjeto<M extends Material>(mat: M): M {
   doObjeto.set(mat, luz)
   remendar(mat, luz)
   return anotar(mat, aplicarLuzObjeto as (m: Material) => unknown)
+}
+
+/** Ensina o material das cópias juntadas numa malha só (render/instancias.ts) a usar a luz de cada cópia: os atributos
+ *  iLuzA, iLuzB, iLuzResto e iLuzIndireta da instância (a mesma amostra de iluminarObjeto, uma por cópia). */
+export function aplicarLuzInstancias<M extends Material>(mat: M): M {
+  remendar(mat, 'instancias')
+  return anotar(mat, aplicarLuzInstancias as (m: Material) => unknown)
 }
 
 /** Dá a este objeto materiais só dele (os modelos repetidos dividem o material, e a luz é de cada lugar). A geometria

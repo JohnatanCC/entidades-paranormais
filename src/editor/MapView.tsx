@@ -3,6 +3,7 @@
 // janelas, e os objetos (com as lâmpadas acesas).
 // Os andares acima de maxLevel não aparecem. As texturas vêm do catálogo (render/materiais.ts).
 // No Testar, "portas" traz o estado vivo das portas (abrindo e fechando); fora dele, as portas ficam como no mapa.
+// No jogo (juntar), os objetos repetidos são desenhados juntos (render/instancias.ts).
 import { useEffect, useMemo } from 'react'
 import type { Chunk } from '../maps/types'
 import { materialDe } from '../render/materiais'
@@ -16,9 +17,9 @@ import { Objetos } from './Objetos'
 // o material da malha de sombra: não pinta nada (fora da sombra a malha nem é desenhada)
 const SO_SOMBRA = new THREE.MeshBasicMaterial({ colorWrite: false, depthWrite: false })
 
-interface Props { chunks: Record<string, Chunk>; maxLevel: number; ocultar?: string | null; portas?: PortasVivas | null }
+interface Props { chunks: Record<string, Chunk>; maxLevel: number; ocultar?: string | null; portas?: PortasVivas | null; juntar?: boolean }
 
-export function MapView({ chunks, maxLevel, ocultar, portas }: Props) {
+export function MapView({ chunks, maxLevel, ocultar, portas, juntar }: Props) {
   const lista = useMemo(() => Object.values(chunks), [chunks])
   const paredes = useMemo(() => wallGeometries(lista, maxLevel), [lista, maxLevel])
   const pisos = useMemo(() => floorGeometries(lista, maxLevel), [lista, maxLevel])
@@ -46,7 +47,7 @@ export function MapView({ chunks, maxLevel, ocultar, portas }: Props) {
       {[...corrimao].map(([m, g]) => <mesh key={'c' + m} geometry={g} material={materialCorrimao(m)} castShadow receiveShadow />)}
       {/* a chave troca no começo e no fim do Testar: as folhas voltam para o ângulo do mapa */}
       <Aberturas key={portas ? 'jogo' : 'editor'} chunks={lista} maxLevel={maxLevel} portas={portas ?? undefined} />
-      <Objetos chunks={lista} maxLevel={maxLevel} ocultar={ocultar} />
+      <Objetos chunks={lista} maxLevel={maxLevel} ocultar={ocultar} juntar={juntar} />
     </group>
   )
 }

@@ -1,6 +1,7 @@
 // As ações do jogador. O jogo lê AÇÕES (mover, correr, esquivar, olhar, mirar, atirar), nunca teclas: assim o controle e o toque
 // (celular) entram depois sem mexer no agente. Por enquanto, teclado e mouse:
-//   WASD / setas = mover · Shift = correr · Espaço = esquivar · E = interagir (portas) · Q = trocar de arma · F = kit médico · mouse (com o cursor travado) = olhar
+//   WASD / setas = mover · Shift = correr · Espaço = esquivar · E = interagir (portas) · Q = trocar de arma · R = recarregar
+//   F = kit médico · mouse (com o cursor travado) = olhar
 //   botão direito = mirar · botão esquerdo = atirar (só com o cursor travado: sem ele, o esquerdo arrasta para olhar)
 export class Acoes {
   private teclas = new Set<string>()
@@ -63,6 +64,8 @@ export class Acoes {
   interagir() { const v = this.apertou.has('KeyE'); this.apertou.delete('KeyE'); return v }
   /** Trocar de arma (a próxima da lista): true uma vez por aperto do Q. */
   trocarArma() { const v = this.apertou.has('KeyQ'); this.apertou.delete('KeyQ'); return v }
+  /** Recarregar (a escopeta): true uma vez por aperto do R. */
+  recarregar() { const v = this.apertou.has('KeyR'); this.apertou.delete('KeyR'); return v }
   /** Usar um kit médico: true uma vez por aperto do F. */
   kit() { const v = this.apertou.has('KeyF'); this.apertou.delete('KeyF'); return v }
   /** Mirar: o botão direito segurado. */

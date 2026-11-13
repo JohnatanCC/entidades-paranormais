@@ -9,7 +9,7 @@ import { Grid } from '@react-three/drei'
 import type { Go } from '../App'
 import * as disco from '../maps/storage'
 import { CHUNK, LEVEL_H } from '../maps/types'
-import { aberturas, andarTemCoisa, comAbertura, comAmbiente, comAndares, comArea, mudarArea, semArea, comEscada, comObjeto, comParedes, comPiso, docDe, escadaCabe, escadas, sentidoNovo, mudarAbertura, mudarEscada, mudarObjeto, objetos, pacoteDe, pintarLados, semAbertura, semEscada, semObjeto, semParedes, semPiso, type LadoDe, type MapDoc, type Seg } from './doc'
+import { aberturas, andarTemCoisa, comAbertura, comAmbiente, comSemChao, comAndares, comArea, mudarArea, semArea, comEscada, comObjeto, comParedes, comPiso, docDe, escadaCabe, escadas, sentidoNovo, mudarAbertura, mudarEscada, mudarObjeto, objetos, pacoteDe, pintarLados, semAbertura, semEscada, semObjeto, semParedes, semPiso, type LadoDe, type MapDoc, type Seg } from './doc'
 import type { AreaAmbiente, Prop, Stair, Vec3 } from '../maps/types'
 import { AMBIENTE_PADRAO } from '../maps/ambientes'
 import { FerramentaAmbiente, nomeAmbiente } from './FerramentaAmbiente'
@@ -112,6 +112,7 @@ export function MapEditor({ go }: { go: Go }) {
   const [mirando, setMirando] = useState(false)
   const [escuro, setEscuro] = useState(false)
   const [vidaTeste, setVidaTeste] = useState(100)
+  const [armaTeste, setArmaTeste] = useState<string | null>(null)
   // o estado vivo das portas enquanto testa (o mapa não muda; sair do teste volta tudo como estava)
   const portasVivas = useMemo<PortasVivas | null>(() => (testando ? new Map() : null), [testando])
   useEffect(() => { setModoParedes(testando ? 'altas' : modoParedes) }, [modoParedes, testando])
@@ -122,7 +123,7 @@ export function MapEditor({ go }: { go: Go }) {
     setSelecionada(null); setTipoObjeto(null)
     setTestando({ inicio: [a.x, andar * LEVEL_H, a.y], yaw: Math.atan2(-d.x, -d.y) })
   }
-  const sairTeste = useCallback(() => { setTestando(null); setTravado(false); setDicaTeste(null) }, [])
+  const sairTeste = useCallback(() => { setTestando(null); setTravado(false); setDicaTeste(null); setArmaTeste(null) }, [])
   // o aviso some sozinho depois de uns segundos
   useEffect(() => { if (!aviso) return; const t = setTimeout(() => setAviso(''), 5000); return () => clearTimeout(t) }, [aviso])
   const statusRef = useRef<HTMLSpanElement>(null)
@@ -417,8 +418,8 @@ export function MapEditor({ go }: { go: Go }) {
             <directionalLight position={[8, 16, 6]} intensity={1.4} />
             <directionalLight position={[-10, 8, -4]} intensity={0.5} />
           </>}
-          {doc && <Suspense fallback={null}><MapView chunks={doc.chunks} maxLevel={testando ? nAndares - 1 : andar} ocultar={ferramenta === 'objetos' && !testando ? arrastando : null} portas={portasVivas} /></Suspense>}
-          {doc && testando && portasVivas && <Testar chunks={doc.chunks} levels={nAndares} ambiente={doc.meta.ambiente} areas={doc.meta.areas} inicio={testando.inicio} yaw={testando.yaw} portas={portasVivas} onTravado={setTravado} onDica={setDicaTeste} onMira={setMirando} onEscuro={setEscuro} onVida={setVidaTeste} onSair={sairTeste} />}
+          {doc && <Suspense fallback={null}><MapView chunks={doc.chunks} maxLevel={testando ? nAndares - 1 : andar} ocultar={ferramenta === 'objetos' && !testando ? arrastando : null} portas={portasVivas} juntar={!!testando} /></Suspense>}
+          {doc && testando && portasVivas && <Testar chunks={doc.chunks} levels={nAndares} ambiente={doc.meta.ambiente} semChao={doc.meta.semChao} areas={doc.meta.areas} inicio={testando.inicio} yaw={testando.yaw} portas={portasVivas} onTravado={setTravado} onDica={setDicaTeste} onMira={setMirando} onEscuro={setEscuro} onVida={setVidaTeste} onArma={setArmaTeste} onSair={sairTeste} />}
           {testando && <Desempenho onTexto={onDesempenho} />}
           {doc && !testando && (ferramenta === 'paredes' || ferramenta === 'apagar') && <FerramentaParedes doc={doc} andar={andar} apagar={ferramenta === 'apagar'} onFeito={onFeito} onInfo={onInfo} />}
           {doc && !testando && ferramenta === 'piso' && <FerramentaPiso doc={doc} andar={andar} onFeito={onPiso} onInfo={onInfo} />}
@@ -443,9 +444,10 @@ export function MapEditor({ go }: { go: Go }) {
         {testando && <div className={escuro ? 'escuro-teste ligado' : 'escuro-teste'} />}
         {testando && <pre className="desempenho-teste" ref={desempenhoRef} />}
         {testando && <div className={vidaTeste <= 30 ? 'vida-teste perigo' : 'vida-teste'}>Vida {vidaTeste}%</div>}
+        {testando && armaTeste && <div className={armaTeste.includes('travada') ? 'arma-teste perigo' : 'arma-teste'}>{armaTeste}</div>}
         {testando && <div className={travado ? 'teste-b jogando' : 'teste-b'}>
           {travado
-            ? <span>WASD anda · Shift corre · Espaço esquiva · E abre e fecha porta · Q troca a arma · botão direito mira, esquerdo atira (ou joga a armadilha; fora, chama de volta) · mouse olha (sem o cursor travado: arraste) · 1–6 expressões, 7–9 mãos, 0 automático, J toma dano, F kit, K cai, M momento de luz, F3 desempenho · <b>Esc</b> volta ao editor</span>
+            ? <span>WASD anda · Shift corre · Espaço esquiva · E abre e fecha porta · Q troca a arma · R recarrega a escopeta · botão direito mira, esquerdo atira (ou joga a armadilha; fora, chama de volta) · mouse olha (sem o cursor travado: arraste) · 1–6 expressões, 7–9 mãos, 0 automático, J toma dano, F kit, K cai, M momento de luz, F3 desempenho · <b>Esc</b> volta ao editor</span>
             : <><b>Testar</b><span>Clique na vista para jogar · Esc volta ao editor</span></>}
         </div>}
         {/* o Painel Inspetor: as configurações do que está escolhido, numa janela que se arrasta */}
@@ -478,6 +480,7 @@ export function MapEditor({ go }: { go: Go }) {
           {ferramenta === 'ambiente' && doc && <>
             <div className="bloco-g"><span className="rotulo-b">Área nova</span><EscolherAmbiente valor={ambienteNovo} onEscolher={setAmbienteNovo} /></div>
             <div className="bloco-g"><span className="rotulo-b">O resto do mapa</span><EscolherAmbiente valor={doc.meta.ambiente} onEscolher={(a) => hist.mudar((d) => d && comAmbiente(d, a))} /></div>
+            <label className="nota"><input type="checkbox" checked={doc.meta.semChao} onChange={(ev) => hist.mudar((d) => d && comSemChao(d, ev.target.checked))} /> Sem chão: o térreo só onde há piso (o submundo, as ilhas no vazio; a beirada segura o agente)</label>
             <div className="nota">Os números de cada ambientação ficam em src/maps/ambientes.ts.</div>
           </>}
           {(ferramenta === 'paredes' || ferramenta === 'apagar' || ferramenta === 'contagotas') && <div className="nota">{EXTRA[ferramenta]}</div>}

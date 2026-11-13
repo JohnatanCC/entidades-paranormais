@@ -6,7 +6,7 @@ export const AGENTE = {
   freio: 22, // m/s² freando
   folego: 6, // segundos de corrida
   folegoVolta: 1.4, // quanto o fôlego volta por segundo
-  esquiva: { dist: 2.7, dur: 0.5, recarga: 0.7 }, // a cambalhota: distância (m), duração e espera (s)
+  esquiva: { dist: 2.7, dur: 0.5, recarga: 0.7, invul: [0.03, 0.34] }, // a cambalhota: distância (m), duração e espera (s); invulnerável neste trecho (s)
   raio: 0.3, // o corpo no chão (m)
   vida: 200, // o HUD mostra em %
   invulneravel: 0.9, // s sem tomar dano de novo depois de um golpe
@@ -94,6 +94,11 @@ export const ARMADILHA = {
   brilho: { volta: 3.4, minimo: 0.7 }, // s de uma respiração do vidro; o mais fraco (1 = o brilho cheio)
 }
 
+// A pistola na mão (player/arma.ts): o frasco de ectoplasma mostra a sobrecarga (weapons/municao.ts)
+export const PISTOLA = {
+  frasco: { acende: 0.7, treme: 0.18, apagado: 0.12 }, // quanto acende cheio de calor e treme perto do limite; travado, o brilho que sobra
+}
+
 // A escopeta na mão (player/arma.ts), pesada: com as duas mãos (a esquerda na bomba); parado um tempo, apoiada no ombro.
 // Pontos e direções no espaço do peito (x = esquerda do agente, y = cima, z = frente; a origem na cintura)
 export const ESCOPETA = {
@@ -101,6 +106,28 @@ export const ESCOPETA = {
   ombro: { pega: [-0.19, 0.3, 0.2], cano: [-0.12, 0.72, -0.68], cima: [0, -0.7, -0.7], espera: 1.2, vai: 2.5, volta: 9 }, // apoiada: o cano para cima e para trás; espera = s parado até apoiar
   peso: 0.035, // quanto o peito vai para trás com a escopeta na frente (rad)
   bomba: { curso: 0.07 }, // quanto a bomba corre para trás (m)
+}
+
+// A recarga da escopeta (player/recarga.ts). Quanto ela dura e quando cada bala entra é da munição (weapons/numeros.ts,
+// MUNICAO: 1,5 s por bala); aqui, os tempos da pose em s. Pontos e direções no espaço do peito (x = esquerda do agente,
+// y = cima, z = frente)
+export const RECARGA = {
+  entra: 14, sai: 10, // quão rápido a pose entra e some (cortada: o cartucho some junto)
+  // a arma de pé, na frente do ombro direito, a câmara virada para ele: a câmera do jogo (por cima do ombro direito) vê
+  // a recarga ao lado da cabeça; mais baixo, na frente do peito, o corpo esconde tudo
+  arma: { pega: [-0.3, 0.4, 0.3], cano: [0.05, 0.8, 0.6], cima: [0.85, 0.2, -0.45] },
+  bolsa: [0.13, 0.07, 0.2], // o pulso esquerdo na bolsa do cinto
+  // s desde o começo: a mão solta a bomba e chega na bolsa, puxa o cartucho (ele aparece no meio) e leva até em cima da
+  // câmara (chega em MUNICAO.escopeta.inicio)
+  vai: [0, 0.3], puxa: [0.3, 0.5], leva: [0.5, 0.7],
+  // cada bala: espera a vez, flutua para fora do cartucho (até `flutua` s, girando, `solta` do caminho) e é puxada
+  // (`voo` s), entrando na hora em que a munição diz que ela vale
+  flutua: 0.6, solta: 0.25, voo: 0.28,
+  acima: 0.15, // m: o cartucho por cima da câmara (as balas atravessam o vão)
+  arco: 0.035, // m: o quanto cada bala faz a curva para o lado no caminho (uma para cada lado)
+  // s depois da última bala (cabem em MUNICAO.escopeta.fim): o cartucho vazio se desfaz, a mão volta à bomba e puxa
+  some: [0.02, 0.09], volta: [0.05, 0.2], bomba: [0.2, 0.4],
+  tranco: 0.012, // m: a arma desce um pouco quando cada bala entra
 }
 
 // Mirar (player/mira.ts): a arma levantada para onde a câmera mira. Pontos no espaço do peito (x = esquerda do agente)

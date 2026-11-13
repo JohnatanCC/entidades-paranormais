@@ -23,7 +23,12 @@ export interface Mundo {
   levels: number
   portas: Opening[] // as portas que abrem e fecham (o vão não entra)
   abertas: Set<string> // os ids das portas abertas agora
+  semChao: boolean // o térreo só tem chão onde há piso (o mapa do submundo): a beirada segura (temChao)
+  bloqueios: Bloqueio[] // o que o roteiro de uma fase põe e tira (o tornado que fecha a arena): círculos que seguram o agente
 }
+
+/** Um círculo que segura o agente enquanto está ativo (o tornado da Demo · Intro). */
+export interface Bloqueio { x: number; z: number; r: number; ativo: boolean }
 
 const ESPESSURA = 0.12
 export const PASSO = 0.45 // o degrau mais alto que os pés sobem sozinhos (m)
@@ -32,7 +37,7 @@ const ehVao = (o?: Opening) => !!o && o.kind === 'porta' && o.door === 'vao'
 const ehPorta = (o: Opening) => o.kind === 'porta' && o.door !== 'vao'
 const ESPESSURA_CORRIMAO = 0.1
 
-export function montarMundo(chunks: Chunk[], levels: number): Mundo {
+export function montarMundo(chunks: Chunk[], levels: number, semChao = false): Mundo {
   const caixas: Caixa[] = [], pisos = new Set<string>(), escadas: Stair[] = []
   const portas = chunks.flatMap((c) => c.openings).filter(ehPorta)
   const abertas = new Set(portas.filter((o) => (o.estado ?? 'fechada') === 'aberta').map((o) => o.id))
@@ -71,7 +76,7 @@ export function montarMundo(chunks: Chunk[], levels: number): Mundo {
       ? { x: b.x + b.len / 2, z: b.z + off, hx: b.len / 2, hz: e, yaw: 0, level: b.level, y0, y1: y0 + GUARDA.altura, vazado: true }
       : { x: b.x + off, z: b.z + b.len / 2, hx: e, hz: b.len / 2, yaw: 0, level: b.level, y0, y1: y0 + GUARDA.altura, vazado: true })
   }
-  return { caixas, pisos, escadas, levels, portas, abertas }
+  return { caixas, pisos, escadas, levels, portas, abertas, semChao, bloqueios: [] }
 }
 
 /** A altura da escada no ponto (x, z), ou null se o ponto não está nela. */
@@ -85,6 +90,13 @@ function alturaNaEscada(s: Stair, x: number, z: number): number | null {
  * O chão sob os pés: a superfície mais alta que fica no máximo um degrau acima de y (assim sobe escada e degrau,
  * mas não "sobe" no andar de cima atravessando o teto). null = nada embaixo (cai).
  */
+/** Dá para pisar em (x, z) com os pés na altura y? Num mapa sem chão, o térreo só onde há piso (ou escada): a beirada
+ *  das ilhas segura o agente como uma parede que não se vê. */
+export function temChao(m: Mundo, x: number, z: number, y: number): boolean {
+  if (!m.semChao || andarDe(y) > 0 || m.pisos.has(`0_${Math.floor(x)}_${Math.floor(z)}`)) return true
+  return m.escadas.some((s) => alturaNaEscada(s, x, z) !== null)
+}
+
 export function chaoEm(m: Mundo, x: number, z: number, y: number): number | null {
   let melhor: number | null = null
   const ok = (h: number) => { if (h <= y + PASSO && (melhor === null || h > melhor)) melhor = h }
@@ -98,7 +110,7 @@ export function chaoEm(m: Mundo, x: number, z: number, y: number): number | null
 /** O andar dos pés (as paredes e móveis deste andar é que batem). */
 export const andarDe = (y: number) => Math.max(0, Math.floor((y + 0.6) / LEVEL_H))
 
-/** Empurra o círculo (x, z, raio r) para fora das caixas do andar que cruzam a altura do corpo. */
+/** Empurra o círculo (x, z, raio r) para fora das caixas do andar que cruzam a altura do corpo (e dos bloqueios ativos). */
 export function empurrar(m: Mundo, p: { x: number; z: number }, y: number, r: number) {
   for (let volta = 0; volta < 2; volta++) {
     for (const o of m.caixas) {
@@ -112,6 +124,13 @@ export function empurrar(m: Mundo, p: { x: number; z: number }, y: number, r: nu
       if (d > 1e-5) { nx = ex / d; nz = ez / d; pen = r - d }
       else { const px = o.hx - Math.abs(lx), pz = o.hz - Math.abs(lz); if (px < pz) { nx = Math.sign(lx) || 1; nz = 0; pen = px + r } else { nx = 0; nz = Math.sign(lz) || 1; pen = pz + r } }
       p.x += (nx * c + nz * s) * pen; p.z += (-nx * s + nz * c) * pen
+    }
+    for (const b of m.bloqueios) {
+      if (!b.ativo) continue
+      const dx = p.x - b.x, dz = p.z - b.z, d = Math.hypot(dx, dz), min = b.r + r
+      if (d >= min) continue
+      const nx = d > 1e-5 ? dx / d : 1, nz = d > 1e-5 ? dz / d : 0
+      p.x = b.x + nx * min; p.z = b.z + nz * min
     }
   }
 }
