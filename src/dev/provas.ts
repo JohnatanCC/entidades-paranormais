@@ -15,7 +15,7 @@
 //   provas.limpar()                                          tira o quadro
 //   provas.medidas(c)                                        mãos, cabeça, quadril; o ângulo de cada mecha
 //   await provas.som([['andando', 4000, { anda: 0.95 }], ['grito', 2000, { golpe: 'grito' }]])   o volume de cada trecho
-//   await provas.sonsDemonios()                               o volume de cada som dos Sombrios (sem tocar)
+//   await provas.sonsDemonios()                               o volume de cada som dos Sombrios, da Gralha e do Mestre (sem tocar)
 //   await provas.sonsAgente()                                 o volume de cada som das armas e do agente (sem tocar)
 //   provas.ir(x, z, yaw, pitch?, andar?)                    no Testar aberto: leva o agente a um ponto (fotos do mesmo lugar)
 //   provas.sombras()                                         quantas lâmpadas na cena e quantas fazem sombra agora
@@ -37,6 +37,8 @@ import type { Parte } from '../game/enemies/sons'
 import { PARTES_ASSOMBRADO } from '../game/enemies/assombrado/sons'
 import { PARTES_ASA_SOMBRIA } from '../game/enemies/asa-sombria/sons'
 import { PARTES_DEVORA_ALMAS } from '../game/enemies/devora-almas/sons'
+import { PARTES_GRALHA } from '../game/enemies/gralha/sons'
+import { PARTES_MESTRE } from '../game/enemies/mestre/sons'
 import { PARTES_ARMAS } from '../game/weapons/sons'
 import { PARTES_AGENTE } from '../game/player/sons'
 import { ganchos } from './ganchos'
@@ -280,6 +282,7 @@ async function sonsDemonios() {
   const linhas: string[] = []
   const medir = (quem: string, partes: Parte[]) => medirPartes(linhas, quem, partes)
   await medir('Assombrado', PARTES_ASSOMBRADO); await medir('Asa sombria', PARTES_ASA_SOMBRIA); await medir('Devora almas', PARTES_DEVORA_ALMAS)
+  await medir('Gralha', PARTES_GRALHA); await medir('Mestre', PARTES_MESTRE)
   return linhas.join('\n')
 }
 /** Os sons das armas e do agente (weapons/sons.ts, player/sons.ts): o volume de cada parte, do mesmo jeito. */

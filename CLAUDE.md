@@ -200,9 +200,9 @@ src/game/                  (já existem: Testar.tsx, player/, input/, world/, we
                            partes soltas nas molas), animacao.ts (levita: as pernas pendem, deita com a velocidade; a cabeça vira
                            de uma vez; a brisa e o arrasto no manto; o grito: o manto abre e a tela treme), corvo.ts (o corvo gigante de
                            sombra que sai no grito, explode e solta 3 Gralhas), fumaca.ts (a fumaça escura dentro do manto,
-                           uma malha só) e numeros.ts
+                           uma malha só), sons.ts (a respiração, o osso, o manto, o grito, o corvo) e numeros.ts
   enemies/gralha/          a Gralha, do capítulo 2, só no Ver modelos por enquanto: modelo.ts, animacao.ts (voar, planar),
-                           ia.ts (perseguir: rodear o agente) e numeros.ts
+                           ia.ts (perseguir: rodear o agente), sons.ts (as asas, o grasnado) e numeros.ts
   enemies/estouro.ts       o estouro dos Sombrios (os cubos de matéria e a mancha que seca), um estoque só para todos
   enemies/luta.ts          o que a inteligência dos Sombrios divide: o alvo (o agente), andar no mundo, virar, desviar dos
                            obstáculos (rumoLivre), separar o bando;

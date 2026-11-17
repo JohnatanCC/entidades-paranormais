@@ -60,7 +60,7 @@ corpo e os olhos, que brilham); várias Gralhas dividem tudo (`copiaDoMolde`).
   subida, a ponta atrasada), plana de vez em quando, o corpo sobe a cada descida e a cabeça fica quase parada no ar;
   deita para a frente com a velocidade e de lado nas curvas. No Ver modelos: voando no lugar e em roda.
 - **Perseguir** (17/nov): depois do grito do Mestre, voa até o agente e fica rodeando por cima dele (`ia.ts`).
-- **Falta:** pousar, olhar, atacar, os sons e o resto da inteligência.
+- **Falta:** pousar, olhar, atacar e o resto da inteligência (os sons estão abaixo).
 
 ### O modelo do Mestre (feito em 17/nov, ainda fora do jogo)
 
@@ -97,7 +97,7 @@ chão** entre os pés. No jogo: 3 chamadas de desenho (o corpo, os olhos acesos 
   `peito` › `ombro_e` › `braco_e` › `antebraco_e` › `mao_e` › `dedo_1_e` a `dedo_3_e` (cada um com a `_ponta`) e `polegar_e`;
   `pescoco` › `cabeca` › `bico_baixo` (a boca entreaberta) e `mecha_capuz`; no antebraço, `mecha_manga_e` e `mecha_manga_2_e`;
   o manto: `manto_1_N` › `manto_2_N` › `manto_3_N`. Os olhos (dele e das Gralhas) são blocos `luz_`.
-- **Falta:** a caçada, os sons e a inteligência (o grito está abaixo).
+- **Falta:** a caçada e a inteligência (o grito e os sons estão abaixo).
 
 ### O grito: como a caçada começa (decidido e feito em 17/nov, no Ver modelos)
 
@@ -115,10 +115,27 @@ Quando o Mestre **avista o agente** (`gritar`, em `src/game/enemies/mestre/anima
 **Pontos de partida, para ajustar jogando:** as Gralhas vão embora em 12 s; ele pode gritar de novo a cada 20 s.
 **No Ver modelos:** o botão "Gritar (avistou o agente)", contra a marca do agente a 6 m; o corvo explode numa parede
 imaginária a 11 m. Pelo console: `provas.mestre(2, 0, 1)` (o Mestre a 1 s do grito).
-**Falta:** os sons (o grito, o corvo, a explosão); o corvo bater de verdade nas paredes do mapa (a colisão das balas,
+**Falta:** o corvo bater de verdade nas paredes do mapa (a colisão das balas,
 `src/game/weapons/bala.ts`); o que as Gralhas fazem ao alcançar o agente (o ataque); a caçada do Mestre. O grito da Mãe
 (as ondas) é diferente na imagem; no som também precisa ser. A porta: ele tem 2,25 m e levita, então precisa abaixar
 para passar, como a Mãe.
+
+### Os sons (feitos em 17/nov; o desenvolvedor ainda precisa ouvir e dizer como soou)
+
+Sintetizados na hora, como os dos Sombrios (`sons.ts` de cada pasta; `ouvirMestre`, `ouvirCorvo` e `ouvirGralha` tocam
+cada som no momento da animação; a voz sai do corpo, no espaço). A assinatura do capítulo: o grasnado, o chiado de rádio
+e o pano.
+- **A Gralha:** cada batida das asas de pena (mais macia que a de couro da Asa sombria); de vez em quando o **grasnado**
+  rouco (dois seguidos) ou os cliques do bico; **caçando**, grasna mais vezes, três seguidos, mais agudos.
+- **O Mestre, levitando:** a **respiração** funda e seca, com um ronco; o **estalo de osso** quando a cabeça vira de uma
+  vez; o **manto farfalhando**, mais forte com o vento e quando ele avança.
+- **O grito:** no aviso ele **puxa o ar** (um chiado que sobe, um ronco, os ossos travando); o **grito sônico** é um
+  grasnado enorme e rachado, metálico, com um grave que pulsa e um chiado de rádio por cima (diferente do grito da
+  Mãe); o **manto abrindo** num golpe de pano e penas.
+- **O corvo gigante:** sai num sopro com um grasnado grave; as asas pesadas enquanto voa; **explodindo**, um baque, o
+  pano rasgando e as três Gralhas grasnando juntas.
+- **Os volumes** (`provas.sonsDemonios()`, que agora mede também a Gralha e o Mestre): o grito é o mais forte (rms
+  0,108, como a investida do Devora almas); a respiração, o osso e o manto ficam baixos (0,007 a 0,013).
 
 ## A Angústia
 

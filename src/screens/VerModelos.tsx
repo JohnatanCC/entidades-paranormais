@@ -36,6 +36,8 @@ import { CORVO } from '../game/enemies/mestre/numeros'
 import { novaCacadora, perseguir, type Cacadora } from '../game/enemies/gralha/ia'
 import { CACA } from '../game/enemies/gralha/numeros'
 import { aplicarTremor, tremerDe } from '../game/player/tremor'
+import { corvoExplodindo, ouvirCorvo, ouvirMestre } from '../game/enemies/mestre/sons'
+import { ouvirGralha } from '../game/enemies/gralha/sons'
 import { descartarFumaca } from '../game/enemies/mestre/fumaca'
 import { montarMae } from '../game/enemies/mae/modelo'
 import { animarMae, golpear } from '../game/enemies/mae/animacao'
@@ -179,7 +181,7 @@ export function VerModelos({ go }: { go: Go }) {
         {e.qual === MESTRE && <section>
           <b>Ações</b>
           <div className="opcoes"><button onClick={() => muda({ anim: 'parado', girar: false, ataque: { nome: 'grito', n: (e.ataque?.n ?? 0) + 1 } })}>Gritar (avistou o agente)</button></div>
-          <small>O aviso (ele trava, recolhe e acende), o grito (o manto e os braços abrem, a tela treme) e o corvo gigante de sombra, que sai do manto, voa reto e explode em 2 s ou ao bater (aqui, numa parede a 11 m), soltando 3 Gralhas. Elas rodeiam a marca do agente no chão e vão embora em 12 s. O corvo não fere. Ainda sem som.</small>
+          <small>O aviso (ele trava, recolhe e acende), o grito (o manto e os braços abrem, a tela treme) e o corvo gigante de sombra, que sai do manto, voa reto e explode em 2 s ou ao bater (aqui, numa parede a 11 m), soltando 3 Gralhas. Elas rodeiam a marca do agente no chão e vão embora em 12 s. O corvo não fere. Os sons tocam com a animação (o ouvido é a câmera: perto, mais alto); sem som, clique uma vez na página antes.</small>
         </section>}
         {e.qual === GRALHA && <Opcoes titulo="Animação" lista={ANIMS_GRALHA} valor={e.anim} onEscolher={(anim) => muda({ anim })} />}
         {e.qual === GRALHA && <section><small>Só o voo por enquanto: bate as asas (a descida mais rápida), plana de vez em quando, e a cabeça fica quase parada no ar. Pousar, olhar e atacar vêm depois.</small></section>}
@@ -745,7 +747,7 @@ function CenaMestre({ e, onInfo }: { e: Escolhas; onInfo: (i: Info) => void }) {
   const ida = useRef({ ang: 0, rastro: 0, tremeu: new THREE.Vector3() })
   const _d = useMemo(() => new THREE.Vector3(), []), _v = useMemo(() => new THREE.Vector3(), [])
   const camera = useThree((st) => st.camera)
-  useEffect(() => () => { descartarFumaca(m.fumaca); descartarCorvo(C) }, [m, C])
+  useEffect(() => () => { descartarFumaca(m.fumaca); descartarCorvo(C); calar(m); calar(C); gralhas.forEach(calar) }, [m, C, gralhas])
   useEffect(() => {
     const c = contas(m.root)
     m.root.updateMatrixWorld(true)
@@ -772,11 +774,14 @@ function CenaMestre({ e, onInfo }: { e: Escolhas; onInfo: (i: Info) => void }) {
       if (!e.girar || m.anim.grito) r.rotation.y += -r.rotation.y * k; else r.rotation.y += dt * 0.5
     }
     const s = animarMestre(m, dt)
+    ouvinte(camera); ouvirMestre(m, dt)
     if (s.solta) soltarCorvo(C, s.solta, _d.set(Math.sin(r.rotation.y), 0, Math.cos(r.rotation.y)))
     // o corvo: o rastro de sombra atrás dele; explode em 2 s ou na "parede"
     if (C.ativo && (I.rastro += dt) > 0.05) { I.rastro = 0; estourar(E, C.g.root.position, 0.6, 0, { cubos: 2, olhos: 0, pano: 0, mancha: false }) }
     const onde = passoCorvo(C, dt, (_de, para) => para.distanceTo(r.position) > PAREDE)
+    ouvirCorvo(C)
     if (onde) {
+      somEm(onde, corvoExplodindo, 4)
       estourar(E, onde, 1, 0, { cubos: 45, olhos: 0, pano: 0 })
       tremerDe(onde, CORVO.tremor, 0.5)
       const rumo = C.g.root.rotation.y
@@ -787,8 +792,8 @@ function CenaMestre({ e, onInfo }: { e: Escolhas; onInfo: (i: Info) => void }) {
       })
     }
     for (const c of cacando.current) {
-      perseguir(c, alvo.position, dt); animarGralha(c.g, dt)
-      if (c.t > CACA.some) { estourar(E, c.g.root.position, 0.3, 0, { cubos: 10, olhos: 0, pano: 0, mancha: false }); c.g.root.visible = false }
+      perseguir(c, alvo.position, dt); animarGralha(c.g, dt); ouvirGralha(c.g, dt, true)
+      if (c.t > CACA.some) { calar(c.g); estourar(E, c.g.root.position, 0.3, 0, { cubos: 10, olhos: 0, pano: 0, mancha: false }); c.g.root.visible = false }
     }
     if (cacando.current.some((c) => c.t > CACA.some)) cacando.current = cacando.current.filter((c) => c.t <= CACA.some)
     passoEstouro(E, dt)
@@ -810,6 +815,8 @@ function CenaGralha({ e, onInfo }: { e: Escolhas; onInfo: (i: Info) => void }) {
   const ALTURA = 1.6, R = 2.2, VEL = 4 // o voo: a altura (m); em roda: o raio (m) e a velocidade (m/s)
   const ida = useRef({ ang: 0 })
   const _d = useMemo(() => new THREE.Vector3(), [])
+  const camera = useThree((st) => st.camera)
+  useEffect(() => () => calar(g), [g])
   useEffect(() => { g.root.position.set(0, ALTURA, 0); g.anim.ultimo = null; g.molas.pos = null }, [g])
   useEffect(() => {
     const c = contas(g.root)
@@ -829,6 +836,7 @@ function CenaGralha({ e, onInfo }: { e: Escolhas; onInfo: (i: Info) => void }) {
       if (!e.girar) r.rotation.y += -r.rotation.y * k; else r.rotation.y += dt * 0.5
     }
     animarGralha(g, dt)
+    ouvinte(camera); ouvirGralha(g, dt)
   })
   return <primitive object={g.root} />
 }
