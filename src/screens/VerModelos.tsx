@@ -1,5 +1,5 @@
 // Ver modelos (Modo desenvolvedor): um modelo sozinho na tela, para olhar de perto e decidir o que melhorar.
-// Não edita nada: o Matheus vem de modelos/agente.bbmodel, a Lara, o Nicolas e o Victor de modelos/lara.bbmodel, nicolas.bbmodel e victor.bbmodel (o mesmo esqueleto), os fantasmas de modelos/fantasmas/<nome>.bbmodel (a Mãe), os demônios de modelos/demonios/<nome>.bbmodel (o Assombrado: parado, andando, atacar, dano, estourar; a Asa sombria: voando, cuspir com o projétil, desviar, dano, estourar; o Devora almas, num chão de verdade: fora do chão, nadando, o ataque que erra e o que engole o Matheus, dano, estourar), as armas de modelos/armas/<nome>.bbmodel e os objetos de
+// Não edita nada: o Matheus vem de modelos/agente.bbmodel, a Lara, o Nicolas e o Victor de modelos/lara.bbmodel, nicolas.bbmodel e victor.bbmodel (o mesmo esqueleto), os fantasmas de modelos/fantasmas/<nome>.bbmodel (a Mãe; a Gralha voando; o Mestre levitando, com o manto nas molas e a fumaça), os demônios de modelos/demonios/<nome>.bbmodel (o Assombrado: parado, andando, atacar, dano, estourar; a Asa sombria: voando, cuspir com o projétil, desviar, dano, estourar; o Devora almas, num chão de verdade: fora do chão, nadando, o ataque que erra e o que engole o Matheus, dano, estourar), as armas de modelos/armas/<nome>.bbmodel e os objetos de
 // modelos/objetos/<tipo>.bbmodel (salvar no
 // Blockbench atualiza aqui no npm run dev). A câmera gira em volta (botão esquerdo gira, direito move, rodinha aproxima).
 // Para o Matheus o painel troca a animação, a expressão, a pose das mãos, a arma na mão e o ângulo, faz os gestos de
@@ -27,6 +27,16 @@ import { AGENTE, QUEDA } from '../game/player/numeros'
 import type { Expressao } from '../game/player/rosto'
 import { GRUPOS, OBJETOS } from '../maps/objetos'
 import { arma3d, caminhoObjeto, objeto3d } from '../render/objetos3d'
+import { montarGralha } from '../game/enemies/gralha/modelo'
+import { animarGralha } from '../game/enemies/gralha/animacao'
+import { montarMestre } from '../game/enemies/mestre/modelo'
+import { animarMestre, gritar } from '../game/enemies/mestre/animacao'
+import { descartarCorvo, novoCorvo, passoCorvo, soltarCorvo } from '../game/enemies/mestre/corvo'
+import { CORVO } from '../game/enemies/mestre/numeros'
+import { novaCacadora, perseguir, type Cacadora } from '../game/enemies/gralha/ia'
+import { CACA } from '../game/enemies/gralha/numeros'
+import { aplicarTremor, tremerDe } from '../game/player/tremor'
+import { descartarFumaca } from '../game/enemies/mestre/fumaca'
 import { montarMae } from '../game/enemies/mae/modelo'
 import { animarMae, golpear } from '../game/enemies/mae/animacao'
 import type { NomeGolpe } from '../game/enemies/mae/golpes'
@@ -64,6 +74,9 @@ const HUMANOS: [ModeloAgente, string][] = [['agente', 'Matheus Moura'], ['lara',
 const AGENTE_ID = 'agente'
 const ARMA = 'arma:' // o id de uma arma no seletor: arma:pistola
 const MAE = 'fantasma:mae'
+const GRALHA = 'fantasma:gralha', MESTRE = 'fantasma:mestre' // o capítulo 2 (docs/cap2-sombra.md): a Gralha voando; o Mestre levitando, com o manto e a fumaça
+const ANIMS_MESTRE: [Anim, string][] = [['parado', 'Levitando no lugar'], ['andando', 'Levitando (em roda)']]
+const ANIMS_GRALHA: [Anim, string][] = [['parado', 'Voando no lugar'], ['andando', 'Voando (em roda)']]
 const ANIMS_MAE: [Anim, string][] = [['parado', 'Parada'], ['andando', 'Andando (em roda)'], ['porta', 'Passando pela porta']]
 // os demônios (docs/demonios.md): o id é o nome do arquivo em modelos/demonios/
 const ASSOMBRADO = 'demonio:assombrado', ASA = 'demonio:asa-sombria', DEVORA = 'demonio:devora-almas'
@@ -130,7 +143,7 @@ export function VerModelos({ go }: { go: Go }) {
     <div className="vermodelo">
       <header className="topo">
         <span className="titulo">Ver modelos</span>
-        <span className="nome">{humano ? `${humano[1]} · modelos/${e.qual}.bbmodel` : mae ? 'A Mãe · modelos/fantasmas/mae.bbmodel' : demonio ? `${demonio.nome} · modelos/${demonio.arquivo}.bbmodel` : arma ? `${ARMAS.find(([k]) => k === arma)?.[1]} · modelos/armas/${arma}.bbmodel` : `${OBJETOS[e.qual]?.nome} · modelos/${caminhoObjeto(e.qual)}.bbmodel`}</span>
+        <span className="nome">{humano ? `${humano[1]} · modelos/${e.qual}.bbmodel` : mae ? 'A Mãe · modelos/fantasmas/mae.bbmodel' : e.qual === MESTRE ? 'O Mestre · modelos/fantasmas/mestre.bbmodel' : e.qual === GRALHA ? 'A Gralha · modelos/fantasmas/gralha.bbmodel' : demonio ? `${demonio.nome} · modelos/${demonio.arquivo}.bbmodel` : arma ? `${ARMAS.find(([k]) => k === arma)?.[1]} · modelos/armas/${arma}.bbmodel` : `${OBJETOS[e.qual]?.nome} · modelos/${caminhoObjeto(e.qual)}.bbmodel`}</span>
         <span className="espaco" />
         <button className="bt" onClick={() => go('dev')}>Voltar</button>
       </header>
@@ -138,7 +151,7 @@ export function VerModelos({ go }: { go: Go }) {
         <Canvas camera={{ position: [1.4, 1.4, 3.6], fov: 35, near: 0.02, far: 100 }}>
           <Luzes luz={e.luz} />
           <Golpes />
-          {agente ? <CenaAgente key={e.qual} modelo={e.qual as ModeloAgente} e={e} onInfo={setInfo} onMunicao={setMunicao} /> : mae ? <CenaMae e={e} onInfo={setInfo} /> : e.qual === ASSOMBRADO ? <CenaAssombrado e={e} onInfo={setInfo} /> : e.qual === ASA ? <CenaAsaSombria e={e} onInfo={setInfo} /> : e.qual === DEVORA ? <CenaDevora e={e} onInfo={setInfo} /> : <CenaObjeto key={e.qual} qual={e.qual} girar={e.girar} onInfo={setInfo} />}
+          {agente ? <CenaAgente key={e.qual} modelo={e.qual as ModeloAgente} e={e} onInfo={setInfo} onMunicao={setMunicao} /> : mae ? <CenaMae e={e} onInfo={setInfo} /> : e.qual === ASSOMBRADO ? <CenaAssombrado e={e} onInfo={setInfo} /> : e.qual === ASA ? <CenaAsaSombria e={e} onInfo={setInfo} /> : e.qual === DEVORA ? <CenaDevora e={e} onInfo={setInfo} /> : e.qual === MESTRE ? <CenaMestre e={e} onInfo={setInfo} /> : e.qual === GRALHA ? <CenaGralha e={e} onInfo={setInfo} /> : <CenaObjeto key={e.qual} qual={e.qual} girar={e.girar} onInfo={setInfo} />}
           {e.grade && <Grid args={[8, 8]} cellSize={0.5} cellThickness={0.6} cellColor="#6a5a40" sectionSize={1} sectionThickness={1.2} sectionColor="#c89b4a" fadeDistance={14} infiniteGrid />}
           <OrbitControls makeDefault target={[0, 0.95, 0]} minDistance={0.2} maxDistance={e.qual === DEVORA ? 12 * ESCALA_DEVORA : 9} />
         </Canvas>
@@ -150,7 +163,7 @@ export function VerModelos({ go }: { go: Go }) {
           <select className="escolha" value={e.qual} onChange={(ev) => muda({ qual: ev.target.value })}>
             <option value={AGENTE_ID}>Matheus Moura (o agente)</option>
             <optgroup label="Personagens">{HUMANOS.slice(1).map(([id, nome]) => <option key={id} value={id}>{nome}</option>)}</optgroup>
-            <optgroup label="Fantasmas"><option value={MAE}>A Mãe</option></optgroup>
+            <optgroup label="Fantasmas"><option value={MAE}>A Mãe</option><option value={GRALHA}>A Gralha (capítulo 2)</option><option value={MESTRE}>O Mestre (capítulo 2)</option></optgroup>
             <optgroup label="Demônios">{Object.entries(DEMONIOS).map(([id, d]) => <option key={id} value={id}>{d.nome}</option>)}</optgroup>
             <optgroup label="Armas">{ARMAS.map(([k, nome]) => <option key={k} value={ARMA + k}>{nome}</option>)}</optgroup>
             {GRUPOS.map(([g, nome]) => (
@@ -161,6 +174,15 @@ export function VerModelos({ go }: { go: Go }) {
           </select>
         </section>
         {mae && <Opcoes titulo="Animação" lista={ANIMS_MAE} valor={e.anim} onEscolher={(anim) => muda({ anim })} />}
+        {e.qual === MESTRE && <Opcoes titulo="Animação" lista={ANIMS_MESTRE} valor={e.anim} onEscolher={(anim) => muda({ anim })} />}
+        {e.qual === MESTRE && <section><small>Ele não anda: levita sobre a fumaça, com as pernas pendendo. A cabeça vira de uma vez, como a de uma ave. O manto e as mangas balançam com a brisa; em roda, o corpo deita para a frente e o manto, as pernas e a fumaça ficam para trás. A caçada e os sons vêm depois.</small></section>}
+        {e.qual === MESTRE && <section>
+          <b>Ações</b>
+          <div className="opcoes"><button onClick={() => muda({ anim: 'parado', girar: false, ataque: { nome: 'grito', n: (e.ataque?.n ?? 0) + 1 } })}>Gritar (avistou o agente)</button></div>
+          <small>O aviso (ele trava, recolhe e acende), o grito (o manto e os braços abrem, a tela treme) e o corvo gigante de sombra, que sai do manto, voa reto e explode em 2 s ou ao bater (aqui, numa parede a 11 m), soltando 3 Gralhas. Elas rodeiam a marca do agente no chão e vão embora em 12 s. O corvo não fere. Ainda sem som.</small>
+        </section>}
+        {e.qual === GRALHA && <Opcoes titulo="Animação" lista={ANIMS_GRALHA} valor={e.anim} onEscolher={(anim) => muda({ anim })} />}
+        {e.qual === GRALHA && <section><small>Só o voo por enquanto: bate as asas (a descida mais rápida), plana de vez em quando, e a cabeça fica quase parada no ar. Pousar, olhar e atacar vêm depois.</small></section>}
         {mae && <Opcoes titulo="Expressão" lista={[[null, 'Automática'], ...EXPRESSOES_MAE] as [ExpressaoMae | null, string][]} valor={e.rostoMae} onEscolher={(rostoMae) => muda({ rostoMae })} />}
         {mae && <Opcoes titulo="Ela está" lista={[[false, 'Patrulhando (cantarola)'], [true, 'Caçando (respira e guincha)']] as [boolean, string][]} valor={e.caca} onEscolher={(caca) => muda({ caca })} />}
         {mae && <Opcoes titulo="Fase" lista={[[false, 'Fases 1 a 3'], [true, 'Fase 4 (a última barra)']] as [boolean, string][]} valor={e.fase4} onEscolher={(fase4) => muda({ fase4 })} />}
@@ -707,6 +729,108 @@ function CenaDevora({ e, onInfo }: { e: Escolhas; onInfo: (i: Info) => void }) {
     <primitive object={F.grupo} />
     <primitive object={E.grupo} />
   </>
+}
+
+function CenaMestre({ e, onInfo }: { e: Escolhas; onInfo: (i: Info) => void }) {
+  // montarMestre na lista: salvar o .bbmodel recarrega o módulo e ele é montado de novo
+  const m = useMemo(() => montarMestre(), [montarMestre])
+  // o grito: o corvo gigante, o respingo dele e as Gralhas que ele solta (montadas antes: nada é criado no meio)
+  const C = useMemo(() => novoCorvo(), [novoCorvo]), E = useMemo(() => novoEstouro(), [])
+  const gralhas = useMemo(() => Array.from({ length: CORVO.gralhas }, () => { const g = montarGralha(); g.root.visible = false; return g }), [montarGralha])
+  const cacando = useRef<Cacadora[]>([])
+  const { pronto, voar } = useVoo()
+  const R = 2.4, VEL = 2.2 // em roda: o raio (m) e a velocidade (m/s)
+  const ALVO_Z = 6, PAREDE = 11 // o agente (a marca no chão) e onde o corvo bate, se não explodir antes (m à frente dele)
+  const alvo = useMemo(() => { const g = new THREE.Mesh(new THREE.RingGeometry(0.3, 0.38, 24).rotateX(-Math.PI / 2), new THREE.MeshBasicMaterial({ color: '#c2453a' })); g.position.set(0, 0.01, ALVO_Z); return g }, [])
+  const ida = useRef({ ang: 0, rastro: 0, tremeu: new THREE.Vector3() })
+  const _d = useMemo(() => new THREE.Vector3(), []), _v = useMemo(() => new THREE.Vector3(), [])
+  const camera = useThree((st) => st.camera)
+  useEffect(() => () => { descartarFumaca(m.fumaca); descartarCorvo(C) }, [m, C])
+  useEffect(() => {
+    const c = contas(m.root)
+    m.root.updateMatrixWorld(true)
+    m.root.remove(m.fumaca.malha) // a altura é a do corpo, sem a fumaça
+    const b = new THREE.Box3().setFromObject(m.root)
+    m.root.add(m.fumaca.malha)
+    onInfo({ linhas: [`Altura (sem a levitação): ${(b.max.y - b.min.y).toFixed(2)} m`, `${c.blocos} blocos em ${c.juntas} juntas`, `${c.desenhos} chamadas de desenho (o corpo, os olhos e a fumaça)`] })
+  }, [m, onInfo])
+  const gritando = e.ataque?.nome === 'grito'
+  useEffect(() => {
+    // no grito, de lado e de longe: ele, o corvo saindo e a marca do agente
+    if (pronto) voar(new THREE.Vector3(0, 1.5, gritando ? 4 : 0), gritando ? new THREE.Vector3(11, 4, 5) : e.anim === 'andando' ? new THREE.Vector3(5, 3.4, 6.5) : new THREE.Vector3(2.8, 2, 4.2))
+  }, [pronto, e.anim, gritando])
+  useEffect(() => { if (e.ataque?.nome === 'grito') gritar(m) }, [e.ataque])
+  useFrame((_, dtBruto) => {
+    const dt = Math.min(dtBruto, 0.05), I = ida.current, r = m.root
+    camera.position.sub(I.tremeu) // tira o tremor do quadro passado antes de pôr o deste
+    if (e.anim === 'andando' && !m.anim.grito) { // em roda, de frente para onde vai
+      I.ang += (VEL * dt) / R
+      r.position.set(Math.cos(I.ang) * R, 0, Math.sin(I.ang) * R); r.rotation.y = -I.ang
+    } else {
+      const k = 1 - Math.exp(-2.2 * dt)
+      r.position.lerp(_d.set(0, 0, 0), k)
+      if (!e.girar || m.anim.grito) r.rotation.y += -r.rotation.y * k; else r.rotation.y += dt * 0.5
+    }
+    const s = animarMestre(m, dt)
+    if (s.solta) soltarCorvo(C, s.solta, _d.set(Math.sin(r.rotation.y), 0, Math.cos(r.rotation.y)))
+    // o corvo: o rastro de sombra atrás dele; explode em 2 s ou na "parede"
+    if (C.ativo && (I.rastro += dt) > 0.05) { I.rastro = 0; estourar(E, C.g.root.position, 0.6, 0, { cubos: 2, olhos: 0, pano: 0, mancha: false }) }
+    const onde = passoCorvo(C, dt, (_de, para) => para.distanceTo(r.position) > PAREDE)
+    if (onde) {
+      estourar(E, onde, 1, 0, { cubos: 45, olhos: 0, pano: 0 })
+      tremerDe(onde, CORVO.tremor, 0.5)
+      const rumo = C.g.root.rotation.y
+      cacando.current = gralhas.map((g, i) => {
+        const a = rumo + Math.PI + (i - 1) * 1.3 // saem da explosão abrindo, de volta para o agente
+        g.root.visible = true
+        return novaCacadora(g, onde, _v.set(Math.sin(a) * CORVO.espalha, 1.2, Math.cos(a) * CORVO.espalha), (i * Math.PI * 2) / gralhas.length)
+      })
+    }
+    for (const c of cacando.current) {
+      perseguir(c, alvo.position, dt); animarGralha(c.g, dt)
+      if (c.t > CACA.some) { estourar(E, c.g.root.position, 0.3, 0, { cubos: 10, olhos: 0, pano: 0, mancha: false }); c.g.root.visible = false }
+    }
+    if (cacando.current.some((c) => c.t > CACA.some)) cacando.current = cacando.current.filter((c) => c.t <= CACA.some)
+    passoEstouro(E, dt)
+    _d.copy(camera.position); aplicarTremor(camera, dt); I.tremeu.copy(camera.position).sub(_d)
+  })
+  return <>
+    <primitive object={m.root} />
+    <primitive object={C.g.root} />
+    <primitive object={E.grupo} />
+    {gralhas.map((g, i) => <primitive key={i} object={g.root} />)}
+    {gritando && <primitive object={alvo} />}
+  </>
+}
+
+function CenaGralha({ e, onInfo }: { e: Escolhas; onInfo: (i: Info) => void }) {
+  // montarGralha na lista: salvar o .bbmodel recarrega o módulo e ela é montada de novo
+  const g = useMemo(() => montarGralha(), [montarGralha])
+  const { pronto, voar } = useVoo()
+  const ALTURA = 1.6, R = 2.2, VEL = 4 // o voo: a altura (m); em roda: o raio (m) e a velocidade (m/s)
+  const ida = useRef({ ang: 0 })
+  const _d = useMemo(() => new THREE.Vector3(), [])
+  useEffect(() => { g.root.position.set(0, ALTURA, 0); g.anim.ultimo = null; g.molas.pos = null }, [g])
+  useEffect(() => {
+    const c = contas(g.root)
+    g.root.updateMatrixWorld(true)
+    const b = new THREE.Box3().setFromObject(g.root)
+    onInfo({ linhas: [`Comprimento, do bico à cauda: ${(b.max.z - b.min.z).toFixed(2)} m`, `Largura, com as asas: ${(b.max.x - b.min.x).toFixed(2)} m`, `${c.blocos} blocos em ${c.juntas} juntas`, `${c.desenhos} chamadas de desenho`] })
+  }, [g, onInfo])
+  useEffect(() => { if (pronto) voar(new THREE.Vector3(0, ALTURA, 0), e.anim === 'andando' ? new THREE.Vector3(5, 3.8, 6) : new THREE.Vector3(1.6, 2.2, 2)) }, [pronto, e.anim])
+  useFrame((_, dtBruto) => {
+    const dt = Math.min(dtBruto, 0.05), I = ida.current, r = g.root
+    if (e.anim === 'andando') { // em roda, de frente para onde vai
+      I.ang += (VEL * dt) / R
+      r.position.set(Math.cos(I.ang) * R, ALTURA, Math.sin(I.ang) * R); r.rotation.y = -I.ang
+    } else {
+      const k = 1 - Math.exp(-2.2 * dt)
+      r.position.lerp(_d.set(0, ALTURA, 0), k)
+      if (!e.girar) r.rotation.y += -r.rotation.y * k; else r.rotation.y += dt * 0.5
+    }
+    animarGralha(g, dt)
+  })
+  return <primitive object={g.root} />
 }
 
 function CenaObjeto({ qual, girar, onInfo }: { qual: string; girar: boolean; onInfo: (i: Info) => void }) {

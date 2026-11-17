@@ -6,6 +6,8 @@
 //   const d = await provas.devora('erra', 1.4, 1)             o Devora almas ('solto', 'nadando', ou o ataque: 'erra', 'engole',
 //                                                             'investida', 'chuva', 'ninhada', 'atordoar', 'rastejar';
 //                                                             e a barra de vida, de 1 a 3)
+//   const r = await provas.gralha(1, 0.2, 0)                 a Gralha (capítulo 2) voando a 1,6 m (os segundos, a fase das asas, andar m/s)
+//   const t = await provas.mestre(2, 0)                      o Mestre (capítulo 2) levitando, depois de 2 s; andar m/s; e os s do grito (0.4 = o aviso, 1 = gritando)
 //   const g = await provas.agente('escopeta', 'recarga', 1.2)  o Matheus com a arma num instante ('recarga': a escopeta
 //                                                             recarregando, com `balas` no cano antes (0 = vazia); 'tiro':
 //                                                             mirando para a frente, atirando; ou null; andar m/s)
@@ -38,6 +40,10 @@ import { PARTES_DEVORA_ALMAS } from '../game/enemies/devora-almas/sons'
 import { PARTES_ARMAS } from '../game/weapons/sons'
 import { PARTES_AGENTE } from '../game/player/sons'
 import { ganchos } from './ganchos'
+import { montarGralha } from '../game/enemies/gralha/modelo'
+import { animarGralha } from '../game/enemies/gralha/animacao'
+import { montarMestre } from '../game/enemies/mestre/modelo'
+import { animarMestre, gritar } from '../game/enemies/mestre/animacao'
 import { nivelAtual } from '../render/qualidade'
 import { contarSombras } from '../render/sombras'
 import { montarAgente, type Agente, type ModeloAgente } from '../game/player/modelo'
@@ -133,6 +139,37 @@ async function asaSombria(acao: 'cuspir' | 'desviar' | 'dano' | null, ate: numbe
   }
   if (fase !== undefined) { a.anim.fase = (fase - 1 / 60 / 0.42 + 1) % 1; animarAsaSombria(a, {}, 1 / 60) }
   a.root.updateMatrixWorld(true)
+  await new Promise((ok) => setTimeout(ok, 600))
+  return { m: null, sc }
+}
+
+/** A Gralha (capítulo 2) voando a 1,6 m, depois de `ate` s; fase = a fase das asas (0 a 1); andar = para a frente (m/s). */
+async function gralha(ate = 1, fase?: number, andar = 0): Promise<Cena> {
+  const G = montarGralha(), g = G.root, sc = new THREE.Scene()
+  G.anim.proxPlanar = 99 // sem planar sozinha: a foto sai igual
+  sc.background = new THREE.Color('#1c1a1e')
+  sc.add(new THREE.HemisphereLight('#ffffff', '#4a4640', 1))
+  const d = new THREE.DirectionalLight('#ffffff', 1.3); d.position.set(1, 3, 3); sc.add(d)
+  sc.add(new THREE.Mesh(new THREE.PlaneGeometry(8, 12).rotateX(-Math.PI / 2), new THREE.MeshStandardMaterial({ color: '#333' })))
+  g.position.set(0, 1.6, -andar * ate); sc.add(g)
+  for (let t = 0; t < ate; t += 1 / 60) { g.position.z += andar / 60; animarGralha(G, 1 / 60) }
+  if (fase !== undefined) { G.anim.fase = (fase - 1 / 60 / 0.46 + 1) % 1; animarGralha(G, 1 / 60) }
+  g.updateMatrixWorld(true)
+  await new Promise((ok) => setTimeout(ok, 600))
+  return { m: null, sc }
+}
+/** O Mestre (capítulo 2) levitando, depois de `ate` s (o manto nas molas, a fumaça); andar = para a frente (m/s);
+ *  grito = quantos s do grito já passaram no fim (o aviso dura 0,6 s; sem o corvo, só ele). */
+async function mestre(ate = 2, andar = 0, grito?: number): Promise<Cena> {
+  const m = montarMestre(), sc = new THREE.Scene()
+  sc.background = new THREE.Color('#1c1a1e')
+  sc.add(new THREE.HemisphereLight('#ffffff', '#4a4640', 1))
+  const d = new THREE.DirectionalLight('#ffffff', 1.3); d.position.set(1, 3, 3); sc.add(d)
+  sc.add(new THREE.Mesh(new THREE.PlaneGeometry(8, 12).rotateX(-Math.PI / 2), new THREE.MeshStandardMaterial({ color: '#333' })))
+  sc.add(m.root); m.root.position.z = -andar * ate
+  for (let t = 0; t < ate; t += 1 / 60) { m.root.position.z += andar / 60; animarMestre(m, 1 / 60) }
+  if (grito !== undefined) { gritar(m); for (let t = 0; t < grito; t += 1 / 60) animarMestre(m, 1 / 60) }
+  m.root.updateMatrixWorld(true)
   await new Promise((ok) => setTimeout(ok, 600))
   return { m: null, sc }
 }
@@ -332,4 +369,4 @@ function ir(x: number, z: number, yaw: number, pitch?: number, andar?: number) {
   return 'ok'
 }
 
-export const provas = { mae, agente, sonsDemonios, sonsAgente, assombrado, asaSombria, devora, fotos, limpar, medidas, som: som_, ir, passo, escorrega, qualidade: nivelAtual, sombras: contarSombras, cena: () => ganchos.cena, gl: () => ganchos.gl, fase: () => ganchos.fase }
+export const provas = { mae, agente, sonsDemonios, sonsAgente, assombrado, asaSombria, devora, gralha, mestre, fotos, limpar, medidas, som: som_, ir, passo, escorrega, qualidade: nivelAtual, sombras: contarSombras, cena: () => ganchos.cena, gl: () => ganchos.gl, fase: () => ganchos.fase }

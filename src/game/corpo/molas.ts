@@ -41,8 +41,9 @@ export function prepararMolas(grupos: THREE.Object3D[], ancora: THREE.Object3D, 
 const _p = new THREE.Vector3(), _v = new THREE.Vector3(), _a = new THREE.Vector3(), _f = new THREE.Vector3(), _l = new THREE.Vector3(), _q = new THREE.Quaternion()
 const cl = (x: number, a: number, b: number) => Math.max(a, Math.min(b, x))
 
-/** Um quadro das molas, depois de toda a pose posta no lugar. raiz = o personagem (para atualizar as matrizes). */
-export function animarMolas(m: Molas, raiz: THREE.Object3D, dt: number) {
+/** Um quadro das molas, depois de toda a pose posta no lugar. raiz = o personagem (para atualizar as matrizes).
+ *  vento = um empurrão a mais em tudo (m/s², no mundo): a brisa, o ar que fica para trás de quem anda. */
+export function animarMolas(m: Molas, raiz: THREE.Object3D, dt: number, vento?: THREE.Vector3) {
   if (dt <= 0 || !m.molas.length) return
   raiz.updateMatrixWorld(true)
   m.ref.getWorldPosition(_p)
@@ -55,6 +56,7 @@ export function animarMolas(m: Molas, raiz: THREE.Object3D, dt: number) {
   if (_a.length() > C.trancoMax) _a.setLength(C.trancoMax)
   // a força em cada grama: a gravidade menos o tranco (a ponta fica para trás quando quem segura acelera)
   _f.set(0, -9.8, 0).addScaledVector(_a, -C.tranco)
+  if (vento) _f.add(vento)
   for (const s of m.molas) {
     // a força no espaço de quem segura a pasta: para onde a ponta quer apontar
     s.g.parent!.getWorldQuaternion(_q)
