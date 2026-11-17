@@ -1,5 +1,8 @@
 # A Demo · Intro (o submundo)
 
+> **17/nov: esta não é mais a Intro do jogo.** O caminho das ilhas fica para um conteúdo mais para frente; a Intro do
+> capítulo 1 vai ser algo novo (`docs/lancamento.md`). O que está aqui continua valendo para quando ele voltar.
+
 Decidido em 12/nov. A Intro nova (no lugar da instalação da C.R.O.S. do laboratório, `docs/jogo.md`): o Matheus é sugado
 pela ruptura e cai no submundo, um lugar vazio com ilhas de rocha negra flutuando na névoa vermelha. São **três arenas
 ligadas por pontes de pedra**: duas de hordas dos Sombrios e a do chefe, o Devora almas (`docs/demonios.md`). Sem

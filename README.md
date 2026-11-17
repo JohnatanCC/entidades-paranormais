@@ -1,4 +1,4 @@
-# Entidades Paranormais
+# Agentes CROS
 
 Jogo de ação com terror em terceira pessoa (navegador, em blocos com textura em pixel). Agora: o **Criador de mapas** do Modo desenvolvedor.
 

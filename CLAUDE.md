@@ -1,15 +1,19 @@
-# Entidades Paranormais — instruções para o Claude
+# Agentes CROS — instruções para o Claude
 
 Jogo de ação com terror em terceira pessoa, no navegador, em blocos com textura em pixel. Você é Matheus Moura, agente da C.R.O.S.,
-e captura entidades. Este projeto começa pelo **Modo desenvolvedor → Criador de mapas**; o jogo em si vem depois.
+e captura entidades. O projeto começou pelo **Modo desenvolvedor → Criador de mapas**; agora o foco é terminar o
+capítulo 1 e lançá-lo na web, no itch.io (`docs/lancamento.md`).
 
 ## Leia antes de mexer
 
-1. `docs/criador-de-mapas.md` — o foco agora: decisões, o formato dos mapas e as 8 etapas (qual é a próxima).
+1. `docs/lancamento.md` — **o foco agora** (17/nov): terminar o capítulo 1 e lançar a versão web no itch.io; as fases e a próxima etapa.
+   `docs/criador-de-mapas.md` — o criador de mapas: decisões, o formato dos mapas e as 8 etapas (qual é a próxima).
 2. `docs/iluminacao.md` — a luz do jogo: as decisões, as ambientações, os níveis de qualidade e as 4 etapas (qual é a próxima).
    `docs/jogo.md` — o que já foi decidido e jogado (a história do portal, agente, armas, captura, fantasmas, HUD, a demo Intro).
    `docs/demonios.md` — os Sombrios (Assombrado, Asa sombria, Devora almas): o desenho, os modelos, como lutam e as etapas.
-   `docs/intro.md` — a Demo · Intro nova (o submundo): as três arenas, as hordas, o chefe e as etapas (qual é a próxima).
+   `docs/intro.md` — a Demo · Intro do submundo (as três arenas, as hordas, o chefe): desde 17/nov não é a Intro do jogo, fica para mais tarde.
+   `docs/musicas.md` — as músicas: onde cada uma toca e o que precisa ter (a perseguição da Mãe, para o Suno).
+   `docs/cap2-sombra.md` — o capítulo 2 (a Sombra), no papel; e a lamparina, a armadilha reformulada, que vale para o jogo todo.
    `docs/mansao-cap1.md` — a planta da mansão do capítulo 1 (cômodos, escadas, rota, onde ficam os objetos da Mãe).
    `docs/blockbench.md` — como os personagens são feitos (Blockbench, as regras das juntas, a escala, a exportação).
 3. `docs/portando-do-laboratorio.md` — onde está cada coisa no laboratório antigo e o que **não** trazer.
@@ -49,7 +53,8 @@ e captura entidades. Este projeto começa pelo **Modo desenvolvedor → Criador 
   orbe) está desatualizado: não use como referência.
 - Faz parte da base: o agente, as duas armas e a armadilha, a captura por poça (dos fantasmas maiores), o Glutão, o HUD conceito C,
   Lara e Nicolas (a demo Intro) e **a Mãe com a luta do berçário** (o berço, o tornado, as quatro barras).
-- Fora do projeto (eram testes do laboratório): os outros fantasmas do laboratório (Sombra, Desconhecido, Garota, Mordomo,
+- **A Sombra voltou** (17/nov) como o fantasma do capítulo 2, reformulada (`docs/cap2-sombra.md`), só no papel até o lançamento.
+- Fora do projeto (eram testes do laboratório): os outros fantasmas do laboratório (Desconhecido, Garota, Mordomo,
   Observador, Reflexo, Amigo), a demo da casa como fase, a demo "O Bando", a fatia, o círculo de velas, o orbe, o pé de cabra.
   O Espectral também saiu (12/nov): no lugar dele, os Sombrios (`docs/demonios.md`).
   Fora agora não quer dizer fora para sempre: se o desenvolvedor trouxer de volta, atualize esta lista.
@@ -132,7 +137,7 @@ texturas/                  as texturas do cenário: <nome>.png, 32 × 32 px por 
 modelos/                   os modelos do Blockbench (.bbmodel), lidos direto pelo jogo: agente.bbmodel, lara.bbmodel,
                            nicolas.bbmodel e victor.bbmodel (o mesmo esqueleto do agente), objetos/<tipo>.bbmodel,
                            aberturas/<tipo>.bbmodel (as portas e janelas), armas/<nome>.bbmodel (pistola, escopeta, armadilha; e o cartucho da recarga),
-                           fantasmas/<nome>.bbmodel (a Mãe), demonios/<nome>.bbmodel (os Sombrios: o Assombrado, a Asa sombria, o Devora almas)
+                           fantasmas/<nome>.bbmodel (a Mãe; a Gralha e o Mestre, do capítulo 2, ainda fora do jogo), demonios/<nome>.bbmodel (os Sombrios: o Assombrado, a Asa sombria, o Devora almas)
 public/musica/             as músicas do jogo (menu.mp3: o menu e o criador de mapas; batalha.mp3: as hordas e devorador.mp3:
                            o chefe, na Demo · Intro)
 reference/                 o laboratório antigo, só para consulta (não importar nada daqui); ost/ = as 4 músicas dele
@@ -146,12 +151,12 @@ ficam num arquivo próprio de cada pasta, para ajustar sem caçar no código.
 
 ```
 src/game/                  (já existem: Testar.tsx, player/, input/, world/, weapons/, corpo/, luz/, hud/, enemies/mae/, enemies/assombrado/,
-                           enemies/asa-sombria/, enemies/devora-almas/ — o resto entra
+                           enemies/asa-sombria/, enemies/devora-almas/, enemies/mestre/, enemies/gralha/ — o resto entra
                            quando a etapa chegar)
   luz/                     a luz do jogo: Iluminacao.tsx (a luz ambiente, o preenchimento, o luar, a neblina, a imagem final; entra
                            em toda cena de jogo), ceu.ts (o céu da noite: a cúpula com o degradê, as estrelas e a lua), luz.ts (a ambientação de onde o agente está, a troca suave, os momentos:
                            momento('mae-chegando'))
-  corpo/                   o que serve a todo personagem: molas.ts (o que pendura e balança: cabelo, saia), sombraDeChao.ts
+  corpo/                   o que serve a todo personagem: molas.ts (o que pendura e balança: cabelo, saia, manto; com vento), sombraDeChao.ts
                            (o círculo escuro embaixo dele)
   Testar.tsx               o Testar do editor: o agente andando no mapa aberto (câmera, colisão, luz do jogo), em tela cheia;
                            numa fase, dá ao roteiro o controle do agente (AgenteNaFase: ferir, engolir, cuspir, a gosma, o ponto de volta)
@@ -191,6 +196,13 @@ src/game/                  (já existem: Testar.tsx, player/, input/, world/, we
                            (no chão: a mancha, os espinhos, a gosma, a marca de mordida, o aviso e o rasgo da investida, os
                            círculos e os tentáculos da chuva e das poças), tremor.ts (o que faz a tela tremer) e numeros.ts
                            (ESCALA: ele é 3 vezes o modelo)
+  enemies/mestre/          o Mestre, do capítulo 2 (docs/cap2-sombra.md), só no Ver modelos por enquanto: modelo.ts (o manto e as
+                           partes soltas nas molas), animacao.ts (levita: as pernas pendem, deita com a velocidade; a cabeça vira
+                           de uma vez; a brisa e o arrasto no manto; o grito: o manto abre e a tela treme), corvo.ts (o corvo gigante de
+                           sombra que sai no grito, explode e solta 3 Gralhas), fumaca.ts (a fumaça escura dentro do manto,
+                           uma malha só) e numeros.ts
+  enemies/gralha/          a Gralha, do capítulo 2, só no Ver modelos por enquanto: modelo.ts, animacao.ts (voar, planar),
+                           ia.ts (perseguir: rodear o agente) e numeros.ts
   enemies/estouro.ts       o estouro dos Sombrios (os cubos de matéria e a mancha que seca), um estoque só para todos
   enemies/luta.ts          o que a inteligência dos Sombrios divide: o alvo (o agente), andar no mundo, virar, desviar dos
                            obstáculos (rumoLivre), separar o bando;

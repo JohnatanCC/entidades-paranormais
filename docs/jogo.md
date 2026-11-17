@@ -1,6 +1,6 @@
 # O jogo: o que já está decidido
 
-Entidades Paranormais é um jogo de **ação com terror em terceira pessoa** (inspirado no Ghosthunter de PS2).
+**Agentes CROS** (o nome do jogo, decidido em 17/nov; antes era "Entidades Paranormais") é um jogo de **ação com terror em terceira pessoa** (inspirado no Ghosthunter de PS2).
 Você é **Matheus Moura**, agente da **C.R.O.S.** (a organização que captura entidades). Você enfraquece os fantasmas
 a tiro e os prende com a armadilha. Cenário e personagens em blocos com textura em pixel (ver "A identidade visual").
 
@@ -27,6 +27,9 @@ Vale sobre `docs/design/historia.md` onde discordarem; os detalhes ainda vão se
   do submundo, os **Sombrios** (`docs/demonios.md`): os inimigos comuns e o mini-chefe, só destruídos.
 
 ## O caminho das ilhas: a chegada ao submundo (12/nov)
+
+> **17/nov:** o caminho das ilhas deixou de ser o tutorial e a Intro do capítulo 1: fica para um conteúdo mais para
+> frente. A Intro nova ainda vai ser definida (`docs/lancamento.md`).
 
 Puxado pelo portal, o Matheus cai num lugar do submundo antes da mansão. Ele segue um caminho enfrentando os Sombrios e
 **aprendendo as mecânicas**; no fim, um chefe mais difícil, o **Devora almas**, e só depois de vencê-lo ele chega de
@@ -133,9 +136,29 @@ verdade à mansão.
 Cada fantasma fica preso à casa por **objetos ligados a ele**. O agente procura esses objetos pelo mapa e os **destrói**.
 O número de objetos e os lugares variam de fantasma para fantasma.
 
+## Capítulo 0: até o portal (17/nov)
+
+**Começa na instalação da C.R.O.S.** (17/nov), com a introdução e o **tutorial inicial**: é ali que o jogador aprende a
+andar, mirar, atirar e capturar. Depois a C.R.O.S. manda o Matheus, a Lara e o Nicolas ao Palacete Monteval, e a ruptura
+suga os três para o submundo. Termina quando eles entram no portal. A instalação já existiu no laboratório (a demo Intro
+abaixo, `docs/design/intro.md`), e o catálogo do criador de mapas já tem as texturas e os móveis dela.
+**Em aberto** (`docs/lancamento.md`, etapa A1): aproveitar a Intro do laboratório ou fazer outra; quais entidades o
+tutorial usa (os Sombrios são do submundo e não estão na instalação); e o caminho da instalação até o portal.
+
+**O menu muda a cada capítulo** (17/nov, como no Poppy Playtime): mostra o capítulo mais adiantado a que o jogador
+chegou, com a música dele (`docs/musicas.md`).
+
 ## Capítulo 1: a Mãe
 
-- **Chefe:** a Mãe. A luta final é a do berçário (abaixo).
+**O começo (decidido em 17/nov):** depois que a ruptura suga os três agentes para o submundo, o Matheus aparece **dentro
+da mansão** (a versão do submundo): é **arremessado para fora de um armário**, num quarto. Pelo rádio ele fala com a
+Lara e o Nicolas e os três tentam entender onde estão. Depois ele entende o objetivo: destruir os objetos que prendem o
+fantasma à casa (e fortalecem o portal) e capturá-lo. O armário combina com a história: a Celina abria todos os
+armários da casa, um por um, procurando o filho (`docs/design/historia.md`). **Em aberto:** qual quarto (longe da sala
+de costura, onde a Mãe começa; sugestão: o quarto de hóspedes, no andar de cima).
+
+- **Chefe:** a Mãe. O berço é o último objeto, e a luta final é a do berçário (abaixo).
+- **Na mansão, a Mãe é imortal:** só dá para atordoá-la. Quando ela está perto, toca a **música de perseguição** (`docs/musicas.md`).
 - **Os 3 objetos:** a foto do filho; a pelúcia de gato que era do filho; o berço, por último: o berçário só abre com uma
   **chave** achada antes.
 - **No mapa, ela é uma perseguidora** (como o Mister X do Resident Evil 2): anda pela casa, **escuta o barulho** que o
@@ -211,7 +234,7 @@ luta não é para ser lenta; os ataques dos inimigos são legíveis para o jogad
 | --- | --- | --- | --- | --- |
 | Pistola de plasma | Q | a cada 0,2 s, bala a 40 m/s | 5 | **sobrecarga**: +2,5% por tiro; cheia, trava por 5 s. Munição infinita |
 | Escopeta de Demantino (o ferro extraído dos objetos amaldiçoados) | Q | a cada 1 s, 5 bagos em leque 0,065, 46 m/s | 5 × 15 | **balas**: 4 no cano; **a recarga leva 1 s por bala que falta** (4 = 4 s), e cada bala vale ao entrar. Sem sobrecarga |
-| Armadilha | — | **não se equipa mais** (12/nov): vai virar uma ação própria, que a usa sozinha (a reformular) | — | — |
+| Armadilha (a lamparina) | — | **não se equipa mais** (12/nov). **Reformulada em 17/nov: é a lamparina** na cintura, acesa; erguer ilumina a frente e captura absorvendo; o jogar sai (`docs/cap2-sombra.md`, "A lamparina") | — | — |
 | Kit médico | F | — | cura 60 | — |
 
 **A recarga da escopeta (decidida e feita em 12/nov; mudada no mesmo dia):** leva **1 s por bala que falta** (1 bala
@@ -258,6 +281,7 @@ Os modelos (10/nov) estão em `modelos/armas/` e o agente já segura cada uma (`
 No Testar e no jogo, o agente **já começa com a pistola na mão e nunca fica de mão vazia** (12/nov); Q troca entre ela
 e a escopeta e R recarrega a
 escopeta. A armadilha saiu da troca (12/nov): o jogar e o chamar de volta continuam no código, esperando a ação nova.
+**17/nov:** a ação nova é erguer a lamparina; o jogar e o chamar de volta saem quando ela for feita.
 
 **Mirar e atirar (10/nov, sem bala ainda):** o botão direito mira; o esquerdo atira (atirar sem mirar levanta a arma
 antes, e o tiro sai quando ela chega). Mirando, a câmera chega mais perto, mais de lado e fecha (um ponto no meio da
