@@ -191,12 +191,13 @@ Os textos longos de design (história, mansão, intro) estão em `docs/design/` 
 | Matheus Moura | O agente (jogador). Traje "Selado": runas que acendem com a sobrecarga, relicário, frascos, cartuchos de sal |
 | Lara | Agente da C.R.O.S., a batedora: vai na frente com a lanterna. Modelo próprio (`modelos/lara.bbmodel`, ver `docs/blockbench.md`), com o esqueleto do agente |
 | Nicolas | Agente da C.R.O.S., o novato: confiante demais, decide sozinho, fala pelo rádio. Modelo próprio (`modelos/nicolas.bbmodel`, ver `docs/blockbench.md`), com o esqueleto do agente |
-| Victor | Personagem secundário, para mais tarde: o ocultista da C.R.O.S. (35 anos), sente e bane fantasmas com magia, sem armas. Modelo em `modelos/victor.bbmodel` |
+| Leonardo | Personagem secundário, para mais tarde: **o ocultista da C.R.O.S.** (17/nov: tomou o lugar do Victor, com a função e a roupa dele), sente e bane fantasmas com magia, sem armas. Cabelo azul-escuro até o pescoço, heterocromia (um olho prateado, o outro preto), pele pálida. Modelo em `modelos/leonardo.bbmodel` |
+| Victor | **Guardado** (17/nov): o modelo (`modelos/victor.bbmodel`) fica para algum uso futuro; a função dele passou para o Leonardo |
 | A central | Voz no rádio, com chiado |
 
-**O Victor** (11/nov, só o modelo): o que ele faz no jogo ainda não está decidido. Os pontos que precisam de
+**O Leonardo, o ocultista** (era o Victor até 17/nov; só o modelo): o que ele faz no jogo ainda não está decidido. Os pontos que precisam de
 resposta antes, porque mexem no que já está decidido:
-- **Banir e capturar:** o fantasma menor estoura e o maior vira poça e é capturado. Se o Victor banir um chefe, ele
+- **Banir e capturar:** o fantasma menor estoura e o maior vira poça e é capturado. Se o Leonardo banir um chefe, ele
   pula a captura, que é o coração do jogo. Uma saída: banir vale só para os menores, e nos maiores ele ajuda (prende,
   enfraquece, segura a poça), mas quem captura é a armadilha.
 - **Sentir fantasmas:** cabe como mostrar o que está escondido (um fantasma invisível, o caminho de um que fugiu).

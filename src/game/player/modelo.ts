@@ -63,7 +63,7 @@ export interface Agente {
 const DEDOS = ['indicador', 'medio', 'anelar', 'minimo']
 
 /** Quem tem o esqueleto do agente: o Matheus e os aliados (cada um com o seu modelo). */
-export type ModeloAgente = 'agente' | 'lara' | 'nicolas' | 'victor'
+export type ModeloAgente = 'agente' | 'lara' | 'nicolas' | 'victor' | 'leonardo'
 
 export function montarAgente(modelo: ModeloAgente = 'agente'): Agente {
   const montado = montarBB(arquivoModelo(modelo), { pele: true }), { pastas, blocos } = montado

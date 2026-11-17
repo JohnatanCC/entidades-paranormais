@@ -7,7 +7,7 @@ feito para modelos em blocos com textura em pixel. O desenvolvedor modela e pint
 
 | Onde | O quê |
 | --- | --- |
-| `modelos/<nome>.bbmodel` | Um personagem (o agente: `agente.bbmodel`; a Lara: `lara.bbmodel`; o Nicolas: `nicolas.bbmodel`; o Victor: `victor.bbmodel`). A textura vai dentro do arquivo; o jogo lê este mesmo arquivo (`src/render/bbmodel.ts`) |
+| `modelos/<nome>.bbmodel` | Um personagem (o agente: `agente.bbmodel`; a Lara: `lara.bbmodel`; o Nicolas: `nicolas.bbmodel`; o Victor: `victor.bbmodel`; o Leonardo: `leonardo.bbmodel`). A textura vai dentro do arquivo; o jogo lê este mesmo arquivo (`src/render/bbmodel.ts`) |
 | `modelos/objetos/<tipo>.bbmodel` | Um objeto do catálogo do criador de mapas, com o nome do tipo (`cadeira.bbmodel`) |
 | `modelos/aberturas/<tipo>.bbmodel` | As portas e janelas: `porta-comum`, `porta-dupla`, `porta-grande`, `janela`, `janela-grande` |
 
@@ -115,7 +115,9 @@ referência do desenvolvedor; os traços, não o personagem dela):
 - **As pastas são as do Matheus**, como na Lara; a mão é a dele, sem luva. O jogo monta com `montarAgente('nicolas')`.
 - **A textura** nasceu do mesmo gerador da Lara: o ponto de partida para repintar à mão.
 
-## O Victor (11/nov)
+## O Victor (11/nov; guardado em 17/nov)
+
+> **17/nov:** a função e a roupa dele passaram para o Leonardo (abaixo). Este modelo fica guardado para algum uso futuro.
 
 `modelos/victor.bbmodel`: um personagem secundário, para usar mais tarde. O ocultista da C.R.O.S., 35 anos (eram 45: mudado em 11/nov, a pedido): sente os
 fantasmas e consegue bani-los, com magia, sem armas. Branco, magro, 1,84 m. O desenho (com uma referência do
@@ -133,6 +135,28 @@ desenvolvedor; os traços, não o personagem dela):
   (`src/game/player/animacao.ts`). Qualquer personagem com essas pastas ganha a barra que mexe.
 - **As pastas são as do Matheus**, como na Lara e no Nicolas (sem as mechas `mecha_`). O jogo monta com `montarAgente('victor')`.
 - **Falta (quando ele entrar no jogo):** a magia (os gestos, os efeitos), sentir e banir; ver "O Victor" em `docs/jogo.md`.
+
+## O Leonardo (17/nov)
+
+`modelos/leonardo.bbmodel`: **o ocultista da C.R.O.S.** Tomou o lugar do Victor (17/nov), com a função e a roupa dele; o
+Victor fica guardado para algum uso futuro (o modelo dele não foi mexido). 228 blocos, textura 512 × 352. O desenho (com
+uma referência do desenvolvedor; os traços, não a pessoa da foto):
+
+- **O rosto:** pálido, de rosto limpo (sem barba), as sobrancelhas baixas e escuras. **Heterocromia:** o olho esquerdo
+  dele é **prateado** e o direito é **preto**.
+- **O cabelo:** **azul-escuro**, repartido no meio, **até o pescoço**, com as pontas num azul mais vivo. Os lados
+  (`mecha_lado_e`, `mecha_lado_d`), as mechas da frente que emolduram o rosto (`mecha_frente_e`, `mecha_frente_d`) e as
+  três da nuca (`mecha_nuca_1` a `_3`) balançam com as molas. Uma **franja pequena** na testa, caída para a esquerda de
+  quem olha de frente (`mecha_franja_1`), também.
+- **A roupa é a do Victor**, com um ajuste: o sobretudo ganhou corpo (`sobretudo_costas`, `_lado_*`, `_frente_*` e os cantos
+  chanfrados, no `tronco`), da cintura aos ombros, saindo da largura da barra e fechando para cima; antes a barra, mais
+  larga que o tronco magro, ficava aberta em cima. O sobretudo preto de lã até o joelho (a barra mexe: `casaco_d`, `casaco_e`,
+  `casaco_tras`), o moletom cinza com o capuz caído, a camisa com a gravata, calça e botas pretas, os anéis de prata.
+- **Nasceu do Victor** (um gerador trocou as cores da pele, dos olhos e do cabelo na textura, tirou a barba e o cabelo
+  penteado para trás, e pôs o cabelo novo): as pastas são as do Matheus. O jogo monta com `montarAgente('leonardo')`.
+- **Tentado e recusado (17/nov):** um pesquisador de jaleco branco; não combinou com ele.
+- **Falta (quando ele entrar no jogo):** a magia (os gestos, os efeitos), sentir e banir; ver "O Leonardo, o ocultista"
+  em `docs/jogo.md`.
 
 ## Os objetos (móveis, máquinas, lâmpadas)
 

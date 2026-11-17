@@ -76,7 +76,7 @@ type Camera = 'corpo' | 'rosto' | 'maos' | 'pes' | 'costas'
 type Luz = 'estudio' | 'jogo'
 
 // os humanos com o esqueleto do agente (o mesmo painel): o id é o nome do arquivo em modelos/
-const HUMANOS: [ModeloAgente, string][] = [['agente', 'Matheus Moura'], ['lara', 'Lara'], ['nicolas', 'Nicolas'], ['victor', 'Victor']]
+const HUMANOS: [ModeloAgente, string][] = [['agente', 'Matheus Moura'], ['lara', 'Lara'], ['nicolas', 'Nicolas'], ['victor', 'Victor'], ['leonardo', 'Leonardo']]
 const AGENTE_ID = 'agente'
 const ARMA = 'arma:' // o id de uma arma no seletor: arma:pistola
 const MAE = 'fantasma:mae'
