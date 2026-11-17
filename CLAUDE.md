@@ -198,11 +198,15 @@ src/game/                  (já existem: Testar.tsx, player/, input/, world/, we
                            (ESCALA: ele é 3 vezes o modelo)
   enemies/mestre/          o Mestre, do capítulo 2 (docs/cap2-sombra.md), só no Ver modelos por enquanto: modelo.ts (o manto e as
                            partes soltas nas molas), animacao.ts (levita: as pernas pendem, deita com a velocidade; a cabeça vira
-                           de uma vez; a brisa e o arrasto no manto; o grito: o manto abre e a tela treme), corvo.ts (o corvo gigante de
-                           sombra que sai no grito, explode e solta 3 Gralhas), fumaca.ts (a fumaça escura dentro do manto,
+                           de uma vez; a brisa e o arrasto no manto; o grito: o manto abre e a tela treme; a corrida, a mordida com o bico, cobrir-se
+                           da luz e recuar), corvo.ts (o corvo gigante de
+                           sombra que sai no grito, explode e solta 3 Gralhas), disfarce.ts (a entrada: um corvo pousado que cresce e
+                           se revela), fumaca.ts (a fumaça escura dentro do manto,
                            uma malha só), sons.ts (a respiração, o osso, o manto, o grito, o corvo) e numeros.ts
-  enemies/gralha/          a Gralha, do capítulo 2, só no Ver modelos por enquanto: modelo.ts, animacao.ts (voar, planar),
-                           ia.ts (perseguir: rodear o agente), sons.ts (as asas, o grasnado) e numeros.ts
+  enemies/gralha/          a Gralha, do capítulo 2, só no Ver modelos por enquanto: modelo.ts, animacao.ts (voar, planar, pousada, o
+                           ataque: mergulho e bicada; o tiro e estourar), efeitos.ts (as penas que caem e o estouro em fumaça), ia.ts (perseguir: rodear o agente e mergulhar nele), sons.ts (as asas, o grasnado) e numeros.ts
+  enemies/nuvens.ts        as nuvens de fumaça de pixel (uma malha só, viradas para a câmera no shader): a fumaça do Mestre e o
+                           estouro da Gralha
   enemies/estouro.ts       o estouro dos Sombrios (os cubos de matéria e a mancha que seca), um estoque só para todos
   enemies/luta.ts          o que a inteligência dos Sombrios divide: o alvo (o agente), andar no mundo, virar, desviar dos
                            obstáculos (rumoLivre), separar o bando;

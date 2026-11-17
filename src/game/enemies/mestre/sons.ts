@@ -4,6 +4,9 @@
 //     vento e mais forte quando ele avança;
 //   o grito: no aviso ele puxa o ar (um chiado que sobe, com um ronco por baixo); o grito sônico (um grasnado enorme e
 //     rachado, metálico, com um grave que pulsa: nada da voz da Mãe) e o manto abrindo num golpe de pano e penas;
+//   a corrida (caçando): um ronco curto e rouco de tempos em tempos, e o manto batendo forte (o vento faz);
+//   a mordida: no aviso, o ar sibilando pelo bico aberto; o bote e o bico fechando num estalo seco de osso;
+//   a luz: um guincho de dor que cai, o manto fechando num golpe de pano, e ele chiando enquanto ela bate;
 //   o corvo gigante (ouvirCorvo): sai num sopro e um grasnado grave, bate as asas pesadas enquanto voa; explodindo
 //     (corvoExplodindo, num ponto: somEm), um baque, o pano rasgando e as três Gralhas grasnando juntas.
 // A assinatura do capítulo 2 é o grasnado, a estática de rádio e o pano batendo (docs/musicas.md).
@@ -13,7 +16,7 @@ import { asaDePena, grasnado } from '../gralha/sons'
 import { passou, sorteio, vozDe, type Parte, type Tocar } from '../sons'
 import type { Corvo } from './corvo'
 import type { Mestre } from './modelo'
-import { GRITO, PARADO } from './numeros'
+import { GRITO, MORDIDA, PARADO } from './numeros'
 
 const R = Math.random
 /** O manto farfalhando: pano pesado e penas roçando (k = a força). */
@@ -67,10 +70,48 @@ export const corvoExplodindo: Tocar = (s, t, d) => {
   return 1
 }
 
-/** As partes, para as provas medirem. */
-export const PARTES_MESTRE: Parte[] = [['respiração', respira], ['osso (a cabeça vira)', osso], ['manto', manto], ['aviso', aviso], ['grito', grito], ['manto abrindo', abre], ['corvo saindo', corvoSai], ['corvo voando', corvoVoa], ['corvo explodindo', corvoExplodindo]]
+const ronco: Tocar = (s, t, d) => {
+  voz(s, { t, dur: 0.38, a: 0.04, r: 0.15, f: 74, f2: 96, f3: 66, glide: 0.12, vogal: 'o', vogal2: 'a', sc: 0.8, grit: 3.2, fry: 0.75, fryHz: 31, ar: 0.5, gain: 0.14, dest: d })
+  return 0.6
+}
+const avisoDaMordida: Tocar = (s, t, d) => {
+  const D = MORDIDA.prepara
+  ruido(s, { t, dur: D, a: D * 0.7, tipo: 'highpass', f: 1800, gain: 0.1, r: 0.03, dest: d }) // o ar sibilando
+  voz(s, { t, dur: D, a: 0.05, r: 0.04, f: 90, f2: 130, glide: D, vogal: 'a', sc: 0.9, grit: 3, fry: 0.7, fryHz: 38, gain: 0.1, dest: d })
+  return D
+}
+const mordida: Tocar = (s, t, d) => {
+  ruido(s, { t, dur: 0.08, a: 0.01, f: 700, f2: 2400, q: 0.9, gain: 0.2, r: 0.06, dest: d }) // o bote
+  const f = t + MORDIDA.bote
+  pancada(s, f, 190, 0.3, d); racha(s, f, 0.3, d) // o bico de osso fechando
+  tom(s, { t: f, f: 1300, f2: 420, dur: 0.035, r: 0.05, gain: 0.22, dest: d })
+  return MORDIDA.bote + 0.3
+}
+const dor: Tocar = (s, t, d) => {
+  voz(s, { t, dur: 0.75, a: 0.02, r: 0.3, f: 980, f2: 1250, f3: 430, glide: 0.08, vogal: 'e', vogal2: 'a', sc: 1.3, grit: 3.6, fry: 0.5, fryHz: 58, ring: [117, 0.3], ar: 0.6, wob: 0.16, gain: 0.2, dest: d })
+  ruido(s, { t: t + 0.05, dur: 0.16, a: 0.01, tipo: 'lowpass', f: 1300, f2: 260, gain: 0.26, r: 0.3, dest: d }) // o manto fechando
+  for (let i = 0; i < 4; i++) farfalhar(s, t + 0.1 + R() * 0.4, d, 1)
+  return 1.1
+}
+const chia: Tocar = (s, t, d) => {
+  ruido(s, { t, dur: 0.5, a: 0.1, tipo: 'highpass', f: 2600, gain: 0.05, r: 0.2, dest: d })
+  voz(s, { t, dur: 0.45, a: 0.1, r: 0.2, f: 150, f2: 120, vogal: 'e', sc: 1, grit: 3, fry: 0.8, fryHz: 44, gain: 0.06, dest: d })
+  return 0.7
+}
 
-interface Antes { ar: number; para: THREE.Vector3; grito: object | null; t: number; manto: number }
+/** O Mestre saindo do disfarce: o corvo estoura num sopro e o manto abre, com um grasnado grave (num ponto: somEm). */
+export const revelando: Tocar = (s, t, d) => {
+  pancada(s, t, 60, 0.35, d)
+  ruido(s, { t, dur: 0.14, a: 0.01, tipo: 'lowpass', f: 1800, f2: 240, gain: 0.36, r: 0.5, dest: d }) // o sopro de fumaça
+  grasnado(s, t + 0.03, d, 1.6, 0.9, 2.6)
+  abre(s, t + 0.1, d)
+  return 1.1
+}
+
+/** As partes, para as provas medirem. */
+export const PARTES_MESTRE: Parte[] = [['respiração', respira], ['osso (a cabeça vira)', osso], ['manto', manto], ['aviso', aviso], ['grito', grito], ['manto abrindo', abre], ['ronco da corrida', ronco], ['aviso da mordida', avisoDaMordida], ['mordida', mordida], ['dor (a luz)', dor], ['chiado (a luz)', chia], ['saindo do disfarce', revelando], ['corvo saindo', corvoSai], ['corvo voando', corvoVoa], ['corvo explodindo', corvoExplodindo]]
+
+interface Antes { ar: number; para: THREE.Vector3; grito: object | null; t: number; manto: number; mordida: object | null; tm: number; coberto: boolean; ronco: number; chia: number }
 const antes = new WeakMap<Mestre, Antes>()
 const _p = new THREE.Vector3()
 
@@ -78,12 +119,13 @@ const _p = new THREE.Vector3()
 export function ouvirMestre(m: Mestre, dt: number) {
   const A = m.anim, G = A.grito, T = A.tique
   let b = antes.get(m)
-  if (!b) { b = { ar: 0, para: T.para.clone(), grito: G, t: 0, manto: 0.5 }; antes.set(m, b) }
+  const M = A.mordida, calmo = !G && !M && A.corre < 0.3 && A.cobre < 0.3
+  if (!b) { b = { ar: 0, para: T.para.clone(), grito: G, t: 0, manto: 0.5, mordida: M, tm: 0, coberto: A.coberto, ronco: 0.6, chia: 0.8 }; antes.set(m, b) }
   const v = vozDe(m, m.peito.getWorldPosition(_p), 3)
   const ar = ((A.t / PARADO.respira.periodo) % 1 + 1) % 1
   if (v) {
     const { s, d, t } = v
-    if (!G) {
+    if (calmo) {
       if (passou(b.ar, ar, 0)) respira(s, t, d)
       if (!T.para.equals(b.para)) osso(s, t, d) // a cabeça virou de uma vez
     }
@@ -92,8 +134,13 @@ export function ouvirMestre(m: Mestre, dt: number) {
     if ((b.manto -= dt * (0.6 + forca)) <= 0) { farfalhar(s, t, d, 0.35 + forca); b.manto = sorteio(0.3, 0.7) }
     if (G && G !== b.grito) aviso(s, t, d)
     if (G && passou(b.t, G.t, GRITO.aviso) && G.t >= GRITO.aviso) { grito(s, t, d); abre(s, t, d) }
+    if (M && M !== b.mordida) avisoDaMordida(s, t, d)
+    if (M && b.tm < MORDIDA.prepara && M.t >= MORDIDA.prepara) mordida(s, t, d)
+    if (A.coberto && !b.coberto) { dor(s, t, d); b.chia = 1 }
+    if (A.coberto && (b.chia -= dt) <= 0) { chia(s, t, d); b.chia = sorteio(0.5, 0.9) }
+    if (A.corre > 0.6 && !M && (b.ronco -= dt) <= 0) { ronco(s, t, d); b.ronco = sorteio(1.1, 2.2) }
   }
-  b.ar = ar; b.para.copy(T.para); b.grito = G; b.t = G ? G.t : 0
+  b.ar = ar; b.para.copy(T.para); b.grito = G; b.t = G ? G.t : 0; b.mordida = M; b.tm = M ? M.t : 0; b.coberto = A.coberto
 }
 
 const corvos = new WeakMap<Corvo, { ativo: boolean; fase: number }>()

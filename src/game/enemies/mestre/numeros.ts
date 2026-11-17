@@ -35,6 +35,29 @@ export const GRITO = {
 // Gralhas solta e com que empurrão (m/s) elas saem da explosão; não fere
 export const CORVO = { escala: 2.6, cor: '#3a2f52', vel: 15, acelera: 0.25, dura: 2, altura: 1.55, gralhas: 3, espalha: 3.5, tremor: TREMOR.medio }
 
+// a corrida (caçando; ele levita depressa, não corre com os pés): mais baixo (altura, m), o sobe e desce mais curto e
+// mais rápido (sobe, m; periodo, s), deitado para a frente (inclina, rad) com o peito arqueado de volta (arqueia) e a
+// cabeça erguida (cabeca, rad); os braços para trás (bracos) e um pouco abertos (abre); as pernas esticadas atrás
+// (pernas); o manto meio aberto, como asas (manto); entra = o quão depressa entra e sai da pose
+export const CORRIDA = { altura: 0.3, sobe: 0.06, periodo: 1.1, inclina: 0.6, arqueia: 0.22, cabeca: -0.55, bracos: 1, abre: 0.3, pernas: 0.75, manto: 0.28, entra: 4, vel: 6 }
+
+// a mordida, quando chega perto: o aviso (prepara, s: a cabeça recua, o bico abre, ele acende), o bote (s) e a volta
+// (s); recolhe e avanca = o peito (rad); cabeca = [recuada, no bote] (rad); bico = o quanto abre (rad); investe = o
+// quanto ele avança no bote (m/s); alcance e dano (pontos de partida: ajustar jogando)
+export const MORDIDA = { prepara: 0.34, bote: 0.11, volta: 0.5, recolhe: 0.24, avanca: 0.5, cabeca: [-0.45, 0.5], bico: 0.75, investe: 7, alcance: 1.8, dano: 30 }
+
+// a luz forte nele (a lamparina erguida): cobre-se e recua. entra e sai = o quão depressa (por s); encolhe = desce (m);
+// curva = o peito (rad); cabeca = [baixar, virar o rosto] (rad); braco e antebraco = cruzados na frente do rosto (rad);
+// cruza = para dentro (rad); manto = as tiras fechando (rad, negativo); treme (rad); recua (m/s); fumaca = o quanto ela
+// engrossa (0 a 1)
+export const COBRIR = { entra: 9, sai: 2.5, encolhe: 0.1, curva: 0.3, cabeca: [0.4, 0.6], braco: -0.7, antebraco: -1.45, cruza: 0.45, manto: -0.2, treme: 0.018, recua: 1.6, fumaca: 1 }
+
+// o disfarce (uma entrada, para o futuro): ele aparece como um corvo pousado, mais robusto que as Gralhas (escala, vezes
+// a Gralha; cor, multiplica a textura); espera = quanto fica assim (s); depois treme (rad) e cresce (cresce, s; incha,
+// vezes) e estoura; altura = o corpo do corvo acima do chão (m, na escala 1); onde = a altura do estouro (m); o Mestre
+// sai pequeno (de, vezes o tamanho dele) e cresce em `revela` s, com o manto aberto fechando em `fecha` s
+export const DISFARCE = { escala: 1.7, cor: '#6a5a85', espera: 5, cresce: 0.8, incha: 1.7, treme: 0.07, altura: 0.27, onde: 0.9, de: 0.4, revela: 0.7, fecha: 1.3, tremor: TREMOR.medio }
+
 // parado: a respiração (o peito, rad, a cada `periodo` s), o balanço do corpo (rad) e os tiques da cabeça, de ave: de
 // tempos em tempos (s, sorteado) ela vira de uma vez (em `vira` s) para um lado (rad: girar, tombar, baixar) e fica
 export const PARADO = {
@@ -43,17 +66,18 @@ export const PARADO = {
   tique: { espera: [1.6, 4.5], vira: 0.09, girar: 0.4, tombar: 0.28, baixar: 0.12 },
 }
 
-// a fumaça escura dentro do manto: as nuvens sobem do chão por dentro dele e somem na altura da cintura; uma parte
-// escorre pelo chão, por baixo da barra
+// a fumaça escura dentro do manto, presa ao corpo (17/nov: não fica mais para trás quando ele anda): enche o manto do
+// chão até os ombros; as nuvens nascem em toda a altura, sobem devagar girando e somem; acima da cintura ficam atrás
+// da frente do corpo (`frente`, m), para as costelas e as mãos aparecerem; uma parte escorre pelo chão
 export const FUMACA = {
-  nuvens: 44, cor: '#050408',
-  alto: 1.55, // m: até onde sobe (ele levita: a coluna de fumaça vai do chão até a cintura)
-  raio: [0.42, 0.2], // m: o raio do manto por dentro, no chão e no alto
-  sobe: [0.1, 0.26], gira: 0.5, // m/s; rad/s em volta do corpo
-  vida: [2.6, 4.6], entra: 0.6, sai: 1.1, // s
-  tamanho: [0.3, 0.52], cresce: 1.35, // m; quanto cresce até sumir
-  forca: [0.5, 0.8], // a opacidade no auge
-  rasteira: 0.18, // a parte das nuvens que escorre pelo chão (maiores, mais fracas)
-  escorre: 0.08, // m/s para fora
-  fica: 0.9, // quanto da fumaça fica para trás quando ele anda (1 = toda)
+  nuvens: 64, cor: '#050408',
+  alto: 2.05, // m: até onde vai (os ombros, com a levitação)
+  cintura: 1.4, frente: -0.02, // m
+  raio: [0.42, 0.22], // m: o raio do manto por dentro, no chão e no alto
+  sobe: [0.08, 0.22], gira: 0.5, // m/s; rad/s em volta do corpo
+  vida: [2.4, 4.2], entra: 0.6, sai: 1, // s
+  tamanho: [0.32, 0.55], cresce: 1.3, // m; quanto cresce até sumir
+  forca: [0.55, 0.85], // a opacidade no auge
+  rasteira: 0.1, // a parte das nuvens que escorre pelo chão (maiores, mais fracas)
+  escorre: 0.07, // m/s para fora
 }

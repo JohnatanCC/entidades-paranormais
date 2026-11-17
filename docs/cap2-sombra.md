@@ -8,7 +8,8 @@ todo e entra já no capítulo 1 (abaixo).
 
 O capítulo 2 é **mais sombrio e mais focado no terror** do que o da Mãe. Na mansão do capítulo 1 há lâmpadas acesas; no
 do capítulo 2 **quase nenhuma luz está acesa**, e o porão é **escuro de todo**. Quem ilumina é a lamparina do agente.
-As armas servem pouco: **não ferem as Gralhas, só as espantam** do lugar.
+**As Gralhas morrem com as armas** (mudado em 17/nov; antes, só se espantavam) e a luz não faz nada com elas: elas
+servem para **quebrar as lâmpadas** dos ambientes, para o Mestre conseguir passar. Quem a luz afeta é o Mestre.
 
 ## A Sombra
 
@@ -21,8 +22,11 @@ batendo.
   fantasma de verdade (17/nov: no lugar da ideia de se juntarem num maior). O Mestre é maior, **rápido e letal**.
 - **Observam:** ficam de longe, olhando, e **atacam no escuro**: partem para cima do agente, incomodam e ferem.
 - **São espertas e rápidas**, e costumam **atacar em grupo**.
-- **As armas só espantam** as Gralhas (não atordoam nem destroem). É uma exceção à regra "o menor zerado estoura"
-  (`docs/jogo.md`, "Destruir ou capturar"): neste capítulo as Gralhas não têm vida para zerar.
+- **As Gralhas morrem com as armas** (mudado em 17/nov): cada tiro arranca penas; com a vida zerada, ela **estoura em
+  fumaça**, com mais penas. É a regra do jogo ("o menor zerado estoura", `docs/jogo.md`, "Destruir ou capturar"), sem
+  animação de morte. Ponto de partida: 3 tiros.
+- **A luz não afeta as Gralhas** (17/nov). Elas **quebram as lâmpadas** dos ambientes, para o Mestre conseguir passar:
+  a luz é a fraqueza dele (cobre-se e recua), não delas.
 
 ## O desenho: as Gralhas e o Mestre (conceito, 17/nov)
 
@@ -60,11 +64,11 @@ corpo e os olhos, que brilham); várias Gralhas dividem tudo (`copiaDoMolde`).
   subida, a ponta atrasada), plana de vez em quando, o corpo sobe a cada descida e a cabeça fica quase parada no ar;
   deita para a frente com a velocidade e de lado nas curvas. No Ver modelos: voando no lugar e em roda.
 - **Perseguir** (17/nov): depois do grito do Mestre, voa até o agente e fica rodeando por cima dele (`ia.ts`).
-- **Falta:** pousar, olhar, atacar e o resto da inteligência (os sons estão abaixo).
+- **Falta:** pousar, olhar e o resto da inteligência (o ataque e os sons estão abaixo).
 
 ### O modelo do Mestre (feito em 17/nov, ainda fora do jogo)
 
-`modelos/fantasmas/mestre.bbmodel`, 351 blocos em 95 juntas, textura 512 × 256 (64 px por metro), nascido de um gerador
+`modelos/fantasmas/mestre.bbmodel`, 333 blocos em 95 juntas, textura 512 × 256 (64 px por metro), nascido de um gerador
 para retocar no Blockbench. No **Ver modelos → Fantasmas → O Mestre** (`provas.mestre(segundos, andar)`). **A origem é o
 chão** entre os pés. No jogo: 3 chamadas de desenho (o corpo, os olhos acesos e a fumaça). O código em
 `src/game/enemies/mestre/` (`modelo.ts`, `animacao.ts`, `fumaca.ts`, `numeros.ts`).
@@ -72,7 +76,8 @@ chão** entre os pés. No jogo: 3 chamadas de desenho (o corpo, os olhos acesos 
 - **O que marca:** a gola de penas arrepiadas, **alta atrás da cabeça e baixa na frente** (refeita em 17/nov: antes
   tapava o rosto); no capuz, o rosto preto com **dois olhos amarelos** e o **bico de osso** rachado, com dentes, descendo
   para fora; na abertura da frente, as **costelas** de osso escuro, as pernas de ave e as **mãos de garra** até os
-  joelhos; **três Gralhas dormindo nos ombros e no peito**, só a cabeça e o olho aceso (as que ele manda voar).
+  joelhos. (As três cabeças de Gralha que dormiam nos ombros e no peito saíram em 17/nov: uma ficava dentro do braço e
+  as outras sumiam nas penas da gola. As Gralhas saem de dentro do manto, no grito.)
 - **O capuz** em três andares que fecham para cima (arredondado, sem caixa), com a viseira caída sobre os olhos e a
   ponta caída para trás.
 - **O manto em camadas** (refeito em 17/nov: antes eram tiras inteiras, retas, com um degrau no meio): a ombreira (do
@@ -83,10 +88,9 @@ chão** entre os pés. No jogo: 3 chamadas de desenho (o corpo, os olhos acesos 
   capuz) balançam com as molas da saia da Mãe (`src/game/corpo/molas.ts`, que ganhou o **vento**: um empurrão a mais em
   tudo). O vento do Mestre é uma brisa que gira e vem em rajadas, mais o **arrasto**: quando ele anda, o manto fica
   para trás. Cada tira de baixo é filha de uma de cima (a corrente).
-- **A fumaça** (17/nov): uma camada de fumaça escura **dentro do manto**: nuvens de pixel sobem do chão por dentro dele e
-  somem na cintura (as costelas e as mãos ficam de fora); uma parte escorre por baixo da barra. Fecha os vãos entre as
-  tiras e esconde as pernas; quando ele anda, fica um rastro. Uma malha só para todas as nuvens (44), viradas para a
-  câmera no shader.
+- **A fumaça** (17/nov): uma camada de fumaça escura **dentro do manto**, presa ao corpo, do chão até os ombros (as
+  costelas e as mãos ficam de fora); uma parte escorre por baixo da barra. Fecha os vãos entre as tiras e esconde as
+  pernas. Uma malha só para todas as nuvens (64), viradas para a câmera no shader. ("As ações", abaixo.)
 - **Ele não anda: levita** (decidido em 17/nov). O corpo fica a ~0,4 m do chão, subindo e descendo devagar, sobre a
   coluna de fumaça; as pernas pendem soltas, com as garras para baixo. Avançando, o corpo deita para a frente e o
   manto, as pernas, os braços e a fumaça ficam para trás. A cabeça **vira de uma vez e fica**, como a de uma ave (o
@@ -97,7 +101,7 @@ chão** entre os pés. No jogo: 3 chamadas de desenho (o corpo, os olhos acesos 
   `peito` › `ombro_e` › `braco_e` › `antebraco_e` › `mao_e` › `dedo_1_e` a `dedo_3_e` (cada um com a `_ponta`) e `polegar_e`;
   `pescoco` › `cabeca` › `bico_baixo` (a boca entreaberta) e `mecha_capuz`; no antebraço, `mecha_manga_e` e `mecha_manga_2_e`;
   o manto: `manto_1_N` › `manto_2_N` › `manto_3_N`. Os olhos (dele e das Gralhas) são blocos `luz_`.
-- **Falta:** a caçada e a inteligência (o grito e os sons estão abaixo).
+- **Falta:** a inteligência (o grito, as ações e os sons estão abaixo).
 
 ### O grito: como a caçada começa (decidido e feito em 17/nov, no Ver modelos)
 
@@ -120,6 +124,44 @@ imaginária a 11 m. Pelo console: `provas.mestre(2, 0, 1)` (o Mestre a 1 s do gr
 (as ondas) é diferente na imagem; no som também precisa ser. A porta: ele tem 2,25 m e levita, então precisa abaixar
 para passar, como a Mãe.
 
+### As ações (feitas em 17/nov, no Ver modelos)
+
+**O Mestre** (`src/game/enemies/mestre/animacao.ts`; os números em `CORRIDA`, `MORDIDA` e `COBRIR`):
+- **A corrida** (`correr`: caçando; ele levita depressa, não usa os pés): mais baixo e deitado para a frente, a cabeça
+  erguida olhando a presa, os braços para trás com as garras abertas, as pernas esticadas atrás, o manto meio aberto
+  como asas; sobe e desce mais rápido. No Ver modelos, a 6 m/s.
+- **A mordida** (`morder`: quando chega perto): o aviso (0,34 s: a cabeça recua, o bico abre, ele acende em âmbar), o
+  **bote** (0,11 s: o corpo e a cabeça vão de uma vez para a frente, ele avança ~0,8 m) e **o bico fecha** (o instante
+  do dano: a animação avisa); a volta (0,5 s). Pontos de partida: alcance 1,8 m, dano 30.
+- **A luz** (`cobrir`: enquanto a luz forte, a lamparina erguida, bate nele): encolhe, vira o rosto, **cruza os braços
+  na frente da cabeça**, fecha o manto, treme, **a fumaça engrossa**, e ele **recua** (1,6 m/s). Parou a luz, ele se
+  abre de novo, mais devagar. Corta a mordida.
+- **A fumaça presa ao corpo** (corrigido em 17/nov, a pedido): não fica mais para trás quando ele anda; está presa ao
+  quadril (anda, deita e sobe com ele) e **enche o manto do chão até os ombros** (64 nuvens, que nascem em toda a
+  altura); acima da cintura fica atrás da frente do corpo, para as costelas e as mãos aparecerem.
+
+**A Gralha** (`src/game/enemies/gralha/`; os números em `ATAQUE`):
+- **O ataque** (`atacar`): sobe um pouco com as asas no alto (o aviso, 0,3 s), **mergulha** com as asas fechadas para
+  trás, o corpo apontado para baixo e o bico aberto (0,42 s, a 9 m/s, reto para o peito do alvo), **bica** (o bico
+  fecha: o instante do dano) e volta para a roda batendo as asas depressa.
+- **Na caçada** (`ia.ts`): cada uma mergulha no seu tempo, de 2,5 a 4,5 s, nunca todas juntas. Pontos de partida:
+  alcance 0,7 m, dano 6.
+
+- **O tiro** (`ferir`; `efeitos.ts`; os números em `DANO`, `PENAS` e `SOPRO`): ela acende, leva o tranco (cai um pouco,
+  tomba de lado, as asas dão um pulo, o bico abre) e **caem penas** (8 por tiro), devagar e balançando, até pousar no
+  chão e sumir. No terceiro tiro (`estourarGralha`) o corpo some e fica o **estouro em fumaça**, com mais 12 penas. As
+  penas de todas as Gralhas são uma malha só, e as nuvens outra (`src/game/enemies/nuvens.ts`, as mesmas da fumaça do
+  Mestre).
+- **Pousada** (`pousar`): em pé, as asas fechadas, o corpo erguido, as pernas para baixo; a cabeça vira aos trancos.
+
+**O disfarce do Mestre** (`src/game/enemies/mestre/disfarce.ts`, `DISFARCE`; uma entrada, para o futuro): ele aparece
+como **um corvo pousado**, parecido com as Gralhas mas maior (1,7 vez) e mais escuro. Fica em pé por **5 s**, a cabeça
+virando aos trancos; depois **treme e cresce** (0,8 s), **estoura em fumaça e penas** (a tela treme) e o Mestre **sai de
+dentro**, pequeno, crescendo até o tamanho dele (0,7 s) com o manto e os braços abertos, que fecham devagar.
+
+**Falta ligar no jogo:** as balas acertarem a Gralha (os alvos das balas), o dano de verdade (a mordida e a bicada só avisam o instante), quem decide quando ele corre,
+morde e se cobre (a inteligência), e a lamparina, que ainda não existe.
+
 ### Os sons (feitos em 17/nov; o desenvolvedor ainda precisa ouvir e dizer como soou)
 
 Sintetizados na hora, como os dos Sombrios (`sons.ts` de cada pasta; `ouvirMestre`, `ouvirCorvo` e `ouvirGralha` tocam
@@ -132,6 +174,11 @@ e o pano.
 - **O grito:** no aviso ele **puxa o ar** (um chiado que sobe, um ronco, os ossos travando); o **grito sônico** é um
   grasnado enorme e rachado, metálico, com um grave que pulsa e um chiado de rádio por cima (diferente do grito da
   Mãe); o **manto abrindo** num golpe de pano e penas.
+- **O tiro e o disfarce:** a Gralha levando tiro dá um guincho curto, com as penas arrancadas; estourando, um sopro
+  abafado e o grasnado cortado. O Mestre saindo do disfarce: um baque, o sopro de fumaça, um grasnado grave e o manto.
+- **As ações:** caçando, um **ronco** curto e rouco de tempos em tempos; na mordida, o ar sibilando no aviso e o **estalo
+  seco de osso** do bico fechando; na luz, um **guincho de dor** que cai, o manto fechando e ele chiando enquanto ela
+  bate. A Gralha atacando: um grasnado agudo no aviso, o ar do mergulho e o estalo do bico.
 - **O corvo gigante:** sai num sopro com um grasnado grave; as asas pesadas enquanto voa; **explodindo**, um baque, o
   pano rasgando e as três Gralhas grasnando juntas.
 - **Os volumes** (`provas.sonsDemonios()`, que agora mede também a Gralha e o Mestre): o grito é o mais forte (rms
@@ -164,8 +211,10 @@ A armadilha de captura **é a lamparina** (decidido em 17/nov). Ela já estava "
   ser vistas, o contorno precisa ficar desligado nelas (só os olhos brilhando, por exemplo).
 - **O nome:** "a Sombra" (o capítulo, a Dita) e "o Mestre" são o mesmo fantasma? E quem é ele na história (a Dita é a
   gralha; o Bento, o mordomo, era quem ouvia o rádio, mas o Mordomo está fora do projeto)?
-- **As armas nas Gralhas:** agora elas ferem o agente. Continuam só se espantando com tiro, ou estouram como os menores
-  (a regra de `docs/jogo.md`)? Se só espantam, o jogador não tem como se livrar delas além da luz.
+- **As Gralhas quebrando lâmpadas:** uma lâmpada quebrada é estado novo no mapa (hoje a lâmpada é um objeto que acende
+  e a luz dela é assada no cenário: `docs/iluminacao.md`). Apagar uma no meio do jogo pede decidir como a luz assada
+  daquele lugar muda (uma segunda versão assada sem ela, ou só as lâmpadas com sombra podem quebrar), e se o jogador
+  pode protegê-las atirando nas Gralhas antes.
 - **Como se vence o Mestre:** o que o enfraquece (a luz? o tiro?). A captura: a lamparina absorve só ele, ou também as Gralhas?
 - **A luta do chefe:** onde (no porão?).
 - **O peso:** muitas Gralhas voando juntas. Um molde só com cópias que dividem tudo (`copiaDoMolde`), poucas peças por

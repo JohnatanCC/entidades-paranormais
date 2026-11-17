@@ -15,17 +15,22 @@ export function novoCorvo(): Corvo {
   const g = montarGralha()
   g.root.scale.setScalar(CORVO.escala); g.root.visible = false
   g.anim.proxPlanar = 99 // não plana: bate as asas o tempo todo
-  // de sombra: o corpo quase preto (os olhos, que brilham sozinhos, ficam como são)
+  escurecer(g, CORVO.cor)
+  return { g, ativo: false, t: 0, dir: new THREE.Vector3(0, 0, 1) }
+}
+
+/** De sombra: o corpo ganha um material só dele, da cor `cor` (multiplica a textura); os olhos, que brilham sozinhos,
+ *  ficam como são. O corvo gigante e o corvo do disfarce usam. */
+export function escurecer(g: Gralha, cor: string) {
   const escuros = new Map<THREE.Material, THREE.Material>()
   g.root.traverse((o) => {
     const m = o as THREE.Mesh
     if (!m.isMesh || !(m.material as THREE.MeshStandardMaterial).isMeshStandardMaterial) return
     const de = m.material as THREE.MeshStandardMaterial
     let para = escuros.get(de)
-    if (!para) { const c = clonar(de); c.color.set(CORVO.cor); escuros.set(de, (para = c)) }
+    if (!para) { const c = clonar(de); c.color.set(cor); escuros.set(de, (para = c)) }
     m.material = para
   })
-  return { g, ativo: false, t: 0, dir: new THREE.Vector3(0, 0, 1) }
 }
 
 /** O corvo sai de `de` (no mundo), no rumo `dir` (no chão). */
@@ -54,6 +59,8 @@ export function passoCorvo(C: Corvo, dt: number, bate?: (de: THREE.Vector3, para
   return r.position
 }
 
-export function descartarCorvo(C: Corvo) {
-  C.g.root.traverse((o) => { const m = o as THREE.Mesh; if (m.isMesh && (m.material as THREE.MeshStandardMaterial).isMeshStandardMaterial) (m.material as THREE.Material).dispose() })
+export function descartarCorvo(C: Corvo) { descartarEscuros(C.g) }
+/** Descarta os materiais escuros de um corvo (escurecer). */
+export function descartarEscuros(g: Gralha) {
+  g.root.traverse((o) => { const m = o as THREE.Mesh; if (m.isMesh && (m.material as THREE.MeshStandardMaterial).isMeshStandardMaterial) (m.material as THREE.Material).dispose() })
 }

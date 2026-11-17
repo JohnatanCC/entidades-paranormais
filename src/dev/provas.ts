@@ -6,8 +6,8 @@
 //   const d = await provas.devora('erra', 1.4, 1)             o Devora almas ('solto', 'nadando', ou o ataque: 'erra', 'engole',
 //                                                             'investida', 'chuva', 'ninhada', 'atordoar', 'rastejar';
 //                                                             e a barra de vida, de 1 a 3)
-//   const r = await provas.gralha(1, 0.2, 0)                 a Gralha (capítulo 2) voando a 1,6 m (os segundos, a fase das asas, andar m/s)
-//   const t = await provas.mestre(2, 0)                      o Mestre (capítulo 2) levitando, depois de 2 s; andar m/s; e os s do grito (0.4 = o aviso, 1 = gritando)
+//   const r = await provas.gralha(1, 0.2, 0)                 a Gralha (capítulo 2) voando a 1,6 m (os segundos, a fase das asas, andar m/s, os s do ataque, pousada, os s do tiro)
+//   const t = await provas.mestre(2, 0)                      o Mestre (capítulo 2) levitando, depois de 2 s; andar m/s; e a ação: ['grito' | 'morder' | 'luz' | 'correr' | 'disfarce', s]
 //   const g = await provas.agente('escopeta', 'recarga', 1.2)  o Matheus com a arma num instante ('recarga': a escopeta
 //                                                             recarregando, com `balas` no cano antes (0 = vazia); 'tiro':
 //                                                             mirando para a frente, atirando; ou null; andar m/s)
@@ -43,9 +43,12 @@ import { PARTES_ARMAS } from '../game/weapons/sons'
 import { PARTES_AGENTE } from '../game/player/sons'
 import { ganchos } from './ganchos'
 import { montarGralha } from '../game/enemies/gralha/modelo'
-import { animarGralha } from '../game/enemies/gralha/animacao'
+import { animarGralha, atacar as atacarGralha, ferir as ferirGralha, pousar as pousarGralha } from '../game/enemies/gralha/animacao'
+import { estourarEmFumaca, novosEfeitosGralha, passoEfeitosGralha } from '../game/enemies/gralha/efeitos'
+import { disfarcar, novoDisfarce, passoDisfarce } from '../game/enemies/mestre/disfarce'
+import { POUSADA } from '../game/enemies/gralha/numeros'
 import { montarMestre } from '../game/enemies/mestre/modelo'
-import { animarMestre, gritar } from '../game/enemies/mestre/animacao'
+import { animarMestre, cobrir as cobrirMestre, correr as correrMestre, gritar, morder as morderMestre } from '../game/enemies/mestre/animacao'
 import { nivelAtual } from '../render/qualidade'
 import { contarSombras } from '../render/sombras'
 import { montarAgente, type Agente, type ModeloAgente } from '../game/player/modelo'
@@ -145,24 +148,31 @@ async function asaSombria(acao: 'cuspir' | 'desviar' | 'dano' | null, ate: numbe
   return { m: null, sc }
 }
 
-/** A Gralha (capítulo 2) voando a 1,6 m, depois de `ate` s; fase = a fase das asas (0 a 1); andar = para a frente (m/s). */
-async function gralha(ate = 1, fase?: number, andar = 0): Promise<Cena> {
+/** A Gralha (capítulo 2) voando a 1,6 m, depois de `ate` s; fase = a fase das asas (0 a 1); andar = para a frente (m/s);
+ *  ataque = quantos s do ataque já passaram (0,2 = o aviso; 0,5 = o mergulho; 0,9 = a volta); pousada = em pé, no chão;
+ *  tiro = há quantos s levou um tiro (com as penas caindo). */
+async function gralha(ate = 1, fase?: number, andar = 0, ataque?: number, pousada = false, tiro?: number): Promise<Cena> {
   const G = montarGralha(), g = G.root, sc = new THREE.Scene()
   G.anim.proxPlanar = 99 // sem planar sozinha: a foto sai igual
   sc.background = new THREE.Color('#1c1a1e')
   sc.add(new THREE.HemisphereLight('#ffffff', '#4a4640', 1))
   const d = new THREE.DirectionalLight('#ffffff', 1.3); d.position.set(1, 3, 3); sc.add(d)
   sc.add(new THREE.Mesh(new THREE.PlaneGeometry(8, 12).rotateX(-Math.PI / 2), new THREE.MeshStandardMaterial({ color: '#333' })))
-  g.position.set(0, 1.6, -andar * ate); sc.add(g)
+  const F = novosEfeitosGralha(); sc.add(F.grupo)
+  g.position.set(0, pousada ? POUSADA.altura : 1.6, -andar * ate); sc.add(g)
+  if (pousada) { pousarGralha(G, true); G.anim.pousa = 1; G.anim.tique.espera = 99 }
   for (let t = 0; t < ate; t += 1 / 60) { g.position.z += andar / 60; animarGralha(G, 1 / 60) }
+  if (ataque !== undefined) { atacarGralha(G); for (let t = 0; t < ataque; t += 1 / 60) animarGralha(G, 1 / 60) }
+  if (tiro !== undefined) { ferirGralha(G, F, 0); for (let t = 0; t < tiro; t += 1 / 60) { animarGralha(G, 1 / 60); passoEfeitosGralha(F, 1 / 60) } }
   if (fase !== undefined) { G.anim.fase = (fase - 1 / 60 / 0.46 + 1) % 1; animarGralha(G, 1 / 60) }
   g.updateMatrixWorld(true)
   await new Promise((ok) => setTimeout(ok, 600))
   return { m: null, sc }
 }
 /** O Mestre (capítulo 2) levitando, depois de `ate` s (o manto nas molas, a fumaça); andar = para a frente (m/s);
- *  grito = quantos s do grito já passaram no fim (o aviso dura 0,6 s; sem o corvo, só ele). */
-async function mestre(ate = 2, andar = 0, grito?: number): Promise<Cena> {
+ *  acao = o que ele faz no fim e há quantos s: ['grito', 1] (sem o corvo, só ele), ['morder', 0.4], ['luz', 1] ou
+ *  ['correr', 2] (caçando, a 6 m/s) ou ['disfarce', 5.5] (o corvo pousado; cresce aos 5 s e o Mestre sai aos 5,8 s). */
+async function mestre(ate = 2, andar = 0, acao?: ['grito' | 'morder' | 'luz' | 'correr' | 'disfarce', number]): Promise<Cena> {
   const m = montarMestre(), sc = new THREE.Scene()
   sc.background = new THREE.Color('#1c1a1e')
   sc.add(new THREE.HemisphereLight('#ffffff', '#4a4640', 1))
@@ -170,7 +180,18 @@ async function mestre(ate = 2, andar = 0, grito?: number): Promise<Cena> {
   sc.add(new THREE.Mesh(new THREE.PlaneGeometry(8, 12).rotateX(-Math.PI / 2), new THREE.MeshStandardMaterial({ color: '#333' })))
   sc.add(m.root); m.root.position.z = -andar * ate
   for (let t = 0; t < ate; t += 1 / 60) { m.root.position.z += andar / 60; animarMestre(m, 1 / 60) }
-  if (grito !== undefined) { gritar(m); for (let t = 0; t < grito; t += 1 / 60) animarMestre(m, 1 / 60) }
+  if (acao) {
+    const [qual, dura] = acao
+    const D = qual === 'disfarce' ? novoDisfarce() : null, F = novosEfeitosGralha()
+    if (D) { sc.add(D.corvo.root, F.grupo); disfarcar(D, m) }
+    else if (qual === 'grito') gritar(m); else if (qual === 'morder') morderMestre(m); else if (qual === 'luz') cobrirMestre(m, true); else correrMestre(m, true)
+    for (let t = 0; t < dura; t += 1 / 60) {
+      const onde = D ? passoDisfarce(D, m, 1 / 60) : null
+      if (onde) estourarEmFumaca(F, onde, 0)
+      passoEfeitosGralha(F, 1 / 60)
+      const s = animarMestre(m, 1 / 60); m.root.position.z += ((qual === 'correr' ? 6 : 0) + s.avanca - s.recua) / 60
+    }
+  }
   m.root.updateMatrixWorld(true)
   await new Promise((ok) => setTimeout(ok, 600))
   return { m: null, sc }

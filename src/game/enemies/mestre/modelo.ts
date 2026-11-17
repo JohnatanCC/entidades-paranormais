@@ -4,7 +4,7 @@
 // O corpo inteiro é uma malha com ossos (uma chamada de desenho, mais a dos olhos, que brilham). O manto são três
 // camadas de tiras (manto_1_*, manto_2_*, manto_3_*: cada tira é filha de uma da camada de cima) que balançam com molas,
 // e as partes soltas (mecha_*: as mangas, a ponta do capuz) também. Dentro do manto, a fumaça (fumaca.ts).
-// Ele não anda: levita sobre a fumaça, com as pernas pendendo. Como ele se mexe: animacao.ts.
+// Ele não anda: levita sobre a fumaça (presa ao corpo), com as pernas pendendo. Como ele se mexe: animacao.ts.
 import * as THREE from 'three'
 import { copiaDoMolde } from '../../../render/bbmodel'
 import { prepararMolas, type Molas } from '../../corpo/molas'
@@ -27,7 +27,12 @@ export interface Mestre {
   /** o que a animação lembra (animacao.ts) */
   anim: {
     t: number
+    onda: number // a fase do sobe e desce (rad)
     grito: { t: number; saiu: boolean } | null // o grito em curso (s desde o começo; o corvo já saiu?)
+    mordida: { t: number; mordeu: boolean } | null // a mordida em curso (o bico já fechou?)
+    surgindo: { t: number } | null // saindo do disfarce: cresce, com o manto aberto (disfarce.ts)
+    correndo: boolean; corre: number // caçando; e o quanto já está na pose da corrida (0 a 1)
+    coberto: boolean; cobre: number // a luz forte bate nele; e o quanto já se cobriu (0 a 1)
     tique: { espera: number; t: number; de: THREE.Vector3; para: THREE.Vector3 } // a cabeça: de onde e para onde vira (x baixar, y girar, z tombar)
     ultimo: THREE.Vector3 | null; vel: THREE.Vector3 // onde estava e a velocidade (o manto fica para trás)
     frente: number; lado: number // a velocidade no rumo dele (m/s, suavizada): para a frente e para o lado esquerdo
@@ -50,7 +55,7 @@ export function montarMestre(): Mestre {
     return { g, x: -Math.cos(fi) * k, z: Math.sin(fi) * k }
   })
   const fumaca = novaFumaca()
-  root.add(fumaca.malha)
+  quadril.add(fumaca.malha) // presa ao corpo: deita e sobe com ele (animacao.ts põe o pé dela no chão)
   return {
     root, quadril, peito, cabeca: osso('cabeca'), bico, abas,
     pernas: lados.map(([s, l]) => ({ s, coxa: osso(`coxa_${l}`), canela: osso(`canela_${l}`), tarso: osso(`tarso_${l}`), pe: osso(`pe_${l}`) })),
@@ -60,7 +65,7 @@ export function montarMestre(): Mestre {
     soltas: prepararMolas(pastasCom(root, 'mecha_'), peito, peito, SOLTAS),
     fumaca,
     anim: {
-      t: Math.random() * 10, grito: null, tique: { espera: 1.5, t: 1, de: new THREE.Vector3(), para: new THREE.Vector3() },
+      t: Math.random() * 10, onda: Math.random() * 6, grito: null, mordida: null, surgindo: null, correndo: false, corre: 0, coberto: false, cobre: 0, tique: { espera: 1.5, t: 1, de: new THREE.Vector3(), para: new THREE.Vector3() },
       ultimo: null, vel: new THREE.Vector3(), frente: 0, lado: 0, vento: new THREE.Vector3(),
     },
   }

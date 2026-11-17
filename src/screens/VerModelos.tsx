@@ -28,15 +28,19 @@ import type { Expressao } from '../game/player/rosto'
 import { GRUPOS, OBJETOS } from '../maps/objetos'
 import { arma3d, caminhoObjeto, objeto3d } from '../render/objetos3d'
 import { montarGralha } from '../game/enemies/gralha/modelo'
-import { animarGralha } from '../game/enemies/gralha/animacao'
+import { animarGralha, estourarGralha, ferir as ferirGralha, pousar, refazerGralha } from '../game/enemies/gralha/animacao'
+import { estourarEmFumaca, novosEfeitosGralha, passoEfeitosGralha } from '../game/enemies/gralha/efeitos'
+import { POUSADA } from '../game/enemies/gralha/numeros'
+import { disfarcar, novoDisfarce, passoDisfarce } from '../game/enemies/mestre/disfarce'
+import { descartarEscuros } from '../game/enemies/mestre/corvo'
 import { montarMestre } from '../game/enemies/mestre/modelo'
-import { animarMestre, gritar } from '../game/enemies/mestre/animacao'
+import { animarMestre, cobrir, correr, gritar, morder } from '../game/enemies/mestre/animacao'
 import { descartarCorvo, novoCorvo, passoCorvo, soltarCorvo } from '../game/enemies/mestre/corvo'
-import { CORVO } from '../game/enemies/mestre/numeros'
+import { CORRIDA, CORVO, DISFARCE } from '../game/enemies/mestre/numeros'
 import { novaCacadora, perseguir, type Cacadora } from '../game/enemies/gralha/ia'
 import { CACA } from '../game/enemies/gralha/numeros'
 import { aplicarTremor, tremerDe } from '../game/player/tremor'
-import { corvoExplodindo, ouvirCorvo, ouvirMestre } from '../game/enemies/mestre/sons'
+import { corvoExplodindo, ouvirCorvo, ouvirMestre, revelando } from '../game/enemies/mestre/sons'
 import { ouvirGralha } from '../game/enemies/gralha/sons'
 import { descartarFumaca } from '../game/enemies/mestre/fumaca'
 import { montarMae } from '../game/enemies/mae/modelo'
@@ -67,7 +71,7 @@ import { ouvirAssombrado } from '../game/enemies/assombrado/sons'
 import { bolaBatendo, ouvirAsaSombria } from '../game/enemies/asa-sombria/sons'
 import { avisoChuva, ouvirDevora, tentaculo } from '../game/enemies/devora-almas/sons'
 
-type Anim = 'parado' | 'andando' | 'correndo' | 'esquiva' | 'queda' | 'porta'
+type Anim = 'parado' | 'andando' | 'correndo' | 'esquiva' | 'queda' | 'porta' | 'pousada'
 type Camera = 'corpo' | 'rosto' | 'maos' | 'pes' | 'costas'
 type Luz = 'estudio' | 'jogo'
 
@@ -77,8 +81,8 @@ const AGENTE_ID = 'agente'
 const ARMA = 'arma:' // o id de uma arma no seletor: arma:pistola
 const MAE = 'fantasma:mae'
 const GRALHA = 'fantasma:gralha', MESTRE = 'fantasma:mestre' // o capítulo 2 (docs/cap2-sombra.md): a Gralha voando; o Mestre levitando, com o manto e a fumaça
-const ANIMS_MESTRE: [Anim, string][] = [['parado', 'Levitando no lugar'], ['andando', 'Levitando (em roda)']]
-const ANIMS_GRALHA: [Anim, string][] = [['parado', 'Voando no lugar'], ['andando', 'Voando (em roda)']]
+const ANIMS_MESTRE: [Anim, string][] = [['parado', 'Levitando no lugar'], ['andando', 'Levitando (em roda)'], ['correndo', 'Caçando (em roda, depressa)']]
+const ANIMS_GRALHA: [Anim, string][] = [['parado', 'Voando no lugar'], ['andando', 'Voando (em roda)'], ['pousada', 'Pousada (em pé)']]
 const ANIMS_MAE: [Anim, string][] = [['parado', 'Parada'], ['andando', 'Andando (em roda)'], ['porta', 'Passando pela porta']]
 // os demônios (docs/demonios.md): o id é o nome do arquivo em modelos/demonios/
 const ASSOMBRADO = 'demonio:assombrado', ASA = 'demonio:asa-sombria', DEVORA = 'demonio:devora-almas'
@@ -176,15 +180,31 @@ export function VerModelos({ go }: { go: Go }) {
           </select>
         </section>
         {mae && <Opcoes titulo="Animação" lista={ANIMS_MAE} valor={e.anim} onEscolher={(anim) => muda({ anim })} />}
-        {e.qual === MESTRE && <Opcoes titulo="Animação" lista={ANIMS_MESTRE} valor={e.anim} onEscolher={(anim) => muda({ anim })} />}
-        {e.qual === MESTRE && <section><small>Ele não anda: levita sobre a fumaça, com as pernas pendendo. A cabeça vira de uma vez, como a de uma ave. O manto e as mangas balançam com a brisa; em roda, o corpo deita para a frente e o manto, as pernas e a fumaça ficam para trás. A caçada e os sons vêm depois.</small></section>}
+        {e.qual === MESTRE && <Opcoes titulo="Animação" lista={ANIMS_MESTRE} valor={e.anim} onEscolher={(anim) => muda({ anim, ataque: null })} />}
+        {e.qual === MESTRE && <section><small>Ele não anda: levita sobre a fumaça, com as pernas pendendo. A cabeça vira de uma vez, como a de uma ave. O manto e as mangas balançam com a brisa; em roda, o corpo deita para a frente e o manto, as pernas e a fumaça ficam para trás. Caçando, vai mais baixo e deitado, a cabeça erguida, os braços para trás e o manto meio aberto.</small></section>}
         {e.qual === MESTRE && <section>
           <b>Ações</b>
-          <div className="opcoes"><button onClick={() => muda({ anim: 'parado', girar: false, ataque: { nome: 'grito', n: (e.ataque?.n ?? 0) + 1 } })}>Gritar (avistou o agente)</button></div>
+          <div className="opcoes">
+            <button onClick={() => muda({ anim: 'parado', girar: false, ataque: { nome: 'grito', n: (e.ataque?.n ?? 0) + 1 } })}>Gritar (avistou o agente)</button>
+            <button onClick={() => muda({ anim: 'parado', girar: false, ataque: { nome: 'morder', n: (e.ataque?.n ?? 0) + 1 } })}>Morder (chegou perto)</button>
+            <button onClick={() => muda({ anim: 'parado', girar: false, ataque: { nome: 'luz', n: (e.ataque?.n ?? 0) + 1 } })}>Luz nele (cobre-se e recua)</button>
+            <button onClick={() => muda({ anim: 'parado', girar: false, ataque: { nome: 'disfarce', n: (e.ataque?.n ?? 0) + 1 } })}>Disfarce (corvo que se revela)</button>
+          </div>
+          <small>Morder: o aviso (a cabeça recua, o bico abre, ele acende), o bote para a frente e o bico fechando, contra a marca do agente. Luz nele: enquanto a luz bate (2,6 s), encolhe, vira o rosto, cruza os braços, fecha o manto, a fumaça engrossa, e ele recua. Disfarce (uma entrada, para o futuro): ele aparece como um corvo pousado, mais robusto que as Gralhas; depois de 5 s treme, cresce e estoura em fumaça e penas, e o Mestre sai de dentro, crescendo com o manto aberto.</small>
           <small>O aviso (ele trava, recolhe e acende), o grito (o manto e os braços abrem, a tela treme) e o corvo gigante de sombra, que sai do manto, voa reto e explode em 2 s ou ao bater (aqui, numa parede a 11 m), soltando 3 Gralhas. Elas rodeiam a marca do agente no chão e vão embora em 12 s. O corvo não fere. Os sons tocam com a animação (o ouvido é a câmera: perto, mais alto); sem som, clique uma vez na página antes.</small>
         </section>}
-        {e.qual === GRALHA && <Opcoes titulo="Animação" lista={ANIMS_GRALHA} valor={e.anim} onEscolher={(anim) => muda({ anim })} />}
-        {e.qual === GRALHA && <section><small>Só o voo por enquanto: bate as asas (a descida mais rápida), plana de vez em quando, e a cabeça fica quase parada no ar. Pousar, olhar e atacar vêm depois.</small></section>}
+        {e.qual === GRALHA && <Opcoes titulo="Animação" lista={ANIMS_GRALHA} valor={e.anim} onEscolher={(anim) => muda({ anim, ataque: null })} />}
+        {e.qual === GRALHA && <section>
+          <b>Ações</b>
+          <div className="opcoes">
+            <button onClick={() => muda({ anim: 'parado', girar: false, ataque: { nome: 'bicar', n: (e.ataque?.n ?? 0) + 1 } })}>Atacar a marca (mergulho e bicada)</button>
+            <button onClick={() => muda({ demonio: { acao: 'dano', n: (e.demonio?.n ?? 0) + 1 } })}>Levar um tiro</button>
+            <button onClick={() => muda({ demonio: { acao: 'estourar', n: (e.demonio?.n ?? 0) + 1 } })}>Estourar</button>
+          </div>
+          <small>Cada tiro acende, dá o tranco e solta penas, que caem devagar; no terceiro ela estoura em fumaça com mais penas (e volta em 2,5 s). A luz não faz nada com ela.</small>
+          <small>Ela roda por cima da marca do agente e mergulha: sobe com as asas no alto (o aviso), fecha as asas, desce de bico aberto, bica e volta. Aperte de novo para outro mergulho; escolha uma animação para parar.</small>
+        </section>}
+        {e.qual === GRALHA && <section><small>Bate as asas (a descida mais rápida), plana de vez em quando, e a cabeça fica quase parada no ar. Pousar e olhar vêm depois.</small></section>}
         {mae && <Opcoes titulo="Expressão" lista={[[null, 'Automática'], ...EXPRESSOES_MAE] as [ExpressaoMae | null, string][]} valor={e.rostoMae} onEscolher={(rostoMae) => muda({ rostoMae })} />}
         {mae && <Opcoes titulo="Ela está" lista={[[false, 'Patrulhando (cantarola)'], [true, 'Caçando (respira e guincha)']] as [boolean, string][]} valor={e.caca} onEscolher={(caca) => muda({ caca })} />}
         {mae && <Opcoes titulo="Fase" lista={[[false, 'Fases 1 a 3'], [true, 'Fase 4 (a última barra)']] as [boolean, string][]} valor={e.fase4} onEscolher={(fase4) => muda({ fase4 })} />}
@@ -740,41 +760,68 @@ function CenaMestre({ e, onInfo }: { e: Escolhas; onInfo: (i: Info) => void }) {
   const C = useMemo(() => novoCorvo(), [novoCorvo]), E = useMemo(() => novoEstouro(), [])
   const gralhas = useMemo(() => Array.from({ length: CORVO.gralhas }, () => { const g = montarGralha(); g.root.visible = false; return g }), [montarGralha])
   const cacando = useRef<Cacadora[]>([])
+  // o disfarce: o corvo pousado que vira o Mestre, e a fumaça e as penas do estouro
+  const D = useMemo(() => novoDisfarce(), [novoDisfarce]), F = useMemo(() => novosEfeitosGralha(), [])
   const { pronto, voar } = useVoo()
-  const R = 2.4, VEL = 2.2 // em roda: o raio (m) e a velocidade (m/s)
-  const ALVO_Z = 6, PAREDE = 11 // o agente (a marca no chão) e onde o corvo bate, se não explodir antes (m à frente dele)
-  const alvo = useMemo(() => { const g = new THREE.Mesh(new THREE.RingGeometry(0.3, 0.38, 24).rotateX(-Math.PI / 2), new THREE.MeshBasicMaterial({ color: '#c2453a' })); g.position.set(0, 0.01, ALVO_Z); return g }, [])
-  const ida = useRef({ ang: 0, rastro: 0, tremeu: new THREE.Vector3() })
+  const acao = e.ataque?.nome ?? null
+  // o agente (a marca no chão): longe no grito, perto na mordida; e onde o corvo bate, se não explodir antes (m)
+  const ALVO_Z = acao === 'morder' ? 2.3 : 6, PAREDE = 11
+  const alvo = useMemo(() => new THREE.Mesh(new THREE.RingGeometry(0.3, 0.38, 24).rotateX(-Math.PI / 2), new THREE.MeshBasicMaterial({ color: '#c2453a' })), [])
+  // a luz forte nele (a lamparina erguida do agente), para o cobrir
+  const luz = useMemo(() => { const l = new THREE.PointLight('#ffd9a0', 0, 9, 1.4); l.position.set(0.4, 1.7, 3); return l }, [])
+  const ida = useRef({ ang: 0, rastro: 0, luz: 0, tremeu: new THREE.Vector3() })
   const _d = useMemo(() => new THREE.Vector3(), []), _v = useMemo(() => new THREE.Vector3(), [])
   const camera = useThree((st) => st.camera)
-  useEffect(() => () => { descartarFumaca(m.fumaca); descartarCorvo(C); calar(m); calar(C); gralhas.forEach(calar) }, [m, C, gralhas])
+  useEffect(() => () => { descartarFumaca(m.fumaca); descartarCorvo(C); descartarEscuros(D.corvo); calar(m); calar(C); calar(D.corvo); gralhas.forEach(calar) }, [m, C, D, gralhas])
   useEffect(() => {
-    const c = contas(m.root)
+    const c = contas(m.root), pai = m.fumaca.malha.parent!
     m.root.updateMatrixWorld(true)
-    m.root.remove(m.fumaca.malha) // a altura é a do corpo, sem a fumaça
+    pai.remove(m.fumaca.malha) // a altura é a do corpo, sem a fumaça
     const b = new THREE.Box3().setFromObject(m.root)
-    m.root.add(m.fumaca.malha)
+    pai.add(m.fumaca.malha)
     onInfo({ linhas: [`Altura (sem a levitação): ${(b.max.y - b.min.y).toFixed(2)} m`, `${c.blocos} blocos em ${c.juntas} juntas`, `${c.desenhos} chamadas de desenho (o corpo, os olhos e a fumaça)`] })
   }, [m, onInfo])
-  const gritando = e.ataque?.nome === 'grito'
+  const roda = e.anim === 'andando' || e.anim === 'correndo'
   useEffect(() => {
-    // no grito, de lado e de longe: ele, o corvo saindo e a marca do agente
-    if (pronto) voar(new THREE.Vector3(0, 1.5, gritando ? 4 : 0), gritando ? new THREE.Vector3(11, 4, 5) : e.anim === 'andando' ? new THREE.Vector3(5, 3.4, 6.5) : new THREE.Vector3(2.8, 2, 4.2))
-  }, [pronto, e.anim, gritando])
-  useEffect(() => { if (e.ataque?.nome === 'grito') gritar(m) }, [e.ataque])
+    // no grito, de lado e de longe: ele, o corvo saindo e a marca do agente; na mordida e na luz, de lado e de perto
+    const de = acao === 'grito' ? new THREE.Vector3(11, 4, 5) : acao ? new THREE.Vector3(6, 2.2, 2.5) : e.anim === 'correndo' ? new THREE.Vector3(8, 5, 10) : e.anim === 'andando' ? new THREE.Vector3(5, 3.4, 6.5) : new THREE.Vector3(2.8, 2, 4.2)
+    if (pronto) voar(new THREE.Vector3(0, 1.5, acao === 'grito' ? 4 : acao ? 0.8 : 0), de)
+  }, [pronto, e.anim, acao])
+  useEffect(() => {
+    const p = e.ataque
+    if (!p) return
+    if (p.nome === 'grito') gritar(m)
+    else if (p.nome === 'morder') morder(m)
+    else if (p.nome === 'luz') ida.current.luz = 2.6 // a luz bate nele por este tempo (s)
+    else if (p.nome === 'disfarce') { m.root.position.set(0, 0, 0); m.root.rotation.y = 0; disfarcar(D, m) }
+  }, [e.ataque])
+  useEffect(() => { correr(m, e.anim === 'correndo') }, [m, e.anim])
   useFrame((_, dtBruto) => {
-    const dt = Math.min(dtBruto, 0.05), I = ida.current, r = m.root
+    const dt = Math.min(dtBruto, 0.05), I = ida.current, r = m.root, A = m.anim
     camera.position.sub(I.tremeu) // tira o tremor do quadro passado antes de pôr o deste
-    if (e.anim === 'andando' && !m.anim.grito) { // em roda, de frente para onde vai
+    alvo.position.set(0, 0.01, ALVO_Z)
+    // a luz acesa nele: cobre-se enquanto ela bate
+    I.luz = Math.max(0, I.luz - dt)
+    cobrir(m, I.luz > 0); luz.intensity = I.luz > 0 ? 14 : 0
+    const ocupado = !!A.grito || !!A.mordida || A.coberto
+    if (roda && !ocupado) { // em roda, de frente para onde vai (caçando: maior e mais depressa)
+      const R = e.anim === 'correndo' ? 4.5 : 2.4, VEL = e.anim === 'correndo' ? CORRIDA.vel : 2.2
       I.ang += (VEL * dt) / R
       r.position.set(Math.cos(I.ang) * R, 0, Math.sin(I.ang) * R); r.rotation.y = -I.ang
-    } else {
+    } else if (!ocupado) {
       const k = 1 - Math.exp(-2.2 * dt)
       r.position.lerp(_d.set(0, 0, 0), k)
-      if (!e.girar || m.anim.grito) r.rotation.y += -r.rotation.y * k; else r.rotation.y += dt * 0.5
-    }
+      if (!e.girar) r.rotation.y += -r.rotation.y * k; else r.rotation.y += dt * 0.5
+    } else if (!roda) r.rotation.y += -r.rotation.y * (1 - Math.exp(-6 * dt)) // de frente para a marca
+    // o disfarce: o corvo espera, cresce e estoura; o Mestre sai de dentro
+    const revela = passoDisfarce(D, m, dt)
+    if (D.ativo) ouvirGralha(D.corvo, dt)
+    if (revela) { calar(D.corvo); estourarEmFumaca(F, revela, 0); somEm(revela, revelando, 4); tremerDe(revela, DISFARCE.tremor, 0.6) }
+    passoEfeitosGralha(F, dt)
     const s = animarMestre(m, dt)
-    ouvinte(camera); ouvirMestre(m, dt)
+    // o que a animação pede: avançar no bote, recuar da luz
+    r.position.addScaledVector(_d.set(Math.sin(r.rotation.y), 0, Math.cos(r.rotation.y)), (s.avanca - s.recua) * dt)
+    ouvinte(camera); if (m.root.visible) ouvirMestre(m, dt)
     if (s.solta) soltarCorvo(C, s.solta, _d.set(Math.sin(r.rotation.y), 0, Math.cos(r.rotation.y)))
     // o corvo: o rastro de sombra atrás dele; explode em 2 s ou na "parede"
     if (C.ativo && (I.rastro += dt) > 0.05) { I.rastro = 0; estourar(E, C.g.root.position, 0.6, 0, { cubos: 2, olhos: 0, pano: 0, mancha: false }) }
@@ -788,7 +835,7 @@ function CenaMestre({ e, onInfo }: { e: Escolhas; onInfo: (i: Info) => void }) {
       cacando.current = gralhas.map((g, i) => {
         const a = rumo + Math.PI + (i - 1) * 1.3 // saem da explosão abrindo, de volta para o agente
         g.root.visible = true
-        return novaCacadora(g, onde, _v.set(Math.sin(a) * CORVO.espalha, 1.2, Math.cos(a) * CORVO.espalha), (i * Math.PI * 2) / gralhas.length)
+        return novaCacadora(g, onde, _v.set(Math.sin(a) * CORVO.espalha, 1.2, Math.cos(a) * CORVO.espalha), (i * Math.PI * 2) / gralhas.length, 2 + i * 1.3)
       })
     }
     for (const c of cacando.current) {
@@ -803,8 +850,11 @@ function CenaMestre({ e, onInfo }: { e: Escolhas; onInfo: (i: Info) => void }) {
     <primitive object={m.root} />
     <primitive object={C.g.root} />
     <primitive object={E.grupo} />
+    <primitive object={luz} />
+    <primitive object={D.corvo.root} />
+    <primitive object={F.grupo} />
     {gralhas.map((g, i) => <primitive key={i} object={g.root} />)}
-    {gritando && <primitive object={alvo} />}
+    {(acao === 'grito' || acao === 'morder') && <primitive object={alvo} />}
   </>
 }
 
@@ -813,9 +863,13 @@ function CenaGralha({ e, onInfo }: { e: Escolhas; onInfo: (i: Info) => void }) {
   const g = useMemo(() => montarGralha(), [montarGralha])
   const { pronto, voar } = useVoo()
   const ALTURA = 1.6, R = 2.2, VEL = 4 // o voo: a altura (m); em roda: o raio (m) e a velocidade (m/s)
-  const ida = useRef({ ang: 0 })
+  // o ataque: ela caça a marca do agente no chão (roda por cima e mergulha nela)
+  const alvo = useMemo(() => { const a = new THREE.Mesh(new THREE.RingGeometry(0.3, 0.38, 24).rotateX(-Math.PI / 2), new THREE.MeshBasicMaterial({ color: '#c2453a' })); a.position.set(0, 0.01, 0); return a }, [])
+  const F = useMemo(() => novosEfeitosGralha(), [])
+  const ida = useRef<{ ang: number; caca: Cacadora | null; volta: number }>({ ang: 0, caca: null, volta: 0 })
   const _d = useMemo(() => new THREE.Vector3(), [])
   const camera = useThree((st) => st.camera)
+  const atacando = e.ataque?.nome === 'bicar'
   useEffect(() => () => calar(g), [g])
   useEffect(() => { g.root.position.set(0, ALTURA, 0); g.anim.ultimo = null; g.molas.pos = null }, [g])
   useEffect(() => {
@@ -824,21 +878,44 @@ function CenaGralha({ e, onInfo }: { e: Escolhas; onInfo: (i: Info) => void }) {
     const b = new THREE.Box3().setFromObject(g.root)
     onInfo({ linhas: [`Comprimento, do bico à cauda: ${(b.max.z - b.min.z).toFixed(2)} m`, `Largura, com as asas: ${(b.max.x - b.min.x).toFixed(2)} m`, `${c.blocos} blocos em ${c.juntas} juntas`, `${c.desenhos} chamadas de desenho`] })
   }, [g, onInfo])
-  useEffect(() => { if (pronto) voar(new THREE.Vector3(0, ALTURA, 0), e.anim === 'andando' ? new THREE.Vector3(5, 3.8, 6) : new THREE.Vector3(1.6, 2.2, 2)) }, [pronto, e.anim])
+  useEffect(() => { if (pronto) voar(new THREE.Vector3(0, atacando ? 1.3 : e.anim === 'pousada' ? 0.35 : ALTURA, 0), atacando ? new THREE.Vector3(4.5, 2.6, 5) : e.anim === 'andando' ? new THREE.Vector3(5, 3.8, 6) : e.anim === 'pousada' ? new THREE.Vector3(1.6, 0.9, 2) : new THREE.Vector3(1.6, 2.2, 2)) }, [pronto, e.anim, atacando])
+  useEffect(() => { pousar(g, e.anim === 'pousada') }, [g, e.anim])
+  // os tiros: cada um solta penas; no último (ou em "Estourar") ela estoura em fumaça e volta em 2,5 s
+  useEffect(() => {
+    const p = e.demonio, I = ida.current
+    if (!p) return
+    if (g.anim.estourada) { refazerGralha(g); I.volta = 0 }
+    if (p.acao === 'estourar' || (p.acao === 'dano' && ferirGralha(g, F, 0))) { estourarGralha(g, F, 0); I.volta = 2.5; I.caca = null }
+  }, [e.demonio])
+  // o botão: começa a caçar a marca (ou, já caçando, mergulha de novo agora)
+  useEffect(() => {
+    const I = ida.current
+    if (!e.ataque) { I.caca = null; return }
+    if (I.caca) I.caca.prox = 0
+    else I.caca = novaCacadora(g, g.root.position.clone(), _d.set(0, 0, 0), 0, 1.2)
+  }, [e.ataque])
   useFrame((_, dtBruto) => {
     const dt = Math.min(dtBruto, 0.05), I = ida.current, r = g.root
-    if (e.anim === 'andando') { // em roda, de frente para onde vai
+    if (g.anim.estourada && (I.volta -= dt) <= 0) refazerGralha(g)
+    const altura = e.anim === 'pousada' ? POUSADA.altura : ALTURA
+    if (I.caca) perseguir(I.caca, alvo.position, dt)
+    else if (e.anim === 'andando') { // em roda, de frente para onde vai
       I.ang += (VEL * dt) / R
       r.position.set(Math.cos(I.ang) * R, ALTURA, Math.sin(I.ang) * R); r.rotation.y = -I.ang
     } else {
       const k = 1 - Math.exp(-2.2 * dt)
-      r.position.lerp(_d.set(0, ALTURA, 0), k)
+      r.position.lerp(_d.set(0, altura, 0), 1 - Math.exp(-5 * dt))
       if (!e.girar) r.rotation.y += -r.rotation.y * k; else r.rotation.y += dt * 0.5
     }
     animarGralha(g, dt)
-    ouvinte(camera); ouvirGralha(g, dt)
+    passoEfeitosGralha(F, dt)
+    ouvinte(camera); ouvirGralha(g, dt, !!I.caca)
   })
-  return <primitive object={g.root} />
+  return <>
+    <primitive object={g.root} />
+    <primitive object={F.grupo} />
+    {atacando && <primitive object={alvo} />}
+  </>
 }
 
 function CenaObjeto({ qual, girar, onInfo }: { qual: string; girar: boolean; onInfo: (i: Info) => void }) {
