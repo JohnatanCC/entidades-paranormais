@@ -26,6 +26,7 @@ export const TEXTURAS: Record<string, TexDef> = {
   'azulejo-branco':      { nome: 'Azulejo branco 15 cm', usos: ['parede', 'lambri'], cor: '#bcbab0', brilho: 0.7 },
   'lambri-azulejo':      { nome: 'Azulejo azul e branco', usos: ['lambri', 'parede'], cor: '#c9c6bb', brilho: 0.7 },
   'bloco-concreto':      { nome: 'Bloco de concreto pintado', usos: ['parede'], cor: '#80887e', brilho: 0.15 },
+  'tijolo-esmaltado':    { nome: 'Tijolo esmaltado (a instalação)', usos: ['parede'], cor: '#b4bcac', brilho: 0.45 },
   'concreto-aparente':   { nome: 'Concreto aparente', usos: ['parede'], cor: '#5c5a52' },
   'chapa-verde':         { nome: 'Chapa de aço rebitada', usos: ['parede'], cor: '#34413a', brilho: 0.45, metal: true },
   'tijolo':              { nome: 'Tijolo à vista', usos: ['parede'], cor: '#7a4a36' },

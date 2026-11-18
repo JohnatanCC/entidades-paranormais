@@ -18,7 +18,7 @@
 // o piso de um andar bloqueia a luz do outro (onde não tem piso, como no pé-direito duplo, passa).
 import * as THREE from 'three'
 import { FORCA_LUZ, OBJETOS } from './objetos'
-import { LEVEL_H, PORTA_GRANDE_H, PORTA_H, type Chunk } from './types'
+import { LEVEL_H, PORTA_GRANDE_H, PORTA_H, portaAlta, type Chunk } from './types'
 
 type V3 = [number, number, number]
 type V4 = [number, number, number, number]
@@ -53,7 +53,7 @@ export function assadorDe(chunks: Chunk[]): Assador {
   for (const c of chunks) {
     for (const f of c.floors) pisos.add(`${f.level}|${f.x}|${f.z}`)
     for (const o of c.openings) {
-      if (o.kind === 'porta') for (let i = 0; i < o.width; i++) portas.set(`${o.level}|${o.axis}|${o.axis === 'x' ? o.x + i : o.x}|${o.axis === 'z' ? o.z + i : o.z}`, o.door === 'grande' ? PORTA_GRANDE_H : PORTA_H)
+      if (o.kind === 'porta') for (let i = 0; i < o.width; i++) portas.set(`${o.level}|${o.axis}|${o.axis === 'x' ? o.x + i : o.x}|${o.axis === 'z' ? o.z + i : o.z}`, portaAlta(o.door) ? PORTA_GRANDE_H : PORTA_H)
       else if (o.light2d !== false) {
         // a janela com luar: uma luz no meio dela, um pouco para dentro, que só ilumina o lado de dentro
         const s = (o.lado ?? 'b') === 'b' ? 1 : -1, m = o.width / 2

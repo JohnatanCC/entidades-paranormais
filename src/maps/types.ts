@@ -14,7 +14,9 @@ export const ROT_STEP = 15 // a rotação encaixa a cada (graus); com Shift, 45 
 export const LEVEL_H = 3.5 // a altura de cada andar (m), fixa por enquanto
 export const CHUNK = 16 // o lado do bloco (m)
 export const PORTA_H = 2.1 // a altura do vão da porta comum, da dupla e do vão sem porta (m)
-export const PORTA_GRANDE_H = 2.8 // a da porta grande
+export const PORTA_GRANDE_H = 2.8 // a da porta grande e a da porta de contenção
+/** A porta tem o vão alto (a grande, a de contenção)? */
+export const portaAlta = (door?: DoorKind) => door === 'grande' || door === 'contencao'
 
 export type Vec3 = [number, number, number]
 export type Axis = 'x' | 'z'
@@ -44,7 +46,7 @@ export interface FloorTile {
   bottom: string
 }
 
-export type DoorKind = 'comum' | 'dupla' | 'grande' | 'vao'
+export type DoorKind = 'comum' | 'dupla' | 'grande' | 'vao' | 'instalacao' | 'contencao' // as duas últimas: a instalação da C.R.O.S. (18/nov)
 export type WindowKind = 'normal' | 'grande'
 
 /** Uma porta ou janela num pedaço de parede (a largura conta em pedaços de 1 m a partir dele, no mesmo eixo). */

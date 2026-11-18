@@ -8,13 +8,15 @@ import { LEVEL_H, type DoorKind, type Opening, type WindowKind } from '../maps/t
 import { aberturaNo, aberturas, ladoDeDentro, ladoVisto, ondeCabe, paredeNoRaio, pedacosDe, type Lado, type MapDoc, type Seg } from './doc'
 import { ESPESSURA, buraco } from './wallMesh'
 
-export type TipoAbertura = 'comum' | 'dupla' | 'grande' | 'vao' | 'janela' | 'janela-grande'
+export type TipoAbertura = 'comum' | 'dupla' | 'grande' | 'vao' | 'instalacao' | 'contencao' | 'janela' | 'janela-grande'
 
 export const TIPOS: Record<TipoAbertura, { nome: string; kind: 'porta' | 'janela'; door?: DoorKind; window?: WindowKind; width: number }> = {
   comum: { nome: 'Porta comum', kind: 'porta', door: 'comum', width: 1 },
   dupla: { nome: 'Porta dupla', kind: 'porta', door: 'dupla', width: 2 },
   grande: { nome: 'Porta grande', kind: 'porta', door: 'grande', width: 2 },
   vao: { nome: 'Vão (sem porta)', kind: 'porta', door: 'vao', width: 1 },
+  instalacao: { nome: 'Porta da instalação', kind: 'porta', door: 'instalacao', width: 1 },
+  contencao: { nome: 'Porta de contenção', kind: 'porta', door: 'contencao', width: 2 },
   janela: { nome: 'Janela', kind: 'janela', window: 'normal', width: 1 },
   'janela-grande': { nome: 'Janela grande', kind: 'janela', window: 'grande', width: 2 },
 }
@@ -100,7 +102,7 @@ export function FerramentaAberturas({ doc, andar, tipo, larguraVao, selecionada,
 
 export function nomeDe(o: Opening) {
   if (o.kind === 'janela') return o.window === 'grande' ? 'Janela grande' : 'Janela'
-  return { comum: 'Porta comum', dupla: 'Porta dupla', grande: 'Porta grande', vao: `Vão de ${o.width} m` }[o.door ?? 'comum']
+  return o.door === 'vao' ? `Vão de ${o.width} m` : TIPOS[o.door ?? 'comum'].nome
 }
 
 /** Uma caixa transparente cobrindo o vão da abertura (prévia, mira, escolhida). */

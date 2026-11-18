@@ -11,7 +11,7 @@
 // A luz das lâmpadas assada (a etapa 3b): cada vértice guarda também a luz que chega nele de cada lâmpada do mapa, com
 // as paredes bloqueando (maps/luzAssada.ts); o Baixo e o Médio usam isso no lugar das lâmpadas de verdade (render/assada.ts).
 import * as THREE from 'three'
-import { CHUNK, LEVEL_H, PORTA_GRANDE_H as GRANDE_H, PORTA_H, type Axis, type Chunk, type Opening, type Wall, type WallSide } from '../maps/types'
+import { CHUNK, LEVEL_H, PORTA_GRANDE_H as GRANDE_H, PORTA_H, portaAlta, type Axis, type Chunk, type Opening, type Wall, type WallSide } from '../maps/types'
 import { assadorDe, novaLuzVertice, type Assador } from '../maps/luzAssada'
 import { BATENTE, TOPO } from '../render/materiais' // o corte da parede (topo e vergas) e a madeira do batente
 
@@ -68,13 +68,13 @@ const SEM_SOMBRA = [1, 1, 1, 1]
 /** Os trechos de altura que ficam de pé: a porta tira de baixo, a janela tira do meio. */
 function trechos(op?: Opening): [number, number][] {
   if (!op) return [[0, LEVEL_H]]
-  if (op.kind === 'porta') return [[op.door === 'grande' ? GRANDE_H : PORTA_H, LEVEL_H]]
+  if (op.kind === 'porta') return [[portaAlta(op.door) ? GRANDE_H : PORTA_H, LEVEL_H]]
   return [[0, JANELA_Y0], [JANELA_Y1, LEVEL_H]]
 }
 
 /** O vão que a abertura tira da parede (de y0 a y1, a partir do chão do andar). */
 export function buraco(op: Opening): [number, number] {
-  return op.kind === 'porta' ? [0, op.door === 'grande' ? GRANDE_H : PORTA_H] : [JANELA_Y0, JANELA_Y1]
+  return op.kind === 'porta' ? [0, portaAlta(op.door) ? GRANDE_H : PORTA_H] : [JANELA_Y0, JANELA_Y1]
 }
 
 /** As geometrias das paredes até o andar maxLevel, uma por bloco e textura (e TOPO para os cortes): "cx_cz|textura". */

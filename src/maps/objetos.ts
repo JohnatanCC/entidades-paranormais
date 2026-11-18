@@ -59,12 +59,29 @@ export const OBJETOS: Record<string, ObjDef> = {
   'fogao-lenha': { nome: 'Fogão a lenha', grupo: 'casa', tam: [1.14, 2.15, 0.64] },
   'guarda-louca': { nome: 'Guarda-louça', grupo: 'casa', tam: [1.24, 1.95, 0.54] },
   'vaso-seco': { nome: 'Vaso com planta seca', grupo: 'casa', tam: [0.35, 0.9, 0.35] },
-  // --- a Intro (a instalação da C.R.O.S.) ---
+  // --- a instalação da C.R.O.S. (o capítulo 0; era a Intro do laboratório) ---
   'armario-aco': { nome: 'Armário de aço', grupo: 'intro', tam: [0.5, 1.9, 0.5] },
   'mesa-metal': { nome: 'Mesa de metal', grupo: 'intro', tam: [1.4, 0.76, 0.7] },
   'caixa-madeira': { nome: 'Caixa de madeira', grupo: 'intro', tam: [0.8, 0.8, 0.8] },
   'banco': { nome: 'Banco', grupo: 'intro', tam: [1.6, 0.45, 0.4] },
   'monitor': { nome: 'Monitor', grupo: 'intro', tam: [0.44, 0.4, 0.4] },
+  'canos-teto': { nome: 'Canos do teto (2 m)', grupo: 'intro', tam: [2, 0.22, 0.2], apoio: 'teto' },
+  // o escritório do Victor (docs/cenas.md): a madeira escura; as peças pequenas vão em cima da mesa (o modo livre: a altura)
+  'mesa-escritorio': { nome: 'Mesa de escritório (madeira)', grupo: 'intro', tam: [1.6, 0.76, 0.8] },
+  'cadeira-chefe': { nome: 'Cadeira do chefe (couro)', grupo: 'intro', tam: [0.65, 1.16, 0.65] },
+  'cadeira-visitante': { nome: 'Cadeira de visitante', grupo: 'intro', tam: [0.5, 0.93, 0.5] },
+  'estante-pastas': { nome: 'Estante com pastas', grupo: 'intro', tam: [1, 2, 0.38] },
+  'pasta-dossie': { nome: 'Pasta (dossiê)', grupo: 'intro', tam: [0.24, 0.04, 0.34] },
+  'foto-virada': { nome: 'Foto virada', grupo: 'intro', tam: [0.15, 0.03, 0.19] },
+  'relogio-parede': { nome: 'Relógio de parede', grupo: 'intro', tam: [0.32, 0.34, 0.05], apoio: 'parede' },
+  // os campos de pesquisa e o refeitório (docs/cenas.md)
+  'bancada-lab': { nome: 'Bancada de laboratório', grupo: 'intro', tam: [1.8, 1.63, 0.76] },
+  'aparelho-pesquisa': { nome: 'Aparelho de pesquisa', grupo: 'intro', tam: [0.62, 1.52, 0.52] },
+  'frascos-ectoplasma': { nome: 'Frascos de ectoplasma', grupo: 'intro', tam: [0.4, 0.3, 0.18], params: MODO, luz: { pos: [0, 0.14, 0], cor: '#5ad8ff', forca: 2.5, alcance: 2.5 } },
+  'quadro-branco': { nome: 'Quadro branco (parede)', grupo: 'intro', tam: [1.62, 0.92, 0.1], apoio: 'parede' },
+  'mesa-refeitorio': { nome: 'Mesa do refeitório (com os bancos)', grupo: 'intro', tam: [2.42, 0.75, 1.6] },
+  'bandeja': { nome: 'Bandeja', grupo: 'intro', tam: [0.45, 0.12, 0.32] },
+  'tv-parede': { nome: 'TV de tubo (parede)', grupo: 'intro', tam: [0.56, 0.6, 0.52], apoio: 'parede', params: MODO, luz: { pos: [0, 0.45, 0.6], cor: '#b8c8d0', forca: 2, alcance: 3 } },
   // --- o submundo (a Demo · Intro): as ilhas de rocha negra no vazio, as ruínas e o vermelho ---
   'rocha-grande': { nome: 'Rocha grande', grupo: 'submundo', tam: [2.4, 1.8, 2.0] },
   'rocha-media': { nome: 'Rocha média', grupo: 'submundo', tam: [1.2, 0.9, 1.0] },
@@ -80,6 +97,10 @@ export const OBJETOS: Record<string, ObjDef> = {
   'destrocos': { nome: 'Destroços', grupo: 'submundo', tam: [2.0, 0.6, 1.8] },
   'cristal-vermelho': { nome: 'Cristal vermelho', grupo: 'submundo', tam: [0.7, 1.4, 0.7], params: MODO, luz: { pos: [0, 0.9, 0], cor: '#ff3a24', forca: 7, alcance: 8 } },
   // --- a luz ---
+  'luminaria-tubos': { nome: 'Luminária de tubos (a instalação)', grupo: 'luz', tam: [1.31, 0.14, 0.36], apoio: 'teto', params: MODO, luz: { pos: [0, -0.2, 0], cor: '#d6eee0', forca: 11, alcance: 8 } },
+  // a luz de aviso começa apagada: acende no alarme (o roteiro da cena muda o modo)
+  'luz-aviso': { nome: 'Luz de aviso (parede)', grupo: 'luz', tam: [0.2, 0.36, 0.2], apoio: 'parede', params: { modo: ['apagada', 'normal', 'falhando'] }, luz: { pos: [0, 0.22, 0.12], cor: '#ff3a24', forca: 6, alcance: 6 } },
+  'luminaria-mesa': { nome: 'Luminária de mesa (vidro verde)', grupo: 'luz', tam: [0.35, 0.37, 0.16], params: MODO, luz: { pos: [0, 0.26, 0.03], cor: '#ffc070', forca: 4.5, alcance: 3.5 } },
   'lampada-teto': { nome: 'Lâmpada de teto', grupo: 'luz', tam: [0.56, 0.32, 0.56], apoio: 'teto', params: MODO, luz: { pos: [0, -0.4, 0] } },
   'lustre': { nome: 'Lustre', grupo: 'luz', tam: [0.95, 0.62, 0.95], apoio: 'teto', params: MODO, luz: { pos: [0, -0.45, 0], forca: 13, alcance: 9 } },
   'arandela': { nome: 'Arandela (parede)', grupo: 'luz', tam: [0.14, 0.3, 0.18], apoio: 'parede', params: MODO, luz: { pos: [0, 0.2, 0.12], forca: 6, alcance: 5 } },
@@ -89,4 +110,4 @@ export const OBJETOS: Record<string, ObjDef> = {
   'lamparina': { nome: 'Lamparina', grupo: 'luz', tam: [0.16, 0.45, 0.16], params: MODO, luz: { pos: [0, 0.29, 0], cor: '#ffb060', forca: 2.6, alcance: 3.5 } },
 }
 
-export const GRUPOS: [Grupo, string][] = [['casa', 'A casa'], ['intro', 'A Intro'], ['submundo', 'O submundo'], ['luz', 'Luz']]
+export const GRUPOS: [Grupo, string][] = [['casa', 'A casa'], ['intro', 'A instalação'], ['submundo', 'O submundo'], ['luz', 'Luz']]
