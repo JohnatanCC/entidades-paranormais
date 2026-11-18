@@ -21,6 +21,7 @@ import { novaSombraDeChao } from './corpo/sombraDeChao'
 import { Iluminacao } from './luz/Iluminacao'
 import { momento } from './luz/luz'
 import { DURA_ALCANCE } from './player/alcancar'
+import { Entidades } from './entidades/Entidades'
 import { animarAgente } from './player/animacao'
 import { armadilhaFora, pegarArma, proximaArma } from './player/arma'
 import { novoJogador, passoJogador } from './player/controle'
@@ -108,7 +109,8 @@ export function Testar({ chunks, levels, ambiente, semChao, areas, inicio, yaw, 
   const agente = useMemo(() => { const a = montarAgente(); pegarArma(a, 'pistola'); return a }, []), sombra = useMemo(() => novaSombraDeChao(), [])
 
   // a luz assada de onde o agente está (as lâmpadas sem sombra e as janelas), tirada de novo a cada poucos quadros
-  const assa = useMemo(() => assadorDe(Object.values(chunks)), [chunks]), luzAgente = useMemo(() => novaLuzVertice(), []), quadro = useRef(0)
+  const listaDeBlocos = useMemo(() => Object.values(chunks), [chunks])
+  const assa = useMemo(() => assadorDe(listaDeBlocos), [listaDeBlocos]), luzAgente = useMemo(() => novaLuzVertice(), []), quadro = useRef(0)
   const acoes = useMemo(() => new Acoes(), [])
   const armadilha = useMemo(() => novaArmadilha(), []), arco = useMemo(() => novoArco(), [])
   const balas = useMemo(() => novasBalas(), []), impactos = useMemo(() => novosImpactos(), []) // a bala e o que ela deixa onde bate
@@ -354,6 +356,10 @@ export function Testar({ chunks, levels, ambiente, semChao, areas, inicio, yaw, 
     if (Math.abs(cam.fov - fov) > 0.01) { cam.fov = fov; cam.updateProjectionMatrix() }
   })
 
-  // a luz do jogo: a do lugar onde o agente está (as lâmpadas e o luar das janelas são do mapa)
-  return <Iluminacao ambiente={ambiente} areas={areas} em={agente.root.position} />
+  // a luz do jogo: a do lugar onde o agente está (as lâmpadas e o luar das janelas são do mapa); e as entidades que o
+  // mapa pôs (a aba Entidades do criador): ganham vida aqui, com o controle do agente
+  return <>
+    <Iluminacao ambiente={ambiente} areas={areas} em={agente.root.position} />
+    <Entidades chunks={listaDeBlocos} fase={naFase} />
+  </>
 }

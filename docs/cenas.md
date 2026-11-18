@@ -335,8 +335,12 @@ parado no andar.
    - **Na cena 1:** ele lê a pasta enquanto o Matheus chega; no insert da pasta, vira uma folha no "Três missões"; no
      1.12, fecha a pasta antes de falar; no 1.15, inclina e bate o dedo na pasta no "deste mês" (esse plano passou a ser
      por cima do ombro do Matheus, mais perto, para o gesto aparecer; antes era fechado no rosto do Victor).
-6. **As expressões que faltam** (a próxima etapa) (preocupado, desconfiado, fechado, vencido) e o ajuste fino do tempo dos planos com as
-   vozes. Depois: o rádio no ombro do Matheus (o plano 2.20) e a luz vermelha que gira no alarme (o plano 2.19).
+6. ✅ **As expressões que faltam** (18/nov), no rosto de todo personagem (`src/game/player/rosto.ts`; aparecem no Ver
+   modelos): **preocupado** (o meio das sobrancelhas sobe), **desconfiado** (os olhos apertados), **fechado** (as
+   sobrancelhas baixas, a boca fina) e **vencido** (os olhos baixos e meio fechados). Na cena 1: o Victor fica
+   preocupado no "Isso não é você" (e larga a pasta, se endireitando: a conversa fica pessoal), na foto virada, na equipe
+   fixa e sozinho no fim; desconfiado no "Sempre?". O Matheus fica fechado no "Nada." e no "sempre me virei
+   sozinho", e vencido no "...Tudo bem.". Falta o ajuste fino do tempo dos planos, quando as vozes de verdade chegarem. Depois: o rádio no ombro do Matheus (o plano 2.20) e a luz vermelha que gira no alarme (o plano 2.19).
 
 ## Em aberto
 

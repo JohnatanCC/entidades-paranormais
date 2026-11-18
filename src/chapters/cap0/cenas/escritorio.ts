@@ -130,24 +130,24 @@ export const escritorio: Cena = {
     // o insert: a pasta dele na mesa, a voz do Victor por cima
     conversa('1.6 · a pasta', NA_PASTA, [fala('Victor', 0.5, 'Três missões este mês.')], { Victor: { olha: PASTA, gesto: { nome: 'virar', t: 0.4, em: PASTA } } }, { respiro: 0.4, aproxima: 0.08 }),
     conversa('1.7 · as capturas', OMBRO_MATHEUS, [fala('Victor', 0.3, 'Três capturas que deram errado.')], { Victor: { olha: 'Matheus' } }),
-    conversa('1.8 · "o que está acontecendo?"', NO_VICTOR, [naoEVoce, depois(naoEVoce, 'Victor', 'O que está acontecendo?')]),
+    conversa('1.8 · "o que está acontecendo?"', NO_VICTOR, [naoEVoce, depois(naoEVoce, 'Victor', 'O que está acontecendo?')], { Victor: { expressao: 'preocupado', postura: null } }), // larga a pasta e se endireita: a conversa fica pessoal
     // a reação antes da resposta: ele segura, responde e desvia os olhos
-    conversa('1.9 · "Nada."', NO_MATHEUS, [fala('Matheus', 1.1, 'Nada. Muita coisa ao mesmo tempo, só isso.')], { Matheus: { olha: DESVIA } }),
+    conversa('1.9 · "Nada."', NO_MATHEUS, [fala('Matheus', 1.1, 'Nada. Muita coisa ao mesmo tempo, só isso.')], { Matheus: { olha: DESVIA, expressao: 'fechado' } }),
     // o insert: a foto virada, e a pergunta que ninguém queria fazer
-    conversa('1.10 · a foto virada', NA_FOTO, [fala('Victor', 0.7, 'É por causa do seu antigo parceiro?')], { Victor: { olha: FOTO } }, { respiro: 0.9, aproxima: 0.1 }),
+    conversa('1.10 · a foto virada', NA_FOTO, [fala('Victor', 0.7, 'É por causa do seu antigo parceiro?')], { Victor: { olha: FOTO, expressao: 'preocupado' } }, { respiro: 0.9, aproxima: 0.1 }),
     conversa('1.11 · "Não tem nada a ver"', BEM_NO_MATHEUS, [nadaAVer, depois(nadaAVer, 'Matheus', 'Eu me distraí. Não vai se repetir.', 1)], {
       Matheus: { olha: 'Victor', expressao: 'raiva' }, Victor: { olha: 'Matheus' },
     }),
     conversa('1.12 · a nova dinâmica', OMBRO_MATHEUS, [dinamica, depois(dinamica, 'Victor', 'Chega de te mandar com um time diferente a cada missão.')], {
-      Matheus: { expressao: 'neutra' }, Victor: { postura: null, gesto: { nome: 'fechar', t: 0.15, em: PASTA } }, // fecha a pasta antes de falar
+      Matheus: { expressao: 'neutra' }, Victor: { expressao: 'neutra', postura: null, gesto: { nome: 'fechar', t: 0.15, em: PASTA } }, // fecha a pasta antes de falar
     }),
-    conversa('1.13 · a equipe fixa', NO_VICTOR, [equipe, depois(equipe, 'Victor', 'É uma chance de criar laços.')], undefined, { respiro: 0.3, aproxima: 0.12 }),
+    conversa('1.13 · a equipe fixa', NO_VICTOR, [equipe, depois(equipe, 'Victor', 'É uma chance de criar laços.')], { Victor: { expressao: 'preocupado' } }, { respiro: 0.3, aproxima: 0.12 }),
     // o fim da frase do Victor cai no rosto de quem ouve
-    conversa('1.14 · "sempre me virei sozinho"', NO_MATHEUS, [carregar, depois(carregar, 'Matheus', 'Não precisa. Eu sempre me virei bem sozinho.', 0.9)], { Matheus: { expressao: 'raiva' } }),
+    conversa('1.14 · "sempre me virei sozinho"', NO_MATHEUS, [carregar, depois(carregar, 'Matheus', 'Não precisa. Eu sempre me virei bem sozinho.', 0.9)], { Matheus: { expressao: 'fechado' } }),
     // (por cima do ombro, para o gesto aparecer: ele inclina e bate o dedo na pasta no "deste mês")
-    conversa('1.15 · "Sempre?"', OMBRO_NA_MESA, [sempre, mesmo], { Victor: { expressao: 'raiva', gesto: { nome: 'bater', t: mesmo.t + mesmo.dura * 0.45, em: PASTA } } }, { respiro: 0.9 }),
+    conversa('1.15 · "Sempre?"', OMBRO_NA_MESA, [sempre, mesmo], { Victor: { expressao: 'desconfiado', gesto: { nome: 'bater', t: mesmo.t + mesmo.dura * 0.45, em: PASTA } } }, { respiro: 0.9 }),
     // o silêncio dele é a resposta: desvia os olhos, demora, cede
-    conversa('1.16 · "...Tudo bem."', BEM_NO_MATHEUS, [fala('Matheus', 2.4, '...Tudo bem.')], { Matheus: { olha: DESVIA, expressao: 'neutra' }, Victor: { expressao: 'neutra' } }, { respiro: 1 }),
+    conversa('1.16 · "...Tudo bem."', BEM_NO_MATHEUS, [fala('Matheus', 2.4, '...Tudo bem.')], { Matheus: { olha: DESVIA, expressao: 'vencido' }, Victor: { expressao: 'neutra' } }, { respiro: 1 }),
     // a tensão solta: de novo os dois na imagem
     conversa('1.17 · a missão', DOIS, [otimo, depois(otimo, 'Victor', 'Logo você conhece a sua equipe.')], { Matheus: { olha: 'Victor' } }, { aproxima: 0 }),
     // o mesmo geral do começo: ele vai até a porta e abre; o Victor acompanha
@@ -160,7 +160,7 @@ export const escritorio: Cena = {
     {
       // (a mesma câmera, sem corte visível) ele sai; sozinho, o Victor olha a foto virada
       nome: '1.19 · o Victor fica', dura: 3.6, camera: { ...SALA, treme: 0.6 },
-      atores: { Matheus: { anda: { para: SAIDA, de: 0.1, ate: 1.5 } }, Victor: { olha: FOTO } },
+      atores: { Matheus: { anda: { para: SAIDA, de: 0.1, ate: 1.5 } }, Victor: { olha: FOTO, expressao: 'preocupado' } },
     },
     // ---------- o corredor e o alarme ----------
     {

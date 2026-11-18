@@ -4,8 +4,10 @@
 import { useEffect } from 'react'
 import { getSettings, useSettings } from '../settings/settings'
 
-// devorador: "O devorador de almas", a luta do chefe da Demo · Intro; batalha: as hordas (a do laboratório)
-export type Faixa = 'menu' | 'devorador' | 'batalha'
+// devorador: "O devorador de almas", a luta do chefe da Demo · Intro; batalha: as hordas (a do laboratório);
+// perseguicao-mae e perseguicao-gralhas: quando a Mãe ou as Gralhas (com o Mestre) caçam o agente (game/entidades);
+// tensao: o ambiente de tensão; capitulo-0 a 2: as dos capítulos (18/nov; as três últimas ainda não tocam em lugar nenhum)
+export type Faixa = 'menu' | 'devorador' | 'batalha' | 'perseguicao-mae' | 'perseguicao-gralhas' | 'tensao' | 'capitulo-0' | 'capitulo-1' | 'capitulo-2'
 
 let audio: HTMLAudioElement | null = null
 let atual: Faixa | null = null
@@ -50,6 +52,9 @@ export function musica(f: Faixa | null) {
   tocar()
   rampa(audio, alvo(), 1200)
 }
+
+/** A faixa que está tocando agora (quem troca por um tempo, como a perseguição, guarda para voltar depois). */
+export const faixaAtual = (): Faixa | null => atual
 
 /** Toca a faixa enquanto a tela estiver aberta e segue o volume das configurações. */
 export function useMusica(f: Faixa | null) {

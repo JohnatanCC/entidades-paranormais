@@ -9,9 +9,11 @@ precisa ter, para compor (ou gerar no Suno) de forma consistente.
 | `batalha.mp3` | As hordas da Demo · Intro do submundo | Feita (do laboratório) |
 | `devorador.mp3` | O Devora almas | Feita |
 | A luta da Mãe | O berçário, o chefe do capítulo 1 | Feita pelo desenvolvedor (17/nov), falta entrar no jogo |
-| **A perseguição da Mãe** | Na mansão, quando ela está perto (abaixo) | A fazer |
+| `perseguicao-mae.mp3` | **A perseguição da Mãe**: quando ela caça o agente (abaixo) | Feita pelo desenvolvedor (18/nov); toca quando a etapa C das entidades chegar |
 | **O trailer** | O vídeo da página do itch (e depois do Steam), fora do jogo (abaixo) | A fazer |
-| **A perseguição das Gralhas** | Capítulo 2: quando as Gralhas atacam (abaixo) | A fazer |
+| `perseguicao-gralhas.mp3` | **A perseguição das Gralhas**: enquanto alguma Gralha caça o agente (`src/game/entidades`) | Feita pelo desenvolvedor (18/nov); tocando |
+| `tensao.mp3` | O ambiente de tensão (a do laboratório) | No projeto (18/nov), ainda sem lugar para tocar |
+| `capitulo-0.mp3`, `capitulo-1.mp3`, `capitulo-2.mp3` | Os menus de cada capítulo (abaixo) | Feitas pelo desenvolvedor (18/nov), ainda sem tocar: o menu por capítulo vem depois |
 | **O menu do capítulo 2** | O menu, depois que o jogador chega no capítulo 2 (abaixo) | A fazer |
 | **A luta da Sombra** | Capítulo 2: o chefe (abaixo) | A fazer |
 

@@ -1,3 +1,4 @@
+import { ENTIDADES } from '../maps/entidades'
 // A gaveta de baixo do editor: o catálogo e as opções da ferramenta escolhida (texturas, tipos de porta e janela,
 // objetos com miniatura). Só mostra e chama; o estado fica no MapEditor.
 import { useEffect, useReducer, useState } from 'react'
@@ -46,6 +47,21 @@ export function GavetaAberturas({ tipo, setTipo, larguraVao, setLarguraVao }: { 
     {tipo === 'vao' && <div className="bloco-g"><span className="rotulo-b">Largura do vão</span>
       <div className="opcoes">{[1, 2, 3].map((w) => <button key={w} aria-pressed={larguraVao === w} onClick={() => setLarguraVao(w)}>{w} m</button>)}</div>
     </div>}
+  </>
+}
+
+/** A gaveta da aba Entidades: o catálogo (maps/entidades.ts), com o que cada uma faz no Testar. */
+export function GavetaEntidades({ tipo, onEscolher }: { tipo: string | null; onEscolher: (t: string | null) => void }) {
+  return <>
+    <div className="ladrilhos">
+      {Object.entries(ENTIDADES).map(([t, d]) => (
+        <button key={t} className="ladrilho" aria-pressed={tipo === t} onClick={() => onEscolher(tipo === t ? null : t)} title={d.sobre}>
+          <span className="icone-l" style={{ color: d.cor }}>{ICONES.entidades}</span><span>{d.nome}</span>
+        </button>
+      ))}
+    </div>
+    {tipo && <div className="nota">{ENTIDADES[tipo]?.sobre}</div>}
+    <div className="nota">No Testar (T) elas ganham vida. As músicas de perseguição tocam quando a Mãe ou as Gralhas caçam o agente.</div>
   </>
 }
 

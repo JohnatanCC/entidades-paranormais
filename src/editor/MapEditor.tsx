@@ -9,7 +9,7 @@ import { Grid } from '@react-three/drei'
 import type { Go } from '../App'
 import * as disco from '../maps/storage'
 import { CHUNK, LEVEL_H } from '../maps/types'
-import { aberturas, andarTemCoisa, comAbertura, comAmbiente, comSemChao, comAndares, comArea, mudarArea, semArea, comEscada, comObjeto, comParedes, comPiso, docDe, escadaCabe, escadas, sentidoNovo, mudarAbertura, mudarEscada, mudarObjeto, objetos, pacoteDe, pintarLados, semAbertura, semEscada, semObjeto, semParedes, semPiso, type LadoDe, type MapDoc, type Seg } from './doc'
+import { aberturas, andarTemCoisa, comEntidade, entidades, mudarEntidade, semEntidade, comAbertura, comAmbiente, comSemChao, comAndares, comArea, mudarArea, semArea, comEscada, comObjeto, comParedes, comPiso, docDe, escadaCabe, escadas, sentidoNovo, mudarAbertura, mudarEscada, mudarObjeto, objetos, pacoteDe, pintarLados, semAbertura, semEscada, semObjeto, semParedes, semPiso, type LadoDe, type MapDoc, type Seg } from './doc'
 import type { AreaAmbiente, Prop, Stair, Vec3 } from '../maps/types'
 import { AMBIENTE_PADRAO } from '../maps/ambientes'
 import { FerramentaAmbiente, nomeAmbiente } from './FerramentaAmbiente'
@@ -21,7 +21,8 @@ import { Desempenho } from '../game/Desempenho'
 import { canvasDoNivel, useDefinicao } from '../render/qualidade'
 import type { PortasVivas } from '../game/world/portas'
 import { ICONES } from './Icones'
-import { GavetaAberturas, GavetaObjetos, GavetaPincel, GavetaPiso } from './Gaveta'
+import { GavetaAberturas, GavetaEntidades, GavetaObjetos, GavetaPincel, GavetaPiso } from './Gaveta'
+import { FerramentaEntidades, MarcasDeEntidades } from './FerramentaEntidades'
 import { FerramentaContaGotas, descreverPego, type Pego } from './FerramentaContaGotas'
 import { FerramentaObjetos } from './FerramentaObjetos'
 import { PainelObjeto } from './PainelObjeto'
@@ -44,7 +45,7 @@ import { Hud, type EstadoHud } from '../game/hud/Hud'
 import { GanchosDaTela } from '../dev/GanchosDaTela'
 import { ASSADA, luzAssada, piscaEm } from '../render/assada'
 
-type Ferramenta = 'paredes' | 'apagar' | 'piso' | 'pincel' | 'aberturas' | 'escadas' | 'objetos' | 'contagotas' | 'ambiente'
+type Ferramenta = 'paredes' | 'apagar' | 'piso' | 'pincel' | 'aberturas' | 'escadas' | 'objetos' | 'contagotas' | 'ambiente' | 'entidades'
 const FERRAMENTAS: { id: Ferramenta; nome: string; tecla: string; icone: ReactNode }[] = [
   { id: 'paredes', nome: 'Paredes', tecla: '1', icone: ICONES.paredes },
   { id: 'apagar', nome: 'Apagar paredes', tecla: '2', icone: ICONES.apagar },
@@ -55,6 +56,7 @@ const FERRAMENTAS: { id: Ferramenta; nome: string; tecla: string; icone: ReactNo
   { id: 'objetos', nome: 'Objetos e luzes', tecla: '7', icone: ICONES.objetos },
   { id: 'contagotas', nome: 'Conta-gotas', tecla: '8', icone: ICONES.contagotas },
   { id: 'ambiente', nome: 'Ambientação', tecla: '9', icone: ICONES.ambiente },
+  { id: 'entidades', nome: 'Entidades', tecla: '0', icone: ICONES.entidades },
 ]
 const SEM_NIVEL = { dpr: [1, 2] as [number, number], shadows: false as const } // o editor: a resolução da tela, sem sombras
 const MODOS_PAREDE: ModoParedes[] = ['altas', 'recortadas', 'baixas']
@@ -75,6 +77,7 @@ const AJUDA: Record<Ferramenta, string> = {
   objetos: 'Escolha um objeto e clique no chão para pôr (encaixa a cada 0,25 m; R gira 15°, Shift + R 45°; Esc para de pôr). Clique num objeto para escolher e arraste para mover; Ctrl + clique (ou Del) apaga. O modo livre fica no painel do escolhido.',
   contagotas: 'Clique numa parede, piso, porta, janela, escada ou objeto: o editor pega a textura ou o objeto e troca para a ferramenta certa.',
   ambiente: 'Arraste uma área: ela ganha a ambientação escolhida (a luz, a neblina, o tom de cor do lugar). Clique numa área para trocar a ambientação dela; Ctrl + clique (ou Del) apaga. Onde duas áreas se cruzam, vale a menor. No Testar a luz troca suave quando o agente passa de uma para outra.',
+  entidades: 'Escolha uma entidade e clique no chão para pôr (R gira para onde ela olha; Esc para de pôr). Clique numa entidade para escolher e arraste para mover; R gira a escolhida; Ctrl + clique (ou Del) apaga. No Testar (T) elas ganham vida.',
   escadas: 'Arraste a área da escada do pé até o topo: ela sobe no sentido do arraste (o lado mais comprido). Os degraus se montam pela altura do andar e o piso de cima ganha o buraco. Clique numa escada para escolher; Ctrl + clique (ou Del) apaga.',
 }
 // o que vai na gaveta das ferramentas que não têm catálogo
@@ -111,6 +114,8 @@ export function MapEditor({ go }: { go: Go }) {
   const [texEscada, setTexEscada] = useState('tabua-corrida')
   const [tipoObjeto, setTipoObjeto] = useState<string | null>(null) // o objeto do catálogo para pôr
   const [rotObjeto, setRotObjeto] = useState(0)
+  const [tipoEntidade, setTipoEntidade] = useState<string | null>(null) // a entidade para pôr (a aba Entidades)
+  const [viraEntidade, setViraEntidade] = useState(0)
   const [ambienteNovo, setAmbienteNovo] = useState(AMBIENTE_PADRAO) // a ambientação das áreas novas
   const [arrastando, setArrastando] = useState<string | null>(null) // o objeto sendo arrastado (some do lugar antigo)
   const [modoParedes, setModoState] = useState<ModoParedes>(lerModo)
@@ -303,6 +308,14 @@ export function MapEditor({ go }: { go: Go }) {
   }, [doc, hist.mudar])
   const onMoverObjeto = useCallback((id: string, pos: Vec3) => hist.mudar((d) => d && mudarObjeto(d, id, { pos })), [hist.mudar])
   const onApagarObjeto = useCallback((id: string) => { hist.mudar((d) => d && semObjeto(d, id)); setSelecionada(null) }, [hist.mudar])
+  const entidadeEscolhida = doc && selecionada && ferramenta === 'entidades' ? entidades(doc).find((p) => p.id === selecionada) : undefined
+  const onPorEntidade = useCallback((tipo: string, pos: Vec3) => {
+    if (!doc) return
+    const r = comEntidade(doc, tipo, andar, pos, viraEntidade)
+    hist.mudar(() => r.doc); setSelecionada(r.id)
+  }, [doc, andar, viraEntidade, hist.mudar])
+  const onMoverEntidade = useCallback((id: string, pos: Vec3) => hist.mudar((d) => d && mudarEntidade(d, id, { pos })), [hist.mudar])
+  const onApagarEntidade = useCallback((id: string) => { hist.mudar((d) => d && semEntidade(d, id)); setSelecionada(null) }, [hist.mudar])
   // os controles deslizantes do modo livre juntam as mudanças seguidas num passo só de desfazer
   const onMudarObjeto = (patch: Partial<Prop>) => { if (objetoEscolhido) hist.mudar((d) => d && mudarObjeto(d, objetoEscolhido.id, patch), 'obj:' + objetoEscolhido.id + ':' + Object.keys(patch).join()) }
   const onMudarEscada = (patch: Partial<Stair>) => {
@@ -354,6 +367,12 @@ export function MapEditor({ go }: { go: Go }) {
       if (tipoObjeto) setRotObjeto((r) => (r + passo) % 360)
       else if (objetoEscolhido) onMudarObjeto({ rot: [objetoEscolhido.rot[0], ((objetoEscolhido.rot[1] + passo + 540) % 360) - 180, objetoEscolhido.rot[2]] })
     }
+    else if (k === 'r' && ferramenta === 'entidades') {
+      if (tipoEntidade) setViraEntidade((r) => (r + 45) % 360)
+      else if (entidadeEscolhida) hist.mudar((d) => d && mudarEntidade(d, entidadeEscolhida.id, { params: { vira: (Number(entidadeEscolhida.params?.vira ?? 0) + 45) % 360 } }))
+    }
+    else if ((e.key === 'Delete' || e.key === 'Backspace') && entidadeEscolhida) onApagarEntidade(entidadeEscolhida.id)
+    else if (e.key === 'Escape' && ferramenta === 'entidades' && tipoEntidade) setTipoEntidade(null)
     else if ((e.key === 'Delete' || e.key === 'Backspace') && objetoEscolhido) onApagarObjeto(objetoEscolhido.id)
     else if (e.key === 'Escape' && ferramenta === 'objetos' && tipoObjeto) setTipoObjeto(null)
     else if ((e.key === 'Delete' || e.key === 'Backspace') && escolhida) onApagarAbertura(escolhida.id)
@@ -443,6 +462,9 @@ export function MapEditor({ go }: { go: Go }) {
             onPor={onPorAbertura} onSelecionar={setSelecionada} onApagar={onApagarAbertura} onInfo={onInfo} />}
           {doc && !testando && ferramenta === 'ambiente' && <FerramentaAmbiente doc={doc} andar={andar} ambiente={ambienteNovo} selecionada={areaEscolhida?.id ?? null}
             onPor={onPorArea} onSelecionar={setSelecionada} onApagar={onApagarArea} onInfo={onInfo} />}
+          {doc && !testando && <MarcasDeEntidades doc={doc} andar={andar} ocultar={ferramenta === 'entidades' ? arrastando : null} />}
+          {doc && !testando && ferramenta === 'entidades' && <FerramentaEntidades doc={doc} andar={andar} tipo={tipoEntidade} vira={viraEntidade} selecionada={entidadeEscolhida?.id ?? null}
+            onPor={onPorEntidade} onSelecionar={setSelecionada} onMover={onMoverEntidade} onApagar={onApagarEntidade} onArrastando={setArrastando} onInfo={onInfo} />}
           {doc && !testando && ferramenta === 'contagotas' && <FerramentaContaGotas doc={doc} andar={andar} onPegar={onPegar} onInfo={onInfo} />}
           {/* a malha: 1 m em linha fina, o bloco de 16 m em linha forte (ajuda a medir e a manter a simetria) */}
           {!testando && <Grid position={[0, andar * LEVEL_H + 0.006, 0]} args={[64, 64]} cellSize={1} cellThickness={1} cellColor="#8a7552" sectionSize={CHUNK} sectionThickness={2} sectionColor="#e0a050" fadeDistance={260} fadeStrength={0.8} infiniteGrid />}
@@ -488,6 +510,7 @@ export function MapEditor({ go }: { go: Go }) {
           {ferramenta === 'pincel' && <GavetaPincel pincel={pincel} setPincel={setPincel} />}
           {ferramenta === 'aberturas' && <GavetaAberturas tipo={tipoAbertura} setTipo={setTipoAbertura} larguraVao={larguraVao} setLarguraVao={setLarguraVao} />}
           {ferramenta === 'escadas' && <Paleta titulo="Degraus da escada nova" uso="piso" valor={texEscada} onEscolher={setTexEscada} />}
+          {ferramenta === 'entidades' && <GavetaEntidades tipo={tipoEntidade} onEscolher={(t) => { setTipoEntidade(t); setSelecionada(null) }} />}
           {ferramenta === 'objetos' && <GavetaObjetos tipo={tipoObjeto} onEscolher={(t) => { setTipoObjeto(t); setSelecionada(null) }} />}
           {ferramenta === 'ambiente' && doc && <>
             <div className="bloco-g"><span className="rotulo-b">Área nova</span><EscolherAmbiente valor={ambienteNovo} onEscolher={setAmbienteNovo} /></div>

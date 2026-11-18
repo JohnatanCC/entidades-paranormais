@@ -4,7 +4,7 @@
 //   olho  = quanto o olho abre (1 = normal)  bocaY / bocaX = a boca abre / estica (1 = o tamanho do modelo; 0 = fechada: a peça some e fica a boca pintada no rosto)
 import type { Agente } from './modelo'
 
-export type Expressao = 'neutra' | 'esforco' | 'medo' | 'dor' | 'raiva' | 'surpresa' | 'desmaio'
+export type Expressao = 'neutra' | 'esforco' | 'medo' | 'dor' | 'raiva' | 'surpresa' | 'desmaio' | 'preocupado' | 'desconfiado' | 'fechado' | 'vencido'
 
 export const EXPRESSOES: Record<Expressao, { sobe: number; meio: number; olho: number; bocaY: number; bocaX: number }> = {
   neutra: { sobe: 0, meio: 0, olho: 1, bocaY: 0, bocaX: 1 },
@@ -14,6 +14,11 @@ export const EXPRESSOES: Record<Expressao, { sobe: number; meio: number; olho: n
   raiva: { sobe: -0.006, meio: -0.3, olho: 0.75, bocaY: 0, bocaX: 1.1 },
   surpresa: { sobe: 0.012, meio: 0.05, olho: 1.35, bocaY: 1, bocaX: 0.75 },
   desmaio: { sobe: -0.002, meio: 0.08, olho: 0.05, bocaY: 0.2, bocaX: 0.9 }, // a queda: olhos fechados, a boca entreaberta
+  // as das cenas (18/nov): o rosto parado de quem conversa
+  preocupado: { sobe: 0.003, meio: 0.24, olho: 1.05, bocaY: 0, bocaX: 0.9 }, // o meio das sobrancelhas sobe, a boca aperta um pouco
+  desconfiado: { sobe: -0.003, meio: -0.14, olho: 0.68, bocaY: 0, bocaX: 1.06 }, // os olhos apertados, a testa franzida de leve
+  fechado: { sobe: -0.005, meio: -0.2, olho: 0.86, bocaY: 0, bocaX: 0.86 }, // as sobrancelhas baixas, a boca fina: não quer falar
+  vencido: { sobe: -0.004, meio: 0.26, olho: 0.58, bocaY: 0, bocaX: 0.94 }, // os olhos baixos e meio fechados, o meio das sobrancelhas para cima
 }
 const PISCA = { intervalo: [2, 5.5], dura: 0.13 } // de quanto em quanto pisca (s) e quanto dura
 

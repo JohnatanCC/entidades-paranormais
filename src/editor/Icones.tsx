@@ -19,6 +19,7 @@ export const ICONES = {
   refazer: <I><path d="M16 5l4 4-4 4" /><path d="M20 9H10a6 6 0 000 12h5" /></I>,
   salvar: <I><path d="M4 4h13l3 3v13H4z" /><path d="M8 4v5h8V4M7 20v-6h10v6" /></I>,
   mapas: <I><path d="M3 6h7l2 2h9v12H3z" /><path d="M3 10h18" /></I>,
+  entidades: <I><path d="M12 3c-3.5 0-6 2.7-6 6.5V20l2-1.6 2 1.6 2-1.6 2 1.6 2-1.6 2 1.6V9.5C18 5.7 15.5 3 12 3z" /><path d="M9.5 10h.01M14.5 10h.01" strokeWidth={2.2} /></I>,
   ambiente: <I><path d="M19 14.5A8 8 0 019.5 5a8 8 0 109.5 9.5z" /><path d="M17 3v4M15 5h4" /></I>,
   testar: <I><path d="M7 4l13 8-13 8z" /></I>,
   sair: <I><path d="M14 4H5v16h9" /><path d="M10 12h11M17 8l4 4-4 4" /></I>,

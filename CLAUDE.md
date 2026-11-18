@@ -132,12 +132,14 @@ src/
                            e de cada janela num ponto, com as paredes bloqueando; o objeto que acende não estoura com a própria luz), loader.ts (o jogo lê a pasta), storage.ts (o editor lê, grava,
                            exporta e importa; o pacote MapBundle), textures.ts (o catálogo: cada nome, o uso e a cor; a imagem é texturas/<nome>.png),
                            objetos.ts (o catálogo de móveis e lâmpadas, em dados: nome, tamanho, apoio; a forma vem do modelo),
+                           entidades.ts (o catálogo das entidades que a aba Entidades põe no mapa: a Mãe, o Mestre, a Gralha),
                            corrimao.ts (o corrimão automático das escadas, calculado do mapa; o editor desenha em editor/corrimaoMesh.ts)
   editor/                  MapEditor (a tela, conceito B), Gaveta (o catálogo embaixo), Icones, Inspetor (a janela flutuante),
                            Medida (a etiqueta ao construir), FerramentaContaGotas, MapManager (o gerenciador de mapas), MapView + wallMesh (desenha;
                            paredes juntadas por textura, cantos fechados, a sombra de canto e a luz assada em cada vértice), EditorCamera, FerramentaParedes,
                            FerramentaPiso, FerramentaPincel, FerramentaAberturas + PainelAbertura, FerramentaEscadas + PainelEscada,
                            FerramentaObjetos + PainelObjeto, FerramentaAmbiente + PainelArea (as áreas de ambientação),
+                           FerramentaEntidades (a aba Entidades: pôr, mover, girar e apagar; as marcas no mapa),
                            Objetos (monta o catálogo; a lâmpada acende pela luz assada),
                            Aberturas (portas, janelas) + Luar (feixe macio, brilho, poeira), Paleta, doc.ts (o documento e as operações),
                            historico.ts (desfazer e refazer)
@@ -147,7 +149,8 @@ modelos/                   os modelos do Blockbench (.bbmodel), lidos direto pel
                            aberturas/<tipo>.bbmodel (as portas e janelas; a porta da instalação, a de contenção, a do elevador e a janela da instalação, do capítulo 0), armas/<nome>.bbmodel (pistola, escopeta, armadilha; e o cartucho da recarga),
                            fantasmas/<nome>.bbmodel (a Mãe; a Gralha e o Mestre, do capítulo 2, ainda fora do jogo), demonios/<nome>.bbmodel (os Sombrios: o Assombrado, a Asa sombria, o Devora almas)
 public/musica/             as músicas do jogo (menu.mp3: o menu e o criador de mapas; batalha.mp3: as hordas e devorador.mp3:
-                           o chefe, na Demo · Intro)
+                           o chefe, na Demo · Intro; perseguicao-gralhas.mp3 e perseguicao-mae.mp3: as perseguições; tensao.mp3 e
+                           capitulo-0 a 2.mp3: o ambiente e os menus dos capítulos, ainda sem tocar)
 reference/                 o laboratório antigo, só para consulta (não importar nada daqui); ost/ = as 4 músicas dele
 docs/                      o que está decidido
 ```
@@ -173,6 +176,8 @@ src/game/                  (já existem: Testar.tsx, player/, input/, world/, we
                            e catalogo.ts (todas as cenas)
   corpo/                   o que serve a todo personagem: molas.ts (o que pendura e balança: cabelo, saia, manto; com vento), sombraDeChao.ts
                            (o círculo escuro embaixo dele)
+  entidades/               as entidades do mapa ganhando vida no Testar (a aba Entidades): Entidades.tsx (as Gralhas pousadas que
+                           veem o agente e caçam; a música da perseguição) e numeros.ts; o Mestre e a Mãe vêm nas próximas etapas
   Testar.tsx               o Testar do editor: o agente andando no mapa aberto (câmera, colisão, luz do jogo), em tela cheia;
                            numa fase, dá ao roteiro o controle do agente (AgenteNaFase: ferir, engolir, cuspir, a gosma, o ponto de volta)
   Desempenho.tsx           o medidor de uma cena de jogo: os quadros por segundo e, com F3, o detalhe (desenhos, triângulos,
@@ -183,7 +188,7 @@ src/game/                  (já existem: Testar.tsx, player/, input/, world/, we
                            recarga.ts (a recarga da escopeta: a bolsa, o cartucho, as balas puxadas pela arma), queda.ts (cair sem violência), dano.ts (o tranco de um golpe,
                            machucado), vida.ts (a vida, a invulnerabilidade, os kits), parado.ts (a respiração, o
                            peso e os gestos de parado), alcancar.ts (o braço alcança um ponto: IK de dois ossos; a mão esquerda na maçaneta ao abrir a porta),
-                           rosto.ts (as expressões), passada.ts (as curvas de uma passada de verdade: andar e correr),
+                           rosto.ts (as expressões; as das cenas: preocupado, desconfiado, fechado, vencido), passada.ts (as curvas de uma passada de verdade: andar e correr),
                            pes.ts (o pé de apoio preso no chão, em qualquer direção: IK da perna), controle.ts
                            (andar, correr, esquivar; preso e lento), tremor.ts (o tremor da tela: quem causa chama tremerDe;
                            o Testar aplica na câmera), sons.ts (ouvirAgente: os passos, a cambalhota, o golpe,

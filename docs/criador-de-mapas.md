@@ -223,6 +223,25 @@ Ajudas de construção propostas para depois (uma de cada vez, se aprovadas): **
 Depois do mapa: os scripts. Os modelos dos personagens vão ser feitos no Blockbench (em teste desde 10/nov,
 `docs/blockbench.md`), e os objetos também (desde 10/nov): o Editor de modelos saiu do plano.
 
+## A aba Entidades (18/nov)
+
+Pedido do desenvolvedor: pôr no cenário qualquer entidade criada e ver como ela se comporta no mapa, no Testar.
+
+- **A aba Entidades** (tecla 0, `src/editor/FerramentaEntidades.tsx`): escolha uma entidade na gaveta e clique no
+  chão para pôr; R gira para onde ela olha; clique numa para escolher e arraste para mover; Ctrl + clique (ou Del)
+  apaga. As entidades aparecem como marcas coloridas (com a seta para onde olham) em todas as ferramentas.
+- **No formato:** cada entidade é um ponto do mapa (`points`, o `ScriptPoint` que já existia) com `kind:
+  'entidade'` e `params: { tipo, vira }`. Não mudou o formato (nada de conversão). O catálogo está em
+  `src/maps/entidades.ts` (o mapa guarda só o nome).
+- **No Testar** (`src/game/entidades/`): as entidades ganham vida com o controle do agente (ferem e levam tiro). Os
+  números (a distância da vista, quando desistem, quanto a música segura) estão em `src/game/entidades/numeros.ts`.
+- **As etapas** (uma por vez, cada uma testada antes da próxima):
+  - ✅ **A, a aba e as Gralhas:** pousada no ponto; vê o agente (perto e sem parede no meio), levanta voo e caça:
+    rodeia por cima e mergulha bicando; morre com tiros (estoura em fumaça e penas); longe demais, volta e pousa.
+    Enquanto alguma caça, toca a perseguição das Gralhas; quando todas param, a música de antes volta.
+  - **B, o Mestre:** levita; ao ver o agente grita e solta o corvo (que vira 3 Gralhas), persegue correndo e morde.
+  - **C, a Mãe:** parada até ver o agente; para, grita e persegue, com a sequência de golpes; a perseguição dela.
+
 ## Fica de fora agora
 
 - Publicar mapas num servidor.

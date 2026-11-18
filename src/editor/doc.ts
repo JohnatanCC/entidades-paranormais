@@ -1,8 +1,9 @@
 // O documento que o editor muda: o cabeçalho e os blocos (pela chave "cx_cz"). Nunca é alterado no lugar: cada
 // mudança gera um documento novo que reaproveita os blocos que não mudaram. É isso que deixa o desfazer barato
 // (o histórico guarda documentos inteiros, mas eles dividem quase tudo entre si).
-import { FORMATO, chunkKey, chunkOf, emptyChunk, type AreaAmbiente, type Axis, type Chunk, type MapMeta, type Opening, type Prop, type Stair, type Vec3, type Wall, type WallSide } from '../maps/types'
+import { FORMATO, chunkKey, chunkOf, emptyChunk, type AreaAmbiente, type Axis, type Chunk, type MapMeta, type Opening, type Prop, type ScriptPoint, type Stair, type Vec3, type Wall, type WallSide } from '../maps/types'
 import { vazio, type MapBundle } from '../maps/storage'
+import { KIND_ENTIDADE } from '../maps/entidades'
 
 export interface MapDoc { meta: MapMeta; chunks: Record<string, Chunk> }
 
@@ -438,4 +439,32 @@ export function areaEm(doc: MapDoc, level: number, x: number, z: number): AreaAm
   let melhor: AreaAmbiente | undefined
   for (const a of doc.meta.areas) if (a.level === level && x >= a.x && x < a.x + a.w && z >= a.z && z < a.z + a.d && (!melhor || a.w * a.d < melhor.w * melhor.d)) melhor = a
   return melhor
+}
+
+// ---------- as entidades (a aba Entidades): pontos do mapa com kind 'entidade' e o tipo em params ----------
+
+export function entidades(doc: MapDoc): ScriptPoint[] {
+  return Object.values(doc.chunks).flatMap((c) => c.points.filter((p) => p.kind === KIND_ENTIDADE))
+}
+
+export function comEntidade(doc: MapDoc, tipo: string, level: number, pos: Vec3, vira = 0): { doc: MapDoc; id: string } {
+  const id = novoId(tipo), b = blocoDoPonto({ pos })
+  return { doc: mudarBlocos(doc, [b], (c) => ({ ...c, points: [...c.points, { id, kind: KIND_ENTIDADE, level, pos, params: { tipo, vira } }] })), id }
+}
+
+export function semEntidade(doc: MapDoc, id: string): MapDoc {
+  const b = Object.entries(doc.chunks).find(([, c]) => c.points.some((p) => p.id === id))?.[0]
+  if (!b) return doc
+  return mudarBlocos(doc, [b], (c) => ({ ...c, points: c.points.filter((p) => p.id !== id) }))
+}
+
+/** Muda uma entidade (o lugar ou o params); se ela andou para outro bloco, troca de bloco. */
+export function mudarEntidade(doc: MapDoc, id: string, patch: { pos?: Vec3; params?: Record<string, unknown> }): MapDoc {
+  const b = Object.entries(doc.chunks).find(([, c]) => c.points.some((p) => p.id === id))?.[0]
+  if (!b) return doc
+  const atual = doc.chunks[b].points.find((p) => p.id === id)!, novo = { ...atual, ...patch, params: { ...atual.params, ...patch.params } }
+  const nb = blocoDoPonto(novo)
+  if (nb === b) return mudarBlocos(doc, [b], (c) => ({ ...c, points: c.points.map((p) => (p.id === id ? novo : p)) }))
+  const sem = mudarBlocos(doc, [b], (c) => ({ ...c, points: c.points.filter((p) => p.id !== id) }))
+  return mudarBlocos(sem, [nb], (c) => ({ ...c, points: [...c.points, novo] }))
 }
