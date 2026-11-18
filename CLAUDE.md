@@ -13,6 +13,8 @@ capítulo 1 e lançá-lo na web, no itch.io (`docs/lancamento.md`).
    `docs/demonios.md` — os Sombrios (Assombrado, Asa sombria, Devora almas): o desenho, os modelos, como lutam e as etapas.
    `docs/intro.md` — a Demo · Intro do submundo (as três arenas, as hordas, o chefe): desde 17/nov não é a Intro do jogo, fica para mais tarde.
    `docs/musicas.md` — as músicas: onde cada uma toca e o que precisa ter (a perseguição da Mãe, para o Suno).
+   `docs/cenas.md` — as cenas (cutscenes) do capítulo 0: como são feitas (no motor, em dados, com legendas) e o storyboard de cada uma.
+   `docs/dublagem.md` — as vozes: o roteiro de cada personagem para os testes, como gravar e a voz provisória (a do navegador).
    `docs/cap2-sombra.md` — o capítulo 2 (a Sombra), no papel; e a lamparina, a armadilha reformulada, que vale para o jogo todo.
    `docs/mansao-cap1.md` — a planta da mansão do capítulo 1 (cômodos, escadas, rota, onde ficam os objetos da Mãe).
    `docs/blockbench.md` — como os personagens são feitos (Blockbench, as regras das juntas, a escala, a exportação).
@@ -93,7 +95,8 @@ src/
   screens/                 MainMenu, NovoJogo (a Demo · Intro), Jogo (uma fase: o mapa da pasta com o agente do Testar, em
                            tela cheia), SettingsScreen (com PreviaQualidade ao lado: a sala do mapa teste-iluminacao com a
                            qualidade escolhida, ao vivo, e o fps; e TesteDesempenho: a mansão inteira nível por nível, com a
-                           média e o mínimo de quadros), DevMenu, VerModelos (o personagem, o fantasma ou o demônio de perto: animação, expressão, mãos, ações, luz)
+                           média e o mínimo de quadros), DevMenu, VerModelos (o personagem, o fantasma ou o demônio de perto: animação, expressão, mãos, ações, luz),
+                           VerCenas (toca uma cena no cenário dela: tocar, pausar, a linha do tempo, pular para um plano)
   settings/settings.ts     configurações no localStorage (useSettings / setSettings): a qualidade da imagem (o nível e os
                            ajustes de cada recurso), os volumes, o mouse
   audio/musica.ts          a trilha: useMusica('menu') toca public/musica/<nome>.mp3 em laço, com o volume das configurações
@@ -136,7 +139,7 @@ src/
 texturas/                  as texturas do cenário: <nome>.png, 32 × 32 px por bloco de 1 m, pintadas em pixel e sem costura
 modelos/                   os modelos do Blockbench (.bbmodel), lidos direto pelo jogo: agente.bbmodel, lara.bbmodel,
                            nicolas.bbmodel, victor.bbmodel e leonardo.bbmodel (o mesmo esqueleto do agente), objetos/<tipo>.bbmodel,
-                           aberturas/<tipo>.bbmodel (as portas e janelas), armas/<nome>.bbmodel (pistola, escopeta, armadilha; e o cartucho da recarga),
+                           aberturas/<tipo>.bbmodel (as portas e janelas; a da instalação e a de contenção, do capítulo 0), armas/<nome>.bbmodel (pistola, escopeta, armadilha; e o cartucho da recarga),
                            fantasmas/<nome>.bbmodel (a Mãe; a Gralha e o Mestre, do capítulo 2, ainda fora do jogo), demonios/<nome>.bbmodel (os Sombrios: o Assombrado, a Asa sombria, o Devora almas)
 public/musica/             as músicas do jogo (menu.mp3: o menu e o criador de mapas; batalha.mp3: as hordas e devorador.mp3:
                            o chefe, na Demo · Intro)
@@ -156,6 +159,10 @@ src/game/                  (já existem: Testar.tsx, player/, input/, world/, we
   luz/                     a luz do jogo: Iluminacao.tsx (a luz ambiente, o preenchimento, o luar, a neblina, a imagem final; entra
                            em toda cena de jogo), ceu.ts (o céu da noite: a cúpula com o degradê, as estrelas e a lua), luz.ts (a ambientação de onde o agente está, a troca suave, os momentos:
                            momento('mae-chegando'))
+  cenas/                   as cenas (cutscenes, docs/cenas.md): tipos.ts (o formato: a cena é uma lista de planos), tocador.ts (a
+                           conta: o plano, a câmera, o preto, a legenda), TocarCena.tsx (dentro do Canvas: a câmera e os sons),
+                           Moldura.tsx (as faixas de cinema, o preto, a legenda, o título), vozes.ts (as falas lidas pela voz do
+                           navegador, provisória: o perfil de cada personagem) e catalogo.ts (todas as cenas)
   corpo/                   o que serve a todo personagem: molas.ts (o que pendura e balança: cabelo, saia, manto; com vento), sombraDeChao.ts
                            (o círculo escuro embaixo dele)
   Testar.tsx               o Testar do editor: o agente andando no mapa aberto (câmera, colisão, luz do jogo), em tela cheia;
@@ -223,6 +230,8 @@ src/game/                  (já existem: Testar.tsx, player/, input/, world/, we
   input/                   acoes.ts: ações do jogador (teclado e mouse; depois controle e toque): o jogo lê ações, nunca teclas
   world/                   colisao.ts (paredes, portas, móveis, corrimão, chão, escadas, braço da câmera, a armadilha jogada, a beirada do mapa sem chão, os bloqueios do roteiro), portas.ts (abrir e fechar
                            com E, o estado vivo das portas); depois carregar por blocos
+src/chapters/cap0/         (já existe) o capítulo 0: cenas/ (abertura.ts, a cena 1; escritorio.ts, a cena 2, provisória) e sons.ts (os sons
+                           da instalação e da cena 2)
 src/chapters/cap1/         o roteiro do capítulo: qual mapa, gatilhos, cenas, chefe
 src/chapters/intro/        (já existe) o roteiro da Demo · Intro: Roteiro.tsx (as arenas, as ondas, o chefe, a tecla H de teste),
                            tornado.ts (fecha a arena), sons.ts (o ambiente do submundo, o vento do tornado), numeros.ts

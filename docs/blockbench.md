@@ -117,7 +117,8 @@ referência do desenvolvedor; os traços, não o personagem dela):
 
 ## O Victor (11/nov; guardado em 17/nov)
 
-> **17/nov:** a função e a roupa dele passaram para o Leonardo (abaixo). Este modelo fica guardado para algum uso futuro.
+> **17/nov:** a função de ocultista e a roupa passaram para o Leonardo (abaixo). **18/nov:** o Victor volta como o chefe
+> do departamento do Matheus (a cena 2 do capítulo 0, `docs/cenas.md`), com este modelo.
 
 `modelos/victor.bbmodel`: um personagem secundário, para usar mais tarde. O ocultista da C.R.O.S., 35 anos (eram 45: mudado em 11/nov, a pedido): sente os
 fantasmas e consegue bani-los, com magia, sem armas. Branco, magro, 1,84 m. O desenho (com uma referência do

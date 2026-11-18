@@ -21,9 +21,10 @@ Primeiro o capítulo jogável do começo ao fim, **na ordem do jogo** (começand
 
 Uma etapa por vez, na ordem em que o jogador vê. Cada uma termina numa versão para testar.
 
-1. **O capítulo 0: da instalação da C.R.O.S. até o portal** (17/nov, `docs/jogo.md`). Jogável: começa na instalação,
-   com a introdução e o tutorial inicial; depois a missão no Palacete e a ruptura que suga os três. É o maior pedaço novo
-   do lançamento (um mapa novo, o tutorial, o caminho até o portal): vai ser dividido em etapas menores quando as
+1. **O capítulo 0: da instalação da C.R.O.S. até o portal** (17/nov, `docs/jogo.md`). **Começa com duas cenas** (18/nov,
+   `docs/cenas.md`: o storyboard, o jeito de fazer e a ordem de construir; a primeira etapa é o tocador de cenas).
+   Jogável: depois das cenas, na instalação, com a introdução e o tutorial inicial; depois a missão no Palacete e a ruptura que suga os três. É o maior pedaço novo
+   do lançamento (um mapa novo, `maps/instalacao-cap0`: cada capítulo tem um mapa só, com as partes de cena soltas nele; o tutorial; o caminho até o portal): vai ser dividido em etapas menores quando as
    decisões abaixo estiverem tomadas. **Decidir antes:** aproveitar a Intro do laboratório (o elevador, a eclusa, o
    escritório, o refeitório, a enfermaria, a usina e o Glutão: `docs/design/intro.md`) ou fazer outra; quais entidades
    o tutorial usa; e o caminho da instalação até o portal (uma cena ou jogável; se jogável, sugestão: o Palacete de
