@@ -1,0 +1,248 @@
+{
+ "cx": 1,
+ "cz": 4,
+ "walls": [
+  {
+   "level": 0,
+   "x": 20,
+   "z": 66,
+   "axis": "x",
+   "a": {
+    "tex": "reboco-creme"
+   },
+   "b": {
+    "tex": "reboco-creme"
+   }
+  },
+  {
+   "level": 0,
+   "x": 21,
+   "z": 66,
+   "axis": "x",
+   "a": {
+    "tex": "reboco-creme"
+   },
+   "b": {
+    "tex": "reboco-creme"
+   }
+  },
+  {
+   "level": 0,
+   "x": 22,
+   "z": 66,
+   "axis": "x",
+   "a": {
+    "tex": "reboco-creme"
+   },
+   "b": {
+    "tex": "reboco-creme"
+   }
+  },
+  {
+   "level": 0,
+   "x": 23,
+   "z": 66,
+   "axis": "x",
+   "a": {
+    "tex": "reboco-creme"
+   },
+   "b": {
+    "tex": "reboco-creme"
+   }
+  },
+  {
+   "level": 0,
+   "x": 24,
+   "z": 66,
+   "axis": "x",
+   "a": {
+    "tex": "reboco-creme"
+   },
+   "b": {
+    "tex": "reboco-creme"
+   }
+  },
+  {
+   "level": 0,
+   "x": 25,
+   "z": 66,
+   "axis": "x",
+   "a": {
+    "tex": "reboco-creme"
+   },
+   "b": {
+    "tex": "reboco-creme"
+   }
+  },
+  {
+   "level": 0,
+   "x": 20,
+   "z": 64,
+   "axis": "z",
+   "a": {
+    "tex": "reboco-creme"
+   },
+   "b": {
+    "tex": "reboco-creme"
+   }
+  },
+  {
+   "level": 0,
+   "x": 26,
+   "z": 64,
+   "axis": "z",
+   "a": {
+    "tex": "reboco-creme"
+   },
+   "b": {
+    "tex": "reboco-creme"
+   }
+  },
+  {
+   "level": 0,
+   "x": 20,
+   "z": 65,
+   "axis": "z",
+   "a": {
+    "tex": "reboco-creme"
+   },
+   "b": {
+    "tex": "reboco-creme"
+   }
+  },
+  {
+   "level": 0,
+   "x": 26,
+   "z": 65,
+   "axis": "z",
+   "a": {
+    "tex": "reboco-creme"
+   },
+   "b": {
+    "tex": "reboco-creme"
+   }
+  }
+ ],
+ "floors": [
+  {
+   "level": 0,
+   "x": 20,
+   "z": 64,
+   "top": "concreto",
+   "bottom": "concreto"
+  },
+  {
+   "level": 0,
+   "x": 20,
+   "z": 65,
+   "top": "concreto",
+   "bottom": "concreto"
+  },
+  {
+   "level": 0,
+   "x": 21,
+   "z": 64,
+   "top": "concreto",
+   "bottom": "concreto"
+  },
+  {
+   "level": 0,
+   "x": 21,
+   "z": 65,
+   "top": "concreto",
+   "bottom": "concreto"
+  },
+  {
+   "level": 0,
+   "x": 22,
+   "z": 64,
+   "top": "concreto",
+   "bottom": "concreto"
+  },
+  {
+   "level": 0,
+   "x": 22,
+   "z": 65,
+   "top": "concreto",
+   "bottom": "concreto"
+  },
+  {
+   "level": 0,
+   "x": 23,
+   "z": 64,
+   "top": "concreto",
+   "bottom": "concreto"
+  },
+  {
+   "level": 0,
+   "x": 23,
+   "z": 65,
+   "top": "concreto",
+   "bottom": "concreto"
+  },
+  {
+   "level": 0,
+   "x": 24,
+   "z": 64,
+   "top": "concreto",
+   "bottom": "concreto"
+  },
+  {
+   "level": 0,
+   "x": 24,
+   "z": 65,
+   "top": "concreto",
+   "bottom": "concreto"
+  },
+  {
+   "level": 0,
+   "x": 25,
+   "z": 64,
+   "top": "concreto",
+   "bottom": "concreto"
+  },
+  {
+   "level": 0,
+   "x": 25,
+   "z": 65,
+   "top": "concreto",
+   "bottom": "concreto"
+  }
+ ],
+ "openings": [],
+ "stairs": [],
+ "props": [
+  {
+   "type": "pasta-dossie",
+   "level": 0,
+   "pos": [
+    25,
+    0,
+    64
+   ],
+   "rot": [
+    0,
+    120,
+    0
+   ],
+   "id": "pasta-dossie-hak1i"
+  },
+  {
+   "type": "cadeira-chefe",
+   "level": 0,
+   "pos": [
+    23,
+    0,
+    64
+   ],
+   "rot": [
+    0,
+    180,
+    0
+   ],
+   "id": "cadeira-chefe-qhjus"
+  }
+ ],
+ "decals": [],
+ "points": []
+}

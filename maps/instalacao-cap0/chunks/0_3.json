@@ -11,10 +11,10 @@
     "tex": "concreto-aparente"
    },
    "b": {
-    "tex": "tijolo-esmaltado",
+    "tex": "concreto-aparente",
     "base": {
-     "tex": "barra-verde",
-     "h": 1.1
+     "tex": "azulejo-branco",
+     "h": 1
     }
    }
   },
@@ -27,10 +27,10 @@
     "tex": "concreto-aparente"
    },
    "b": {
-    "tex": "tijolo-esmaltado",
+    "tex": "concreto-aparente",
     "base": {
-     "tex": "barra-verde",
-     "h": 1.1
+     "tex": "azulejo-branco",
+     "h": 1
     }
    }
   },
@@ -43,10 +43,10 @@
     "tex": "concreto-aparente"
    },
    "b": {
-    "tex": "tijolo-esmaltado",
+    "tex": "concreto-aparente",
     "base": {
-     "tex": "barra-verde",
-     "h": 1.1
+     "tex": "azulejo-branco",
+     "h": 1
     }
    }
   },
@@ -59,10 +59,10 @@
     "tex": "concreto-aparente"
    },
    "b": {
-    "tex": "tijolo-esmaltado",
+    "tex": "concreto-aparente",
     "base": {
-     "tex": "barra-verde",
-     "h": 1.1
+     "tex": "azulejo-branco",
+     "h": 1
     }
    }
   },
@@ -72,10 +72,10 @@
    "z": 63,
    "axis": "x",
    "a": {
-    "tex": "tijolo-esmaltado",
+    "tex": "concreto-aparente",
     "base": {
-     "tex": "barra-verde",
-     "h": 1.1
+     "tex": "azulejo-branco",
+     "h": 1
     }
    },
    "b": {
@@ -91,10 +91,10 @@
     "tex": "concreto-aparente"
    },
    "b": {
-    "tex": "tijolo-esmaltado",
+    "tex": "concreto-aparente",
     "base": {
-     "tex": "barra-verde",
-     "h": 1.1
+     "tex": "azulejo-branco",
+     "h": 1
     }
    }
   },
@@ -104,10 +104,10 @@
    "z": 63,
    "axis": "x",
    "a": {
-    "tex": "tijolo-esmaltado",
+    "tex": "concreto-aparente",
     "base": {
-     "tex": "barra-verde",
-     "h": 1.1
+     "tex": "azulejo-branco",
+     "h": 1
     }
    },
    "b": {
@@ -123,10 +123,10 @@
     "tex": "concreto-aparente"
    },
    "b": {
-    "tex": "tijolo-esmaltado",
+    "tex": "concreto-aparente",
     "base": {
-     "tex": "barra-verde",
-     "h": 1.1
+     "tex": "azulejo-branco",
+     "h": 1
     }
    }
   },
@@ -136,10 +136,10 @@
    "z": 63,
    "axis": "x",
    "a": {
-    "tex": "tijolo-esmaltado",
+    "tex": "concreto-aparente",
     "base": {
-     "tex": "barra-verde",
-     "h": 1.1
+     "tex": "azulejo-branco",
+     "h": 1
     }
    },
    "b": {
@@ -155,10 +155,10 @@
     "tex": "concreto-aparente"
    },
    "b": {
-    "tex": "tijolo-esmaltado",
+    "tex": "concreto-aparente",
     "base": {
-     "tex": "barra-verde",
-     "h": 1.1
+     "tex": "azulejo-branco",
+     "h": 1
     }
    }
   },
@@ -168,10 +168,10 @@
    "z": 63,
    "axis": "x",
    "a": {
-    "tex": "tijolo-esmaltado",
+    "tex": "concreto-aparente",
     "base": {
-     "tex": "barra-verde",
-     "h": 1.1
+     "tex": "azulejo-branco",
+     "h": 1
     }
    },
    "b": {
@@ -187,10 +187,10 @@
     "tex": "concreto-aparente"
    },
    "b": {
-    "tex": "tijolo-esmaltado",
+    "tex": "concreto-aparente",
     "base": {
-     "tex": "barra-verde",
-     "h": 1.1
+     "tex": "azulejo-branco",
+     "h": 1
     }
    }
   },
@@ -200,10 +200,10 @@
    "z": 63,
    "axis": "x",
    "a": {
-    "tex": "tijolo-esmaltado",
+    "tex": "concreto-aparente",
     "base": {
-     "tex": "barra-verde",
-     "h": 1.1
+     "tex": "azulejo-branco",
+     "h": 1
     }
    },
    "b": {
@@ -219,10 +219,10 @@
     "tex": "concreto-aparente"
    },
    "b": {
-    "tex": "tijolo-esmaltado",
+    "tex": "concreto-aparente",
     "base": {
-     "tex": "barra-verde",
-     "h": 1.1
+     "tex": "azulejo-branco",
+     "h": 1
     }
    }
   },
@@ -232,10 +232,10 @@
    "z": 63,
    "axis": "x",
    "a": {
-    "tex": "tijolo-esmaltado",
+    "tex": "concreto-aparente",
     "base": {
-     "tex": "barra-verde",
-     "h": 1.1
+     "tex": "azulejo-branco",
+     "h": 1
     }
    },
    "b": {
@@ -251,10 +251,10 @@
     "tex": "concreto-aparente"
    },
    "b": {
-    "tex": "tijolo-esmaltado",
+    "tex": "concreto-aparente",
     "base": {
-     "tex": "barra-verde",
-     "h": 1.1
+     "tex": "azulejo-branco",
+     "h": 1
     }
    }
   },
@@ -264,10 +264,10 @@
    "z": 63,
    "axis": "x",
    "a": {
-    "tex": "tijolo-esmaltado",
+    "tex": "concreto-aparente",
     "base": {
-     "tex": "barra-verde",
-     "h": 1.1
+     "tex": "azulejo-branco",
+     "h": 1
     }
    },
    "b": {
@@ -283,10 +283,10 @@
     "tex": "concreto-aparente"
    },
    "b": {
-    "tex": "tijolo-esmaltado",
+    "tex": "concreto-aparente",
     "base": {
-     "tex": "barra-verde",
-     "h": 1.1
+     "tex": "azulejo-branco",
+     "h": 1
     }
    }
   },
@@ -296,10 +296,10 @@
    "z": 63,
    "axis": "x",
    "a": {
-    "tex": "tijolo-esmaltado",
+    "tex": "concreto-aparente",
     "base": {
-     "tex": "barra-verde",
-     "h": 1.1
+     "tex": "azulejo-branco",
+     "h": 1
     }
    },
    "b": {
@@ -319,10 +319,10 @@
     }
    },
    "b": {
-    "tex": "tijolo-esmaltado",
+    "tex": "concreto-aparente",
     "base": {
-     "tex": "barra-verde",
-     "h": 1.1
+     "tex": "azulejo-branco",
+     "h": 1
     }
    }
   },
@@ -332,10 +332,10 @@
    "z": 63,
    "axis": "x",
    "a": {
-    "tex": "tijolo-esmaltado",
+    "tex": "concreto-aparente",
     "base": {
-     "tex": "barra-verde",
-     "h": 1.1
+     "tex": "azulejo-branco",
+     "h": 1
     }
    },
    "b": {
@@ -355,10 +355,10 @@
     }
    },
    "b": {
-    "tex": "tijolo-esmaltado",
+    "tex": "concreto-aparente",
     "base": {
-     "tex": "barra-verde",
-     "h": 1.1
+     "tex": "azulejo-branco",
+     "h": 1
     }
    }
   },
@@ -368,10 +368,10 @@
    "z": 63,
    "axis": "x",
    "a": {
-    "tex": "tijolo-esmaltado",
+    "tex": "concreto-aparente",
     "base": {
-     "tex": "barra-verde",
-     "h": 1.1
+     "tex": "azulejo-branco",
+     "h": 1
     }
    },
    "b": {
@@ -391,10 +391,10 @@
     }
    },
    "b": {
-    "tex": "tijolo-esmaltado",
+    "tex": "concreto-aparente",
     "base": {
-     "tex": "barra-verde",
-     "h": 1.1
+     "tex": "azulejo-branco",
+     "h": 1
     }
    }
   },
@@ -404,10 +404,10 @@
    "z": 63,
    "axis": "x",
    "a": {
-    "tex": "tijolo-esmaltado",
+    "tex": "concreto-aparente",
     "base": {
-     "tex": "barra-verde",
-     "h": 1.1
+     "tex": "azulejo-branco",
+     "h": 1
     }
    },
    "b": {
@@ -427,10 +427,10 @@
     }
    },
    "b": {
-    "tex": "tijolo-esmaltado",
+    "tex": "concreto-aparente",
     "base": {
-     "tex": "barra-verde",
-     "h": 1.1
+     "tex": "azulejo-branco",
+     "h": 1
     }
    }
   },
@@ -440,10 +440,10 @@
    "z": 63,
    "axis": "x",
    "a": {
-    "tex": "tijolo-esmaltado",
+    "tex": "concreto-aparente",
     "base": {
-     "tex": "barra-verde",
-     "h": 1.1
+     "tex": "azulejo-branco",
+     "h": 1
     }
    },
    "b": {
@@ -627,13 +627,6 @@
    "bottom": "forro-escuro"
   },
   {
-   "level": 0,
-   "x": 4,
-   "z": 61,
-   "top": "concreto",
-   "bottom": "concreto"
-  },
-  {
    "level": 1,
    "x": 4,
    "z": 61,
@@ -669,13 +662,6 @@
    "bottom": "forro-escuro"
   },
   {
-   "level": 0,
-   "x": 5,
-   "z": 61,
-   "top": "concreto",
-   "bottom": "concreto"
-  },
-  {
    "level": 1,
    "x": 5,
    "z": 61,
@@ -711,13 +697,6 @@
    "bottom": "forro-escuro"
   },
   {
-   "level": 0,
-   "x": 6,
-   "z": 61,
-   "top": "concreto",
-   "bottom": "concreto"
-  },
-  {
    "level": 1,
    "x": 6,
    "z": 61,
@@ -753,13 +732,6 @@
    "bottom": "forro-escuro"
   },
   {
-   "level": 0,
-   "x": 7,
-   "z": 61,
-   "top": "concreto",
-   "bottom": "concreto"
-  },
-  {
    "level": 1,
    "x": 7,
    "z": 61,
@@ -795,13 +767,6 @@
    "bottom": "forro-escuro"
   },
   {
-   "level": 0,
-   "x": 8,
-   "z": 61,
-   "top": "concreto",
-   "bottom": "concreto"
-  },
-  {
    "level": 1,
    "x": 8,
    "z": 61,
@@ -837,13 +802,6 @@
    "bottom": "forro-escuro"
   },
   {
-   "level": 0,
-   "x": 9,
-   "z": 61,
-   "top": "concreto",
-   "bottom": "concreto"
-  },
-  {
    "level": 1,
    "x": 9,
    "z": 61,
@@ -879,13 +837,6 @@
    "bottom": "forro-escuro"
   },
   {
-   "level": 0,
-   "x": 10,
-   "z": 61,
-   "top": "concreto",
-   "bottom": "concreto"
-  },
-  {
    "level": 1,
    "x": 10,
    "z": 61,
@@ -921,13 +872,6 @@
    "bottom": "forro-escuro"
   },
   {
-   "level": 0,
-   "x": 11,
-   "z": 61,
-   "top": "concreto",
-   "bottom": "concreto"
-  },
-  {
    "level": 1,
    "x": 11,
    "z": 61,
@@ -963,13 +907,6 @@
    "bottom": "forro-escuro"
   },
   {
-   "level": 0,
-   "x": 12,
-   "z": 61,
-   "top": "concreto",
-   "bottom": "concreto"
-  },
-  {
    "level": 1,
    "x": 12,
    "z": 61,
@@ -1003,13 +940,6 @@
    "z": 60,
    "top": "concreto",
    "bottom": "forro-escuro"
-  },
-  {
-   "level": 0,
-   "x": 13,
-   "z": 61,
-   "top": "concreto",
-   "bottom": "concreto"
   },
   {
    "level": 1,
@@ -1047,13 +977,6 @@
    "bottom": "forro-escuro"
   },
   {
-   "level": 0,
-   "x": 14,
-   "z": 61,
-   "top": "concreto",
-   "bottom": "concreto"
-  },
-  {
    "level": 1,
    "x": 14,
    "z": 61,
@@ -1073,13 +996,6 @@
    "z": 62,
    "top": "concreto",
    "bottom": "forro-escuro"
-  },
-  {
-   "level": 0,
-   "x": 15,
-   "z": 60,
-   "top": "concreto",
-   "bottom": "concreto"
   },
   {
    "level": 1,
@@ -1089,13 +1005,6 @@
    "bottom": "forro-escuro"
   },
   {
-   "level": 0,
-   "x": 15,
-   "z": 61,
-   "top": "concreto",
-   "bottom": "concreto"
-  },
-  {
    "level": 1,
    "x": 15,
    "z": 61,
@@ -1451,20 +1360,123 @@
    "z": 59,
    "top": "concreto",
    "bottom": "forro-madeira"
+  },
+  {
+   "level": 0,
+   "x": 4,
+   "z": 61,
+   "top": "marmore",
+   "bottom": "gesso"
+  },
+  {
+   "level": 0,
+   "x": 5,
+   "z": 61,
+   "top": "marmore",
+   "bottom": "gesso"
+  },
+  {
+   "level": 0,
+   "x": 6,
+   "z": 61,
+   "top": "marmore",
+   "bottom": "gesso"
+  },
+  {
+   "level": 0,
+   "x": 7,
+   "z": 61,
+   "top": "marmore",
+   "bottom": "gesso"
+  },
+  {
+   "level": 0,
+   "x": 8,
+   "z": 61,
+   "top": "marmore",
+   "bottom": "gesso"
+  },
+  {
+   "level": 0,
+   "x": 9,
+   "z": 61,
+   "top": "marmore",
+   "bottom": "gesso"
+  },
+  {
+   "level": 0,
+   "x": 10,
+   "z": 61,
+   "top": "marmore",
+   "bottom": "gesso"
+  },
+  {
+   "level": 0,
+   "x": 11,
+   "z": 61,
+   "top": "marmore",
+   "bottom": "gesso"
+  },
+  {
+   "level": 0,
+   "x": 12,
+   "z": 61,
+   "top": "marmore",
+   "bottom": "gesso"
+  },
+  {
+   "level": 0,
+   "x": 13,
+   "z": 61,
+   "top": "marmore",
+   "bottom": "gesso"
+  },
+  {
+   "level": 0,
+   "x": 14,
+   "z": 61,
+   "top": "marmore",
+   "bottom": "gesso"
+  },
+  {
+   "level": 0,
+   "x": 15,
+   "z": 61,
+   "top": "marmore",
+   "bottom": "gesso"
+  },
+  {
+   "level": 0,
+   "x": 15,
+   "z": 60,
+   "top": "marmore",
+   "bottom": "gesso"
   }
  ],
  "openings": [
   {
-   "id": "escritorio",
+   "level": 0,
+   "axis": "z",
+   "x": 4,
+   "z": 61,
+   "width": 1,
+   "kind": "porta",
+   "door": "comum",
+   "estado": "fechada",
+   "lado": "b",
+   "id": "porta-bw031"
+  },
+  {
    "level": 0,
    "axis": "x",
    "x": 15,
    "z": 60,
    "width": 1,
    "kind": "porta",
-   "door": "instalacao",
+   "door": "comum",
    "estado": "fechada",
-   "lado": "a"
+   "lado": "a",
+   "id": "escritorio"
   }
  ],
  "stairs": [],
@@ -1674,23 +1686,7 @@
    ]
   },
   {
-   "id": "pasta-dossie-220",
-   "type": "pasta-dossie",
-   "level": 0,
-   "pos": [
-    15.1,
-    0.778,
-    56.7
-   ],
-   "rot": [
-    0,
-    170,
-    0
-   ],
-   "free": true
-  },
-  {
-   "id": "foto-virada-221",
+   "id": "foto-virada-220",
    "type": "foto-virada",
    "level": 0,
    "pos": [
@@ -1706,7 +1702,7 @@
    "free": true
   },
   {
-   "id": "luminaria-mesa-222",
+   "id": "luminaria-mesa-221",
    "type": "luminaria-mesa",
    "level": 0,
    "pos": [
@@ -1725,7 +1721,7 @@
    }
   },
   {
-   "id": "relogio-parede-223",
+   "id": "relogio-parede-222",
    "type": "relogio-parede",
    "level": 0,
    "pos": [
@@ -1740,7 +1736,7 @@
    ]
   },
   {
-   "id": "lampada-teto-224",
+   "id": "lampada-teto-223",
    "type": "lampada-teto",
    "level": 0,
    "pos": [
@@ -1756,6 +1752,54 @@
    "params": {
     "modo": "normal"
    }
+  },
+  {
+   "type": "luz-aviso",
+   "level": 0,
+   "pos": [
+    4.5,
+    1.8,
+    62.75
+   ],
+   "rot": [
+    0,
+    165,
+    0
+   ],
+   "params": {
+    "modo": "apagada"
+   },
+   "id": "luz-aviso-grb0h"
+  },
+  {
+   "type": "armario-aco",
+   "level": 0,
+   "pos": [
+    12.25,
+    0,
+    59.5
+   ],
+   "rot": [
+    0,
+    120,
+    0
+   ],
+   "id": "armario-aco-p3fqw"
+  },
+  {
+   "type": "tapete",
+   "level": 0,
+   "pos": [
+    15,
+    0,
+    56
+   ],
+   "rot": [
+    0,
+    90,
+    0
+   ],
+   "id": "tapete-r5hjb"
   }
  ],
  "decals": [],

@@ -1,21 +1,6 @@
 {
  "formato": 3,
- "id": "instalacao-cap0",
- "nome": "A instalação · capítulo 0",
- "levels": 2,
- "levelH": 3.5,
- "chunkSize": 16,
- "spawn": {
-  "pos": [
-   6,
-   0,
-   28
-  ],
-  "yaw": 90,
-  "level": 0
- },
  "ambiente": "instalacao",
- "semChao": false,
  "areas": [
   {
    "id": "area-escritorio",
@@ -36,6 +21,21 @@
    "ambiente": "corredor"
   }
  ],
+ "semChao": false,
+ "id": "instalacao-cap0",
+ "nome": "A instalação · capítulo 0",
+ "levels": 2,
+ "levelH": 3.5,
+ "chunkSize": 16,
+ "spawn": {
+  "pos": [
+   6,
+   0,
+   28
+  ],
+  "yaw": 90,
+  "level": 0
+ },
  "chunks": [
   "0_0",
   "0_1",
@@ -45,6 +45,7 @@
   "1_1",
   "1_2",
   "1_3",
+  "1_4",
   "2_0",
   "2_1",
   "2_2",

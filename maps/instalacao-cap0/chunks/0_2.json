@@ -1637,7 +1637,18 @@
    "bottom": "forro-placas"
   }
  ],
- "openings": [],
+ "openings": [
+  {
+   "level": 0,
+   "axis": "z",
+   "x": 15,
+   "z": 44,
+   "width": 1,
+   "kind": "porta",
+   "door": "vao",
+   "id": "vao-gkrvx"
+  }
+ ],
  "stairs": [],
  "props": [
   {

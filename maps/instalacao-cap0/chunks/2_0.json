@@ -3931,18 +3931,6 @@
  ],
  "openings": [
   {
-   "id": "estande",
-   "level": 0,
-   "axis": "x",
-   "x": 44,
-   "z": 12,
-   "width": 1,
-   "kind": "porta",
-   "door": "instalacao",
-   "estado": "fechada",
-   "lado": "a"
-  },
-  {
    "id": "janela-1",
    "level": 0,
    "axis": "x",
@@ -3989,6 +3977,18 @@
    "window": "instalacao",
    "light2d": false,
    "lado": "b"
+  },
+  {
+   "level": 0,
+   "axis": "x",
+   "x": 32,
+   "z": 12,
+   "width": 1,
+   "kind": "porta",
+   "door": "instalacao",
+   "estado": "fechada",
+   "lado": "a",
+   "id": "porta-3a1ap"
   }
  ],
  "stairs": [],

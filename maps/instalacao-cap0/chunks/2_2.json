@@ -3950,6 +3950,16 @@
    "estado": "trancada",
    "lado": "a",
    "motivo": "Almoxarifado: trancado."
+  },
+  {
+   "level": 0,
+   "axis": "z",
+   "x": 45,
+   "z": 44,
+   "width": 1,
+   "kind": "porta",
+   "door": "vao",
+   "id": "vao-6zhty"
   }
  ],
  "stairs": [],

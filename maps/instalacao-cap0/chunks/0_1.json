@@ -3301,6 +3301,141 @@
     0,
     0
    ]
+  },
+  {
+   "type": "armario-aco",
+   "level": 0,
+   "pos": [
+    11.5,
+    0,
+    31.5
+   ],
+   "rot": [
+    0,
+    270,
+    0
+   ],
+   "id": "armario-aco-ttxjj"
+  },
+  {
+   "type": "armario-aco",
+   "level": 0,
+   "pos": [
+    11.5,
+    0,
+    30.5
+   ],
+   "rot": [
+    0,
+    270,
+    0
+   ],
+   "id": "armario-aco-mt0x7"
+  },
+  {
+   "type": "canos-teto",
+   "level": 0,
+   "pos": [
+    11,
+    3.48,
+    23.25
+   ],
+   "rot": [
+    0,
+    0,
+    0
+   ],
+   "id": "canos-teto-4yepn"
+  },
+  {
+   "type": "canos-teto",
+   "level": 0,
+   "pos": [
+    9,
+    3.48,
+    23.25
+   ],
+   "rot": [
+    0,
+    0,
+    0
+   ],
+   "id": "canos-teto-psf6d"
+  },
+  {
+   "type": "canos-teto",
+   "level": 0,
+   "pos": [
+    7,
+    3.48,
+    23.25
+   ],
+   "rot": [
+    0,
+    0,
+    0
+   ],
+   "id": "canos-teto-xptsx"
+  },
+  {
+   "type": "canos-teto",
+   "level": 0,
+   "pos": [
+    5,
+    3.48,
+    23.25
+   ],
+   "rot": [
+    0,
+    0,
+    0
+   ],
+   "id": "canos-teto-2nqos"
+  },
+  {
+   "type": "banco",
+   "level": 0,
+   "pos": [
+    7.75,
+    0,
+    23.5
+   ],
+   "rot": [
+    0,
+    0,
+    0
+   ],
+   "id": "banco-f3dbi"
+  },
+  {
+   "type": "banco",
+   "level": 0,
+   "pos": [
+    9.75,
+    0,
+    23.5
+   ],
+   "rot": [
+    0,
+    0,
+    0
+   ],
+   "id": "banco-9hguy"
+  },
+  {
+   "type": "relogio-parede",
+   "level": 0,
+   "pos": [
+    11.75,
+    1.8,
+    25.25
+   ],
+   "rot": [
+    0,
+    270,
+    0
+   ],
+   "id": "relogio-parede-le4gj"
   }
  ],
  "decals": [],

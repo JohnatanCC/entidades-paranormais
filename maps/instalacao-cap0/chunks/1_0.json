@@ -4275,18 +4275,6 @@
    "lado": "a"
   },
   {
-   "id": "arsenal",
-   "level": 0,
-   "axis": "x",
-   "x": 25,
-   "z": 12,
-   "width": 1,
-   "kind": "porta",
-   "door": "instalacao",
-   "estado": "fechada",
-   "lado": "a"
-  },
-  {
    "id": "arsenal-estande",
    "level": 0,
    "axis": "z",

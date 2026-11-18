@@ -38,6 +38,15 @@ navegador, que não deixa gravar; enquanto grava, ela fica calada. Com `provas.g
 sai nas caixas enquanto grava. Para um vídeo com as vozes provisórias, grave a tela (no Windows, **Win + Alt + R** com a
 janela do navegador na frente). O código é `src/dev/gravar.ts`.
 
+### As portas que a cena abre: pelo nome (18/nov)
+
+A cena acha uma porta do mapa pelo **nome** dela (o `id` no mapa), não pela posição: a do escritório do Victor se chama
+`escritorio`. Quem troca uma porta no criador de mapas (apaga e põe outra) ganha uma porta com outro nome, e a cena
+deixa de abrir: foi o que aconteceu quando a porta da instalação virou uma porta comum de madeira (18/nov). O nome foi
+acertado no mapa. Trocou de novo? Me avise, ou acerte o `id` da porta nova em
+`maps/instalacao-cap0/chunks/<bloco>.json`. **Desde 18/nov o mapa do capítulo 0 é retocado à mão no criador de
+mapas**: o gerador que o criou não roda mais (apagaria os retoques).
+
 ### O jeito de trabalhar (cada cena)
 
 1. **O storyboard** (este documento): o plano a plano, as falas e o tempo. Você aprova ou reescreve.
@@ -96,18 +105,18 @@ fixa contra a vontade. E alguma coisa está acontecendo no andar de contenção.
 
 | Plano | Quem | Fala ou ação | Câmera |
 | --- | --- | --- | --- |
-| 1.4 | Victor | (levanta os olhos da pasta) **"Entre, Moura."** O Matheus entra; a porta fecha sozinha | O geral: o Victor de costas na frente, a porta ao fundo |
+| 1.4 | Victor | (inclinado na mesa, lendo a pasta; levanta os olhos) **"Entre, Moura."** O Matheus entra; a porta fecha sozinha | O geral: o Victor de costas na frente, a porta ao fundo |
 | 1.5 | Victor | **"Vou ser direto."** O Matheus vai até perto da mesa, ao lado da cadeira de visitante (18/nov: era "Sente."; a conversa fica de pé) | De lado, os dois na imagem |
-| 1.6 | Victor | **"Três missões este mês."** | Insert: a pasta dele na mesa |
+| 1.6 | Victor | **"Três missões este mês."** (vira uma folha) | Insert: a pasta aberta, as mãos do Victor |
 | 1.7 | Victor | **"Três capturas que deram errado."** | Por cima do ombro do Matheus |
 | 1.8 | Victor | **"Isso não é você. O que está acontecendo?"** | Fechado no Victor |
 | 1.9 | Matheus | (segura um instante) **"Nada. Muita coisa ao mesmo tempo, só isso."** Desvia os olhos | Fechado no Matheus |
 | 1.10 | Victor | **"É por causa do seu antigo parceiro?"** | Insert: a foto virada na mesa |
 | 1.11 | Matheus | **"Não tem nada a ver com isso."** (pausa) **"Eu me distraí. Não vai se repetir."** | Bem fechado no Matheus; a cara fecha |
-| 1.12 | Victor | **"Vou mudar a dinâmica. Chega de te mandar com um time diferente a cada missão."** | Por cima do ombro do Matheus |
+| 1.12 | Victor | (fecha a pasta) **"Vou mudar a dinâmica. Chega de te mandar com um time diferente a cada missão."** | Por cima do ombro do Matheus |
 | 1.13 | Victor | **"A partir de hoje você tem uma equipe fixa. É uma chance de criar laços."** | Fechado no Victor, aproximando |
 | 1.14 | Victor, depois Matheus | (a voz do Victor por cima) **"De não carregar tudo sozinho."** Matheus: **"Não precisa. Eu sempre me virei bem sozinho."** | Fechado no Matheus (a reação) |
-| 1.15 | Victor | **"Sempre?"** (pausa) **"Mesmo depois deste mês?"** | Bem fechado no Victor |
+| 1.15 | Victor | **"Sempre?"** (pausa) **"Mesmo depois deste mês?"** Inclina e bate o dedo na pasta no "deste mês" | Por cima do ombro do Matheus, perto: o Victor inclinado na mesa |
 | 1.16 | Matheus | (silêncio comprido, os olhos de lado) **"...Tudo bem."** | Bem fechado no Matheus |
 | 1.17 | Victor | **"Ótimo. Já tenho uma missão para vocês. Logo você conhece a sua equipe."** | De lado, os dois na imagem |
 | 1.18 | Matheus | Vai até a porta, **a mão na maçaneta**, a porta abre | O mesmo geral do 1.4 |
@@ -314,9 +323,19 @@ parado no andar.
      `src/maps/luzAssada.ts`); vale no jogo também.
    - **A ordem das cenas mudou** (18/nov): o escritório é a cena 1; a instalação com o alarme é a cena 2 e ganhou a
      Lara e o Nicolas esperando o Matheus na frente do elevador.
-5. **Os gestos do Victor com a pasta** (folhear e fechar, bater o dedo nela) e o lugar deles na cena 1. Sentar,
-   levantar e apontar a cadeira saíram (18/nov: a conversa fica de pé); abrir a porta já está feito.
-6. **As expressões que faltam** (preocupado, desconfiado, fechado, vencido) e o ajuste fino do tempo dos planos com as
+5. ✅ **Os gestos do Victor com a pasta** (18/nov). Sentar, levantar e apontar a cadeira saíram (a conversa fica de pé);
+   abrir a porta já estava feito.
+   - **A postura e os gestos** (`src/game/cenas/gestos.ts`, por cima da pose do corpo): a postura **ler** (inclinado
+     sobre a mesa, as duas mãos na pasta aberta) vale até mudar; os gestos rápidos são **virar** uma folha, **fechar** a
+     pasta e **bater** o dedo nela. As mãos vão aos pontos pelo IK do braço e o tronco inclina para alcançar. No roteiro:
+     `postura` e `gesto` do ator, com o ponto (`em`).
+   - **A pasta é da cena, não do mapa** (`src/chapters/cap0/pasta.tsx`): a capa abre e fecha e as folhas viram junto com
+     as mãos do Victor. O modelo ganhou a capa e três folhas que giram na dobra. A pasta foi para perto da beirada dele
+     (ele alcança inclinado) e o Victor ficou colado na mesa.
+   - **Na cena 1:** ele lê a pasta enquanto o Matheus chega; no insert da pasta, vira uma folha no "Três missões"; no
+     1.12, fecha a pasta antes de falar; no 1.15, inclina e bate o dedo na pasta no "deste mês" (esse plano passou a ser
+     por cima do ombro do Matheus, mais perto, para o gesto aparecer; antes era fechado no rosto do Victor).
+6. **As expressões que faltam** (a próxima etapa) (preocupado, desconfiado, fechado, vencido) e o ajuste fino do tempo dos planos com as
    vozes. Depois: o rádio no ombro do Matheus (o plano 2.20) e a luz vermelha que gira no alarme (o plano 2.19).
 
 ## Em aberto

@@ -4,7 +4,8 @@
 import { ALCANCE } from '../player/numeros'
 import type { Expressao } from '../player/rosto'
 import { inicios } from './tocador'
-import type { Cena, V3 } from './tipos'
+import { GESTOS } from './gestos'
+import type { Cena, Gesto, Postura, V3 } from './tipos'
 
 export interface EstadoAtor {
   pos: V3
@@ -15,6 +16,8 @@ export interface EstadoAtor {
   expressao: Expressao
   fala: boolean // a legenda dele está na tela (e não é pensamento): a boca mexe
   alcanca: { ponto: V3; t: number } | null // a mão indo a um ponto agora (t = s desde o começo do gesto)
+  postura: { nome: Postura; em: V3 } | null
+  gesto: { nome: Gesto; em: V3; t: number } | null // um gesto acontecendo agora (t = s desde o começo dele)
 }
 
 const GIRO = 0.6 // s para virar no lugar
@@ -31,13 +34,16 @@ export function estadoDoAtor(c: Cena, nome: string, t: number): EstadoAtor {
   const ator = c.elenco![nome], ini = inicios(c)
   let pos: V3 = [...ator.em], yaw = rad(ator.vira), vel = 0, corre = false
   let olha: EstadoAtor['olha'] = null, expressao: Expressao = 'neutra', alcanca: EstadoAtor['alcanca'] = null
+  let postura: EstadoAtor['postura'] = null, gesto: EstadoAtor['gesto'] = null
   for (let i = 0; i < c.planos.length && ini[i] <= t; i++) {
     const p = c.planos[i], a = p.atores?.[nome], local = Math.min(t - ini[i], p.dura), agora = t < ini[i] + p.dura
-    vel = 0; corre = false; alcanca = null // anda e alcança só no plano de agora
+    vel = 0; corre = false; alcanca = null; gesto = null // anda, alcança e gesticula só no plano de agora
     if (!a) continue
     if (a.em) pos = [...a.em]
     if (a.olha !== undefined) olha = a.olha
     if (a.expressao) expressao = a.expressao
+    if (a.postura !== undefined) postura = a.postura
+    if (a.gesto && agora && local >= a.gesto.t && local < a.gesto.t + GESTOS[a.gesto.nome].dura) gesto = { nome: a.gesto.nome, em: a.gesto.em, t: local - a.gesto.t }
     if (a.alcanca && agora && local >= a.alcanca.t && local < a.alcanca.t + GESTO) alcanca = { ponto: a.alcanca.ponto, t: local - a.alcanca.t }
     let giroDe = 0 // quando começa a virar para `vira`
     if (a.anda) {
@@ -50,7 +56,14 @@ export function estadoDoAtor(c: Cena, nome: string, t: number): EstadoAtor {
     }
     if (a.vira !== undefined) yaw = girar(yaw, rad(a.vira), suave(cl((local - giroDe) / GIRO)))
   }
-  return { pos, yaw, vel, corre, olha, expressao, fala: falando(c, nome, t, ini), alcanca }
+  return { pos, yaw, vel, corre, olha, expressao, fala: falando(c, nome, t, ini), alcanca, postura, gesto }
+}
+
+/** Os gestos de um ator na cena inteira, com o instante de cada um (s da cena), na ordem: o que mexe nas coisas da cena
+ *  (a pasta que abre e fecha, a folha que vira: chapters/cap0/pasta.tsx) lê daqui. */
+export function gestosDe(c: Cena, nome: string): { nome: Gesto; quando: number }[] {
+  const ini = inicios(c)
+  return c.planos.flatMap((p, i) => { const g = p.atores?.[nome]?.gesto; return g ? [{ nome: g.nome, quando: ini[i] + g.t }] : [] })
 }
 
 /** A legenda dele está na tela agora (a fala em voz alta; o pensamento não mexe a boca)? */

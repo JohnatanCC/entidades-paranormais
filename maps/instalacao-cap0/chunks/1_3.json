@@ -15,10 +15,10 @@
     }
    },
    "b": {
-    "tex": "tijolo-esmaltado",
+    "tex": "concreto-aparente",
     "base": {
-     "tex": "barra-verde",
-     "h": 1.1
+     "tex": "azulejo-branco",
+     "h": 1
     }
    }
   },
@@ -28,10 +28,10 @@
    "z": 63,
    "axis": "x",
    "a": {
-    "tex": "tijolo-esmaltado",
+    "tex": "concreto-aparente",
     "base": {
-     "tex": "barra-verde",
-     "h": 1.1
+     "tex": "azulejo-branco",
+     "h": 1
     }
    },
    "b": {
@@ -51,10 +51,10 @@
     }
    },
    "b": {
-    "tex": "tijolo-esmaltado",
+    "tex": "concreto-aparente",
     "base": {
-     "tex": "barra-verde",
-     "h": 1.1
+     "tex": "azulejo-branco",
+     "h": 1
     }
    }
   },
@@ -64,10 +64,10 @@
    "z": 63,
    "axis": "x",
    "a": {
-    "tex": "tijolo-esmaltado",
+    "tex": "concreto-aparente",
     "base": {
-     "tex": "barra-verde",
-     "h": 1.1
+     "tex": "azulejo-branco",
+     "h": 1
     }
    },
    "b": {
@@ -83,10 +83,10 @@
     "tex": "concreto-aparente"
    },
    "b": {
-    "tex": "tijolo-esmaltado",
+    "tex": "concreto-aparente",
     "base": {
-     "tex": "barra-verde",
-     "h": 1.1
+     "tex": "azulejo-branco",
+     "h": 1
     }
    }
   },
@@ -96,10 +96,10 @@
    "z": 63,
    "axis": "x",
    "a": {
-    "tex": "tijolo-esmaltado",
+    "tex": "concreto-aparente",
     "base": {
-     "tex": "barra-verde",
-     "h": 1.1
+     "tex": "azulejo-branco",
+     "h": 1
     }
    },
    "b": {
@@ -112,10 +112,10 @@
    "z": 60,
    "axis": "z",
    "a": {
-    "tex": "tijolo-esmaltado",
+    "tex": "concreto-aparente",
     "base": {
-     "tex": "barra-verde",
-     "h": 1.1
+     "tex": "azulejo-branco",
+     "h": 1
     }
    },
    "b": {
@@ -131,10 +131,10 @@
     "tex": "concreto-aparente"
    },
    "b": {
-    "tex": "tijolo-esmaltado",
+    "tex": "concreto-aparente",
     "base": {
-     "tex": "barra-verde",
-     "h": 1.1
+     "tex": "azulejo-branco",
+     "h": 1
     }
    }
   },
@@ -144,10 +144,10 @@
    "z": 61,
    "axis": "z",
    "a": {
-    "tex": "tijolo-esmaltado",
+    "tex": "concreto-aparente",
     "base": {
-     "tex": "barra-verde",
-     "h": 1.1
+     "tex": "azulejo-branco",
+     "h": 1
     }
    },
    "b": {
@@ -160,10 +160,10 @@
    "z": 62,
    "axis": "z",
    "a": {
-    "tex": "tijolo-esmaltado",
+    "tex": "concreto-aparente",
     "base": {
-     "tex": "barra-verde",
-     "h": 1.1
+     "tex": "azulejo-branco",
+     "h": 1
     }
    },
    "b": {
@@ -176,10 +176,10 @@
    "z": 63,
    "axis": "x",
    "a": {
-    "tex": "tijolo-esmaltado",
+    "tex": "concreto-aparente",
     "base": {
-     "tex": "barra-verde",
-     "h": 1.1
+     "tex": "azulejo-branco",
+     "h": 1
     }
    },
    "b": {
@@ -312,6 +312,210 @@
    },
    "b": {
     "tex": "concreto-aparente"
+   }
+  },
+  {
+   "level": 0,
+   "x": 20,
+   "z": 57,
+   "axis": "x",
+   "a": {
+    "tex": "reboco-creme"
+   },
+   "b": {
+    "tex": "reboco-creme"
+   }
+  },
+  {
+   "level": 0,
+   "x": 21,
+   "z": 57,
+   "axis": "x",
+   "a": {
+    "tex": "reboco-creme"
+   },
+   "b": {
+    "tex": "reboco-creme"
+   }
+  },
+  {
+   "level": 0,
+   "x": 22,
+   "z": 57,
+   "axis": "x",
+   "a": {
+    "tex": "reboco-creme"
+   },
+   "b": {
+    "tex": "reboco-creme"
+   }
+  },
+  {
+   "level": 0,
+   "x": 23,
+   "z": 57,
+   "axis": "x",
+   "a": {
+    "tex": "reboco-creme"
+   },
+   "b": {
+    "tex": "reboco-creme"
+   }
+  },
+  {
+   "level": 0,
+   "x": 24,
+   "z": 57,
+   "axis": "x",
+   "a": {
+    "tex": "reboco-creme"
+   },
+   "b": {
+    "tex": "reboco-creme"
+   }
+  },
+  {
+   "level": 0,
+   "x": 25,
+   "z": 57,
+   "axis": "x",
+   "a": {
+    "tex": "reboco-creme"
+   },
+   "b": {
+    "tex": "reboco-creme"
+   }
+  },
+  {
+   "level": 0,
+   "x": 20,
+   "z": 57,
+   "axis": "z",
+   "a": {
+    "tex": "reboco-creme"
+   },
+   "b": {
+    "tex": "reboco-creme"
+   }
+  },
+  {
+   "level": 0,
+   "x": 26,
+   "z": 57,
+   "axis": "z",
+   "a": {
+    "tex": "reboco-creme"
+   },
+   "b": {
+    "tex": "reboco-creme"
+   }
+  },
+  {
+   "level": 0,
+   "x": 20,
+   "z": 58,
+   "axis": "z",
+   "a": {
+    "tex": "reboco-creme"
+   },
+   "b": {
+    "tex": "reboco-creme"
+   }
+  },
+  {
+   "level": 0,
+   "x": 26,
+   "z": 58,
+   "axis": "z",
+   "a": {
+    "tex": "reboco-creme"
+   },
+   "b": {
+    "tex": "reboco-creme"
+   }
+  },
+  {
+   "level": 0,
+   "x": 20,
+   "z": 59,
+   "axis": "z",
+   "a": {
+    "tex": "reboco-creme"
+   },
+   "b": {
+    "tex": "reboco-creme"
+   }
+  },
+  {
+   "level": 0,
+   "x": 26,
+   "z": 59,
+   "axis": "z",
+   "a": {
+    "tex": "reboco-creme"
+   },
+   "b": {
+    "tex": "reboco-creme"
+   }
+  },
+  {
+   "level": 0,
+   "x": 26,
+   "z": 60,
+   "axis": "z",
+   "a": {
+    "tex": "reboco-creme"
+   },
+   "b": {
+    "tex": "reboco-creme"
+   }
+  },
+  {
+   "level": 0,
+   "x": 26,
+   "z": 61,
+   "axis": "z",
+   "a": {
+    "tex": "reboco-creme"
+   },
+   "b": {
+    "tex": "reboco-creme"
+   }
+  },
+  {
+   "level": 0,
+   "x": 26,
+   "z": 62,
+   "axis": "z",
+   "a": {
+    "tex": "reboco-creme"
+   },
+   "b": {
+    "tex": "reboco-creme"
+   }
+  },
+  {
+   "level": 0,
+   "x": 20,
+   "z": 63,
+   "axis": "z",
+   "a": {
+    "tex": "reboco-creme"
+   },
+   "b": {
+    "tex": "reboco-creme"
+   }
+  },
+  {
+   "level": 0,
+   "x": 26,
+   "z": 63,
+   "axis": "z",
+   "a": {
+    "tex": "reboco-creme"
+   },
+   "b": {
+    "tex": "reboco-creme"
    }
   }
  ],
@@ -331,13 +535,6 @@
    "bottom": "forro-escuro"
   },
   {
-   "level": 0,
-   "x": 16,
-   "z": 61,
-   "top": "concreto",
-   "bottom": "concreto"
-  },
-  {
    "level": 1,
    "x": 16,
    "z": 61,
@@ -371,13 +568,6 @@
    "z": 60,
    "top": "concreto",
    "bottom": "forro-escuro"
-  },
-  {
-   "level": 0,
-   "x": 17,
-   "z": 61,
-   "top": "concreto",
-   "bottom": "concreto"
   },
   {
    "level": 1,
@@ -413,13 +603,6 @@
    "z": 60,
    "top": "concreto",
    "bottom": "forro-escuro"
-  },
-  {
-   "level": 0,
-   "x": 18,
-   "z": 61,
-   "top": "concreto",
-   "bottom": "concreto"
   },
   {
    "level": 1,
@@ -455,13 +638,6 @@
    "z": 60,
    "top": "concreto",
    "bottom": "forro-escuro"
-  },
-  {
-   "level": 0,
-   "x": 19,
-   "z": 61,
-   "top": "concreto",
-   "bottom": "concreto"
   },
   {
    "level": 1,
@@ -651,9 +827,344 @@
    "z": 59,
    "top": "concreto",
    "bottom": "forro-madeira"
+  },
+  {
+   "level": 0,
+   "x": 16,
+   "z": 61,
+   "top": "marmore",
+   "bottom": "gesso"
+  },
+  {
+   "level": 0,
+   "x": 17,
+   "z": 61,
+   "top": "marmore",
+   "bottom": "gesso"
+  },
+  {
+   "level": 0,
+   "x": 18,
+   "z": 61,
+   "top": "marmore",
+   "bottom": "gesso"
+  },
+  {
+   "level": 0,
+   "x": 19,
+   "z": 61,
+   "top": "marmore",
+   "bottom": "gesso"
+  },
+  {
+   "level": 0,
+   "x": 20,
+   "z": 61,
+   "top": "marmore",
+   "bottom": "gesso"
+  },
+  {
+   "level": 0,
+   "x": 21,
+   "z": 61,
+   "top": "marmore",
+   "bottom": "gesso"
+  },
+  {
+   "level": 0,
+   "x": 22,
+   "z": 61,
+   "top": "marmore",
+   "bottom": "gesso"
+  },
+  {
+   "level": 0,
+   "x": 23,
+   "z": 61,
+   "top": "marmore",
+   "bottom": "gesso"
+  },
+  {
+   "level": 0,
+   "x": 24,
+   "z": 61,
+   "top": "marmore",
+   "bottom": "gesso"
+  },
+  {
+   "level": 0,
+   "x": 25,
+   "z": 61,
+   "top": "marmore",
+   "bottom": "gesso"
+  },
+  {
+   "level": 0,
+   "x": 20,
+   "z": 62,
+   "top": "concreto",
+   "bottom": "concreto"
+  },
+  {
+   "level": 0,
+   "x": 20,
+   "z": 63,
+   "top": "concreto",
+   "bottom": "concreto"
+  },
+  {
+   "level": 0,
+   "x": 21,
+   "z": 62,
+   "top": "concreto",
+   "bottom": "concreto"
+  },
+  {
+   "level": 0,
+   "x": 21,
+   "z": 63,
+   "top": "concreto",
+   "bottom": "concreto"
+  },
+  {
+   "level": 0,
+   "x": 22,
+   "z": 62,
+   "top": "concreto",
+   "bottom": "concreto"
+  },
+  {
+   "level": 0,
+   "x": 22,
+   "z": 63,
+   "top": "concreto",
+   "bottom": "concreto"
+  },
+  {
+   "level": 0,
+   "x": 23,
+   "z": 62,
+   "top": "concreto",
+   "bottom": "concreto"
+  },
+  {
+   "level": 0,
+   "x": 23,
+   "z": 63,
+   "top": "concreto",
+   "bottom": "concreto"
+  },
+  {
+   "level": 0,
+   "x": 24,
+   "z": 62,
+   "top": "concreto",
+   "bottom": "concreto"
+  },
+  {
+   "level": 0,
+   "x": 24,
+   "z": 63,
+   "top": "concreto",
+   "bottom": "concreto"
+  },
+  {
+   "level": 0,
+   "x": 25,
+   "z": 62,
+   "top": "concreto",
+   "bottom": "concreto"
+  },
+  {
+   "level": 0,
+   "x": 25,
+   "z": 63,
+   "top": "concreto",
+   "bottom": "concreto"
+  },
+  {
+   "level": 0,
+   "x": 20,
+   "z": 57,
+   "top": "concreto",
+   "bottom": "concreto"
+  },
+  {
+   "level": 0,
+   "x": 20,
+   "z": 58,
+   "top": "concreto",
+   "bottom": "concreto"
+  },
+  {
+   "level": 0,
+   "x": 20,
+   "z": 59,
+   "top": "concreto",
+   "bottom": "concreto"
+  },
+  {
+   "level": 0,
+   "x": 20,
+   "z": 60,
+   "top": "concreto",
+   "bottom": "concreto"
+  },
+  {
+   "level": 0,
+   "x": 21,
+   "z": 57,
+   "top": "concreto",
+   "bottom": "concreto"
+  },
+  {
+   "level": 0,
+   "x": 21,
+   "z": 58,
+   "top": "concreto",
+   "bottom": "concreto"
+  },
+  {
+   "level": 0,
+   "x": 21,
+   "z": 59,
+   "top": "concreto",
+   "bottom": "concreto"
+  },
+  {
+   "level": 0,
+   "x": 21,
+   "z": 60,
+   "top": "concreto",
+   "bottom": "concreto"
+  },
+  {
+   "level": 0,
+   "x": 22,
+   "z": 57,
+   "top": "concreto",
+   "bottom": "concreto"
+  },
+  {
+   "level": 0,
+   "x": 22,
+   "z": 58,
+   "top": "concreto",
+   "bottom": "concreto"
+  },
+  {
+   "level": 0,
+   "x": 22,
+   "z": 59,
+   "top": "concreto",
+   "bottom": "concreto"
+  },
+  {
+   "level": 0,
+   "x": 22,
+   "z": 60,
+   "top": "concreto",
+   "bottom": "concreto"
+  },
+  {
+   "level": 0,
+   "x": 23,
+   "z": 57,
+   "top": "concreto",
+   "bottom": "concreto"
+  },
+  {
+   "level": 0,
+   "x": 23,
+   "z": 58,
+   "top": "concreto",
+   "bottom": "concreto"
+  },
+  {
+   "level": 0,
+   "x": 23,
+   "z": 59,
+   "top": "concreto",
+   "bottom": "concreto"
+  },
+  {
+   "level": 0,
+   "x": 23,
+   "z": 60,
+   "top": "concreto",
+   "bottom": "concreto"
+  },
+  {
+   "level": 0,
+   "x": 24,
+   "z": 57,
+   "top": "concreto",
+   "bottom": "concreto"
+  },
+  {
+   "level": 0,
+   "x": 24,
+   "z": 58,
+   "top": "concreto",
+   "bottom": "concreto"
+  },
+  {
+   "level": 0,
+   "x": 24,
+   "z": 59,
+   "top": "concreto",
+   "bottom": "concreto"
+  },
+  {
+   "level": 0,
+   "x": 24,
+   "z": 60,
+   "top": "concreto",
+   "bottom": "concreto"
+  },
+  {
+   "level": 0,
+   "x": 25,
+   "z": 57,
+   "top": "concreto",
+   "bottom": "concreto"
+  },
+  {
+   "level": 0,
+   "x": 25,
+   "z": 58,
+   "top": "concreto",
+   "bottom": "concreto"
+  },
+  {
+   "level": 0,
+   "x": 25,
+   "z": 59,
+   "top": "concreto",
+   "bottom": "concreto"
+  },
+  {
+   "level": 0,
+   "x": 25,
+   "z": 60,
+   "top": "concreto",
+   "bottom": "concreto"
   }
  ],
- "openings": [],
+ "openings": [
+  {
+   "level": 0,
+   "axis": "z",
+   "x": 20,
+   "z": 61,
+   "width": 1,
+   "kind": "porta",
+   "door": "instalacao",
+   "estado": "fechada",
+   "lado": "a",
+   "id": "porta-ek4ch"
+  }
+ ],
  "stairs": [],
  "props": [
   {
@@ -720,19 +1231,34 @@
    ]
   },
   {
-   "id": "armario-aco-225",
-   "type": "armario-aco",
+   "type": "mesa-escritorio",
    "level": 0,
    "pos": [
-    17.6,
+    23,
     0,
-    59.4
+    63.25
    ],
    "rot": [
     0,
-    -90,
+    180,
     0
-   ]
+   ],
+   "id": "mesa-escritorio-g3ic0"
+  },
+  {
+   "type": "cadeira-visitante",
+   "level": 0,
+   "pos": [
+    22.75,
+    0,
+    62.25
+   ],
+   "rot": [
+    0,
+    30,
+    0
+   ],
+   "id": "cadeira-visitante-agw63"
   }
  ],
  "decals": [],

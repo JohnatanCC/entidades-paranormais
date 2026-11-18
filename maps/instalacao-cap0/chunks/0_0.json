@@ -1257,7 +1257,18 @@
    "bottom": "forro-placas"
   }
  ],
- "openings": [],
+ "openings": [
+  {
+   "level": 0,
+   "axis": "z",
+   "x": 15,
+   "z": 13,
+   "width": 1,
+   "kind": "porta",
+   "door": "vao",
+   "id": "vao-6j427"
+  }
+ ],
  "stairs": [],
  "props": [
   {

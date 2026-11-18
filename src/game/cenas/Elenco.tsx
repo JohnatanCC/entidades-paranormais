@@ -1,5 +1,5 @@
 // O elenco dentro do <Canvas>: monta cada ator (o modelo do Blockbench no esqueleto do agente, player/modelo.ts) e, a
-// cada quadro, põe ele onde a conta manda (atores.ts), anima o corpo com o mesmo andar do jogo, vira a cabeça para
+// cada quadro, põe ele onde a conta manda (atores.ts), anima o corpo com o mesmo andar do jogo, põe os gestos (gestos.ts), vira a cabeça para
 // quem ele olha, mexe a boca enquanto a legenda dele está na tela e pega a luz pintada do lugar. Também anda as portas
 // da cena (as folhas abrem e fecham no mapa). Pular no tempo põe todo mundo direto no lugar (a pose assenta na hora).
 import { useEffect, useMemo, useRef } from 'react'
@@ -13,6 +13,7 @@ import { assadorDe, limitarLampadas, novaLuzVertice } from '../../maps/luzAssada
 import type { Chunk } from '../../maps/types'
 import { iluminarObjeto } from '../../render/assada'
 import { estadoDaPorta, estadoDoAtor, portasDaCena } from './atores'
+import { maoDoGesto, novaMemGesto, poseDoGesto } from './gestos'
 import type { Relogio } from './TocarCena'
 import type { Cena, V3 } from './tipos'
 
@@ -31,7 +32,7 @@ function boca(t: number, semente: number) {
 
 export function Elenco({ cena, relogio, chunks, portas }: { cena: Cena; relogio: Relogio; chunks: Chunk[]; portas: PortasVivas | null }) {
   const atores = useMemo(() => Object.entries(cena.elenco ?? {}).map(([nome, ator], i) => ({
-    nome, a: montarAgente(ator.modelo), sombra: novaSombraDeChao(), luz: novaLuzVertice(), olhar: { lado: 0, alto: 0 }, semente: i * 2.7, mao: new THREE.Vector3(),
+    nome, a: montarAgente(ator.modelo), sombra: novaSombraDeChao(), luz: novaLuzVertice(), olhar: { lado: 0, alto: 0 }, semente: i * 2.7, mao: new THREE.Vector3(), gesto: novaMemGesto(),
   })), [cena])
   const assa = useMemo(() => assadorDe(chunks), [chunks])
   const ids = useMemo(() => portasDaCena(cena), [cena])
@@ -49,8 +50,10 @@ export function Elenco({ cena, relogio, chunks, portas }: { cena: Cena; relogio:
       a.root.position.set(...e.pos); a.root.rotation.y = e.yaw
       x.sombra.position.set(e.pos[0], e.pos[1] + 0.03, e.pos[2])
       // o corpo: o andar do jogo (pausado, fica parado); pulou no tempo, a pose assenta em alguns passos de uma vez
-      const anim = { velocidade: relogio.tocando ? e.vel : 0, corrida: e.corre ? 1 : 0, esquiva: -1, expressao: e.expressao, alcanca: e.alcanca ? { ponto: x.mao.set(...e.alcanca.ponto), t: e.alcanca.t } : undefined }
+      const anim = { velocidade: relogio.tocando ? e.vel : 0, corrida: e.corre ? 1 : 0, esquiva: -1, expressao: e.expressao, mao: maoDoGesto(e), alcanca: e.alcanca ? { ponto: x.mao.set(...e.alcanca.ponto), t: e.alcanca.t } : undefined }
       for (let k = salto ? 20 : 1; k > 0; k--) animarAgente(a, anim, salto ? 1 / 30 : dt)
+      // a postura e os gestos (ler a pasta, virar a folha, fechar, bater o dedo): por cima da pose
+      poseDoGesto(a, e, x.gesto, dt, salto)
       // a cabeça vira para quem ele olha (por cima da pose: o pescoço leva um pouco, a cabeça o resto)
       let lado = 0, alto = 0
       if (e.olha) {

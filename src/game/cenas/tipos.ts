@@ -9,6 +9,7 @@ import type { ComponentType } from 'react'
 import type { Tocar } from '../enemies/sons'
 import type { ModeloAgente } from '../player/modelo'
 import type { Expressao } from '../player/rosto'
+import type { Chunk } from '../../maps/types'
 import type { Relogio } from './TocarCena'
 
 /** Um ponto no mundo (m). */
@@ -36,6 +37,11 @@ export interface SomDaCena { t: number; tocar: Tocar }
 /** Um ator no elenco: o modelo e onde está quando a cena começa (vira: para onde fica de frente, em graus; 0 = +z). */
 export interface Ator { modelo: ModeloAgente; em: V3; vira: number }
 
+/** A postura do corpo, que vale até mudar: 'ler' = inclinado sobre a mesa, as duas mãos na pasta aberta (em `em`). */
+export type Postura = 'ler'
+/** Um gesto rápido, por cima da postura (game/cenas/gestos.ts): virar uma folha da pasta, fechar a pasta, bater o dedo nela. */
+export type Gesto = 'virar' | 'fechar' | 'bater'
+
 /** O que um ator faz num plano (o que não for dito continua como estava no plano anterior). */
 export interface AcaoDoAtor {
   em?: V3 // põe o ator aqui no começo do plano (um corte)
@@ -45,6 +51,8 @@ export interface AcaoDoAtor {
   olha?: string | V3 | null // a cabeça vira para outro ator (o nome dele) ou para um ponto; null = para a frente
   expressao?: Expressao
   alcanca?: { ponto: V3; t: number } // a mão esquerda vai a um ponto e volta, em `t` s do plano (a maçaneta da porta)
+  postura?: { nome: Postura; em: V3 } | null // a postura do corpo (vale até mudar); null = de pé, solto
+  gesto?: { nome: Gesto; t: number; em: V3 } // um gesto rápido em `t` s do plano, no ponto `em` (a pasta)
 }
 
 /** Uma porta do mapa (o id dela) que abre ou fecha em `t` s do plano. lado: para que lado a folha abre (como no mapa:
@@ -65,13 +73,16 @@ export interface Plano {
   luz?: string // um momento de luz (MOMENTOS em maps/ambientes.ts) que vale enquanto o plano dura (o alarme)
 }
 
+/** O que o cenário de uma cena recebe: o relógio, a própria cena (os gestos dos atores) e os blocos do mapa (a luz). */
+export interface PropsDoCenario { relogio: Relogio; cena: Cena; chunks: Chunk[] }
+
 export interface Cena {
   id: string
   nome: string
   mapa: string // o mapa do capítulo (maps/<mapa>): o cenário (docs/cenas.md: as partes de cena ficam soltas nele)
   planos: Plano[]
   // o que a cena põe no mapa além dele, dentro do <Canvas>, andando com o relógio dela (o ectoplasma da cena 1)
-  cenario?: ComponentType<{ relogio: Relogio }>
+  cenario?: ComponentType<PropsDoCenario>
   // os atores, pelo nome (o mesmo das falas: quem fala mexe a boca)
   elenco?: Record<string, Ator>
 }

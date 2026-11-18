@@ -87,7 +87,7 @@ export function VerCenas({ go }: { go: Go }) {
             <color attach="background" args={['#000']} />
             {chunks && <Suspense fallback={null}><MapView chunks={chunks} maxLevel={meta.levels - 1} portas={portas} juntar /></Suspense>}
             <Iluminacao ambiente={meta.ambiente} areas={meta.areas} em={onde} />
-            {cena.cenario && <cena.cenario key={`${qual}-cenario`} relogio={relogio} />}
+            {cena.cenario && <cena.cenario key={`${qual}-cenario`} relogio={relogio} cena={cena} chunks={lista} />}
             {chunks && cena.elenco && <Elenco key={`${qual}-elenco`} cena={cena} relogio={relogio} chunks={lista} portas={portas} />}
             <GanchosDaTela />
             <TocarCena key={qual} cena={cena} relogio={relogio} onde={onde} painel={painel} />

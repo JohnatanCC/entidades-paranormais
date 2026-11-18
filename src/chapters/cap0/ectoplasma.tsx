@@ -6,7 +6,7 @@
 import { useEffect, useMemo, type ComponentType } from 'react'
 import { useFrame } from '@react-three/fiber'
 import * as THREE from 'three'
-import type { Relogio } from '../../game/cenas/TocarCena'
+import type { PropsDoCenario } from '../../game/cenas/tipos'
 
 export interface Vazamento {
   x: number; z: number // o meio da fresta, no chão (na face da parede)
@@ -56,7 +56,7 @@ function texturaDaPoca(largura: number, alcance: number, lados: number) {
 }
 
 /** A poça de um vazamento, para pôr na cena (Cena.cenario): cresce com o relógio da cena. */
-export function vazamento(v: Vazamento): ComponentType<{ relogio: Relogio }> {
+export function vazamento(v: Vazamento): ComponentType<PropsDoCenario> {
   const LADOS = 0.35 // m: quanto a poça pode passar da fresta para cada lado
   return function Ectoplasma({ relogio }) {
     const { malha, material } = useMemo(() => {

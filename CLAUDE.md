@@ -168,7 +168,8 @@ src/game/                  (já existem: Testar.tsx, player/, input/, world/, we
                            conta: o plano, a câmera, o preto, a legenda), TocarCena.tsx (dentro do Canvas: a câmera e os sons),
                            Moldura.tsx (as faixas de cinema, o preto, a legenda, o título), vozes.ts (as falas lidas pela voz do
                            navegador, provisória: o perfil de cada personagem), atores.ts (a conta do elenco: onde cada ator está, para
-                           onde olha, se fala; as portas da cena), Elenco.tsx (dentro do Canvas: os atores andando, a cabeça, a boca, a luz)
+                           onde olha, se fala, a postura e o gesto; as portas da cena), gestos.ts (a postura ler e os gestos virar, fechar e
+                           bater, por IK), Elenco.tsx (dentro do Canvas: os atores andando, os gestos, a cabeça, a boca, a luz)
                            e catalogo.ts (todas as cenas)
   corpo/                   o que serve a todo personagem: molas.ts (o que pendura e balança: cabelo, saia, manto; com vento), sombraDeChao.ts
                            (o círculo escuro embaixo dele)
@@ -238,7 +239,8 @@ src/game/                  (já existem: Testar.tsx, player/, input/, world/, we
   world/                   colisao.ts (paredes, portas, móveis, corrimão, chão, escadas, braço da câmera, a armadilha jogada, a beirada do mapa sem chão, os bloqueios do roteiro), portas.ts (abrir e fechar
                            com E, o estado vivo das portas, onde fica a maçaneta); depois carregar por blocos
 src/chapters/cap0/         (já existe) o capítulo 0: cenas/ (escritorio.ts, a cena 1; instalacao.ts, a cena 2, com o alarme; comum.ts, o
-                           tempo das falas), sons.ts (os sons da instalação e das cenas) e ectoplasma.tsx (a poça que escorre debaixo da porta de contenção)
+                           tempo das falas), sons.ts (os sons da instalação e das cenas) ectoplasma.tsx (a poça que escorre debaixo da porta de contenção) e pasta.tsx (a
+                           pasta do Matheus na mesa do Victor: a capa e as folhas seguem os gestos dele)
 src/chapters/cap1/         o roteiro do capítulo: qual mapa, gatilhos, cenas, chefe
 src/chapters/intro/        (já existe) o roteiro da Demo · Intro: Roteiro.tsx (as arenas, as ondas, o chefe, a tecla H de teste),
                            tornado.ts (fecha a arena), sons.ts (o ambiente do submundo, o vento do tornado), numeros.ts

@@ -9,14 +9,16 @@
 //   - quem ouve também aparece: o plano de reação, às vezes com a voz do outro por cima;
 //   - o som chega antes da imagem (os passos no escuro) e nada corta no meio de uma frase: cada plano dura o que as
 //     falas dele levam (comum.ts).
-// A conversa é de pé (18/nov: o Victor diz "Vou ser direto." no lugar de mandar sentar). Os gestos com a pasta vêm na
-// próxima etapa.
+// A conversa é de pé (18/nov: o Victor diz "Vou ser direto." no lugar de mandar sentar). Os gestos do Victor com a
+// pasta: ele lê inclinado sobre a mesa, vira uma folha no insert, fecha a pasta antes de anunciar a mudança e bate o
+// dedo nela no "deste mês". A pasta é da cena (chapters/cap0/pasta.tsx), não do mapa: a capa e as folhas mexem.
 import type { AcaoDoAtor, CameraDoPlano, Cena, Fala, Plano, V3 } from '../../../game/cenas/tipos'
 import { baterEAbrir, passos, portaFecha, radio, relogio, sirene, ventilacao, zumbido } from '../sons'
+import { pastaNaMesa } from '../pasta'
 import { cobre, depois, fala, fimDe } from './comum'
 
 // ---------- os lugares (o mapa: o corredor de z 60 a 63; a porta do escritório em x 15 a 16, na parede z = 60) ----------
-const VICTOR: V3 = [15, 0, 55.95] // atrás da mesa, de frente para a porta
+const VICTOR: V3 = [15, 0, 56.02] // atrás da mesa, colado nela (para alcançar a pasta), de frente para a porta
 const MATHEUS: V3 = [15.62, 0, 57.7] // perto da mesa, ao lado da cadeira de visitante (18/nov: estava longe demais)
 const PORTA: V3 = [15.55, 0, 60.62] // no corredor, de frente para a porta, ao alcance da maçaneta
 // (os lugares perto da porta ficam fora do arco da folha, que gira 1 m em volta da dobradiça em x = 15, z = 60)
@@ -25,7 +27,8 @@ const NA_PORTA: V3 = [15.7, 0, 59.45] // dentro, ao alcance da maçaneta, para s
 const SAIDA: V3 = [15.7, 0, 61] // do lado de fora
 const MACANETA = { fora: [15.8, 1.02, 60.1] as V3, dentro: [15.8, 1.02, 59.9] as V3 }
 const OLHOS = { Victor: 1.72, Matheus: 1.66 } // m: a altura dos olhos de cada um
-const PASTA: V3 = [15.1, 0.79, 56.7] // a pasta na mesa (as missões do Matheus)
+const NA_MESA: V3 = [15.05, 0.76, 56.42] // onde fica a pasta (perto da beirada do Victor: ele alcança inclinado)
+const PASTA: V3 = [NA_MESA[0], NA_MESA[1] + 0.03, NA_MESA[2]] // o meio dela, para onde se olha e onde as mãos vão
 const FOTO: V3 = [14.3, 0.77, 56.4] // o porta-retrato virado para baixo (o antigo parceiro)
 const DESVIA: V3 = [17, 1.4, 56.9] // para onde o Matheus olha quando foge dos olhos do Victor
 const graus = (de: V3, para: V3) => (Math.atan2(para[0] - de[0], para[2] - de[2]) * 180) / Math.PI // para onde fica de frente
@@ -37,9 +40,9 @@ function eixo(de: V3, para: V3) {
   return { u, p: p[0] < 0 ? [-p[0], -p[1]] : p }
 }
 /** Por cima do ombro de quem está em `de`, mostrando o rosto de quem está em `para`. */
-function ombro(de: V3, olhosDe: number, para: V3, olhosPara: number): CameraDoPlano {
+function ombro(de: V3, olhosDe: number, para: V3, olhosPara: number, atras = 0.8, lado = 0.48, baixa = 0.06, lente = 38): CameraDoPlano {
   const { u, p } = eixo(de, para)
-  return { de: [de[0] - u[0] * 0.8 + p[0] * 0.48, olhosDe + 0.1, de[2] - u[1] * 0.8 + p[1] * 0.48], olha: [para[0], olhosPara - 0.06, para[2]], lente: 38 }
+  return { de: [de[0] - u[0] * atras + p[0] * lado, olhosDe + 0.1, de[2] - u[1] * atras + p[1] * lado], olha: [para[0], olhosPara - baixa, para[2]], lente }
 }
 /** O plano de rosto de quem está em `quem`, do lado de quem olha para ele (em `de`): da cabeça ao peito (18/nov: o
  *  close só no rosto ficou fechado demais). perto = a distância (m). */
@@ -52,9 +55,10 @@ const DOIS: CameraDoPlano = { de: [17.6, 1.5, 57.05], olha: [15.3, 1.25, 57.05],
 const OMBRO_MATHEUS = ombro(MATHEUS, OLHOS.Matheus, VICTOR, OLHOS.Victor)
 const NO_VICTOR = rosto(VICTOR, OLHOS.Victor, MATHEUS)
 const NO_MATHEUS = rosto(MATHEUS, OLHOS.Matheus, VICTOR)
-const BEM_NO_VICTOR = rosto(VICTOR, OLHOS.Victor, MATHEUS, 1.15, 34) // mais perto: a fala que aperta
 const BEM_NO_MATHEUS = rosto(MATHEUS, OLHOS.Matheus, VICTOR, 1.15, 34)
-const NA_PASTA: CameraDoPlano = { de: [15.78, 1.3, 57.3], olha: PASTA, lente: 30 } // o insert: a pasta na mesa
+// por cima do ombro do Matheus, mais perto e mirando mais baixo: o Victor inclinado na mesa, o dedo na pasta
+const OMBRO_NA_MESA = ombro(MATHEUS, OLHOS.Matheus, VICTOR, OLHOS.Victor, 0.55, 0.42, 0.4, 36)
+const NA_PASTA: CameraDoPlano = { de: [15.4, 1.22, 57.12], olha: [15.05, 0.82, 56.42], lente: 34 } // o insert: a pasta, as mãos do Victor virando a folha
 const NA_FOTO: CameraDoPlano = { de: [14.95, 1.1, 57], olha: FOTO, lente: 28 } // o insert: a foto virada
 
 /** Um plano da conversa: dura o que as falas levam (mais o respiro), a câmera aproxima devagar (`aproxima`: quanto do
@@ -68,10 +72,11 @@ function conversa(nome: string, cam: CameraDoPlano, falas: Fala[], atores?: Reco
 // as falas que puxam outra logo depois (a segunda começa quando a primeira acaba)
 const naoEVoce = fala('Victor', 0.4, 'Isso não é você.')
 const nadaAVer = fala('Matheus', 0.9, 'Não tem nada a ver com isso.')
-const dinamica = fala('Victor', 0.8, 'Vou mudar a dinâmica.')
+const dinamica = fala('Victor', 1.5, 'Vou mudar a dinâmica.') // depois de fechar a pasta
 const equipe = fala('Victor', 0.4, 'A partir de hoje você tem uma equipe fixa.')
 const carregar = fala('Victor', 0.3, 'De não carregar tudo sozinho.')
 const sempre = fala('Victor', 0.4, 'Sempre?')
+const mesmo = depois(sempre, 'Victor', 'Mesmo depois deste mês?', 1.1)
 const otimo = fala('Victor', 0.4, 'Ótimo. Já tenho uma missão para vocês.')
 // o que ele fala para si, no corredor: frases curtas, com o silêncio entre elas
 const p1 = fala('Matheus', 0.8, 'Um time fixo não vai resolver nada.', true)
@@ -87,6 +92,7 @@ export const escritorio: Cena = {
   id: 'cap0-escritorio',
   nome: 'Capítulo 0 · 1, o escritório do Victor',
   mapa: 'instalacao-cap0',
+  cenario: pastaNaMesa({ em: NA_MESA, vira: 180, quem: 'Victor', aberta: true }),
   elenco: {
     Matheus: { modelo: 'agente', em: [5, 0, 61.6], vira: 90 },
     Victor: { modelo: 'victor', em: VICTOR, vira: 0 },
@@ -97,12 +103,12 @@ export const escritorio: Cena = {
     {
       nome: '1.1 · as botas no corredor', dura: 4, clareia: 0.9,
       camera: { de: [5.6, 0.22, 62.75], para: [10, 0.22, 62.75], olha: [5.3, 0.15, 61.6], olhaFim: [9.7, 0.15, 61.6], curva: 'linear' },
-      atores: { Matheus: { anda: { para: [9.4, 0, 61.6] } }, Victor: { olha: PASTA } },
+      atores: { Matheus: { anda: { para: [9.4, 0, 61.6] } }, Victor: { olha: PASTA, postura: { nome: 'ler', em: PASTA } } },
     },
     {
       nome: '1.2 · a câmera sobe pelo corpo', dura: 5,
       camera: { de: [9.9, 0.35, 62.85], para: [15.2, 1.65, 62.6], olha: [9.6, 0.3, 61.6], olhaFim: [15, 1.6, 61.6], curva: 'linear' },
-      atores: { Matheus: { anda: { para: [14.9, 0, 61.6] } } },
+      atores: { Matheus: { anda: { para: [14.9, 0, 61.6] } }, Victor: { gesto: { nome: 'virar', t: 2.5, em: PASTA } } },
     },
     {
       // ele chega, para, bate, e a mão vai à maçaneta
@@ -122,7 +128,7 @@ export const escritorio: Cena = {
     },
     conversa('1.5 · "Vou ser direto."', DOIS, [fala('Victor', 0.9, 'Vou ser direto.')], { Matheus: { anda: { para: MATHEUS, de: 0.5, ate: 2.4 }, vira: graus(MATHEUS, VICTOR) } }, { minimo: 3.6, aproxima: 0 }),
     // o insert: a pasta dele na mesa, a voz do Victor por cima
-    conversa('1.6 · a pasta', NA_PASTA, [fala('Victor', 0.5, 'Três missões este mês.')], { Victor: { olha: PASTA } }, { respiro: 0.4, aproxima: 0.08 }),
+    conversa('1.6 · a pasta', NA_PASTA, [fala('Victor', 0.5, 'Três missões este mês.')], { Victor: { olha: PASTA, gesto: { nome: 'virar', t: 0.4, em: PASTA } } }, { respiro: 0.4, aproxima: 0.08 }),
     conversa('1.7 · as capturas', OMBRO_MATHEUS, [fala('Victor', 0.3, 'Três capturas que deram errado.')], { Victor: { olha: 'Matheus' } }),
     conversa('1.8 · "o que está acontecendo?"', NO_VICTOR, [naoEVoce, depois(naoEVoce, 'Victor', 'O que está acontecendo?')]),
     // a reação antes da resposta: ele segura, responde e desvia os olhos
@@ -132,11 +138,14 @@ export const escritorio: Cena = {
     conversa('1.11 · "Não tem nada a ver"', BEM_NO_MATHEUS, [nadaAVer, depois(nadaAVer, 'Matheus', 'Eu me distraí. Não vai se repetir.', 1)], {
       Matheus: { olha: 'Victor', expressao: 'raiva' }, Victor: { olha: 'Matheus' },
     }),
-    conversa('1.12 · a nova dinâmica', OMBRO_MATHEUS, [dinamica, depois(dinamica, 'Victor', 'Chega de te mandar com um time diferente a cada missão.')], { Matheus: { expressao: 'neutra' } }),
+    conversa('1.12 · a nova dinâmica', OMBRO_MATHEUS, [dinamica, depois(dinamica, 'Victor', 'Chega de te mandar com um time diferente a cada missão.')], {
+      Matheus: { expressao: 'neutra' }, Victor: { postura: null, gesto: { nome: 'fechar', t: 0.15, em: PASTA } }, // fecha a pasta antes de falar
+    }),
     conversa('1.13 · a equipe fixa', NO_VICTOR, [equipe, depois(equipe, 'Victor', 'É uma chance de criar laços.')], undefined, { respiro: 0.3, aproxima: 0.12 }),
     // o fim da frase do Victor cai no rosto de quem ouve
     conversa('1.14 · "sempre me virei sozinho"', NO_MATHEUS, [carregar, depois(carregar, 'Matheus', 'Não precisa. Eu sempre me virei bem sozinho.', 0.9)], { Matheus: { expressao: 'raiva' } }),
-    conversa('1.15 · "Sempre?"', BEM_NO_VICTOR, [sempre, depois(sempre, 'Victor', 'Mesmo depois deste mês?', 1.1)], { Victor: { expressao: 'raiva' } }, { respiro: 0.9 }),
+    // (por cima do ombro, para o gesto aparecer: ele inclina e bate o dedo na pasta no "deste mês")
+    conversa('1.15 · "Sempre?"', OMBRO_NA_MESA, [sempre, mesmo], { Victor: { expressao: 'raiva', gesto: { nome: 'bater', t: mesmo.t + mesmo.dura * 0.45, em: PASTA } } }, { respiro: 0.9 }),
     // o silêncio dele é a resposta: desvia os olhos, demora, cede
     conversa('1.16 · "...Tudo bem."', BEM_NO_MATHEUS, [fala('Matheus', 2.4, '...Tudo bem.')], { Matheus: { olha: DESVIA, expressao: 'neutra' }, Victor: { expressao: 'neutra' } }, { respiro: 1 }),
     // a tensão solta: de novo os dois na imagem
