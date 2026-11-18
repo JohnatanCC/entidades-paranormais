@@ -40,7 +40,8 @@ Uma etapa por vez, na ordem em que o jogador vê. Cada uma termina numa versão 
    destruir (faz barulho), a chave aparecer, a porta do berçário abrir. **Decidir antes** (em aberto em `docs/jogo.md`):
    destruir os objetos muda a Mãe ou só libera o caminho?
 5. **A Mãe perseguidora.** A inteligência dela na casa: a patrulha cantando, parar para escutar, a caça, abaixar nas portas,
-   ficar atordoada com dano (quanto tempo: em aberto). O modelo, as animações e os sons já estão prontos (`src/game/enemies/mae/`).
+   ficar atordoada com dano (quanto tempo: em aberto). O modelo, as animações e os sons já estão prontos (`src/game/enemies/mae/`),
+   e a base da caça já roda no Testar (a aba Entidades, 18/nov: ver, gritar, caçar, a carga e as garradas: `src/game/entidades/`).
 6. **O berçário.** O mapa `bercario-cap1` (a porta troca de mapa), a luta das 4 fases (o berço, o tornado, a chuva), e a
    **captura** (`src/game/capture/`, ainda não existe): a poça e **a lamparina**, que é a armadilha reformulada (17/nov:
    na cintura, acesa; erguida, ilumina a frente e absorve o fantasma; `docs/cap2-sombra.md`, "A lamparina").

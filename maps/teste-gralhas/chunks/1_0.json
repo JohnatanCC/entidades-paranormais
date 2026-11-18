@@ -1,0 +1,1946 @@
+{
+ "cx": 1,
+ "cz": 0,
+ "walls": [
+  {
+   "level": 0,
+   "x": 16,
+   "z": 2,
+   "axis": "x",
+   "a": {
+    "tex": "tijolo"
+   },
+   "b": {
+    "tex": "tijolo"
+   }
+  },
+  {
+   "level": 0,
+   "x": 17,
+   "z": 2,
+   "axis": "x",
+   "a": {
+    "tex": "tijolo"
+   },
+   "b": {
+    "tex": "tijolo"
+   }
+  },
+  {
+   "level": 0,
+   "x": 18,
+   "z": 4,
+   "axis": "z",
+   "a": {
+    "tex": "tijolo"
+   },
+   "b": {
+    "tex": "tijolo"
+   }
+  },
+  {
+   "level": 0,
+   "x": 18,
+   "z": 5,
+   "axis": "z",
+   "a": {
+    "tex": "tijolo"
+   },
+   "b": {
+    "tex": "tijolo"
+   }
+  },
+  {
+   "level": 0,
+   "x": 18,
+   "z": 6,
+   "axis": "z",
+   "a": {
+    "tex": "tijolo"
+   },
+   "b": {
+    "tex": "tijolo"
+   }
+  },
+  {
+   "level": 0,
+   "x": 18,
+   "z": 2,
+   "axis": "x",
+   "a": {
+    "tex": "tijolo"
+   },
+   "b": {
+    "tex": "tijolo"
+   }
+  },
+  {
+   "level": 0,
+   "x": 18,
+   "z": 4,
+   "axis": "x",
+   "a": {
+    "tex": "tijolo"
+   },
+   "b": {
+    "tex": "tijolo"
+   }
+  },
+  {
+   "level": 0,
+   "x": 18,
+   "z": 7,
+   "axis": "x",
+   "a": {
+    "tex": "tijolo"
+   },
+   "b": {
+    "tex": "tijolo"
+   }
+  },
+  {
+   "level": 0,
+   "x": 19,
+   "z": 14,
+   "axis": "z",
+   "a": {
+    "tex": "tijolo"
+   },
+   "b": {
+    "tex": "reboco-creme",
+    "base": {
+     "tex": "barra-madeira",
+     "h": 1
+    }
+   }
+  },
+  {
+   "level": 0,
+   "x": 19,
+   "z": 15,
+   "axis": "z",
+   "a": {
+    "tex": "tijolo"
+   },
+   "b": {
+    "tex": "reboco-creme",
+    "base": {
+     "tex": "barra-madeira",
+     "h": 1
+    }
+   }
+  },
+  {
+   "level": 0,
+   "x": 19,
+   "z": 2,
+   "axis": "x",
+   "a": {
+    "tex": "tijolo"
+   },
+   "b": {
+    "tex": "tijolo"
+   }
+  },
+  {
+   "level": 0,
+   "x": 19,
+   "z": 4,
+   "axis": "x",
+   "a": {
+    "tex": "tijolo"
+   },
+   "b": {
+    "tex": "tijolo"
+   }
+  },
+  {
+   "level": 0,
+   "x": 19,
+   "z": 7,
+   "axis": "x",
+   "a": {
+    "tex": "tijolo"
+   },
+   "b": {
+    "tex": "tijolo"
+   }
+  },
+  {
+   "level": 0,
+   "x": 19,
+   "z": 14,
+   "axis": "x",
+   "a": {
+    "tex": "tijolo"
+   },
+   "b": {
+    "tex": "reboco-creme",
+    "base": {
+     "tex": "barra-madeira",
+     "h": 1
+    }
+   }
+  },
+  {
+   "level": 0,
+   "x": 20,
+   "z": 2,
+   "axis": "x",
+   "a": {
+    "tex": "tijolo"
+   },
+   "b": {
+    "tex": "tijolo"
+   }
+  },
+  {
+   "level": 0,
+   "x": 20,
+   "z": 4,
+   "axis": "x",
+   "a": {
+    "tex": "tijolo"
+   },
+   "b": {
+    "tex": "tijolo"
+   }
+  },
+  {
+   "level": 0,
+   "x": 20,
+   "z": 7,
+   "axis": "x",
+   "a": {
+    "tex": "tijolo"
+   },
+   "b": {
+    "tex": "tijolo"
+   }
+  },
+  {
+   "level": 0,
+   "x": 20,
+   "z": 14,
+   "axis": "x",
+   "a": {
+    "tex": "tijolo"
+   },
+   "b": {
+    "tex": "reboco-creme",
+    "base": {
+     "tex": "barra-madeira",
+     "h": 1
+    }
+   }
+  },
+  {
+   "level": 0,
+   "x": 21,
+   "z": 2,
+   "axis": "x",
+   "a": {
+    "tex": "tijolo"
+   },
+   "b": {
+    "tex": "tijolo"
+   }
+  },
+  {
+   "level": 0,
+   "x": 21,
+   "z": 4,
+   "axis": "z",
+   "a": {
+    "tex": "tijolo"
+   },
+   "b": {
+    "tex": "tijolo"
+   }
+  },
+  {
+   "level": 0,
+   "x": 21,
+   "z": 5,
+   "axis": "z",
+   "a": {
+    "tex": "tijolo"
+   },
+   "b": {
+    "tex": "tijolo"
+   }
+  },
+  {
+   "level": 0,
+   "x": 21,
+   "z": 6,
+   "axis": "z",
+   "a": {
+    "tex": "tijolo"
+   },
+   "b": {
+    "tex": "tijolo"
+   }
+  },
+  {
+   "level": 0,
+   "x": 21,
+   "z": 14,
+   "axis": "x",
+   "a": {
+    "tex": "tijolo"
+   },
+   "b": {
+    "tex": "reboco-creme",
+    "base": {
+     "tex": "barra-madeira",
+     "h": 1
+    }
+   }
+  },
+  {
+   "level": 0,
+   "x": 22,
+   "z": 2,
+   "axis": "x",
+   "a": {
+    "tex": "tijolo"
+   },
+   "b": {
+    "tex": "tijolo"
+   }
+  },
+  {
+   "level": 0,
+   "x": 22,
+   "z": 14,
+   "axis": "x",
+   "a": {
+    "tex": "tijolo"
+   },
+   "b": {
+    "tex": "reboco-creme",
+    "base": {
+     "tex": "barra-madeira",
+     "h": 1
+    }
+   }
+  },
+  {
+   "level": 0,
+   "x": 23,
+   "z": 2,
+   "axis": "x",
+   "a": {
+    "tex": "tijolo"
+   },
+   "b": {
+    "tex": "tijolo"
+   }
+  },
+  {
+   "level": 0,
+   "x": 23,
+   "z": 14,
+   "axis": "x",
+   "a": {
+    "tex": "tijolo"
+   },
+   "b": {
+    "tex": "reboco-creme",
+    "base": {
+     "tex": "barra-madeira",
+     "h": 1
+    }
+   }
+  },
+  {
+   "level": 0,
+   "x": 24,
+   "z": 2,
+   "axis": "x",
+   "a": {
+    "tex": "tijolo"
+   },
+   "b": {
+    "tex": "tijolo"
+   }
+  },
+  {
+   "level": 0,
+   "x": 24,
+   "z": 14,
+   "axis": "x",
+   "a": {
+    "tex": "tijolo"
+   },
+   "b": {
+    "tex": "reboco-creme",
+    "base": {
+     "tex": "barra-madeira",
+     "h": 1
+    }
+   }
+  },
+  {
+   "level": 0,
+   "x": 25,
+   "z": 2,
+   "axis": "x",
+   "a": {
+    "tex": "tijolo"
+   },
+   "b": {
+    "tex": "tijolo"
+   }
+  },
+  {
+   "level": 0,
+   "x": 25,
+   "z": 14,
+   "axis": "x",
+   "a": {
+    "tex": "tijolo"
+   },
+   "b": {
+    "tex": "reboco-creme",
+    "base": {
+     "tex": "barra-madeira",
+     "h": 1
+    }
+   }
+  },
+  {
+   "level": 0,
+   "x": 26,
+   "z": 2,
+   "axis": "x",
+   "a": {
+    "tex": "tijolo"
+   },
+   "b": {
+    "tex": "tijolo"
+   }
+  },
+  {
+   "level": 0,
+   "x": 26,
+   "z": 14,
+   "axis": "x",
+   "a": {
+    "tex": "tijolo"
+   },
+   "b": {
+    "tex": "reboco-creme",
+    "base": {
+     "tex": "barra-madeira",
+     "h": 1
+    }
+   }
+  },
+  {
+   "level": 0,
+   "x": 27,
+   "z": 14,
+   "axis": "z",
+   "a": {
+    "tex": "reboco-creme",
+    "base": {
+     "tex": "barra-madeira",
+     "h": 1
+    }
+   },
+   "b": {
+    "tex": "tijolo"
+   }
+  },
+  {
+   "level": 0,
+   "x": 27,
+   "z": 15,
+   "axis": "z",
+   "a": {
+    "tex": "reboco-creme",
+    "base": {
+     "tex": "barra-madeira",
+     "h": 1
+    }
+   },
+   "b": {
+    "tex": "tijolo"
+   }
+  },
+  {
+   "level": 0,
+   "x": 28,
+   "z": 2,
+   "axis": "z",
+   "a": {
+    "tex": "tijolo"
+   },
+   "b": {
+    "tex": "tijolo"
+   }
+  },
+  {
+   "level": 0,
+   "x": 27,
+   "z": 2,
+   "axis": "x",
+   "a": {
+    "tex": "tijolo"
+   },
+   "b": {
+    "tex": "tijolo"
+   }
+  },
+  {
+   "level": 0,
+   "x": 28,
+   "z": 3,
+   "axis": "z",
+   "a": {
+    "tex": "tijolo"
+   },
+   "b": {
+    "tex": "tijolo"
+   }
+  },
+  {
+   "level": 0,
+   "x": 28,
+   "z": 4,
+   "axis": "z",
+   "a": {
+    "tex": "tijolo"
+   },
+   "b": {
+    "tex": "tijolo"
+   }
+  },
+  {
+   "level": 0,
+   "x": 28,
+   "z": 5,
+   "axis": "z",
+   "a": {
+    "tex": "tijolo"
+   },
+   "b": {
+    "tex": "tijolo"
+   }
+  },
+  {
+   "level": 0,
+   "x": 28,
+   "z": 6,
+   "axis": "z",
+   "a": {
+    "tex": "tijolo"
+   },
+   "b": {
+    "tex": "tijolo"
+   }
+  },
+  {
+   "level": 0,
+   "x": 28,
+   "z": 7,
+   "axis": "z",
+   "a": {
+    "tex": "tijolo"
+   },
+   "b": {
+    "tex": "tijolo"
+   }
+  },
+  {
+   "level": 0,
+   "x": 28,
+   "z": 8,
+   "axis": "z",
+   "a": {
+    "tex": "tijolo"
+   },
+   "b": {
+    "tex": "tijolo"
+   }
+  },
+  {
+   "level": 0,
+   "x": 28,
+   "z": 9,
+   "axis": "z",
+   "a": {
+    "tex": "tijolo"
+   },
+   "b": {
+    "tex": "tijolo"
+   }
+  },
+  {
+   "level": 0,
+   "x": 28,
+   "z": 10,
+   "axis": "z",
+   "a": {
+    "tex": "tijolo"
+   },
+   "b": {
+    "tex": "tijolo"
+   }
+  },
+  {
+   "level": 0,
+   "x": 28,
+   "z": 11,
+   "axis": "z",
+   "a": {
+    "tex": "tijolo"
+   },
+   "b": {
+    "tex": "tijolo"
+   }
+  },
+  {
+   "level": 0,
+   "x": 28,
+   "z": 12,
+   "axis": "z",
+   "a": {
+    "tex": "tijolo"
+   },
+   "b": {
+    "tex": "tijolo"
+   }
+  },
+  {
+   "level": 0,
+   "x": 28,
+   "z": 13,
+   "axis": "z",
+   "a": {
+    "tex": "tijolo"
+   },
+   "b": {
+    "tex": "tijolo"
+   }
+  },
+  {
+   "level": 0,
+   "x": 28,
+   "z": 14,
+   "axis": "z",
+   "a": {
+    "tex": "tijolo"
+   },
+   "b": {
+    "tex": "tijolo"
+   }
+  },
+  {
+   "level": 0,
+   "x": 28,
+   "z": 15,
+   "axis": "z",
+   "a": {
+    "tex": "tijolo"
+   },
+   "b": {
+    "tex": "tijolo"
+   }
+  }
+ ],
+ "floors": [
+  {
+   "level": 0,
+   "x": 16,
+   "z": 2,
+   "top": "grama",
+   "bottom": "concreto"
+  },
+  {
+   "level": 0,
+   "x": 16,
+   "z": 3,
+   "top": "grama",
+   "bottom": "concreto"
+  },
+  {
+   "level": 0,
+   "x": 16,
+   "z": 4,
+   "top": "grama",
+   "bottom": "concreto"
+  },
+  {
+   "level": 0,
+   "x": 16,
+   "z": 5,
+   "top": "grama",
+   "bottom": "concreto"
+  },
+  {
+   "level": 0,
+   "x": 16,
+   "z": 6,
+   "top": "grama",
+   "bottom": "concreto"
+  },
+  {
+   "level": 0,
+   "x": 16,
+   "z": 7,
+   "top": "grama",
+   "bottom": "concreto"
+  },
+  {
+   "level": 0,
+   "x": 16,
+   "z": 8,
+   "top": "grama",
+   "bottom": "concreto"
+  },
+  {
+   "level": 0,
+   "x": 16,
+   "z": 9,
+   "top": "grama",
+   "bottom": "concreto"
+  },
+  {
+   "level": 0,
+   "x": 16,
+   "z": 10,
+   "top": "grama",
+   "bottom": "concreto"
+  },
+  {
+   "level": 0,
+   "x": 16,
+   "z": 11,
+   "top": "grama",
+   "bottom": "concreto"
+  },
+  {
+   "level": 0,
+   "x": 16,
+   "z": 12,
+   "top": "grama",
+   "bottom": "concreto"
+  },
+  {
+   "level": 0,
+   "x": 16,
+   "z": 13,
+   "top": "grama",
+   "bottom": "concreto"
+  },
+  {
+   "level": 0,
+   "x": 16,
+   "z": 14,
+   "top": "grama",
+   "bottom": "concreto"
+  },
+  {
+   "level": 0,
+   "x": 16,
+   "z": 15,
+   "top": "grama",
+   "bottom": "concreto"
+  },
+  {
+   "level": 0,
+   "x": 17,
+   "z": 2,
+   "top": "grama",
+   "bottom": "concreto"
+  },
+  {
+   "level": 0,
+   "x": 17,
+   "z": 3,
+   "top": "grama",
+   "bottom": "concreto"
+  },
+  {
+   "level": 0,
+   "x": 17,
+   "z": 4,
+   "top": "grama",
+   "bottom": "concreto"
+  },
+  {
+   "level": 0,
+   "x": 17,
+   "z": 5,
+   "top": "grama",
+   "bottom": "concreto"
+  },
+  {
+   "level": 0,
+   "x": 17,
+   "z": 6,
+   "top": "grama",
+   "bottom": "concreto"
+  },
+  {
+   "level": 0,
+   "x": 17,
+   "z": 7,
+   "top": "grama",
+   "bottom": "concreto"
+  },
+  {
+   "level": 0,
+   "x": 17,
+   "z": 8,
+   "top": "grama",
+   "bottom": "concreto"
+  },
+  {
+   "level": 0,
+   "x": 17,
+   "z": 9,
+   "top": "grama",
+   "bottom": "concreto"
+  },
+  {
+   "level": 0,
+   "x": 17,
+   "z": 10,
+   "top": "grama",
+   "bottom": "concreto"
+  },
+  {
+   "level": 0,
+   "x": 17,
+   "z": 11,
+   "top": "grama",
+   "bottom": "concreto"
+  },
+  {
+   "level": 0,
+   "x": 17,
+   "z": 12,
+   "top": "grama",
+   "bottom": "concreto"
+  },
+  {
+   "level": 0,
+   "x": 17,
+   "z": 13,
+   "top": "grama",
+   "bottom": "concreto"
+  },
+  {
+   "level": 0,
+   "x": 17,
+   "z": 14,
+   "top": "grama",
+   "bottom": "concreto"
+  },
+  {
+   "level": 0,
+   "x": 17,
+   "z": 15,
+   "top": "grama",
+   "bottom": "concreto"
+  },
+  {
+   "level": 0,
+   "x": 18,
+   "z": 2,
+   "top": "grama",
+   "bottom": "concreto"
+  },
+  {
+   "level": 0,
+   "x": 18,
+   "z": 3,
+   "top": "grama",
+   "bottom": "concreto"
+  },
+  {
+   "level": 0,
+   "x": 18,
+   "z": 7,
+   "top": "grama",
+   "bottom": "concreto"
+  },
+  {
+   "level": 0,
+   "x": 18,
+   "z": 8,
+   "top": "grama",
+   "bottom": "concreto"
+  },
+  {
+   "level": 0,
+   "x": 18,
+   "z": 9,
+   "top": "grama",
+   "bottom": "concreto"
+  },
+  {
+   "level": 0,
+   "x": 18,
+   "z": 10,
+   "top": "grama",
+   "bottom": "concreto"
+  },
+  {
+   "level": 0,
+   "x": 18,
+   "z": 11,
+   "top": "grama",
+   "bottom": "concreto"
+  },
+  {
+   "level": 0,
+   "x": 18,
+   "z": 12,
+   "top": "grama",
+   "bottom": "concreto"
+  },
+  {
+   "level": 0,
+   "x": 18,
+   "z": 13,
+   "top": "grama",
+   "bottom": "concreto"
+  },
+  {
+   "level": 0,
+   "x": 18,
+   "z": 14,
+   "top": "grama",
+   "bottom": "concreto"
+  },
+  {
+   "level": 0,
+   "x": 18,
+   "z": 15,
+   "top": "grama",
+   "bottom": "concreto"
+  },
+  {
+   "level": 0,
+   "x": 19,
+   "z": 2,
+   "top": "grama",
+   "bottom": "concreto"
+  },
+  {
+   "level": 0,
+   "x": 19,
+   "z": 3,
+   "top": "grama",
+   "bottom": "concreto"
+  },
+  {
+   "level": 0,
+   "x": 19,
+   "z": 7,
+   "top": "grama",
+   "bottom": "concreto"
+  },
+  {
+   "level": 0,
+   "x": 19,
+   "z": 8,
+   "top": "grama",
+   "bottom": "concreto"
+  },
+  {
+   "level": 0,
+   "x": 19,
+   "z": 9,
+   "top": "grama",
+   "bottom": "concreto"
+  },
+  {
+   "level": 0,
+   "x": 19,
+   "z": 10,
+   "top": "grama",
+   "bottom": "concreto"
+  },
+  {
+   "level": 0,
+   "x": 19,
+   "z": 11,
+   "top": "grama",
+   "bottom": "concreto"
+  },
+  {
+   "level": 0,
+   "x": 19,
+   "z": 12,
+   "top": "grama",
+   "bottom": "concreto"
+  },
+  {
+   "level": 0,
+   "x": 19,
+   "z": 13,
+   "top": "grama",
+   "bottom": "concreto"
+  },
+  {
+   "level": 0,
+   "x": 19,
+   "z": 14,
+   "top": "tabua-corrida",
+   "bottom": "concreto"
+  },
+  {
+   "level": 1,
+   "x": 19,
+   "z": 14,
+   "top": "concreto",
+   "bottom": "forro-madeira"
+  },
+  {
+   "level": 0,
+   "x": 19,
+   "z": 15,
+   "top": "tabua-corrida",
+   "bottom": "concreto"
+  },
+  {
+   "level": 1,
+   "x": 19,
+   "z": 15,
+   "top": "concreto",
+   "bottom": "forro-madeira"
+  },
+  {
+   "level": 0,
+   "x": 20,
+   "z": 2,
+   "top": "grama",
+   "bottom": "concreto"
+  },
+  {
+   "level": 0,
+   "x": 20,
+   "z": 3,
+   "top": "grama",
+   "bottom": "concreto"
+  },
+  {
+   "level": 0,
+   "x": 20,
+   "z": 7,
+   "top": "grama",
+   "bottom": "concreto"
+  },
+  {
+   "level": 0,
+   "x": 20,
+   "z": 8,
+   "top": "grama",
+   "bottom": "concreto"
+  },
+  {
+   "level": 0,
+   "x": 20,
+   "z": 9,
+   "top": "grama",
+   "bottom": "concreto"
+  },
+  {
+   "level": 0,
+   "x": 20,
+   "z": 10,
+   "top": "grama",
+   "bottom": "concreto"
+  },
+  {
+   "level": 0,
+   "x": 20,
+   "z": 11,
+   "top": "grama",
+   "bottom": "concreto"
+  },
+  {
+   "level": 0,
+   "x": 20,
+   "z": 12,
+   "top": "grama",
+   "bottom": "concreto"
+  },
+  {
+   "level": 0,
+   "x": 20,
+   "z": 13,
+   "top": "grama",
+   "bottom": "concreto"
+  },
+  {
+   "level": 0,
+   "x": 20,
+   "z": 14,
+   "top": "tabua-corrida",
+   "bottom": "concreto"
+  },
+  {
+   "level": 1,
+   "x": 20,
+   "z": 14,
+   "top": "concreto",
+   "bottom": "forro-madeira"
+  },
+  {
+   "level": 0,
+   "x": 20,
+   "z": 15,
+   "top": "tabua-corrida",
+   "bottom": "concreto"
+  },
+  {
+   "level": 1,
+   "x": 20,
+   "z": 15,
+   "top": "concreto",
+   "bottom": "forro-madeira"
+  },
+  {
+   "level": 0,
+   "x": 21,
+   "z": 2,
+   "top": "grama",
+   "bottom": "concreto"
+  },
+  {
+   "level": 0,
+   "x": 21,
+   "z": 3,
+   "top": "grama",
+   "bottom": "concreto"
+  },
+  {
+   "level": 0,
+   "x": 21,
+   "z": 4,
+   "top": "grama",
+   "bottom": "concreto"
+  },
+  {
+   "level": 0,
+   "x": 21,
+   "z": 5,
+   "top": "grama",
+   "bottom": "concreto"
+  },
+  {
+   "level": 0,
+   "x": 21,
+   "z": 6,
+   "top": "grama",
+   "bottom": "concreto"
+  },
+  {
+   "level": 0,
+   "x": 21,
+   "z": 7,
+   "top": "grama",
+   "bottom": "concreto"
+  },
+  {
+   "level": 0,
+   "x": 21,
+   "z": 8,
+   "top": "grama",
+   "bottom": "concreto"
+  },
+  {
+   "level": 0,
+   "x": 21,
+   "z": 9,
+   "top": "grama",
+   "bottom": "concreto"
+  },
+  {
+   "level": 0,
+   "x": 21,
+   "z": 10,
+   "top": "grama",
+   "bottom": "concreto"
+  },
+  {
+   "level": 0,
+   "x": 21,
+   "z": 11,
+   "top": "grama",
+   "bottom": "concreto"
+  },
+  {
+   "level": 0,
+   "x": 21,
+   "z": 12,
+   "top": "grama",
+   "bottom": "concreto"
+  },
+  {
+   "level": 0,
+   "x": 21,
+   "z": 13,
+   "top": "grama",
+   "bottom": "concreto"
+  },
+  {
+   "level": 0,
+   "x": 21,
+   "z": 14,
+   "top": "tabua-corrida",
+   "bottom": "concreto"
+  },
+  {
+   "level": 1,
+   "x": 21,
+   "z": 14,
+   "top": "concreto",
+   "bottom": "forro-madeira"
+  },
+  {
+   "level": 0,
+   "x": 21,
+   "z": 15,
+   "top": "tabua-corrida",
+   "bottom": "concreto"
+  },
+  {
+   "level": 1,
+   "x": 21,
+   "z": 15,
+   "top": "concreto",
+   "bottom": "forro-madeira"
+  },
+  {
+   "level": 0,
+   "x": 22,
+   "z": 2,
+   "top": "grama",
+   "bottom": "concreto"
+  },
+  {
+   "level": 0,
+   "x": 22,
+   "z": 3,
+   "top": "grama",
+   "bottom": "concreto"
+  },
+  {
+   "level": 0,
+   "x": 22,
+   "z": 4,
+   "top": "grama",
+   "bottom": "concreto"
+  },
+  {
+   "level": 0,
+   "x": 22,
+   "z": 5,
+   "top": "grama",
+   "bottom": "concreto"
+  },
+  {
+   "level": 0,
+   "x": 22,
+   "z": 6,
+   "top": "grama",
+   "bottom": "concreto"
+  },
+  {
+   "level": 0,
+   "x": 22,
+   "z": 7,
+   "top": "grama",
+   "bottom": "concreto"
+  },
+  {
+   "level": 0,
+   "x": 22,
+   "z": 8,
+   "top": "grama",
+   "bottom": "concreto"
+  },
+  {
+   "level": 0,
+   "x": 22,
+   "z": 9,
+   "top": "grama",
+   "bottom": "concreto"
+  },
+  {
+   "level": 0,
+   "x": 22,
+   "z": 10,
+   "top": "grama",
+   "bottom": "concreto"
+  },
+  {
+   "level": 0,
+   "x": 22,
+   "z": 11,
+   "top": "grama",
+   "bottom": "concreto"
+  },
+  {
+   "level": 0,
+   "x": 22,
+   "z": 12,
+   "top": "grama",
+   "bottom": "concreto"
+  },
+  {
+   "level": 0,
+   "x": 22,
+   "z": 13,
+   "top": "grama",
+   "bottom": "concreto"
+  },
+  {
+   "level": 0,
+   "x": 22,
+   "z": 14,
+   "top": "tabua-corrida",
+   "bottom": "concreto"
+  },
+  {
+   "level": 1,
+   "x": 22,
+   "z": 14,
+   "top": "concreto",
+   "bottom": "forro-madeira"
+  },
+  {
+   "level": 0,
+   "x": 22,
+   "z": 15,
+   "top": "tabua-corrida",
+   "bottom": "concreto"
+  },
+  {
+   "level": 1,
+   "x": 22,
+   "z": 15,
+   "top": "concreto",
+   "bottom": "forro-madeira"
+  },
+  {
+   "level": 0,
+   "x": 23,
+   "z": 2,
+   "top": "grama",
+   "bottom": "concreto"
+  },
+  {
+   "level": 0,
+   "x": 23,
+   "z": 3,
+   "top": "grama",
+   "bottom": "concreto"
+  },
+  {
+   "level": 0,
+   "x": 23,
+   "z": 4,
+   "top": "grama",
+   "bottom": "concreto"
+  },
+  {
+   "level": 0,
+   "x": 23,
+   "z": 5,
+   "top": "grama",
+   "bottom": "concreto"
+  },
+  {
+   "level": 0,
+   "x": 23,
+   "z": 6,
+   "top": "grama",
+   "bottom": "concreto"
+  },
+  {
+   "level": 0,
+   "x": 23,
+   "z": 7,
+   "top": "grama",
+   "bottom": "concreto"
+  },
+  {
+   "level": 0,
+   "x": 23,
+   "z": 8,
+   "top": "grama",
+   "bottom": "concreto"
+  },
+  {
+   "level": 0,
+   "x": 23,
+   "z": 9,
+   "top": "grama",
+   "bottom": "concreto"
+  },
+  {
+   "level": 0,
+   "x": 23,
+   "z": 10,
+   "top": "grama",
+   "bottom": "concreto"
+  },
+  {
+   "level": 0,
+   "x": 23,
+   "z": 11,
+   "top": "grama",
+   "bottom": "concreto"
+  },
+  {
+   "level": 0,
+   "x": 23,
+   "z": 12,
+   "top": "grama",
+   "bottom": "concreto"
+  },
+  {
+   "level": 0,
+   "x": 23,
+   "z": 13,
+   "top": "grama",
+   "bottom": "concreto"
+  },
+  {
+   "level": 0,
+   "x": 23,
+   "z": 14,
+   "top": "tabua-corrida",
+   "bottom": "concreto"
+  },
+  {
+   "level": 1,
+   "x": 23,
+   "z": 14,
+   "top": "concreto",
+   "bottom": "forro-madeira"
+  },
+  {
+   "level": 0,
+   "x": 23,
+   "z": 15,
+   "top": "tabua-corrida",
+   "bottom": "concreto"
+  },
+  {
+   "level": 1,
+   "x": 23,
+   "z": 15,
+   "top": "concreto",
+   "bottom": "forro-madeira"
+  },
+  {
+   "level": 0,
+   "x": 24,
+   "z": 2,
+   "top": "grama",
+   "bottom": "concreto"
+  },
+  {
+   "level": 0,
+   "x": 24,
+   "z": 3,
+   "top": "grama",
+   "bottom": "concreto"
+  },
+  {
+   "level": 0,
+   "x": 24,
+   "z": 4,
+   "top": "grama",
+   "bottom": "concreto"
+  },
+  {
+   "level": 0,
+   "x": 24,
+   "z": 5,
+   "top": "grama",
+   "bottom": "concreto"
+  },
+  {
+   "level": 0,
+   "x": 24,
+   "z": 6,
+   "top": "grama",
+   "bottom": "concreto"
+  },
+  {
+   "level": 0,
+   "x": 24,
+   "z": 7,
+   "top": "grama",
+   "bottom": "concreto"
+  },
+  {
+   "level": 0,
+   "x": 24,
+   "z": 8,
+   "top": "grama",
+   "bottom": "concreto"
+  },
+  {
+   "level": 0,
+   "x": 24,
+   "z": 9,
+   "top": "grama",
+   "bottom": "concreto"
+  },
+  {
+   "level": 0,
+   "x": 24,
+   "z": 10,
+   "top": "grama",
+   "bottom": "concreto"
+  },
+  {
+   "level": 0,
+   "x": 24,
+   "z": 11,
+   "top": "grama",
+   "bottom": "concreto"
+  },
+  {
+   "level": 0,
+   "x": 24,
+   "z": 12,
+   "top": "grama",
+   "bottom": "concreto"
+  },
+  {
+   "level": 0,
+   "x": 24,
+   "z": 13,
+   "top": "grama",
+   "bottom": "concreto"
+  },
+  {
+   "level": 0,
+   "x": 24,
+   "z": 14,
+   "top": "tabua-corrida",
+   "bottom": "concreto"
+  },
+  {
+   "level": 1,
+   "x": 24,
+   "z": 14,
+   "top": "concreto",
+   "bottom": "forro-madeira"
+  },
+  {
+   "level": 0,
+   "x": 24,
+   "z": 15,
+   "top": "tabua-corrida",
+   "bottom": "concreto"
+  },
+  {
+   "level": 1,
+   "x": 24,
+   "z": 15,
+   "top": "concreto",
+   "bottom": "forro-madeira"
+  },
+  {
+   "level": 0,
+   "x": 25,
+   "z": 2,
+   "top": "grama",
+   "bottom": "concreto"
+  },
+  {
+   "level": 0,
+   "x": 25,
+   "z": 3,
+   "top": "grama",
+   "bottom": "concreto"
+  },
+  {
+   "level": 0,
+   "x": 25,
+   "z": 4,
+   "top": "grama",
+   "bottom": "concreto"
+  },
+  {
+   "level": 0,
+   "x": 25,
+   "z": 5,
+   "top": "grama",
+   "bottom": "concreto"
+  },
+  {
+   "level": 0,
+   "x": 25,
+   "z": 6,
+   "top": "grama",
+   "bottom": "concreto"
+  },
+  {
+   "level": 0,
+   "x": 25,
+   "z": 7,
+   "top": "grama",
+   "bottom": "concreto"
+  },
+  {
+   "level": 0,
+   "x": 25,
+   "z": 8,
+   "top": "grama",
+   "bottom": "concreto"
+  },
+  {
+   "level": 0,
+   "x": 25,
+   "z": 9,
+   "top": "grama",
+   "bottom": "concreto"
+  },
+  {
+   "level": 0,
+   "x": 25,
+   "z": 10,
+   "top": "grama",
+   "bottom": "concreto"
+  },
+  {
+   "level": 0,
+   "x": 25,
+   "z": 11,
+   "top": "grama",
+   "bottom": "concreto"
+  },
+  {
+   "level": 0,
+   "x": 25,
+   "z": 12,
+   "top": "grama",
+   "bottom": "concreto"
+  },
+  {
+   "level": 0,
+   "x": 25,
+   "z": 13,
+   "top": "grama",
+   "bottom": "concreto"
+  },
+  {
+   "level": 0,
+   "x": 25,
+   "z": 14,
+   "top": "tabua-corrida",
+   "bottom": "concreto"
+  },
+  {
+   "level": 1,
+   "x": 25,
+   "z": 14,
+   "top": "concreto",
+   "bottom": "forro-madeira"
+  },
+  {
+   "level": 0,
+   "x": 25,
+   "z": 15,
+   "top": "tabua-corrida",
+   "bottom": "concreto"
+  },
+  {
+   "level": 1,
+   "x": 25,
+   "z": 15,
+   "top": "concreto",
+   "bottom": "forro-madeira"
+  },
+  {
+   "level": 0,
+   "x": 26,
+   "z": 2,
+   "top": "grama",
+   "bottom": "concreto"
+  },
+  {
+   "level": 0,
+   "x": 26,
+   "z": 3,
+   "top": "grama",
+   "bottom": "concreto"
+  },
+  {
+   "level": 0,
+   "x": 26,
+   "z": 4,
+   "top": "grama",
+   "bottom": "concreto"
+  },
+  {
+   "level": 0,
+   "x": 26,
+   "z": 5,
+   "top": "grama",
+   "bottom": "concreto"
+  },
+  {
+   "level": 0,
+   "x": 26,
+   "z": 6,
+   "top": "grama",
+   "bottom": "concreto"
+  },
+  {
+   "level": 0,
+   "x": 26,
+   "z": 7,
+   "top": "grama",
+   "bottom": "concreto"
+  },
+  {
+   "level": 0,
+   "x": 26,
+   "z": 8,
+   "top": "grama",
+   "bottom": "concreto"
+  },
+  {
+   "level": 0,
+   "x": 26,
+   "z": 9,
+   "top": "grama",
+   "bottom": "concreto"
+  },
+  {
+   "level": 0,
+   "x": 26,
+   "z": 10,
+   "top": "grama",
+   "bottom": "concreto"
+  },
+  {
+   "level": 0,
+   "x": 26,
+   "z": 11,
+   "top": "grama",
+   "bottom": "concreto"
+  },
+  {
+   "level": 0,
+   "x": 26,
+   "z": 12,
+   "top": "grama",
+   "bottom": "concreto"
+  },
+  {
+   "level": 0,
+   "x": 26,
+   "z": 13,
+   "top": "grama",
+   "bottom": "concreto"
+  },
+  {
+   "level": 0,
+   "x": 26,
+   "z": 14,
+   "top": "tabua-corrida",
+   "bottom": "concreto"
+  },
+  {
+   "level": 1,
+   "x": 26,
+   "z": 14,
+   "top": "concreto",
+   "bottom": "forro-madeira"
+  },
+  {
+   "level": 0,
+   "x": 26,
+   "z": 15,
+   "top": "tabua-corrida",
+   "bottom": "concreto"
+  },
+  {
+   "level": 1,
+   "x": 26,
+   "z": 15,
+   "top": "concreto",
+   "bottom": "forro-madeira"
+  },
+  {
+   "level": 0,
+   "x": 27,
+   "z": 2,
+   "top": "grama",
+   "bottom": "concreto"
+  },
+  {
+   "level": 0,
+   "x": 27,
+   "z": 3,
+   "top": "grama",
+   "bottom": "concreto"
+  },
+  {
+   "level": 0,
+   "x": 27,
+   "z": 4,
+   "top": "grama",
+   "bottom": "concreto"
+  },
+  {
+   "level": 0,
+   "x": 27,
+   "z": 5,
+   "top": "grama",
+   "bottom": "concreto"
+  },
+  {
+   "level": 0,
+   "x": 27,
+   "z": 6,
+   "top": "grama",
+   "bottom": "concreto"
+  },
+  {
+   "level": 0,
+   "x": 27,
+   "z": 7,
+   "top": "grama",
+   "bottom": "concreto"
+  },
+  {
+   "level": 0,
+   "x": 27,
+   "z": 8,
+   "top": "grama",
+   "bottom": "concreto"
+  },
+  {
+   "level": 0,
+   "x": 27,
+   "z": 9,
+   "top": "grama",
+   "bottom": "concreto"
+  },
+  {
+   "level": 0,
+   "x": 27,
+   "z": 10,
+   "top": "grama",
+   "bottom": "concreto"
+  },
+  {
+   "level": 0,
+   "x": 27,
+   "z": 11,
+   "top": "grama",
+   "bottom": "concreto"
+  },
+  {
+   "level": 0,
+   "x": 27,
+   "z": 12,
+   "top": "grama",
+   "bottom": "concreto"
+  },
+  {
+   "level": 0,
+   "x": 27,
+   "z": 13,
+   "top": "grama",
+   "bottom": "concreto"
+  },
+  {
+   "level": 0,
+   "x": 27,
+   "z": 14,
+   "top": "grama",
+   "bottom": "concreto"
+  },
+  {
+   "level": 0,
+   "x": 27,
+   "z": 15,
+   "top": "grama",
+   "bottom": "concreto"
+  }
+ ],
+ "openings": [],
+ "stairs": [],
+ "props": [
+  {
+   "id": "vaso-seco-7",
+   "type": "vaso-seco",
+   "level": 0,
+   "pos": [
+    26.5,
+    0,
+    3
+   ],
+   "rot": [
+    0,
+    0,
+    0
+   ]
+  },
+  {
+   "id": "mesa-metal-11",
+   "type": "mesa-metal",
+   "level": 0,
+   "pos": [
+    23,
+    0,
+    15
+   ],
+   "rot": [
+    0,
+    0,
+    0
+   ]
+  }
+ ],
+ "decals": [],
+ "points": [
+  {
+   "id": "entidade-16",
+   "kind": "entidade",
+   "level": 0,
+   "pos": [
+    23.3,
+    0.76,
+    15.1
+   ],
+   "params": {
+    "tipo": "gralha",
+    "vira": 0
+   }
+  },
+  {
+   "id": "entidade-17",
+   "kind": "entidade",
+   "level": 0,
+   "pos": [
+    22.5,
+    0,
+    5.5
+   ],
+   "params": {
+    "tipo": "gralha",
+    "vira": -90
+   }
+  }
+ ]
+}

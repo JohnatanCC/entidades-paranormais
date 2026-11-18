@@ -1,0 +1,237 @@
+{
+ "cx": 0,
+ "cz": 1,
+ "walls": [
+  {
+   "level": 0,
+   "x": 12,
+   "z": 16,
+   "axis": "z",
+   "a": {
+    "tex": "reboco-creme"
+   },
+   "b": {
+    "tex": "papel-vinho",
+    "base": {
+     "tex": "lambri-madeira",
+     "h": 1.1
+    }
+   }
+  },
+  {
+   "level": 0,
+   "x": 12,
+   "z": 17,
+   "axis": "z",
+   "a": {
+    "tex": "reboco-creme"
+   },
+   "b": {
+    "tex": "papel-vinho",
+    "base": {
+     "tex": "lambri-madeira",
+     "h": 1.1
+    }
+   }
+  },
+  {
+   "level": 0,
+   "x": 12,
+   "z": 18,
+   "axis": "x",
+   "a": {
+    "tex": "papel-vinho",
+    "base": {
+     "tex": "lambri-madeira",
+     "h": 1.1
+    }
+   },
+   "b": {
+    "tex": "reboco-creme"
+   }
+  },
+  {
+   "level": 0,
+   "x": 13,
+   "z": 18,
+   "axis": "x",
+   "a": {
+    "tex": "papel-vinho",
+    "base": {
+     "tex": "lambri-madeira",
+     "h": 1.1
+    }
+   },
+   "b": {
+    "tex": "reboco-creme"
+   }
+  },
+  {
+   "level": 0,
+   "x": 14,
+   "z": 18,
+   "axis": "x",
+   "a": {
+    "tex": "papel-vinho",
+    "base": {
+     "tex": "lambri-madeira",
+     "h": 1.1
+    }
+   },
+   "b": {
+    "tex": "reboco-creme"
+   }
+  },
+  {
+   "level": 0,
+   "x": 15,
+   "z": 18,
+   "axis": "x",
+   "a": {
+    "tex": "papel-vinho",
+    "base": {
+     "tex": "lambri-madeira",
+     "h": 1.1
+    }
+   },
+   "b": {
+    "tex": "reboco-creme"
+   }
+  }
+ ],
+ "floors": [
+  {
+   "level": 0,
+   "x": 12,
+   "z": 16,
+   "top": "marmore",
+   "bottom": "concreto"
+  },
+  {
+   "level": 1,
+   "x": 12,
+   "z": 16,
+   "top": "concreto",
+   "bottom": "forro-madeira"
+  },
+  {
+   "level": 0,
+   "x": 12,
+   "z": 17,
+   "top": "marmore",
+   "bottom": "concreto"
+  },
+  {
+   "level": 1,
+   "x": 12,
+   "z": 17,
+   "top": "concreto",
+   "bottom": "forro-madeira"
+  },
+  {
+   "level": 0,
+   "x": 13,
+   "z": 16,
+   "top": "marmore",
+   "bottom": "concreto"
+  },
+  {
+   "level": 1,
+   "x": 13,
+   "z": 16,
+   "top": "concreto",
+   "bottom": "forro-madeira"
+  },
+  {
+   "level": 0,
+   "x": 13,
+   "z": 17,
+   "top": "marmore",
+   "bottom": "concreto"
+  },
+  {
+   "level": 1,
+   "x": 13,
+   "z": 17,
+   "top": "concreto",
+   "bottom": "forro-madeira"
+  },
+  {
+   "level": 0,
+   "x": 14,
+   "z": 16,
+   "top": "marmore",
+   "bottom": "concreto"
+  },
+  {
+   "level": 1,
+   "x": 14,
+   "z": 16,
+   "top": "concreto",
+   "bottom": "forro-madeira"
+  },
+  {
+   "level": 0,
+   "x": 14,
+   "z": 17,
+   "top": "marmore",
+   "bottom": "concreto"
+  },
+  {
+   "level": 1,
+   "x": 14,
+   "z": 17,
+   "top": "concreto",
+   "bottom": "forro-madeira"
+  },
+  {
+   "level": 0,
+   "x": 15,
+   "z": 16,
+   "top": "marmore",
+   "bottom": "concreto"
+  },
+  {
+   "level": 1,
+   "x": 15,
+   "z": 16,
+   "top": "concreto",
+   "bottom": "forro-madeira"
+  },
+  {
+   "level": 0,
+   "x": 15,
+   "z": 17,
+   "top": "marmore",
+   "bottom": "concreto"
+  },
+  {
+   "level": 1,
+   "x": 15,
+   "z": 17,
+   "top": "concreto",
+   "bottom": "forro-madeira"
+  }
+ ],
+ "openings": [],
+ "stairs": [],
+ "props": [
+  {
+   "id": "poltrona-coberta-10",
+   "type": "poltrona-coberta",
+   "level": 0,
+   "pos": [
+    14,
+    0,
+    16.5
+   ],
+   "rot": [
+    0,
+    150,
+    0
+   ]
+  }
+ ],
+ "decals": [],
+ "points": []
+}

@@ -1,6 +1,7 @@
 // A trilha: uma faixa por vez, em laço, chamada por NOME (os arquivos ficam em public/musica/<nome>.mp3).
 // O volume é o geral × o da música (as configurações), um pouco abaixo dos efeitos (NIVEL). O navegador só deixa tocar depois do primeiro clique ou tecla:
-// até lá a faixa fica esperando e começa sozinha na primeira interação. Trocar de faixa faz um fade curto.
+// até lá a faixa fica esperando e começa sozinha na primeira interação. Trocar de faixa faz um fade curto, e a que sai
+// sempre para: cada faixa tem a rampa dela (com uma só, a rampa da nova cancelava a da velha, que ficava tocando junto).
 import { useEffect } from 'react'
 import { getSettings, useSettings } from '../settings/settings'
 
@@ -11,29 +12,39 @@ export type Faixa = 'menu' | 'devorador' | 'batalha' | 'perseguicao-mae' | 'pers
 
 let audio: HTMLAudioElement | null = null
 let atual: Faixa | null = null
-let fade = 0
+const fades = new WeakMap<HTMLAudioElement, number>() // a rampa de cada faixa
+const saindo = new Set<HTMLAudioElement>() // as que estão sumindo (param no fim da rampa)
 
 // a música fica um pouco abaixo dos efeitos (13/nov: ela cobria os demônios); as configurações multiplicam por cima
 const NIVEL = 0.6
 const alvo = () => { const s = getSettings(); return NIVEL * (s.volume / 100) * (s.musica / 100) }
 
 function rampa(a: HTMLAudioElement, para: number, ms: number, fim?: () => void) {
-  cancelAnimationFrame(fade)
+  cancelAnimationFrame(fades.get(a) ?? 0)
   const de = a.volume, t0 = performance.now()
   const passo = (t: number) => {
     const k = Math.max(0, Math.min(1, (t - t0) / ms)) // o relógio do quadro pode vir um tico antes de t0: nunca negativo
     a.volume = de + (para - de) * k
-    if (k < 1) fade = requestAnimationFrame(passo)
+    if (k < 1) fades.set(a, requestAnimationFrame(passo))
     else fim?.()
   }
-  fade = requestAnimationFrame(passo)
+  fades.set(a, requestAnimationFrame(passo))
+}
+
+/** Some com a faixa e para. Com a página escondida o requestAnimationFrame não roda: o relógio garante que ela pare. */
+function sumir(a: HTMLAudioElement) {
+  saindo.add(a)
+  const fim = () => { cancelAnimationFrame(fades.get(a) ?? 0); a.pause(); a.removeAttribute('src'); a.load(); saindo.delete(a) }
+  rampa(a, 0, 600, fim)
+  setTimeout(() => { if (saindo.has(a)) fim() }, 700)
 }
 
 function tocar() {
-  if (!audio) return
-  audio.play().catch(() => {
-    // ainda sem permissão do navegador: tenta de novo na primeira interação
-    const vai = () => { window.removeEventListener('pointerdown', vai); window.removeEventListener('keydown', vai); audio?.play().catch(() => {}) }
+  const a = audio
+  if (!a) return
+  a.play().catch(() => {
+    // ainda sem permissão do navegador: tenta de novo na primeira interação (se ela ainda for a faixa da vez)
+    const vai = () => { window.removeEventListener('pointerdown', vai); window.removeEventListener('keydown', vai); if (a === audio) a.play().catch(() => {}) }
     window.addEventListener('pointerdown', vai, { once: true })
     window.addEventListener('keydown', vai, { once: true })
   })
@@ -43,9 +54,9 @@ function tocar() {
 export function musica(f: Faixa | null) {
   if (f === atual) return
   atual = f
-  const velho = audio
-  if (velho) rampa(velho, 0, 600, () => velho.pause())
-  if (!f) { audio = null; return }
+  if (audio) sumir(audio)
+  audio = null
+  if (!f) return
   audio = new Audio(`${import.meta.env.BASE_URL}musica/${f}.mp3`)
   audio.loop = true
   audio.volume = 0
@@ -60,5 +71,5 @@ export const faixaAtual = (): Faixa | null => atual
 export function useMusica(f: Faixa | null) {
   const { volume, musica: vm } = useSettings()
   useEffect(() => { musica(f) }, [f])
-  useEffect(() => { if (audio && atual) { cancelAnimationFrame(fade); audio.volume = NIVEL * (volume / 100) * (vm / 100) } }, [volume, vm])
+  useEffect(() => { if (audio && atual) { cancelAnimationFrame(fades.get(audio) ?? 0); audio.volume = NIVEL * (volume / 100) * (vm / 100) } }, [volume, vm])
 }

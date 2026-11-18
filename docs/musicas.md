@@ -9,7 +9,7 @@ precisa ter, para compor (ou gerar no Suno) de forma consistente.
 | `batalha.mp3` | As hordas da Demo · Intro do submundo | Feita (do laboratório) |
 | `devorador.mp3` | O Devora almas | Feita |
 | A luta da Mãe | O berçário, o chefe do capítulo 1 | Feita pelo desenvolvedor (17/nov), falta entrar no jogo |
-| `perseguicao-mae.mp3` | **A perseguição da Mãe**: quando ela caça o agente (abaixo) | Feita pelo desenvolvedor (18/nov); toca quando a etapa C das entidades chegar |
+| `perseguicao-mae.mp3` | **A perseguição da Mãe**: quando ela caça o agente (abaixo) | Feita pelo desenvolvedor (18/nov); tocando: enquanto a Mãe caça (`src/game/entidades`), na frente da das Gralhas. Toca uma faixa por vez (a que sai sempre para) e, saindo do Testar, a perseguição para e a de antes volta |
 | **O trailer** | O vídeo da página do itch (e depois do Steam), fora do jogo (abaixo) | A fazer |
 | `perseguicao-gralhas.mp3` | **A perseguição das Gralhas**: enquanto alguma Gralha caça o agente (`src/game/entidades`) | Feita pelo desenvolvedor (18/nov); tocando |
 | `tensao.mp3` | O ambiente de tensão (a do laboratório) | No projeto (18/nov), ainda sem lugar para tocar |

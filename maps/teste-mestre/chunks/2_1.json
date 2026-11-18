@@ -1,0 +1,133 @@
+{
+ "cx": 2,
+ "cz": 1,
+ "walls": [
+  {
+   "level": 0,
+   "x": 32,
+   "z": 18,
+   "axis": "x",
+   "a": {
+    "tex": "papel-vinho",
+    "base": {
+     "tex": "lambri-madeira",
+     "h": 1.1
+    }
+   },
+   "b": {
+    "tex": "reboco-creme"
+   }
+  },
+  {
+   "level": 0,
+   "x": 34,
+   "z": 16,
+   "axis": "z",
+   "a": {
+    "tex": "papel-vinho",
+    "base": {
+     "tex": "lambri-madeira",
+     "h": 1.1
+    }
+   },
+   "b": {
+    "tex": "reboco-creme"
+   }
+  },
+  {
+   "level": 0,
+   "x": 34,
+   "z": 17,
+   "axis": "z",
+   "a": {
+    "tex": "papel-vinho",
+    "base": {
+     "tex": "lambri-madeira",
+     "h": 1.1
+    }
+   },
+   "b": {
+    "tex": "reboco-creme"
+   }
+  },
+  {
+   "level": 0,
+   "x": 33,
+   "z": 18,
+   "axis": "x",
+   "a": {
+    "tex": "papel-vinho",
+    "base": {
+     "tex": "lambri-madeira",
+     "h": 1.1
+    }
+   },
+   "b": {
+    "tex": "reboco-creme"
+   }
+  }
+ ],
+ "floors": [
+  {
+   "level": 0,
+   "x": 32,
+   "z": 16,
+   "top": "marmore",
+   "bottom": "concreto"
+  },
+  {
+   "level": 1,
+   "x": 32,
+   "z": 16,
+   "top": "concreto",
+   "bottom": "forro-madeira"
+  },
+  {
+   "level": 0,
+   "x": 32,
+   "z": 17,
+   "top": "marmore",
+   "bottom": "concreto"
+  },
+  {
+   "level": 1,
+   "x": 32,
+   "z": 17,
+   "top": "concreto",
+   "bottom": "forro-madeira"
+  },
+  {
+   "level": 0,
+   "x": 33,
+   "z": 16,
+   "top": "marmore",
+   "bottom": "concreto"
+  },
+  {
+   "level": 1,
+   "x": 33,
+   "z": 16,
+   "top": "concreto",
+   "bottom": "forro-madeira"
+  },
+  {
+   "level": 0,
+   "x": 33,
+   "z": 17,
+   "top": "marmore",
+   "bottom": "concreto"
+  },
+  {
+   "level": 1,
+   "x": 33,
+   "z": 17,
+   "top": "concreto",
+   "bottom": "forro-madeira"
+  }
+ ],
+ "openings": [],
+ "stairs": [],
+ "props": [],
+ "decals": [],
+ "points": []
+}

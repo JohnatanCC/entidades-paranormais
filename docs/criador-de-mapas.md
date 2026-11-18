@@ -239,8 +239,37 @@ Pedido do desenvolvedor: pôr no cenário qualquer entidade criada e ver como el
   - ✅ **A, a aba e as Gralhas:** pousada no ponto; vê o agente (perto e sem parede no meio), levanta voo e caça:
     rodeia por cima e mergulha bicando; morre com tiros (estoura em fumaça e penas); longe demais, volta e pousa.
     Enquanto alguma caça, toca a perseguição das Gralhas; quando todas param, a música de antes volta.
-  - **B, o Mestre:** levita; ao ver o agente grita e solta o corvo (que vira 3 Gralhas), persegue correndo e morde.
-  - **C, a Mãe:** parada até ver o agente; para, grita e persegue, com a sequência de golpes; a perseguição dela.
+  - ✅ **B, o Mestre:** levita no ponto; ao ver o agente (14 m, sem parede no meio) vira para ele e grita: sai o corvo
+    gigante, que explode (em 2 s ou ao bater) e solta 3 Gralhas que caçam. Depois persegue correndo (desviando das
+    paredes); de lado, freia e vira no lugar; perto e de frente, morde (30 de vida). Longe demais, volta para o lugar
+    dele, e as Gralhas do corvo se desfazem em fumaça. Tiro não faz nada nele e a luz que o faz se cobrir vem com a
+    lamparina (`docs/cap2-sombra.md`). Toca a perseguição das Gralhas.
+  - ✅ **C, a Mãe:** parada no ponto, cantarolando; ao ver o agente (12 m, sem parede no meio) vira para ele e grita, e
+    caça andando. De frente e a meia distância (5 a 10 m), às vezes dá a carga; chegando perto, a sequência: aproxima aos
+    trancos, três garradas e fica exausta. Se o agente foge no meio, a sequência para; sem ver o agente, ela vai até onde
+    o viu por último e, depois de 6 s sem ver (ou longe demais), volta para o lugar dela. Dano: garrada 25, carga 35.
+    Toca a perseguição da Mãe (na frente da das Gralhas). Fica para a etapa da Mãe perseguidora (`docs/lancamento.md`):
+    achar o caminho pela casa (hoje ela vai reto e para na parede), abaixar nas portas, a patrulha, a escuta, o tiro e o
+    atordoamento (na mansão ela é imortal).
+
+### Os mapas de teste das entidades (18/nov)
+
+Um mapa para cada entidade, montado para testar o que ela faz (abra em **Mapas** e aperte **Testar**). São mapas
+comuns: dá para mudar à vontade no editor.
+
+- **`teste-gralhas`, o pátio à noite** (o luar), murado, com um galpão. Quatro Gralhas: duas nas caixas, à vista de
+  quem entra (ande até elas levantarem: a vista é de 9 m); uma na mesa do galpão (só vê quem entra); uma atrás do bloco
+  de pedra (só vê quem contorna). No pátio aberto elas rodeiam e mergulham: atire nelas. Entre no galpão e feche a
+  porta, e se afaste: elas voltam e pousam.
+- **`teste-mestre`, o salão com quatro pilares** e uma biblioteca ao lado. O Mestre fica depois dos pilares do fundo,
+  olhando a entrada: vê quem entra no salão (14 m), grita e solta o corvo. Fique atrás de um pilar e o corvo explode nele;
+  as 3 Gralhas saem da explosão. Dê voltas nos pilares com ele correndo atrás (ele ainda não acha caminho: esbarra, e
+  isso mostra o que falta). Fuja pelo corredor e ele volta para o lugar dele.
+- **`teste-mae`, a casa em anel**: o corredor dá a volta no quarto e na sala, como numa perseguição. A Mãe está no
+  quarto, cantarolando (escute de fora). Abra a porta: ela grita e caça. No corredor norte (24 m, reto, com uma lâmpada
+  apagada no meio) ela dá a carga; deixe chegar perto para ver as garradas e a exausta; afaste-se no meio e ela para.
+  Dobre um canto ou feche uma porta: ela vai até onde viu você e, 6 s sem ver, volta para o quarto. O quarto e a sala
+  têm duas portas cada, para cortar caminho.
 
 ## Fica de fora agora
 

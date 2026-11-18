@@ -89,7 +89,8 @@ vite.config.ts             o Vite + o plugin que salva mapas (tools/mapsDevApi.t
 tools/mapsDevApi.ts        a API dos mapas (só no npm run dev): listar, ler, salvar, apagar em maps/; e salvar o vídeo de uma
                            cena em gravacoes/ (a pasta fica fora do git)
 maps/<id>/                 os mapas (JSON). map.json = cabeçalho; chunks/<cx>_<cz>.json = um bloco de 16 × 16 m;
-                           maps/intro = a Demo · Intro (o submundo, sem chão: docs/intro.md); maps/instalacao-cap0 = o
+                           maps/intro = a Demo · Intro (o submundo, sem chão: docs/intro.md); teste-gralhas, teste-mestre e teste-mae = os
+                           mapas de teste das entidades (docs/criador-de-mapas.md); maps/instalacao-cap0 = o
                            capítulo 0 (o andar de contenção e, solto, o escritório do Victor: docs/cenas.md)
 src/
   main.tsx, App.tsx        as telas (menu → novo jogo → Demo · Intro | configurações | modo desenvolvedor → criador de mapas)
@@ -177,7 +178,8 @@ src/game/                  (já existem: Testar.tsx, player/, input/, world/, we
   corpo/                   o que serve a todo personagem: molas.ts (o que pendura e balança: cabelo, saia, manto; com vento), sombraDeChao.ts
                            (o círculo escuro embaixo dele)
   entidades/               as entidades do mapa ganhando vida no Testar (a aba Entidades): Entidades.tsx (as Gralhas pousadas que
-                           veem o agente e caçam; a música da perseguição) e numeros.ts; o Mestre e a Mãe vêm nas próximas etapas
+                           veem o agente e caçam; o Mestre: grita, solta o corvo, persegue e morde; a Mãe: grita, caça, a carga e
+                           a sequência de garradas; as músicas das perseguições) e numeros.ts
   Testar.tsx               o Testar do editor: o agente andando no mapa aberto (câmera, colisão, luz do jogo), em tela cheia;
                            numa fase, dá ao roteiro o controle do agente (AgenteNaFase: ferir, engolir, cuspir, a gosma, o ponto de volta)
   Desempenho.tsx           o medidor de uma cena de jogo: os quadros por segundo e, com F3, o detalhe (desenhos, triângulos,

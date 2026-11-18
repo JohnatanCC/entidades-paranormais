@@ -1,0 +1,63 @@
+{
+ "formato": 3,
+ "id": "teste-mae",
+ "nome": "Teste · a Mãe",
+ "levels": 2,
+ "levelH": 3.5,
+ "chunkSize": 16,
+ "spawn": {
+  "pos": [
+   24.5,
+   0,
+   20.5
+  ],
+  "yaw": -90,
+  "level": 0
+ },
+ "ambiente": "mansao",
+ "semChao": false,
+ "areas": [
+  {
+   "id": "area-corredor-n",
+   "level": 0,
+   "x": 2,
+   "z": 2,
+   "w": 24,
+   "d": 3,
+   "ambiente": "corredor"
+  },
+  {
+   "id": "area-corredor-s",
+   "level": 0,
+   "x": 2,
+   "z": 19,
+   "w": 24,
+   "d": 3,
+   "ambiente": "corredor"
+  },
+  {
+   "id": "area-corredor-o",
+   "level": 0,
+   "x": 2,
+   "z": 5,
+   "w": 3,
+   "d": 14,
+   "ambiente": "corredor"
+  },
+  {
+   "id": "area-corredor-l",
+   "level": 0,
+   "x": 23,
+   "z": 5,
+   "w": 3,
+   "d": 14,
+   "ambiente": "corredor"
+  }
+ ],
+ "chunks": [
+  "0_0",
+  "0_1",
+  "1_0",
+  "1_1"
+ ]
+}
