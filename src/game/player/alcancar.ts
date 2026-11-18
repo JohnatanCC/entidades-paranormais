@@ -2,7 +2,8 @@
 // gestos (pegar a alça da mochila, bater na bolsa) e, depois, para a outra mão na arma.
 // Contas no espaço do pai do braço (o peito): o braço pende para −y da junta, o antebraço dobra para +z (rotation.x < 0).
 import * as THREE from 'three'
-import type { Braco } from './modelo'
+import type { Agente, Braco } from './modelo'
+import { ALCANCE } from './numeros'
 
 const _d = new THREE.Vector3(), _p = new THREE.Vector3(), _u = new THREE.Vector3(), _f = new THREE.Vector3()
 const _x = new THREE.Vector3(), _y = new THREE.Vector3(), _z = new THREE.Vector3()
@@ -27,4 +28,22 @@ export function alcancar(b: Braco, alvo: THREE.Vector3, polo: THREE.Vector3, k: 
   _q.setFromRotationMatrix(_m.makeBasis(_x, _y, _z))
   b.up.quaternion.slerp(_q, k)
   b.fo.rotation.x += (-B - b.fo.rotation.x) * k
+}
+
+const _alvo = new THREE.Vector3(), _polo = new THREE.Vector3()
+const sm = (k: number) => { const c = cl(k, 0, 1); return c * c * (3 - 2 * c) }
+
+/** Quanto dura o gesto de alcançar um ponto (s). */
+export const DURA_ALCANCE = ALCANCE.sobe + ALCANCE.segura + ALCANCE.desce
+
+/** A mão esquerda vai até um ponto do mundo e volta (abrir a porta: a maçaneta); t = s desde que o gesto começou.
+ *  Por cima da pose do corpo: se o ponto está longe, o braço só estica na direção dele. Devolve o quanto está lá (0 a 1). */
+export function maoNoPonto(a: Agente, ponto: THREE.Vector3, t: number, livre = 1) {
+  const k = (t < ALCANCE.sobe ? sm(t / ALCANCE.sobe) : 1 - sm((t - ALCANCE.sobe - ALCANCE.segura) / ALCANCE.desce)) * livre
+  if (k <= 0.001) return 0
+  const b = a.arms[1]
+  a.root.updateMatrixWorld(true) // o ponto é do mundo: o peito precisa estar no lugar deste quadro
+  b.up.parent!.worldToLocal(_alvo.copy(ponto))
+  alcancar(b, _alvo, _polo.set(0.9, -1, -0.5), k) // o cotovelo para fora e para baixo
+  return k
 }

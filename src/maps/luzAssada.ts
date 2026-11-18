@@ -18,7 +18,7 @@
 // o piso de um andar bloqueia a luz do outro (onde não tem piso, como no pé-direito duplo, passa).
 import * as THREE from 'three'
 import { FORCA_LUZ, OBJETOS } from './objetos'
-import { LEVEL_H, PORTA_GRANDE_H, PORTA_H, portaAlta, type Chunk } from './types'
+import { LEVEL_H, PORTA_GRANDE_H, PORTA_H, portaAlta, type Chunk, type Prop } from './types'
 
 type V3 = [number, number, number]
 type V4 = [number, number, number, number]
@@ -35,6 +35,39 @@ export const INDIRETA = { rebote: 0.08, branco: 0.55, queda: 0.74, ceu: '#7f9fe0
 const rad = (v: number) => (v * Math.PI) / 180
 
 /** O número de uma lâmpada pela posição dela no mundo (o mesmo aqui e na lâmpada de verdade: editor/Objetos.tsx). */
+/** Onde fica a lâmpada de um objeto que acende (m, no mundo), girada com ele. */
+const _e = new THREE.Euler(), _v = new THREE.Vector3()
+export function lampadaDe(p: Pick<Prop, 'type' | 'pos' | 'rot'>): V3 | null {
+  const l = OBJETOS[p.type]?.luz
+  if (!l) return null
+  _v.set(...l.pos).applyEuler(_e.set(rad(p.rot[0]), rad(p.rot[1]), rad(p.rot[2]), 'YXZ'))
+  return [p.pos[0] + _v.x, p.pos[1] + _v.y, p.pos[2] + _v.z]
+}
+
+/** O objeto que acende não estoura com a própria luz: na amostra dele, a lâmpada dele conta como se estivesse a pelo
+ *  menos PERTO m (a cúpula da luminária de mesa fica a 8 cm da lâmpada e ficaria toda branca). */
+const PERTO = 0.4
+export function amaciarPropria(out: LuzVertice, ponto: V3, p: Pick<Prop, 'type' | 'pos' | 'rot'>) {
+  const l = lampadaDe(p)
+  if (!l) return
+  const id = idLampada(l[0], l[1], l[2]), d = Math.hypot(l[0] - ponto[0], l[1] - ponto[1], l[2] - ponto[2])
+  const f = Math.min(1, Math.max(d ** DECAIMENTO, 0.01) / PERTO ** DECAIMENTO)
+  for (const v of [out.a, out.b]) if (Math.abs(v[3]) === id) for (let i = 0; i < 3; i++) v[i] *= f
+}
+
+/** Um personagem colado numa lâmpada não estoura (o Victor a 70 cm da luminária de mesa recebia 3 vezes a luz do
+ *  Matheus, e a camisa branca ficava chapada): na amostra dele, cada lâmpada sozinha clareia no máximo `max` (o brilho
+ *  de uma luminária de teto num corredor fica perto de 1). */
+export const LUZ_NO_PERSONAGEM = 1.15
+/** O mesmo para um objeto colado numa lâmpada (a pasta ao lado da luminária de mesa): o máximo de uma lâmpada sozinha. */
+export const LUZ_NO_OBJETO = 1.1
+export function limitarLampadas(out: LuzVertice, max = LUZ_NO_PERSONAGEM) {
+  for (const v of [out.a, out.b]) {
+    const l = 0.3 * v[0] + 0.59 * v[1] + 0.11 * v[2]
+    if (l > max) for (let i = 0; i < 3; i++) v[i] *= max / l
+  }
+}
+
 export const idLampada = (x: number, y: number, z: number) => 1 + ((((Math.round(x * 20) * 73856093) ^ (Math.round(y * 20) * 19349663) ^ (Math.round(z * 20) * 83492791)) >>> 0) % 60000)
 
 /** A luz de um vértice: as duas lâmpadas mais fortes (r, g, b, número), o resto das lâmpadas somado, a das janelas e
@@ -49,7 +82,7 @@ export type Assador = (p: V3, n: V3 | null, de: V3, level: number, out: LuzVerti
 
 export function assadorDe(chunks: Chunk[]): Assador {
   const paredes = new Set<string>(), pisos = new Set<string>(), portas = new Map<string, number>(), fontes: Fonte[] = [] // portas: a altura do buraco de cada pedaço
-  const e = new THREE.Euler(), v = new THREE.Vector3(), cor = new THREE.Color()
+  const cor = new THREE.Color()
   for (const c of chunks) {
     for (const f of c.floors) pisos.add(`${f.level}|${f.x}|${f.z}`)
     for (const o of c.openings) {
@@ -66,9 +99,8 @@ export function assadorDe(chunks: Chunk[]): Assador {
     for (const p of c.props) {
       const l = OBJETOS[p.type]?.luz, modo = (p.params?.modo as string) ?? 'normal'
       if (!l || modo === 'apagada') continue
-      v.set(...l.pos).applyEuler(e.set(rad(p.rot[0]), rad(p.rot[1]), rad(p.rot[2]), 'YXZ'))
       cor.set(l.cor ?? FORCA_LUZ.cor).multiplyScalar(l.forca ?? FORCA_LUZ.forca)
-      const x = p.pos[0] + v.x, y = p.pos[1] + v.y, z = p.pos[2] + v.z
+      const [x, y, z] = lampadaDe(p)!
       fontes.push({ x, y, z, level: Math.max(0, Math.floor((y - 0.05) / LEVEL_H)), r: cor.r, g: cor.g, b: cor.b, alcance: l.alcance ?? FORCA_LUZ.alcance,
         id: idLampada(x, y, z) * (modo === 'falhando' ? -1 : 1) })
     }

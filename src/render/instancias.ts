@@ -5,7 +5,7 @@
 // (render/assada.ts, aplicarLuzInstancias). O editor continua com as cópias soltas (para escolher e mover cada uma).
 import * as THREE from 'three'
 import type { Assador } from '../maps/luzAssada'
-import { novaLuzVertice } from '../maps/luzAssada'
+import { LUZ_NO_OBJETO, limitarLampadas, novaLuzVertice } from '../maps/luzAssada'
 import { OBJETOS } from '../maps/objetos'
 import type { Prop } from '../maps/types'
 import { aplicarLuzInstancias } from './assada'
@@ -47,6 +47,7 @@ export function objetosJuntos(props: Prop[], assa: Assador): { grupo: THREE.Grou
     lista.forEach((p, i) => {
       const ponto: [number, number, number] = [p.pos[0], p.pos[1] + (def?.apoio === 'teto' ? -h : h), p.pos[2]]
       assa(ponto, null, ponto, p.level, amostra)
+      limitarLampadas(amostra, LUZ_NO_OBJETO) // colado numa lâmpada, o objeto não estoura
       a.set(amostra.a, i * 4); b.set(amostra.b, i * 4)
       resto.set([amostra.resto[0] + amostra.janela[0], amostra.resto[1] + amostra.janela[1], amostra.resto[2] + amostra.janela[2]], i * 3)
       indireta.set(amostra.indireta, i * 3)

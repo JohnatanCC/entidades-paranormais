@@ -7,7 +7,8 @@
 // dois a cada redesenho da tela, então mexer neles por aqui não dura). O nível liga aqui o passe final; no automático, os primeiros
 // segundos medem os quadros e descem um nível se o aparelho não der conta.
 //   etapa 3 (a luz assada no mapa): quando chegar, a luz ambiente daqui baixa, porque a malha já traz a luz dos cantos;
-// No Médio e no Alto, a lua e as lâmpadas mais perto do agente fazem sombra (render/sombras.ts).
+// No Médio e no Alto, a lua e as lâmpadas mais perto do agente fazem sombra (render/sombras.ts). As lâmpadas do mapa
+// não são luzes de verdade: a luz delas vem pintada no mapa, e só as luzes das sombras são de verdade.
 import { useEffect, useMemo, useRef } from 'react'
 import { useFrame, useThree } from '@react-three/fiber'
 import * as THREE from 'three'
@@ -22,7 +23,7 @@ import { novoPasseFinal, type Bloom, type PasseFinal } from '../../render/passeF
 import { ajustarMateriais } from '../../render/materiais'
 import { MEDICAO, descerNivel, useDefinicao, type Definicao } from '../../render/qualidade'
 import { descartarCeu, novoCeu } from './ceu'
-import { escolherSombras, refazerSombras, semSombras } from '../../render/sombras'
+import { escolherSombras, novasLuzes, passoDasLuzes, semSombras } from '../../render/sombras'
 import { ambienteEm, novaLuzViva, passoLuz, type Luz } from './luz'
 
 interface Props {
@@ -73,19 +74,25 @@ export function Iluminacao({ ambiente, areas = SEM_AREAS, em, semCeu, definicao 
   useEffect(() => { forcaDoLuar(LUAR_NO_JOGO); return () => forcaDoLuar(1) }, [])
 
   // a luz das lâmpadas assada na malha: no Baixo e no Médio, todas; no Alto, as que não fazem sombra
-  useEffect(() => { luzAssada(N.lampadas); return () => luzAssada('nao') }, [N.lampadas])
+  // (ao sair, volta a de antes: a do editor, que também é assada)
+  useEffect(() => { const antes = ASSADA.modo; luzAssada(N.lampadas); return () => luzAssada(antes) }, [N.lampadas])
 
-  // as sombras em tempo real (Médio e Alto): a lua, uma sombra para tudo em volta do agente; as lâmpadas, só as mais perto
+  // o tempo até escolher de novo as lâmpadas que ganham as luzes de verdade; o quadro, para o ritmo das sombras
+  const sombra = useRef(1), quadro = useRef(0)
+  // as sombras em tempo real (Médio e Alto): a lua, uma sombra para tudo em volta do agente; as lâmpadas, um punhado
+  // fixo de luzes de verdade que vão para as mais perto
   const S = N.sombras
   useEffect(() => {
     if (!S.lua && !S.lampadas) return
     const s = c.luar.shadow
     s.mapSize.set(S.lua, S.lua); s.bias = -0.0006; s.normalBias = 0.05
     Object.assign(s.camera, { left: -24, right: 24, top: 24, bottom: -24, near: 1, far: LONGE * 2 }); s.camera.updateProjectionMatrix()
-    return () => { c.luar.castShadow = false; s.map?.dispose(); s.map = null; semSombras() }
-  }, [gl, c, S])
+    const luzes = S.lampadas ? novasLuzes(S.lampadas, S.mapa) : []
+    if (luzes.length) scene.add(...luzes)
+    sombra.current = 1 // escolhe as lâmpadas já no próximo quadro
+    return () => { c.luar.castShadow = false; s.map?.dispose(); s.map = null; if (luzes.length) scene.remove(...luzes); semSombras() }
+  }, [gl, scene, c, S])
 
-  const sombra = useRef(1), quadro = useRef(0) // o tempo até escolher de novo as lâmpadas que fazem sombra; o quadro, para o ritmo delas
   const medida = useRef({ t: 0, soma: 0, n: 0, feita: false })
   useFrame(({ camera, clock }, dt) => {
     passoLuz(c.viva, lugar(), Math.min(dt, 0.1))
@@ -107,8 +114,8 @@ export function Iluminacao({ ambiente, areas = SEM_AREAS, em, semCeu, definicao 
     const lua = S.lua > 0 && L.forcaLuar > 0.02
     if (c.luar.castShadow !== lua) c.luar.castShadow = lua
     c.luar.shadow.autoUpdate = false; c.luar.shadow.needsUpdate = lua && q % S.cada === S.cada - 1
-    if (S.lampadas) refazerSombras(q, S.cada)
-    if (S.lampadas && em && (sombra.current += dt) > 0.4) { sombra.current = 0; escolherSombras(_a.set(em.x, em.y + 1, em.z), S.lampadas, S.mapa) }
+    if (S.lampadas) passoDasLuzes(q, S.cada)
+    if (S.lampadas && em && (sombra.current += dt) > 0.4) { sombra.current = 0; escolherSombras(_a.set(em.x, em.y + 1, em.z)) }
     c.neblina.color.copy(L.neblina); c.neblina.density = L.densidade; c.fundo.copy(L.neblina)
     // o céu: o horizonte é a cor da neblina (o que some ao longe some na cor dele)
     if (c.cupula) { const C = c.cupula; C.zenite.copy(L.zenite); C.horizonte.copy(L.neblina); C.u.uEstrelas.value = L.estrelas; C.u.uForcaLua.value = L.lua; C.u.uT.value = clock.elapsedTime }

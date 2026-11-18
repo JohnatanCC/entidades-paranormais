@@ -41,7 +41,7 @@ O que está decidido sobre a luz, como ela é feita e as etapas. Os números fic
 - **A troca entre áreas** (`src/game/luz/luz.ts`): a ambientação é a da menor área que contém o agente (no andar
   dele), ou a padrão do mapa. A luz anda até a nova em ~1,6 s (`TROCA`).
 - **Os momentos** (`MOMENTOS`, no mesmo catálogo): uma mudança por alguns segundos, por cima da ambientação do lugar,
-  com tempo de entrar, durar e sair. O jogo chama `momento('mae-chegando')`. No Testar, a tecla **M** toca esse.
+  com tempo de entrar, durar e sair. O jogo chama `momento('mae-chegando')`. Uma cena pode **segurar** um momento enquanto um plano dura (`segurarMomento`: o **alarme** da instalação, que puxa tudo para o vermelho; `docs/cenas.md`). No Testar, a tecla **M** toca esse.
 - **A imagem final**: o tonemapping é o ACES. No nível Baixo é o do próprio three, sem passada nenhuma (o tom vem das
   luzes e da neblina). No Médio e no Alto a cena é desenhada numa textura e **uma** passada soma o bloom e faz a
   exposição, o ACES, a correção de cor, a vinheta e um pontilhado mínimo contra as faixas no escuro (`src/render/passeFinal.ts`).
@@ -80,7 +80,12 @@ O que está decidido sobre a luz, como ela é feita e as etapas. Os números fic
 - **As sombras em tempo real** (etapa 4, no Médio e no Alto; `src/render/sombras.ts`): a **lua** faz uma sombra para
   tudo em volta do agente (48 × 48 m; textura de 2048 no Alto e 1024 no Médio), e as **lâmpadas acesas mais perto do
   agente** fazem sombra (512 cada): 3 no Alto e 1 no Médio (a pedido, 11/nov: no começo era só no Alto). Sombra de lâmpada é cara: cada uma desenha a cena seis vezes por quadro; por isso só as mais perto, escolhidas
-  de novo a cada 0,4 s. Paredes, pisos, escadas, corrimão, portas, móveis e personagens fazem e recebem sombra; o que
+  de novo a cada 0,4 s. **A lâmpada do mapa não é mais uma luz de verdade**, nem no jogo nem no editor (18/nov: o mapa da instalação,
+  com 105 luminárias, punha 105 luzes na cena; o three passa por todas em cada pixel de cada material, e no celular um
+  material com tantas luzes nem compila): ela só se apresenta como dado (onde, a cor, a força), a luz dela vem toda da
+  assada, e as luzes de verdade são um punhado fixo, as das sombras (1 no Médio, 3 no Alto, nenhuma no Baixo), que
+  vão para as lâmpadas mais perto. **O editor também usa a luz assada** (18/nov: com as 105 lâmpadas de verdade ele
+  gastava 31 ms por quadro na instalação; com a assada, 8 ms), por cima da luz de trabalho dele. Paredes, pisos, escadas, corrimão, portas, móveis e personagens fazem e recebem sombra; o que
   acende (os blocos `luz_`) e a peça que tem a lâmpada dentro não fazem (a cúpula do abajur taparia a própria luz).
   **A lâmpada mais perto refaz a sombra em todo quadro do ritmo do nível; as outras, na metade, alternadas entre si**
   (11/nov: no Alto são 12 passadas de sombra por quadro em vez de 18). Dentro de casa o luar é zero: a lua deixa de fazer sombra e o cenário nem faz a conta dela (a troca, ao entrar e

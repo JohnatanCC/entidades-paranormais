@@ -3,6 +3,7 @@
 // as camadas das armas, dos gestos e a queda (queda.ts, sem violência). Quem move e gira o root é o controle; aqui só os ossos.
 import * as THREE from 'three'
 import type { Agente } from './modelo'
+import { maoNoPonto } from './alcancar'
 import { animarArma, maoNaBomba, POSE_DA_ARMA, posturaDaEscopeta } from './arma'
 import { animarMolas } from '../corpo/molas'
 import { animarMaos, type PoseMao } from './maos'
@@ -28,6 +29,7 @@ export interface EstadoAnim {
   ferido?: boolean // machucado (30% da vida ou menos): curvado, mancando, a mão no lado (o tranco de um golpe: dano.ts, tranco)
   mover?: [number, number] // a velocidade no espaço dele (m/s): x para a esquerda, z para a frente; sem = para a frente
   municao?: Municao // a munição (weapons/municao.ts): a recarga da escopeta e o calor da pistola aparecem no corpo e na arma
+  alcanca?: { ponto: THREE.Vector3; t: number } // a mão esquerda vai a um ponto do mundo (a maçaneta da porta); t = s desde o começo do gesto
 }
 
 const STAND = 0.42 // a altura do quadril dentro do pivô da cambalhota, antes de acertar os pés no chão
@@ -211,6 +213,7 @@ export function animarAgente(a: Agente, e: EstadoAnim, dt: number): void {
   // machucado: a mão esquerda segura o lado, quando está livre (não está na bomba, na pistola mirando, apontando ou jogando)
   const Ar = a.anim.arma, ocupada = Math.max(Ar.esquerda, a.arma === 'pistola' || (a.arma === 'armadilha' && !Ar.fora) ? Ar.mira : 0, Ar.lanca >= 0 ? 1 : 0, Ar.recarga)
   const noLado = maoNoLado(a, (1 - ocupada) * solto)
+  const naPorta = e.alcanca ? maoNoPonto(a, e.alcanca.ponto, e.alcanca.t, solto) : 0 // abrir a porta: por cima das armas
   poseDoTranco(a) // o tranco de um golpe: por cima de tudo, até da mira
 
   // ---------- a queda: por cima de tudo; o chão acerta a altura pelo ponto mais baixo do corpo (joelhos, ombro, cabeça) ----------
@@ -225,6 +228,7 @@ export function animarAgente(a: Agente, e: EstadoAnim, dt: number): void {
   const aponta = a.arma === 'armadilha' && !A.fora && A.mira > 0.5 && A.lanca < 0
   const forca: typeof gesto = [direita, maoRecarga ?? (A.esquerda > 0.5 || (mirada && a.arma === 'pistola') ? 'segurar' : aponta ? 'apontar' : gesto[1])]
   if (noLado > 0.5 && !forca[1]) forca[1] = 'aberta' // a mão espalmada no lado
+  if (naPorta > 0.4) forca[1] = 'aberta' // a mão espalmada na porta
   if (q >= 0) forca[1] = undefined // caído: a mão livre solta (a da arma continua nela)
   if (e.mao) animarMaos(a, e.mao, 1, dt, m.tempo, forca)
   else animarMaos(a, 'punho', rolando ? 1 : 0.6 * run * Math.min(1, amp), dt, m.tempo, forca)

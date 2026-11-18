@@ -12,6 +12,7 @@ export interface EstadoCena {
   preto: boolean // o plano não tem câmera (o título, uma pausa)
   escuro: number // 0 a 1: o preto por cima da imagem
   legenda: Fala | null
+  luz: string | null // o momento de luz do plano
   titulo: { texto: string; opacidade: number } | null
   fim: boolean // passou do último plano
 }
@@ -55,5 +56,5 @@ export function estadoEm(c: Cena, t: number): EstadoCena {
     const a = local - p.titulo.t, b = p.titulo.t + p.titulo.dura - local
     titulo = { texto: p.titulo.texto, opacidade: Math.min(1, a / FADE_TITULO, b / FADE_TITULO) }
   }
-  return { plano: i, nome: p.nome, local, pos, olha, lente: cam?.lente ?? LENTE, treme: cam?.treme ?? 1, preto: !cam, escuro, legenda, titulo, fim }
+  return { plano: i, nome: p.nome, local, pos, olha, lente: cam?.lente ?? LENTE, treme: cam?.treme ?? 1, preto: !cam, escuro, legenda, luz: fim ? null : (p.luz ?? null), titulo, fim }
 }

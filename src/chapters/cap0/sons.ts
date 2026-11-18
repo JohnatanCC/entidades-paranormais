@@ -1,5 +1,5 @@
-// Os sons do capítulo 0 (a instalação da C.R.O.S.), sintetizados na hora (audio/sintese.ts), sem arquivos. A abertura
-// (cenas/abertura.ts) é sem música: o som do lugar conta a história (docs/cenas.md, a cena 1).
+// Os sons do capítulo 0 (a instalação da C.R.O.S.), sintetizados na hora (audio/sintese.ts), sem arquivos. A cena da
+// instalação (cenas/instalacao.ts) é sem música: o som do lugar conta a história (docs/cenas.md, a cena 2).
 // Cada um é um Tocar (enemies/sons.ts): toca em t, para d, e devolve quanto dura. Os que duram o plano inteiro recebem
 // a duração (s).
 import { estalos, pancada, rangido, ruido, tom } from '../../audio/sintese'
@@ -90,11 +90,12 @@ export const portaFecha: Tocar = (s, t, d) => {
   estalos(s, { t: t + 0.6, n: 1, i0: 0, i1: 0, f: 1600, q: 5, gain: 0.12, dest: d })
   return 1
 }
-/** A sirene do alarme: dois tons que se revezam, por `dura` s. */
-export const sirene = (dura: number): Tocar => (s, t, d) => {
+/** A sirene do alarme: dois tons que se revezam, por `dura` s. k = o volume (menos: a sirene ao longe, abafada). */
+export const sirene = (dura: number, k = 1): Tocar => (s, t, d) => {
+  const lp = k < 1 ? 900 : 1900
   for (let x = 0; x < dura; x += 0.9) {
-    tom(s, { t: t + x, dur: 0.42, a: 0.03, r: 0.05, f: 660, f2: 880, tipo: 'sawtooth', lp: 1900, gain: 0.07, dest: d })
-    tom(s, { t: t + x + 0.45, dur: 0.42, a: 0.03, r: 0.05, f: 880, f2: 660, tipo: 'sawtooth', lp: 1900, gain: 0.07, dest: d })
+    tom(s, { t: t + x, dur: 0.42, a: 0.03, r: 0.05, f: 660, f2: 880, tipo: 'sawtooth', lp, gain: 0.07 * k, dest: d })
+    tom(s, { t: t + x + 0.45, dur: 0.42, a: 0.03, r: 0.05, f: 880, f2: 660, tipo: 'sawtooth', lp, gain: 0.07 * k, dest: d })
   }
   return dura + 0.1
 }

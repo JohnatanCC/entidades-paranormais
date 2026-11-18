@@ -62,7 +62,7 @@ capítulo 1 e lançá-lo na web, no itch.io (`docs/lancamento.md`).
   Fora agora não quer dizer fora para sempre: se o desenvolvedor trouxer de volta, atualize esta lista.
 - **A identidade visual** (decidida em 10/nov): cenário e personagens em **blocos com textura pintada em pixel** (cenário
   com 32 px por metro, personagens com 64 e o rosto com 128), com **proporções quase realistas** (nada de cabeça e mãos grandes). As pessoas e os fantasmas são em **blocos refinados**
-  (decidido em 11/nov): muitas peças pequenas, chanfradas e inclinadas, dentro das mesmas juntas; os objetos continuam simples. O terror vem da ambientação: pouca luz,
+  (decidido em 11/nov): muitas peças pequenas, chanfradas e inclinadas, dentro das mesmas juntas. **Os objetos que a câmera mostra de perto também são refinados** (18/nov, a pedido: os móveis do escritório do Victor; molduras, chanfros, gavetas, puxadores, lombadas), sempre uma malha e uma textura por objeto; os outros continuam simples até chegar a vez deles. O terror vem da ambientação: pouca luz,
   fantasmas com formas erradas, olhos que brilham, movimentos travados. O estilo é parecido com o do Hytale, mas os
   personagens são nossos: não copiar os deles. Os Sombrios têm o clima das sombras do Don't Starve, sem copiar o desenho.
 - Os modelos dos personagens, dos objetos e (quando chegarem) das armas são feitos no **Blockbench** (o passo a passo
@@ -86,9 +86,11 @@ npm run typecheck  # só os tipos
 ```
 index.html                 a página (fontes VT323 e IBM Plex Mono)
 vite.config.ts             o Vite + o plugin que salva mapas (tools/mapsDevApi.ts)
-tools/mapsDevApi.ts        a API dos mapas (só no npm run dev): listar, ler, salvar, apagar em maps/
+tools/mapsDevApi.ts        a API dos mapas (só no npm run dev): listar, ler, salvar, apagar em maps/; e salvar o vídeo de uma
+                           cena em gravacoes/ (a pasta fica fora do git)
 maps/<id>/                 os mapas (JSON). map.json = cabeçalho; chunks/<cx>_<cz>.json = um bloco de 16 × 16 m;
-                           maps/intro = a Demo · Intro (o submundo, sem chão: docs/intro.md)
+                           maps/intro = a Demo · Intro (o submundo, sem chão: docs/intro.md); maps/instalacao-cap0 = o
+                           capítulo 0 (o andar de contenção e, solto, o escritório do Victor: docs/cenas.md)
 src/
   main.tsx, App.tsx        as telas (menu → novo jogo → Demo · Intro | configurações | modo desenvolvedor → criador de mapas)
   styles.css               a paleta e as telas
@@ -104,7 +106,10 @@ src/
                            vogais, o grito, o sussurro; liga no primeiro clique; o volume é Geral × Efeitos
   dev/provas.ts            só no npm run dev (window.provas): fotos, medidas e o volume da Mãe (e dos demônios, das armas e do
                            agente: sonsDemonios, sonsAgente), para conferir pelo console;
-                           provas.ir(x, z, yaw) leva o agente a um ponto no Testar (dev/ganchos.ts), provas.qualidade() diz o nível,
+                           provas.ir(x, z, yaw) leva o agente a um ponto no Testar (dev/ganchos.ts; o criador de mapas e o Ver cenas
+                           entregam a cena, o desenhista e a câmera por dev/GanchosDaTela.tsx: provas.cena(), gl(), camera()),
+                           provas.gravar() grava a cena aberta no Ver cenas num vídeo, em gravacoes/<id>.webm (dev/gravar.ts: a imagem, as
+                           faixas, as legendas, o título e os sons; a voz provisória do navegador não entra), provas.qualidade() diz o nível,
                            provas.sombras() conta as lâmpadas com sombra, provas.cena() dá a cena do Testar para inspecionar, provas.fase() o controle do agente (os alvos das balas),
                            provas.passo() mostra um ciclo do andar em 8 quadros (também de lado e de costas), provas.escorrega() mede o pé de apoio
   audio/espaco.ts          o som 3D: a voz sai da boca do personagem, no mundo; o ouvido é a câmera (ouvinte, a cada quadro)
@@ -114,7 +119,7 @@ src/
                            prepara um ataque acende âmbar), brilho.ts (os blocos "luz_" mais fortes que o branco quando o bloom está ligado),
                            assada.ts (o cenário e os objetos usam a luz assada: todas as lâmpadas no Baixo; no Médio e no Alto, as que não fazem
                            sombra), remendos.ts (anota as mudanças de shader de cada material, para a cópia levar junto),
-                           sombras.ts (as sombras do nível Alto: quais lâmpadas fazem sombra), materiais.ts (nome da textura -> material),
+                           sombras.ts (as lâmpadas do mapa são só dados, no jogo e no editor; as poucas luzes de verdade, as das sombras, vão para as mais perto), materiais.ts (nome da textura -> material),
                            relevo.ts (o relevo das texturas do cenário, gerado da imagem: na luz e o de verdade, do Ultra),
                            corte.ts (paredes altas / recortadas / baixas no editor), miniaturas.ts (fotos do catálogo de objetos),
                            bbmodel.ts (lê um modelo do Blockbench: pastas = juntas, blocos = malhas; "luz_" brilha; os
@@ -123,8 +128,8 @@ src/
                            objetos3d.ts (cada tipo de objeto, porta, janela e arma montado uma vez; o mapa usa cópias que dividem tudo),
                            instancias.ts (no jogo, os objetos repetidos juntados: uma malha de cópias por peça de cada tipo)
   maps/                    types.ts (o formato v3), formato.ts (a conversão dos mapas antigos), ambientes.ts (o catálogo das
-                           ambientações e dos momentos de luz: os números de cada uma), luzAssada.ts (a luz de cada lâmpada
-                           e de cada janela num ponto, com as paredes bloqueando), loader.ts (o jogo lê a pasta), storage.ts (o editor lê, grava,
+                           ambientações e dos momentos de luz: os números de cada uma; a instalacao é a do capítulo 0), luzAssada.ts (a luz de cada lâmpada
+                           e de cada janela num ponto, com as paredes bloqueando; o objeto que acende não estoura com a própria luz), loader.ts (o jogo lê a pasta), storage.ts (o editor lê, grava,
                            exporta e importa; o pacote MapBundle), textures.ts (o catálogo: cada nome, o uso e a cor; a imagem é texturas/<nome>.png),
                            objetos.ts (o catálogo de móveis e lâmpadas, em dados: nome, tamanho, apoio; a forma vem do modelo),
                            corrimao.ts (o corrimão automático das escadas, calculado do mapa; o editor desenha em editor/corrimaoMesh.ts)
@@ -133,13 +138,13 @@ src/
                            paredes juntadas por textura, cantos fechados, a sombra de canto e a luz assada em cada vértice), EditorCamera, FerramentaParedes,
                            FerramentaPiso, FerramentaPincel, FerramentaAberturas + PainelAbertura, FerramentaEscadas + PainelEscada,
                            FerramentaObjetos + PainelObjeto, FerramentaAmbiente + PainelArea (as áreas de ambientação),
-                           Objetos (monta o catálogo; a lâmpada acende),
+                           Objetos (monta o catálogo; a lâmpada acende pela luz assada),
                            Aberturas (portas, janelas) + Luar (feixe macio, brilho, poeira), Paleta, doc.ts (o documento e as operações),
                            historico.ts (desfazer e refazer)
 texturas/                  as texturas do cenário: <nome>.png, 32 × 32 px por bloco de 1 m, pintadas em pixel e sem costura
 modelos/                   os modelos do Blockbench (.bbmodel), lidos direto pelo jogo: agente.bbmodel, lara.bbmodel,
                            nicolas.bbmodel, victor.bbmodel e leonardo.bbmodel (o mesmo esqueleto do agente), objetos/<tipo>.bbmodel,
-                           aberturas/<tipo>.bbmodel (as portas e janelas; a da instalação e a de contenção, do capítulo 0), armas/<nome>.bbmodel (pistola, escopeta, armadilha; e o cartucho da recarga),
+                           aberturas/<tipo>.bbmodel (as portas e janelas; a porta da instalação, a de contenção, a do elevador e a janela da instalação, do capítulo 0), armas/<nome>.bbmodel (pistola, escopeta, armadilha; e o cartucho da recarga),
                            fantasmas/<nome>.bbmodel (a Mãe; a Gralha e o Mestre, do capítulo 2, ainda fora do jogo), demonios/<nome>.bbmodel (os Sombrios: o Assombrado, a Asa sombria, o Devora almas)
 public/musica/             as músicas do jogo (menu.mp3: o menu e o criador de mapas; batalha.mp3: as hordas e devorador.mp3:
                            o chefe, na Demo · Intro)
@@ -158,11 +163,13 @@ src/game/                  (já existem: Testar.tsx, player/, input/, world/, we
                            quando a etapa chegar)
   luz/                     a luz do jogo: Iluminacao.tsx (a luz ambiente, o preenchimento, o luar, a neblina, a imagem final; entra
                            em toda cena de jogo), ceu.ts (o céu da noite: a cúpula com o degradê, as estrelas e a lua), luz.ts (a ambientação de onde o agente está, a troca suave, os momentos:
-                           momento('mae-chegando'))
-  cenas/                   as cenas (cutscenes, docs/cenas.md): tipos.ts (o formato: a cena é uma lista de planos), tocador.ts (a
+                           momento('mae-chegando'); segurarMomento('alarme') enquanto uma cena pede)
+  cenas/                   as cenas (cutscenes, docs/cenas.md): tipos.ts (o formato: a cena é uma lista de planos; o elenco e o que cada ator faz; as portas; a luz do plano; o cenario é o que ela põe no mapa), tocador.ts (a
                            conta: o plano, a câmera, o preto, a legenda), TocarCena.tsx (dentro do Canvas: a câmera e os sons),
                            Moldura.tsx (as faixas de cinema, o preto, a legenda, o título), vozes.ts (as falas lidas pela voz do
-                           navegador, provisória: o perfil de cada personagem) e catalogo.ts (todas as cenas)
+                           navegador, provisória: o perfil de cada personagem), atores.ts (a conta do elenco: onde cada ator está, para
+                           onde olha, se fala; as portas da cena), Elenco.tsx (dentro do Canvas: os atores andando, a cabeça, a boca, a luz)
+                           e catalogo.ts (todas as cenas)
   corpo/                   o que serve a todo personagem: molas.ts (o que pendura e balança: cabelo, saia, manto; com vento), sombraDeChao.ts
                            (o círculo escuro embaixo dele)
   Testar.tsx               o Testar do editor: o agente andando no mapa aberto (câmera, colisão, luz do jogo), em tela cheia;
@@ -174,7 +181,7 @@ src/game/                  (já existem: Testar.tsx, player/, input/, world/, we
                            da pistola com o calor; Q troca no Testar), mira.ts (mirar: a pose, o coice, a bomba depois do tiro),
                            recarga.ts (a recarga da escopeta: a bolsa, o cartucho, as balas puxadas pela arma), queda.ts (cair sem violência), dano.ts (o tranco de um golpe,
                            machucado), vida.ts (a vida, a invulnerabilidade, os kits), parado.ts (a respiração, o
-                           peso e os gestos de parado), alcancar.ts (o braço alcança um ponto: IK de dois ossos),
+                           peso e os gestos de parado), alcancar.ts (o braço alcança um ponto: IK de dois ossos; a mão esquerda na maçaneta ao abrir a porta),
                            rosto.ts (as expressões), passada.ts (as curvas de uma passada de verdade: andar e correr),
                            pes.ts (o pé de apoio preso no chão, em qualquer direção: IK da perna), controle.ts
                            (andar, correr, esquivar; preso e lento), tremor.ts (o tremor da tela: quem causa chama tremerDe;
@@ -229,9 +236,9 @@ src/game/                  (já existem: Testar.tsx, player/, input/, world/, we
                            conta a cada quadro (EstadoHud) e ele só muda o que mudou; as legendas e a roda de armas vêm depois
   input/                   acoes.ts: ações do jogador (teclado e mouse; depois controle e toque): o jogo lê ações, nunca teclas
   world/                   colisao.ts (paredes, portas, móveis, corrimão, chão, escadas, braço da câmera, a armadilha jogada, a beirada do mapa sem chão, os bloqueios do roteiro), portas.ts (abrir e fechar
-                           com E, o estado vivo das portas); depois carregar por blocos
-src/chapters/cap0/         (já existe) o capítulo 0: cenas/ (abertura.ts, a cena 1; escritorio.ts, a cena 2, provisória) e sons.ts (os sons
-                           da instalação e da cena 2)
+                           com E, o estado vivo das portas, onde fica a maçaneta); depois carregar por blocos
+src/chapters/cap0/         (já existe) o capítulo 0: cenas/ (escritorio.ts, a cena 1; instalacao.ts, a cena 2, com o alarme; comum.ts, o
+                           tempo das falas), sons.ts (os sons da instalação e das cenas) e ectoplasma.tsx (a poça que escorre debaixo da porta de contenção)
 src/chapters/cap1/         o roteiro do capítulo: qual mapa, gatilhos, cenas, chefe
 src/chapters/intro/        (já existe) o roteiro da Demo · Intro: Roteiro.tsx (as arenas, as ondas, o chefe, a tecla H de teste),
                            tornado.ts (fecha a arena), sons.ts (o ambiente do submundo, o vento do tornado), numeros.ts

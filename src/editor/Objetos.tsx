@@ -1,15 +1,14 @@
 // Os objetos do mapa: cada um é uma cópia do modelo do Blockbench do tipo dele (render/objetos3d.ts), que divide a
 // geometria e a textura com os outros do mesmo tipo. Objeto com luz no catálogo (as lâmpadas, o lustre, a arandela, o
-// abajur, o castiçal...) acende de verdade, uma luz pontual: normal, falhando (pisca) ou apagada. Tipo sem modelo aparece
+// abajur, o castiçal...) acende: normal, falhando (pisca) ou apagada; a luz dele vem pintada no mapa (a luz assada). Tipo sem modelo aparece
 // como uma caixa vermelha de arame, para você ver e trocar. No jogo (juntar), os que não acendem viram uma malha de
 // cópias por peça de cada tipo (render/instancias.ts): bem menos chamadas de desenho.
-import { memo, useEffect, useMemo, useRef } from 'react'
-import { useFrame } from '@react-three/fiber'
+import { memo, useEffect, useMemo } from 'react'
 import * as THREE from 'three'
 import { FORCA_LUZ, OBJETOS, type ObjDef } from '../maps/objetos'
-import { assadorDe, idLampada, novaLuzVertice, type Assador } from '../maps/luzAssada'
+import { LUZ_NO_OBJETO, amaciarPropria, assadorDe, idLampada, lampadaDe, limitarLampadas, novaLuzVertice, type Assador } from '../maps/luzAssada'
 import type { Chunk, Prop } from '../maps/types'
-import { ASSADA, iluminarObjeto, materiaisDoObjeto } from '../render/assada'
+import { iluminarObjeto, materiaisDoObjeto } from '../render/assada'
 import { casca3d, objeto3d } from '../render/objetos3d'
 import { objetosJuntos } from '../render/instancias'
 import { lampadaNaCena } from '../render/sombras'
@@ -34,9 +33,11 @@ export const Modelo = memo(function Modelo({ type, params, luz }: { type: string
     const y = p.pos[1] + (def?.apoio === 'teto' ? -h : h), ponto: [number, number, number] = [p.pos[0], y, p.pos[2]]
     const amostra = novaLuzVertice()
     luz.assa(ponto, null, ponto, p.level, amostra)
+    amaciarPropria(amostra, ponto, p)
+    limitarLampadas(amostra, LUZ_NO_OBJETO) // colado numa lâmpada (a pasta ao lado da luminária de mesa), o objeto não estoura
     iluminarObjeto(obj, amostra)
     return descartar
-  }, [obj, luz?.assa, luz?.p.pos, luz?.p.level])
+  }, [obj, luz?.assa, luz?.p.pos, luz?.p.rot, luz?.p.level])
   return <primitive object={obj} />
 })
 
@@ -52,26 +53,17 @@ export function Colocado({ p, children }: { p: Pick<Prop, 'pos' | 'rot'>; childr
   return <group position={p.pos} rotation={r}>{children}</group>
 }
 
-function Luz({ modo, luz: l }: { modo: string; luz: NonNullable<ObjDef['luz']> }) {
-  const luz = useRef<THREE.PointLight>(null), forca = l.forca ?? FORCA_LUZ.forca
-  useFrame(({ clock }) => {
-    if (!luz.current || modo !== 'falhando') return
-    // falhando: a maior parte do tempo acesa, com quedas curtas e irregulares
-    // (no jogo, todas as que falham piscam juntas, no ritmo da malha: render/assada.ts)
-    const t = clock.elapsedTime, n = Math.sin(t * 13.1) * Math.sin(t * 7.3 + 1.7) * Math.sin(t * 2.9)
-    luz.current.intensity = ASSADA.modo !== 'nao' ? forca * ASSADA.pisca.value : n > 0.35 ? 0.4 : forca
-  })
-  // a lâmpada se apresenta: no nível Alto, as mais perto do agente fazem sombra (render/sombras.ts)
-  // (o número dela é o mesmo que a malha guarda: é como o jogo sabe qual luz assada tirar quando esta faz sombra)
+/** A luz de uma lâmpada do mapa: nunca é uma luz de verdade do three (cada uma custaria em todo pixel de todo material;
+ *  com cem luminárias o editor ia a 30 ms por quadro). A luz dela vem pintada no cenário e nos objetos (a luz assada);
+ *  aqui ela só se apresenta, e no jogo as poucas luzes de verdade, as das sombras, vão para as mais perto do agente
+ *  (render/sombras.ts). O número dela é o mesmo que a malha guarda: é como o jogo sabe qual luz assada tirar. */
+function Luz({ modo, luz: l, p }: { modo: string; luz: NonNullable<ObjDef['luz']>; p: Prop }) {
   useEffect(() => {
-    const L = luz.current
-    if (!L) return
-    const p = L.getWorldPosition(new THREE.Vector3())
-    L.userData.id = idLampada(p.x, p.y, p.z)
-    return lampadaNaCena(L)
-  }, [modo])
-  if (modo === 'apagada') return null
-  return <pointLight ref={luz} position={l.pos} color={l.cor ?? FORCA_LUZ.cor} intensity={forca} distance={l.alcance ?? FORCA_LUZ.alcance} decay={1.6} />
+    if (modo === 'apagada') return
+    const pos = new THREE.Vector3(...lampadaDe(p)!)
+    return lampadaNaCena({ pos, cor: new THREE.Color(l.cor ?? FORCA_LUZ.cor), forca: l.forca ?? FORCA_LUZ.forca, alcance: l.alcance ?? FORCA_LUZ.alcance, id: idLampada(pos.x, pos.y, pos.z), falha: modo === 'falhando' })
+  }, [modo, p.pos, p.rot, l])
+  return null
 }
 
 export function Objetos({ chunks, maxLevel, ocultar, juntar }: { chunks: Chunk[]; maxLevel: number; ocultar?: string | null; juntar?: boolean }) {
@@ -87,7 +79,7 @@ export function Objetos({ chunks, maxLevel, ocultar, juntar }: { chunks: Chunk[]
       {lista.map((p) => (
         <Colocado key={p.id} p={p}>
           <Modelo type={p.type} params={p.params} luz={{ assa, p }} />
-          {OBJETOS[p.type]?.luz && <Luz modo={(p.params?.modo as string) ?? 'normal'} luz={OBJETOS[p.type].luz!} />}
+          {OBJETOS[p.type]?.luz && <Luz modo={(p.params?.modo as string) ?? 'normal'} luz={OBJETOS[p.type].luz!} p={p} />}
         </Colocado>
       ))}
     </group>

@@ -5,6 +5,8 @@
 //   POST /__maps/save           { id, meta, chunks: { "cx_cz": bloco }, criar? } grava maps/<id>/map.json e chunks/*.json
 //                               (blocos que sumiram são apagados; com criar, falha se o mapa já existe)
 //   POST /__maps/delete         { id } apaga a pasta maps/<id>/
+// E as gravações das cenas (src/dev/gravar.ts, provas.gravar()):
+//   POST /__gravacoes/save?nome=<nome>   o corpo é o vídeo (.webm); grava gravacoes/<nome>.webm (a pasta fica fora do git)
 import type { Plugin } from 'vite'
 import type { IncomingMessage, ServerResponse } from 'node:http'
 import fs from 'node:fs'
@@ -101,6 +103,21 @@ export function mapsDevApi(root: string): Plugin {
       server.middlewares.use('/__maps/list', rota('GET', () => ({ mapas: listar() })))
       server.middlewares.use('/__maps/read', rota('GET', (_req, url) => ({ mapa: ler(url.searchParams.get('id') || '') })))
       server.middlewares.use('/__maps/save', rota('POST', async (req) => { gravar(await corpo(req)); return {} }))
+      // o vídeo de uma cena: o corpo cru, direto para gravacoes/<nome>.webm
+      server.middlewares.use('/__gravacoes/save', rota('POST', (req, url) => new Promise<Resposta>((ok, erro) => {
+        const nome = url.searchParams.get('nome') || ''
+        if (!ID.test(nome)) { erro(falha('nome de gravação inválido')); return }
+        const partes: Buffer[] = []
+        let tam = 0
+        req.on('data', (c: Buffer) => { partes.push(c); if ((tam += c.length) > 400 * 1024 * 1024) { erro(falha('vídeo grande demais', 413)); req.destroy() } })
+        req.on('error', erro)
+        req.on('end', () => {
+          const dir = path.resolve(root, 'gravacoes')
+          fs.mkdirSync(dir, { recursive: true })
+          fs.writeFileSync(path.join(dir, nome + '.webm'), Buffer.concat(partes))
+          ok({ arquivo: `gravacoes/${nome}.webm` })
+        })
+      })))
       server.middlewares.use('/__maps/delete', rota('POST', async (req) => {
         const { id } = await corpo(req)
         if (!existe(id as string)) throw falha(`O mapa "${String(id)}" não existe.`, 404)

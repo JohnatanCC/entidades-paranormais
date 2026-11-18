@@ -8,7 +8,7 @@ import { TEXTURAS } from '../maps/textures'
 import { LEVEL_H, type WallSide } from '../maps/types'
 import { pontoCortado } from '../render/corte'
 import { aberturaNo, escadaEm, ladoVisto, objetoNoRaioT, paredeNoRaioT, type MapDoc } from './doc'
-import type { TipoAbertura } from './FerramentaAberturas'
+import { tipoDaJanela, type TipoAbertura } from './FerramentaAberturas'
 import { tamDe } from './FerramentaObjetos'
 import { buraco } from './wallMesh'
 
@@ -44,7 +44,7 @@ function pegar(doc: MapDoc, andar: number, e: ThreeEvent<PointerEvent>): Pego | 
     if (ab) {
       const [h0, h1] = buraco(ab), h = par.y - andar * LEVEL_H
       if (h >= h0 && h <= h1) {
-        const t: TipoAbertura = ab.kind === 'janela' ? (ab.window === 'grande' ? 'janela-grande' : 'janela') : (ab.door ?? 'comum')
+        const t: TipoAbertura = ab.kind === 'janela' ? tipoDaJanela(ab.window) : (ab.door ?? 'comum')
         return { tipo: 'abertura', tipoAbertura: t, width: ab.width }
       }
     }

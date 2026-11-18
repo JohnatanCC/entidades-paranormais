@@ -1,7 +1,7 @@
 // O interruptor da luz assada (a etapa 3b): o jogo usa a luz que o mapa calcula (maps/luzAssada.ts) no lugar das
 // lâmpadas de verdade. Três modos:
-//   'nao'    fora do jogo (o editor): as lâmpadas de verdade iluminam tudo, como sempre;
-//   'assada' Baixo: nada faz a conta de nenhuma lâmpada de verdade (é onde o celular ganha);
+//   'nao'    sem mapa (o Ver modelos): nada da malha;
+//   'assada' o editor e o Baixo: nada faz a conta de nenhuma lâmpada de verdade (é onde o celular ganha);
 //   'mista'  Médio e Alto: só as lâmpadas que fazem sombra são de verdade (COM_SOMBRA diz quais, pelo número de cada
 //            uma); as outras vêm da luz assada. Assim nenhuma lâmpada vaza pela parede: ou tem sombra, ou é assada.
 // Vale para dois tipos de material:

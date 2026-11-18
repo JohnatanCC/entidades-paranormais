@@ -1,0 +1,57 @@
+{
+ "formato": 3,
+ "id": "instalacao-cap0",
+ "nome": "A instalação · capítulo 0",
+ "levels": 2,
+ "levelH": 3.5,
+ "chunkSize": 16,
+ "spawn": {
+  "pos": [
+   6,
+   0,
+   28
+  ],
+  "yaw": 90,
+  "level": 0
+ },
+ "ambiente": "instalacao",
+ "semChao": false,
+ "areas": [
+  {
+   "id": "area-escritorio",
+   "level": 0,
+   "x": 12,
+   "z": 54,
+   "w": 6,
+   "d": 6,
+   "ambiente": "mansao"
+  },
+  {
+   "id": "area-manutencao",
+   "level": 0,
+   "x": 29,
+   "z": 15,
+   "w": 2,
+   "d": 28,
+   "ambiente": "corredor"
+  }
+ ],
+ "chunks": [
+  "0_0",
+  "0_1",
+  "0_2",
+  "0_3",
+  "1_0",
+  "1_1",
+  "1_2",
+  "1_3",
+  "2_0",
+  "2_1",
+  "2_2",
+  "3_0",
+  "3_1",
+  "3_2",
+  "4_1",
+  "4_2"
+ ]
+}

@@ -8,7 +8,8 @@
 import { aoMudarConfig, getSettings } from '../settings/settings'
 
 export type Vogal = 'm' | 'u' | 'o' | 'a' | 'e' | 'i'
-export interface Som { ctx: BaseAudioContext; saida: GainNode; eco: ConvolverNode; ruido: AudioBuffer; glote: PeriodicWave }
+/** mestre: o último nó antes das caixas de som (a mistura pronta: quem grava tira dali, dev/gravar.ts). */
+export interface Som { ctx: BaseAudioContext; saida: GainNode; mestre: AudioNode; eco: ConvolverNode; ruido: AudioBuffer; glote: PeriodicWave }
 
 let S: Som | null = null
 const R = Math.random
@@ -41,7 +42,7 @@ export function montarSom(ctx: BaseAudioContext, volume: number): Som {
   const H = 56, re = new Float32Array(H), im = new Float32Array(H)
   for (let k = 1; k < H; k++) im[k] = Math.pow(k, -1.25) * (k % 2 ? 1 : 0.72)
   const glote = ctx.createPeriodicWave(re, im)
-  return { ctx, saida, eco, ruido, glote }
+  return { ctx, saida, mestre: comp, eco, ruido, glote }
 }
 
 /** Liga o som na primeira interação (o navegador exige) e o retoma se ele for suspenso. Chame uma vez, no começo. */

@@ -4,7 +4,7 @@
 //   - não fecha com o agente parado no vão;
 //   - trancada não abre: mostra o motivo (e, por enquanto, o nome da chave; o inventário vem depois).
 // A folha gira em PORTA.tempo segundos; a colisão muda na hora (abre: passa; fecha: bate).
-import type { Opening } from '../../maps/types'
+import { LEVEL_H, type Opening } from '../../maps/types'
 import { andarDe, type Mundo } from './colisao'
 
 export const PORTA = {
@@ -52,6 +52,14 @@ export function portaPerto(m: Mundo, x: number, y: number, z: number, yaws: numb
     if (frente) { melhor = o; dMelhor = d }
   }
   return melhor
+}
+
+/** Onde fica a maçaneta (m, no mundo), do lado de quem está em (x, z): para onde a mão vai ao abrir ou fechar.
+ *  As de duas folhas, no meio; a de contenção, o volante. */
+export function macanetaDe(o: Opening, x: number, z: number): [number, number, number] {
+  const u = o.door === 'dupla' || o.door === 'grande' ? o.width / 2 - 0.12 : o.door === 'contencao' ? 0.16 + (o.width - 0.32) * 0.375 : o.width - 0.2
+  const y = o.level * LEVEL_H + (o.door === 'contencao' ? 1.56 : 1.02), fora = 0.1
+  return o.axis === 'x' ? [o.x + u, y, o.z + (z > o.z ? fora : -fora)] : [o.x + (x > o.x ? fora : -fora), y, o.z + u]
 }
 
 /** O texto da ação para a porta (o que aparece na tela perto dela). */

@@ -8,7 +8,7 @@ import { LEVEL_H, type DoorKind, type Opening, type WindowKind } from '../maps/t
 import { aberturaNo, aberturas, ladoDeDentro, ladoVisto, ondeCabe, paredeNoRaio, pedacosDe, type Lado, type MapDoc, type Seg } from './doc'
 import { ESPESSURA, buraco } from './wallMesh'
 
-export type TipoAbertura = 'comum' | 'dupla' | 'grande' | 'vao' | 'instalacao' | 'contencao' | 'janela' | 'janela-grande'
+export type TipoAbertura = 'comum' | 'dupla' | 'grande' | 'vao' | 'instalacao' | 'contencao' | 'elevador' | 'janela' | 'janela-grande' | 'janela-instalacao'
 
 export const TIPOS: Record<TipoAbertura, { nome: string; kind: 'porta' | 'janela'; door?: DoorKind; window?: WindowKind; width: number }> = {
   comum: { nome: 'Porta comum', kind: 'porta', door: 'comum', width: 1 },
@@ -16,10 +16,15 @@ export const TIPOS: Record<TipoAbertura, { nome: string; kind: 'porta' | 'janela
   grande: { nome: 'Porta grande', kind: 'porta', door: 'grande', width: 2 },
   vao: { nome: 'Vão (sem porta)', kind: 'porta', door: 'vao', width: 1 },
   instalacao: { nome: 'Porta da instalação', kind: 'porta', door: 'instalacao', width: 1 },
-  contencao: { nome: 'Porta de contenção', kind: 'porta', door: 'contencao', width: 2 },
+  contencao: { nome: 'Porta de contenção', kind: 'porta', door: 'contencao', width: 3 },
+  elevador: { nome: 'Porta do elevador', kind: 'porta', door: 'elevador', width: 2 },
   janela: { nome: 'Janela', kind: 'janela', window: 'normal', width: 1 },
   'janela-grande': { nome: 'Janela grande', kind: 'janela', window: 'grande', width: 2 },
+  'janela-instalacao': { nome: 'Janela da instalação', kind: 'janela', window: 'instalacao', width: 1 },
 }
+
+/** O tipo de abertura de uma janela do mapa. */
+export const tipoDaJanela = (w?: WindowKind): TipoAbertura => (w === 'grande' ? 'janela-grande' : w === 'instalacao' ? 'janela-instalacao' : 'janela')
 
 /** A abertura nova do tipo, começando em (x, z) do pedaço; o vão tem a largura escolhida. lado = o lado de dentro
  *  (a porta abre para dentro do cômodo; o luar da janela cai do lado de dentro). */
@@ -28,7 +33,7 @@ export function aberturaNova(tipo: TipoAbertura, s: Seg, inicio: { x: number; z:
   const base = { level: s.level, axis: s.axis, x: inicio.x, z: inicio.z, width, kind: t.kind }
   return t.kind === 'porta'
     ? { ...base, door: t.door, ...(t.door === 'vao' ? {} : { estado: 'fechada' as const, lado }) }
-    : { ...base, window: t.window, light2d: true, lado }
+    : { ...base, window: t.window, light2d: t.window !== 'instalacao', lado } // a da instalação é interna: sem luar
 }
 
 interface Props {
@@ -101,7 +106,7 @@ export function FerramentaAberturas({ doc, andar, tipo, larguraVao, selecionada,
 }
 
 export function nomeDe(o: Opening) {
-  if (o.kind === 'janela') return o.window === 'grande' ? 'Janela grande' : 'Janela'
+  if (o.kind === 'janela') return TIPOS[tipoDaJanela(o.window)].nome
   return o.door === 'vao' ? `Vão de ${o.width} m` : TIPOS[o.door ?? 'comum'].nome
 }
 

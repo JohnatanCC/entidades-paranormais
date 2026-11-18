@@ -33,7 +33,8 @@ function molde(caminho: string, opc: { corte?: boolean } = {}): THREE.Object3D {
   return m
 }
 
-/** Uma cópia da porta ou janela (porta-comum, porta-dupla, porta-grande, janela, janela-grande), no referencial da
+/** Uma cópia da porta ou janela (porta-comum, porta-dupla, porta-grande, porta-instalacao,
+ *  porta-contencao, porta-elevador, janela, janela-grande, janela-instalacao), no referencial da
  *  abertura: a origem no começo do vão, no chão. As folhas das portas são as pastas folha_1 e folha_2. */
 export const abertura3d = (tipo: string): THREE.Object3D => molde(`aberturas/${tipo}`, { corte: true }).clone()
 

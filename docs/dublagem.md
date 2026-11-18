@@ -10,20 +10,24 @@ testar. Aqui ficam o roteiro de cada personagem (para os testes), o jeito de gra
 
 | Personagem | Quem é | A voz |
 | --- | --- | --- |
-| **Matheus Moura** | O agente (o jogador). Fechado, orgulhoso, carrega alguma coisa do antigo parceiro; não admite que está mal | Jovem adulto, seca, contida. Fala pouco e corta as frases. Nunca grita na cena 2: a raiva fica presa |
+| **Matheus Moura** | O agente (o jogador). Fechado, orgulhoso, carrega alguma coisa do antigo parceiro; não admite que está mal | Jovem adulto, seca, contida. Fala pouco e corta as frases. Nunca grita na cena do escritório: a raiva fica presa |
 | **Victor** | O chefe do departamento do Matheus. 35 anos, grisalho cedo, duro mas do lado dele | Mais grave e mais lenta. Calma de quem já decidiu. Não é bronca: é cobrança de quem se importa |
 | **A central** | A voz da C.R.O.S. no rádio, sem rosto | Urgente, firme, profissional. Passa pelo filtro do rádio (o chiado é posto no jogo; grave limpo) |
 
-## O roteiro dos testes (a cena 2)
+## O roteiro dos testes (a cena do escritório)
 
 O que está entre parênteses é a direção, não se fala. O arquivo é o nome que a gravação recebe (a pasta
 `public/vozes/cap0/`), para o jogo achar sozinho.
+
+> **18/nov:** a cena do escritório passou a ser a cena 1 e os planos foram renumerados (`docs/cenas.md`). Os números
+> desta tabela e os nomes dos arquivos são os de antes: as frases continuam as mesmas, só mudou onde a câmera corta
+> (uma frase pode atravessar dois planos). Os nomes dos arquivos são acertados quando as gravações chegarem.
 
 ### Victor
 
 | Arquivo | Plano | Fala | Direção |
 | --- | --- | --- | --- |
-| `2.4-victor.wav` | 2.4 | Entre, Moura. Sente. | Sem tirar os olhos da pasta na primeira palavra; levanta o olhar no "Sente". Seco, sem ser rude |
+| `2.4-victor.wav` | 2.4 | Entre, Moura. Vou ser direto. | Levanta o olhar da pasta no "Entre, Moura"; o "Vou ser direto" vem depois de uma pausa, com o Matheus já na frente da mesa (18/nov: era "Sente."). Seco, sem ser rude |
 | `2.6-victor.wav` | 2.6 | Três missões este mês. Três capturas que deram errado. | Lendo os fatos. Uma pausa entre as duas frases. Sem acusar |
 | `2.7-victor.wav` | 2.7 | Isso não é você. O que está acontecendo? | Mais baixo, mais perto. A preocupação aparece aqui |
 | `2.9-victor.wav` | 2.9 | É por causa do seu antigo parceiro? | Cuidadoso. Ele sabe que está tocando num ponto sensível |
@@ -75,4 +79,4 @@ Victor precisa de uma voz mais velha e grossa que a do Matheus). O programa e as
 
 - **O jogo tocar as gravações:** a fala com arquivo toca o arquivo junto com a legenda (e a boca abre conforme o volume);
   sem arquivo, a voz do navegador. Um volume próprio para as vozes nas configurações.
-- **Os atores das cenas** (a cena 2 com o Matheus e o Victor em cena): ver `docs/cenas.md`.
+- **Os atores das cenas** (a cena do escritório com o Matheus e o Victor em cena): ver `docs/cenas.md`.

@@ -8,6 +8,9 @@ import type { Go } from '../App'
 import { MapView } from '../editor/MapView'
 import { Iluminacao } from '../game/luz/Iluminacao'
 import { CENAS } from '../game/cenas/catalogo'
+import { GanchosDaTela } from '../dev/GanchosDaTela'
+import { ganchos } from '../dev/ganchos'
+import { Elenco, portasVivasDaCena } from '../game/cenas/Elenco'
 import { Moldura } from '../game/cenas/Moldura'
 import { TocarCena, novoRelogio } from '../game/cenas/TocarCena'
 import { duracao, estadoEm, inicios, type EstadoCena } from '../game/cenas/tocador'
@@ -26,6 +29,9 @@ export function VerCenas({ go }: { go: Go }) {
   const cena = CENAS.find((c) => c.id === qual) ?? CENAS[0]
   const meta = getMap(cena.mapa), chunks = useMapa(cena.mapa), definicao = useDefinicao()
   const relogio = useMemo(() => novoRelogio(), [qual]), onde = useMemo(() => new THREE.Vector3(), [])
+  // os blocos do mapa numa lista e as portas que a cena abre e fecha (o elenco anda as folhas)
+  const lista = useMemo(() => (chunks ? Object.values(chunks) : []), [chunks])
+  const portas = useMemo(() => portasVivasDaCena(cena, lista), [cena, lista])
   const painel = useRef<((e: EstadoCena) => void) | null>(null), moldura = useRef<((e: EstadoCena) => void) | null>(null)
   const total = duracao(cena), ini = useMemo(() => inicios(cena), [cena])
   // o painel lê o relógio umas vezes por segundo (a linha do tempo, o plano de agora); a imagem anda sozinha
@@ -37,6 +43,8 @@ export function VerCenas({ go }: { go: Go }) {
     }), 80)
     return () => clearInterval(id)
   }, [cena, relogio])
+  // só no npm run dev: o relógio e a cena para as provas (provas.gravar() grava a cena aberta num vídeo: dev/gravar.ts)
+  useEffect(() => { if (!import.meta.env.DEV) return; ganchos.relogio = relogio; ganchos.cenaAberta = cena; return () => { delete ganchos.relogio; delete ganchos.cenaAberta } }, [relogio, cena])
   useEffect(() => setModoParedes('altas'), []) // o editor pode ter deixado as paredes recortadas
   // o tocador entrega o estado; a moldura desenha (o painel do tocador aponta para ela)
   useEffect(() => { painel.current = (e) => moldura.current?.(e) }, [])
@@ -77,8 +85,11 @@ export function VerCenas({ go }: { go: Go }) {
         {!meta ? <div className="tela"><h2>O mapa “{cena.mapa}” não está na pasta maps/.</h2></div> : (
           <Canvas camera={{ fov: 45, near: 0.03, far: 400 }} {...canvasDoNivel(definicao)}>
             <color attach="background" args={['#000']} />
-            {chunks && <Suspense fallback={null}><MapView chunks={chunks} maxLevel={meta.levels - 1} juntar /></Suspense>}
+            {chunks && <Suspense fallback={null}><MapView chunks={chunks} maxLevel={meta.levels - 1} portas={portas} juntar /></Suspense>}
             <Iluminacao ambiente={meta.ambiente} areas={meta.areas} em={onde} />
+            {cena.cenario && <cena.cenario key={`${qual}-cenario`} relogio={relogio} />}
+            {chunks && cena.elenco && <Elenco key={`${qual}-elenco`} cena={cena} relogio={relogio} chunks={lista} portas={portas} />}
+            <GanchosDaTela />
             <TocarCena key={qual} cena={cena} relogio={relogio} onde={onde} painel={painel} />
           </Canvas>
         )}

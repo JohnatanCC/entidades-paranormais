@@ -79,6 +79,20 @@ export const AMBIENTES: Record<string, Ambiente> = {
     exposicao: 1.25, brilho: 0.6,
     sombras: '#d6e2ff', luzes: '#eef3ff', contraste: 1.08, saturacao: 0.92, vinheta: 0.3,
   },
+  // a instalação da C.R.O.S. (o capítulo 0, docs/cenas.md): o bunker embaixo da terra, sem céu nem lua; a luz fria e meio
+  // esverdeada das luminárias de tubos, o concreto devolvendo pouco; mais claro que a mansão (é um lugar de trabalho),
+  // mas com os cantos escuros e a neblina fechando os corredores compridos
+  instalacao: {
+    nome: 'Instalação da C.R.O.S.', cor: '#7fbf9a',
+    neblina: '#080b0a', densidade: 0.035,
+    zenite: '#050706', estrelas: 0, lua: 0,
+    ceu: '#a8c4b4', chao: '#3a3f3a', forca: 1.6,
+    preenchimento: '#a4c0d0', forcaPreenchimento: 0.6,
+    luar: '#c8e0d4', forcaLuar: 0,
+    contorno: '#d0e4dc', forcaContorno: 0.9,
+    exposicao: 1.25, brilho: 0.55,
+    sombras: '#dceae4', luzes: '#f0f6ee', contraste: 1.12, saturacao: 0.88, vinheta: 0.45,
+  },
   // o submundo (a Demo · Intro): sem céu de noite; a névoa vermelha engole o vazio em volta das ilhas, o alto é quase
   // preto, uma luz vermelha fraca de cima (como uma brasa enorme atrás da névoa) e o vermelho dos cristais e das fendas.
   // A névoa (12/nov, a pedido): densa a média distância, ~50% a 25 m e mais de 90% a 46 m (a largura da arena do
@@ -120,5 +134,11 @@ export const MOMENTOS: Record<string, Momento> = {
   'mae-chegando': {
     entra: 0.5, dura: 4, sai: 2.5,
     muda: { neblina: '#060a12', densidade: 0.08, estrelas: 0.2, ceu: '#5f78b0', forca: 0.6, forcaPreenchimento: 0.25, forcaContorno: 1.4, brilho: 1.2, sombras: '#c8d8ff', luzes: '#dfe8ff', saturacao: 0.45, contraste: 1.25, vinheta: 0.85 },
+  },
+  // o alarme da instalação (as cenas do capítulo 0 seguram enquanto ele toca: game/luz, segurarMomento): tudo puxa para
+  // o vermelho da luz de aviso, a neblina fecha, os cantos pesam
+  alarme: {
+    entra: 0.35, dura: 0, sai: 1.5,
+    muda: { neblina: '#1a0605', densidade: 0.05, ceu: '#ff6a55', chao: '#4a1410', forca: 1.5, preenchimento: '#ff5a44', forcaPreenchimento: 0.9, contorno: '#ff8a70', forcaContorno: 1.2, brilho: 0.8, sombras: '#ffc4b8', luzes: '#ffb8a8', saturacao: 1.05, contraste: 1.2, vinheta: 0.7 },
   },
 }

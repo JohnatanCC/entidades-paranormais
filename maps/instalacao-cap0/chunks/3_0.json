@@ -1,0 +1,196 @@
+{
+ "cx": 3,
+ "cz": 0,
+ "walls": [
+  {
+   "level": 0,
+   "x": 48,
+   "z": 12,
+   "axis": "z",
+   "a": {
+    "tex": "tijolo-esmaltado",
+    "base": {
+     "tex": "barra-verde",
+     "h": 1.1
+    }
+   },
+   "b": {
+    "tex": "concreto-aparente"
+   }
+  },
+  {
+   "level": 0,
+   "x": 48,
+   "z": 13,
+   "axis": "z",
+   "a": {
+    "tex": "tijolo-esmaltado",
+    "base": {
+     "tex": "barra-verde",
+     "h": 1.1
+    }
+   },
+   "b": {
+    "tex": "concreto-aparente"
+   }
+  },
+  {
+   "level": 0,
+   "x": 48,
+   "z": 14,
+   "axis": "z",
+   "a": {
+    "tex": "tijolo-esmaltado",
+    "base": {
+     "tex": "barra-verde",
+     "h": 1.1
+    }
+   },
+   "b": {
+    "tex": "concreto-aparente"
+   }
+  },
+  {
+   "level": 0,
+   "x": 48,
+   "z": 15,
+   "axis": "z",
+   "a": {
+    "tex": "tijolo-esmaltado",
+    "base": {
+     "tex": "barra-verde",
+     "h": 1.1
+    }
+   },
+   "b": {
+    "tex": "concreto-aparente"
+   }
+  },
+  {
+   "level": 0,
+   "x": 48,
+   "z": 2,
+   "axis": "z",
+   "a": {
+    "tex": "concreto-aparente"
+   },
+   "b": {
+    "tex": "concreto-aparente"
+   }
+  },
+  {
+   "level": 0,
+   "x": 48,
+   "z": 3,
+   "axis": "z",
+   "a": {
+    "tex": "concreto-aparente"
+   },
+   "b": {
+    "tex": "concreto-aparente"
+   }
+  },
+  {
+   "level": 0,
+   "x": 48,
+   "z": 4,
+   "axis": "z",
+   "a": {
+    "tex": "concreto-aparente"
+   },
+   "b": {
+    "tex": "concreto-aparente"
+   }
+  },
+  {
+   "level": 0,
+   "x": 48,
+   "z": 5,
+   "axis": "z",
+   "a": {
+    "tex": "concreto-aparente"
+   },
+   "b": {
+    "tex": "concreto-aparente"
+   }
+  },
+  {
+   "level": 0,
+   "x": 48,
+   "z": 6,
+   "axis": "z",
+   "a": {
+    "tex": "concreto-aparente"
+   },
+   "b": {
+    "tex": "concreto-aparente"
+   }
+  },
+  {
+   "level": 0,
+   "x": 48,
+   "z": 7,
+   "axis": "z",
+   "a": {
+    "tex": "concreto-aparente"
+   },
+   "b": {
+    "tex": "concreto-aparente"
+   }
+  },
+  {
+   "level": 0,
+   "x": 48,
+   "z": 8,
+   "axis": "z",
+   "a": {
+    "tex": "concreto-aparente"
+   },
+   "b": {
+    "tex": "concreto-aparente"
+   }
+  },
+  {
+   "level": 0,
+   "x": 48,
+   "z": 9,
+   "axis": "z",
+   "a": {
+    "tex": "concreto-aparente"
+   },
+   "b": {
+    "tex": "concreto-aparente"
+   }
+  },
+  {
+   "level": 0,
+   "x": 48,
+   "z": 10,
+   "axis": "z",
+   "a": {
+    "tex": "concreto-aparente"
+   },
+   "b": {
+    "tex": "concreto-aparente"
+   }
+  },
+  {
+   "level": 0,
+   "x": 48,
+   "z": 11,
+   "axis": "z",
+   "a": {
+    "tex": "concreto-aparente"
+   },
+   "b": {
+    "tex": "concreto-aparente"
+   }
+  }
+ ],
+ "floors": [],
+ "openings": [],
+ "stairs": [],
+ "props": [],
+ "decals": [],
+ "points": []
+}

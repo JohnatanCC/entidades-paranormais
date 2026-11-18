@@ -170,3 +170,7 @@ export const DANO = {
   machucado: 0.3, // com a vida nesta fração ou menos, ele fica machucado (curvado, mancando, a mão livre no lado)
   entra: 2, sai: 3, // quão rápido o corpo fica machucado e se recupera (por s)
 }
+
+/** Alcançar um ponto com a mão esquerda (abrir uma porta: a maçaneta; nas cenas, qualquer ponto): quanto a mão leva
+ *  para chegar, quanto fica lá e quanto leva para voltar (s). A direita fica com a arma. */
+export const ALCANCE = { sobe: 0.24, segura: 0.26, desce: 0.4 }

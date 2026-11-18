@@ -1,0 +1,4807 @@
+{
+ "cx": 1,
+ "cz": 1,
+ "walls": [
+  {
+   "level": 0,
+   "x": 16,
+   "z": 29,
+   "axis": "x",
+   "a": {
+    "tex": "azulejo-branco",
+    "base": {
+     "tex": "lambri-azulejo",
+     "h": 1.2
+    }
+   },
+   "b": {
+    "tex": "azulejo-branco",
+    "base": {
+     "tex": "lambri-azulejo",
+     "h": 1.2
+    }
+   }
+  },
+  {
+   "level": 0,
+   "x": 17,
+   "z": 29,
+   "axis": "x",
+   "a": {
+    "tex": "azulejo-branco",
+    "base": {
+     "tex": "lambri-azulejo",
+     "h": 1.2
+    }
+   },
+   "b": {
+    "tex": "azulejo-branco",
+    "base": {
+     "tex": "lambri-azulejo",
+     "h": 1.2
+    }
+   }
+  },
+  {
+   "level": 0,
+   "x": 18,
+   "z": 29,
+   "axis": "x",
+   "a": {
+    "tex": "azulejo-branco",
+    "base": {
+     "tex": "lambri-azulejo",
+     "h": 1.2
+    }
+   },
+   "b": {
+    "tex": "azulejo-branco",
+    "base": {
+     "tex": "lambri-azulejo",
+     "h": 1.2
+    }
+   }
+  },
+  {
+   "level": 0,
+   "x": 19,
+   "z": 29,
+   "axis": "x",
+   "a": {
+    "tex": "azulejo-branco",
+    "base": {
+     "tex": "lambri-azulejo",
+     "h": 1.2
+    }
+   },
+   "b": {
+    "tex": "azulejo-branco",
+    "base": {
+     "tex": "lambri-azulejo",
+     "h": 1.2
+    }
+   }
+  },
+  {
+   "level": 0,
+   "x": 20,
+   "z": 29,
+   "axis": "x",
+   "a": {
+    "tex": "azulejo-branco",
+    "base": {
+     "tex": "lambri-azulejo",
+     "h": 1.2
+    }
+   },
+   "b": {
+    "tex": "azulejo-branco",
+    "base": {
+     "tex": "lambri-azulejo",
+     "h": 1.2
+    }
+   }
+  },
+  {
+   "level": 0,
+   "x": 21,
+   "z": 29,
+   "axis": "x",
+   "a": {
+    "tex": "azulejo-branco",
+    "base": {
+     "tex": "lambri-azulejo",
+     "h": 1.2
+    }
+   },
+   "b": {
+    "tex": "azulejo-branco",
+    "base": {
+     "tex": "lambri-azulejo",
+     "h": 1.2
+    }
+   }
+  },
+  {
+   "level": 0,
+   "x": 22,
+   "z": 29,
+   "axis": "x",
+   "a": {
+    "tex": "azulejo-branco",
+    "base": {
+     "tex": "lambri-azulejo",
+     "h": 1.2
+    }
+   },
+   "b": {
+    "tex": "azulejo-branco",
+    "base": {
+     "tex": "lambri-azulejo",
+     "h": 1.2
+    }
+   }
+  },
+  {
+   "level": 0,
+   "x": 23,
+   "z": 29,
+   "axis": "x",
+   "a": {
+    "tex": "azulejo-branco",
+    "base": {
+     "tex": "lambri-azulejo",
+     "h": 1.2
+    }
+   },
+   "b": {
+    "tex": "azulejo-branco",
+    "base": {
+     "tex": "lambri-azulejo",
+     "h": 1.2
+    }
+   }
+  },
+  {
+   "level": 0,
+   "x": 24,
+   "z": 29,
+   "axis": "x",
+   "a": {
+    "tex": "azulejo-branco",
+    "base": {
+     "tex": "lambri-azulejo",
+     "h": 1.2
+    }
+   },
+   "b": {
+    "tex": "azulejo-branco",
+    "base": {
+     "tex": "lambri-azulejo",
+     "h": 1.2
+    }
+   }
+  },
+  {
+   "level": 0,
+   "x": 25,
+   "z": 29,
+   "axis": "x",
+   "a": {
+    "tex": "azulejo-branco",
+    "base": {
+     "tex": "lambri-azulejo",
+     "h": 1.2
+    }
+   },
+   "b": {
+    "tex": "azulejo-branco",
+    "base": {
+     "tex": "lambri-azulejo",
+     "h": 1.2
+    }
+   }
+  },
+  {
+   "level": 0,
+   "x": 26,
+   "z": 29,
+   "axis": "x",
+   "a": {
+    "tex": "azulejo-branco",
+    "base": {
+     "tex": "lambri-azulejo",
+     "h": 1.2
+    }
+   },
+   "b": {
+    "tex": "azulejo-branco",
+    "base": {
+     "tex": "lambri-azulejo",
+     "h": 1.2
+    }
+   }
+  },
+  {
+   "level": 0,
+   "x": 27,
+   "z": 29,
+   "axis": "x",
+   "a": {
+    "tex": "azulejo-branco",
+    "base": {
+     "tex": "lambri-azulejo",
+     "h": 1.2
+    }
+   },
+   "b": {
+    "tex": "azulejo-branco",
+    "base": {
+     "tex": "lambri-azulejo",
+     "h": 1.2
+    }
+   }
+  },
+  {
+   "level": 0,
+   "x": 29,
+   "z": 16,
+   "axis": "z",
+   "a": {
+    "tex": "azulejo-branco",
+    "base": {
+     "tex": "lambri-azulejo",
+     "h": 1.2
+    }
+   },
+   "b": {
+    "tex": "concreto-aparente"
+   }
+  },
+  {
+   "level": 0,
+   "x": 29,
+   "z": 17,
+   "axis": "z",
+   "a": {
+    "tex": "azulejo-branco",
+    "base": {
+     "tex": "lambri-azulejo",
+     "h": 1.2
+    }
+   },
+   "b": {
+    "tex": "concreto-aparente"
+   }
+  },
+  {
+   "level": 0,
+   "x": 29,
+   "z": 18,
+   "axis": "z",
+   "a": {
+    "tex": "azulejo-branco",
+    "base": {
+     "tex": "lambri-azulejo",
+     "h": 1.2
+    }
+   },
+   "b": {
+    "tex": "concreto-aparente"
+   }
+  },
+  {
+   "level": 0,
+   "x": 29,
+   "z": 19,
+   "axis": "z",
+   "a": {
+    "tex": "azulejo-branco",
+    "base": {
+     "tex": "lambri-azulejo",
+     "h": 1.2
+    }
+   },
+   "b": {
+    "tex": "concreto-aparente"
+   }
+  },
+  {
+   "level": 0,
+   "x": 29,
+   "z": 20,
+   "axis": "z",
+   "a": {
+    "tex": "azulejo-branco",
+    "base": {
+     "tex": "lambri-azulejo",
+     "h": 1.2
+    }
+   },
+   "b": {
+    "tex": "concreto-aparente"
+   }
+  },
+  {
+   "level": 0,
+   "x": 29,
+   "z": 21,
+   "axis": "z",
+   "a": {
+    "tex": "azulejo-branco",
+    "base": {
+     "tex": "lambri-azulejo",
+     "h": 1.2
+    }
+   },
+   "b": {
+    "tex": "concreto-aparente"
+   }
+  },
+  {
+   "level": 0,
+   "x": 29,
+   "z": 22,
+   "axis": "z",
+   "a": {
+    "tex": "azulejo-branco",
+    "base": {
+     "tex": "lambri-azulejo",
+     "h": 1.2
+    }
+   },
+   "b": {
+    "tex": "concreto-aparente"
+   }
+  },
+  {
+   "level": 0,
+   "x": 29,
+   "z": 23,
+   "axis": "z",
+   "a": {
+    "tex": "azulejo-branco",
+    "base": {
+     "tex": "lambri-azulejo",
+     "h": 1.2
+    }
+   },
+   "b": {
+    "tex": "concreto-aparente"
+   }
+  },
+  {
+   "level": 0,
+   "x": 29,
+   "z": 24,
+   "axis": "z",
+   "a": {
+    "tex": "azulejo-branco",
+    "base": {
+     "tex": "lambri-azulejo",
+     "h": 1.2
+    }
+   },
+   "b": {
+    "tex": "concreto-aparente"
+   }
+  },
+  {
+   "level": 0,
+   "x": 29,
+   "z": 25,
+   "axis": "z",
+   "a": {
+    "tex": "azulejo-branco",
+    "base": {
+     "tex": "lambri-azulejo",
+     "h": 1.2
+    }
+   },
+   "b": {
+    "tex": "concreto-aparente"
+   }
+  },
+  {
+   "level": 0,
+   "x": 29,
+   "z": 26,
+   "axis": "z",
+   "a": {
+    "tex": "azulejo-branco",
+    "base": {
+     "tex": "lambri-azulejo",
+     "h": 1.2
+    }
+   },
+   "b": {
+    "tex": "concreto-aparente"
+   }
+  },
+  {
+   "level": 0,
+   "x": 29,
+   "z": 27,
+   "axis": "z",
+   "a": {
+    "tex": "azulejo-branco",
+    "base": {
+     "tex": "lambri-azulejo",
+     "h": 1.2
+    }
+   },
+   "b": {
+    "tex": "concreto-aparente"
+   }
+  },
+  {
+   "level": 0,
+   "x": 29,
+   "z": 28,
+   "axis": "z",
+   "a": {
+    "tex": "azulejo-branco",
+    "base": {
+     "tex": "lambri-azulejo",
+     "h": 1.2
+    }
+   },
+   "b": {
+    "tex": "concreto-aparente"
+   }
+  },
+  {
+   "level": 0,
+   "x": 28,
+   "z": 29,
+   "axis": "x",
+   "a": {
+    "tex": "azulejo-branco",
+    "base": {
+     "tex": "lambri-azulejo",
+     "h": 1.2
+    }
+   },
+   "b": {
+    "tex": "azulejo-branco",
+    "base": {
+     "tex": "lambri-azulejo",
+     "h": 1.2
+    }
+   }
+  },
+  {
+   "level": 0,
+   "x": 29,
+   "z": 29,
+   "axis": "z",
+   "a": {
+    "tex": "azulejo-branco",
+    "base": {
+     "tex": "lambri-azulejo",
+     "h": 1.2
+    }
+   },
+   "b": {
+    "tex": "concreto-aparente"
+   }
+  },
+  {
+   "level": 0,
+   "x": 29,
+   "z": 30,
+   "axis": "z",
+   "a": {
+    "tex": "azulejo-branco",
+    "base": {
+     "tex": "lambri-azulejo",
+     "h": 1.2
+    }
+   },
+   "b": {
+    "tex": "concreto-aparente"
+   }
+  },
+  {
+   "level": 0,
+   "x": 29,
+   "z": 31,
+   "axis": "z",
+   "a": {
+    "tex": "azulejo-branco",
+    "base": {
+     "tex": "lambri-azulejo",
+     "h": 1.2
+    }
+   },
+   "b": {
+    "tex": "concreto-aparente"
+   }
+  },
+  {
+   "level": 0,
+   "x": 31,
+   "z": 16,
+   "axis": "z",
+   "a": {
+    "tex": "concreto-aparente"
+   },
+   "b": {
+    "tex": "bloco-concreto",
+    "base": {
+     "tex": "barra-verde",
+     "h": 1.1
+    }
+   }
+  },
+  {
+   "level": 0,
+   "x": 31,
+   "z": 17,
+   "axis": "z",
+   "a": {
+    "tex": "concreto-aparente"
+   },
+   "b": {
+    "tex": "bloco-concreto",
+    "base": {
+     "tex": "barra-verde",
+     "h": 1.1
+    }
+   }
+  },
+  {
+   "level": 0,
+   "x": 31,
+   "z": 18,
+   "axis": "z",
+   "a": {
+    "tex": "concreto-aparente"
+   },
+   "b": {
+    "tex": "bloco-concreto",
+    "base": {
+     "tex": "barra-verde",
+     "h": 1.1
+    }
+   }
+  },
+  {
+   "level": 0,
+   "x": 31,
+   "z": 19,
+   "axis": "z",
+   "a": {
+    "tex": "concreto-aparente"
+   },
+   "b": {
+    "tex": "bloco-concreto",
+    "base": {
+     "tex": "barra-verde",
+     "h": 1.1
+    }
+   }
+  },
+  {
+   "level": 0,
+   "x": 31,
+   "z": 20,
+   "axis": "z",
+   "a": {
+    "tex": "concreto-aparente"
+   },
+   "b": {
+    "tex": "bloco-concreto",
+    "base": {
+     "tex": "barra-verde",
+     "h": 1.1
+    }
+   }
+  },
+  {
+   "level": 0,
+   "x": 31,
+   "z": 21,
+   "axis": "z",
+   "a": {
+    "tex": "concreto-aparente"
+   },
+   "b": {
+    "tex": "bloco-concreto",
+    "base": {
+     "tex": "barra-verde",
+     "h": 1.1
+    }
+   }
+  },
+  {
+   "level": 0,
+   "x": 31,
+   "z": 22,
+   "axis": "z",
+   "a": {
+    "tex": "concreto-aparente"
+   },
+   "b": {
+    "tex": "bloco-concreto",
+    "base": {
+     "tex": "barra-verde",
+     "h": 1.1
+    }
+   }
+  },
+  {
+   "level": 0,
+   "x": 31,
+   "z": 23,
+   "axis": "z",
+   "a": {
+    "tex": "concreto-aparente"
+   },
+   "b": {
+    "tex": "bloco-concreto",
+    "base": {
+     "tex": "barra-verde",
+     "h": 1.1
+    }
+   }
+  },
+  {
+   "level": 0,
+   "x": 31,
+   "z": 24,
+   "axis": "z",
+   "a": {
+    "tex": "concreto-aparente"
+   },
+   "b": {
+    "tex": "bloco-concreto",
+    "base": {
+     "tex": "barra-verde",
+     "h": 1.1
+    }
+   }
+  },
+  {
+   "level": 0,
+   "x": 31,
+   "z": 25,
+   "axis": "z",
+   "a": {
+    "tex": "concreto-aparente"
+   },
+   "b": {
+    "tex": "bloco-concreto",
+    "base": {
+     "tex": "barra-verde",
+     "h": 1.1
+    }
+   }
+  },
+  {
+   "level": 0,
+   "x": 31,
+   "z": 26,
+   "axis": "z",
+   "a": {
+    "tex": "concreto-aparente"
+   },
+   "b": {
+    "tex": "bloco-concreto",
+    "base": {
+     "tex": "barra-verde",
+     "h": 1.1
+    }
+   }
+  },
+  {
+   "level": 0,
+   "x": 31,
+   "z": 27,
+   "axis": "z",
+   "a": {
+    "tex": "concreto-aparente"
+   },
+   "b": {
+    "tex": "bloco-concreto",
+    "base": {
+     "tex": "barra-verde",
+     "h": 1.1
+    }
+   }
+  },
+  {
+   "level": 0,
+   "x": 31,
+   "z": 28,
+   "axis": "z",
+   "a": {
+    "tex": "concreto-aparente"
+   },
+   "b": {
+    "tex": "bloco-concreto",
+    "base": {
+     "tex": "barra-verde",
+     "h": 1.1
+    }
+   }
+  },
+  {
+   "level": 0,
+   "x": 31,
+   "z": 29,
+   "axis": "z",
+   "a": {
+    "tex": "concreto-aparente"
+   },
+   "b": {
+    "tex": "bloco-concreto",
+    "base": {
+     "tex": "barra-verde",
+     "h": 1.1
+    }
+   }
+  },
+  {
+   "level": 0,
+   "x": 31,
+   "z": 30,
+   "axis": "z",
+   "a": {
+    "tex": "concreto-aparente"
+   },
+   "b": {
+    "tex": "bloco-concreto",
+    "base": {
+     "tex": "barra-verde",
+     "h": 1.1
+    }
+   }
+  },
+  {
+   "level": 0,
+   "x": 31,
+   "z": 31,
+   "axis": "z",
+   "a": {
+    "tex": "concreto-aparente"
+   },
+   "b": {
+    "tex": "bloco-concreto",
+    "base": {
+     "tex": "barra-verde",
+     "h": 1.1
+    }
+   }
+  },
+  {
+   "level": 0,
+   "x": 31,
+   "z": 29,
+   "axis": "x",
+   "a": {
+    "tex": "bloco-concreto",
+    "base": {
+     "tex": "barra-verde",
+     "h": 1.1
+    }
+   },
+   "b": {
+    "tex": "bloco-concreto",
+    "base": {
+     "tex": "barra-verde",
+     "h": 1.1
+    }
+   }
+  }
+ ],
+ "floors": [
+  {
+   "level": 0,
+   "x": 16,
+   "z": 16,
+   "top": "granilite",
+   "bottom": "concreto"
+  },
+  {
+   "level": 1,
+   "x": 16,
+   "z": 16,
+   "top": "concreto",
+   "bottom": "forro-placas"
+  },
+  {
+   "level": 0,
+   "x": 16,
+   "z": 17,
+   "top": "granilite",
+   "bottom": "concreto"
+  },
+  {
+   "level": 1,
+   "x": 16,
+   "z": 17,
+   "top": "concreto",
+   "bottom": "forro-placas"
+  },
+  {
+   "level": 0,
+   "x": 16,
+   "z": 18,
+   "top": "granilite",
+   "bottom": "concreto"
+  },
+  {
+   "level": 1,
+   "x": 16,
+   "z": 18,
+   "top": "concreto",
+   "bottom": "forro-placas"
+  },
+  {
+   "level": 0,
+   "x": 16,
+   "z": 19,
+   "top": "granilite",
+   "bottom": "concreto"
+  },
+  {
+   "level": 1,
+   "x": 16,
+   "z": 19,
+   "top": "concreto",
+   "bottom": "forro-placas"
+  },
+  {
+   "level": 0,
+   "x": 16,
+   "z": 20,
+   "top": "granilite",
+   "bottom": "concreto"
+  },
+  {
+   "level": 1,
+   "x": 16,
+   "z": 20,
+   "top": "concreto",
+   "bottom": "forro-placas"
+  },
+  {
+   "level": 0,
+   "x": 16,
+   "z": 21,
+   "top": "granilite",
+   "bottom": "concreto"
+  },
+  {
+   "level": 1,
+   "x": 16,
+   "z": 21,
+   "top": "concreto",
+   "bottom": "forro-placas"
+  },
+  {
+   "level": 0,
+   "x": 16,
+   "z": 22,
+   "top": "granilite",
+   "bottom": "concreto"
+  },
+  {
+   "level": 1,
+   "x": 16,
+   "z": 22,
+   "top": "concreto",
+   "bottom": "forro-placas"
+  },
+  {
+   "level": 0,
+   "x": 16,
+   "z": 23,
+   "top": "granilite",
+   "bottom": "concreto"
+  },
+  {
+   "level": 1,
+   "x": 16,
+   "z": 23,
+   "top": "concreto",
+   "bottom": "forro-placas"
+  },
+  {
+   "level": 0,
+   "x": 16,
+   "z": 24,
+   "top": "granilite",
+   "bottom": "concreto"
+  },
+  {
+   "level": 1,
+   "x": 16,
+   "z": 24,
+   "top": "concreto",
+   "bottom": "forro-placas"
+  },
+  {
+   "level": 0,
+   "x": 16,
+   "z": 25,
+   "top": "granilite",
+   "bottom": "concreto"
+  },
+  {
+   "level": 1,
+   "x": 16,
+   "z": 25,
+   "top": "concreto",
+   "bottom": "forro-placas"
+  },
+  {
+   "level": 0,
+   "x": 16,
+   "z": 26,
+   "top": "granilite",
+   "bottom": "concreto"
+  },
+  {
+   "level": 1,
+   "x": 16,
+   "z": 26,
+   "top": "concreto",
+   "bottom": "forro-placas"
+  },
+  {
+   "level": 0,
+   "x": 16,
+   "z": 27,
+   "top": "granilite",
+   "bottom": "concreto"
+  },
+  {
+   "level": 1,
+   "x": 16,
+   "z": 27,
+   "top": "concreto",
+   "bottom": "forro-placas"
+  },
+  {
+   "level": 0,
+   "x": 16,
+   "z": 28,
+   "top": "granilite",
+   "bottom": "concreto"
+  },
+  {
+   "level": 1,
+   "x": 16,
+   "z": 28,
+   "top": "concreto",
+   "bottom": "forro-placas"
+  },
+  {
+   "level": 0,
+   "x": 17,
+   "z": 16,
+   "top": "granilite",
+   "bottom": "concreto"
+  },
+  {
+   "level": 1,
+   "x": 17,
+   "z": 16,
+   "top": "concreto",
+   "bottom": "forro-placas"
+  },
+  {
+   "level": 0,
+   "x": 17,
+   "z": 17,
+   "top": "granilite",
+   "bottom": "concreto"
+  },
+  {
+   "level": 1,
+   "x": 17,
+   "z": 17,
+   "top": "concreto",
+   "bottom": "forro-placas"
+  },
+  {
+   "level": 0,
+   "x": 17,
+   "z": 18,
+   "top": "granilite",
+   "bottom": "concreto"
+  },
+  {
+   "level": 1,
+   "x": 17,
+   "z": 18,
+   "top": "concreto",
+   "bottom": "forro-placas"
+  },
+  {
+   "level": 0,
+   "x": 17,
+   "z": 19,
+   "top": "granilite",
+   "bottom": "concreto"
+  },
+  {
+   "level": 1,
+   "x": 17,
+   "z": 19,
+   "top": "concreto",
+   "bottom": "forro-placas"
+  },
+  {
+   "level": 0,
+   "x": 17,
+   "z": 20,
+   "top": "granilite",
+   "bottom": "concreto"
+  },
+  {
+   "level": 1,
+   "x": 17,
+   "z": 20,
+   "top": "concreto",
+   "bottom": "forro-placas"
+  },
+  {
+   "level": 0,
+   "x": 17,
+   "z": 21,
+   "top": "granilite",
+   "bottom": "concreto"
+  },
+  {
+   "level": 1,
+   "x": 17,
+   "z": 21,
+   "top": "concreto",
+   "bottom": "forro-placas"
+  },
+  {
+   "level": 0,
+   "x": 17,
+   "z": 22,
+   "top": "granilite",
+   "bottom": "concreto"
+  },
+  {
+   "level": 1,
+   "x": 17,
+   "z": 22,
+   "top": "concreto",
+   "bottom": "forro-placas"
+  },
+  {
+   "level": 0,
+   "x": 17,
+   "z": 23,
+   "top": "granilite",
+   "bottom": "concreto"
+  },
+  {
+   "level": 1,
+   "x": 17,
+   "z": 23,
+   "top": "concreto",
+   "bottom": "forro-placas"
+  },
+  {
+   "level": 0,
+   "x": 17,
+   "z": 24,
+   "top": "granilite",
+   "bottom": "concreto"
+  },
+  {
+   "level": 1,
+   "x": 17,
+   "z": 24,
+   "top": "concreto",
+   "bottom": "forro-placas"
+  },
+  {
+   "level": 0,
+   "x": 17,
+   "z": 25,
+   "top": "granilite",
+   "bottom": "concreto"
+  },
+  {
+   "level": 1,
+   "x": 17,
+   "z": 25,
+   "top": "concreto",
+   "bottom": "forro-placas"
+  },
+  {
+   "level": 0,
+   "x": 17,
+   "z": 26,
+   "top": "granilite",
+   "bottom": "concreto"
+  },
+  {
+   "level": 1,
+   "x": 17,
+   "z": 26,
+   "top": "concreto",
+   "bottom": "forro-placas"
+  },
+  {
+   "level": 0,
+   "x": 17,
+   "z": 27,
+   "top": "granilite",
+   "bottom": "concreto"
+  },
+  {
+   "level": 1,
+   "x": 17,
+   "z": 27,
+   "top": "concreto",
+   "bottom": "forro-placas"
+  },
+  {
+   "level": 0,
+   "x": 17,
+   "z": 28,
+   "top": "granilite",
+   "bottom": "concreto"
+  },
+  {
+   "level": 1,
+   "x": 17,
+   "z": 28,
+   "top": "concreto",
+   "bottom": "forro-placas"
+  },
+  {
+   "level": 0,
+   "x": 18,
+   "z": 16,
+   "top": "granilite",
+   "bottom": "concreto"
+  },
+  {
+   "level": 1,
+   "x": 18,
+   "z": 16,
+   "top": "concreto",
+   "bottom": "forro-placas"
+  },
+  {
+   "level": 0,
+   "x": 18,
+   "z": 17,
+   "top": "granilite",
+   "bottom": "concreto"
+  },
+  {
+   "level": 1,
+   "x": 18,
+   "z": 17,
+   "top": "concreto",
+   "bottom": "forro-placas"
+  },
+  {
+   "level": 0,
+   "x": 18,
+   "z": 18,
+   "top": "granilite",
+   "bottom": "concreto"
+  },
+  {
+   "level": 1,
+   "x": 18,
+   "z": 18,
+   "top": "concreto",
+   "bottom": "forro-placas"
+  },
+  {
+   "level": 0,
+   "x": 18,
+   "z": 19,
+   "top": "granilite",
+   "bottom": "concreto"
+  },
+  {
+   "level": 1,
+   "x": 18,
+   "z": 19,
+   "top": "concreto",
+   "bottom": "forro-placas"
+  },
+  {
+   "level": 0,
+   "x": 18,
+   "z": 20,
+   "top": "granilite",
+   "bottom": "concreto"
+  },
+  {
+   "level": 1,
+   "x": 18,
+   "z": 20,
+   "top": "concreto",
+   "bottom": "forro-placas"
+  },
+  {
+   "level": 0,
+   "x": 18,
+   "z": 21,
+   "top": "granilite",
+   "bottom": "concreto"
+  },
+  {
+   "level": 1,
+   "x": 18,
+   "z": 21,
+   "top": "concreto",
+   "bottom": "forro-placas"
+  },
+  {
+   "level": 0,
+   "x": 18,
+   "z": 22,
+   "top": "granilite",
+   "bottom": "concreto"
+  },
+  {
+   "level": 1,
+   "x": 18,
+   "z": 22,
+   "top": "concreto",
+   "bottom": "forro-placas"
+  },
+  {
+   "level": 0,
+   "x": 18,
+   "z": 23,
+   "top": "granilite",
+   "bottom": "concreto"
+  },
+  {
+   "level": 1,
+   "x": 18,
+   "z": 23,
+   "top": "concreto",
+   "bottom": "forro-placas"
+  },
+  {
+   "level": 0,
+   "x": 18,
+   "z": 24,
+   "top": "granilite",
+   "bottom": "concreto"
+  },
+  {
+   "level": 1,
+   "x": 18,
+   "z": 24,
+   "top": "concreto",
+   "bottom": "forro-placas"
+  },
+  {
+   "level": 0,
+   "x": 18,
+   "z": 25,
+   "top": "granilite",
+   "bottom": "concreto"
+  },
+  {
+   "level": 1,
+   "x": 18,
+   "z": 25,
+   "top": "concreto",
+   "bottom": "forro-placas"
+  },
+  {
+   "level": 0,
+   "x": 18,
+   "z": 26,
+   "top": "granilite",
+   "bottom": "concreto"
+  },
+  {
+   "level": 1,
+   "x": 18,
+   "z": 26,
+   "top": "concreto",
+   "bottom": "forro-placas"
+  },
+  {
+   "level": 0,
+   "x": 18,
+   "z": 27,
+   "top": "granilite",
+   "bottom": "concreto"
+  },
+  {
+   "level": 1,
+   "x": 18,
+   "z": 27,
+   "top": "concreto",
+   "bottom": "forro-placas"
+  },
+  {
+   "level": 0,
+   "x": 18,
+   "z": 28,
+   "top": "granilite",
+   "bottom": "concreto"
+  },
+  {
+   "level": 1,
+   "x": 18,
+   "z": 28,
+   "top": "concreto",
+   "bottom": "forro-placas"
+  },
+  {
+   "level": 0,
+   "x": 19,
+   "z": 16,
+   "top": "granilite",
+   "bottom": "concreto"
+  },
+  {
+   "level": 1,
+   "x": 19,
+   "z": 16,
+   "top": "concreto",
+   "bottom": "forro-placas"
+  },
+  {
+   "level": 0,
+   "x": 19,
+   "z": 17,
+   "top": "granilite",
+   "bottom": "concreto"
+  },
+  {
+   "level": 1,
+   "x": 19,
+   "z": 17,
+   "top": "concreto",
+   "bottom": "forro-placas"
+  },
+  {
+   "level": 0,
+   "x": 19,
+   "z": 18,
+   "top": "granilite",
+   "bottom": "concreto"
+  },
+  {
+   "level": 1,
+   "x": 19,
+   "z": 18,
+   "top": "concreto",
+   "bottom": "forro-placas"
+  },
+  {
+   "level": 0,
+   "x": 19,
+   "z": 19,
+   "top": "granilite",
+   "bottom": "concreto"
+  },
+  {
+   "level": 1,
+   "x": 19,
+   "z": 19,
+   "top": "concreto",
+   "bottom": "forro-placas"
+  },
+  {
+   "level": 0,
+   "x": 19,
+   "z": 20,
+   "top": "granilite",
+   "bottom": "concreto"
+  },
+  {
+   "level": 1,
+   "x": 19,
+   "z": 20,
+   "top": "concreto",
+   "bottom": "forro-placas"
+  },
+  {
+   "level": 0,
+   "x": 19,
+   "z": 21,
+   "top": "granilite",
+   "bottom": "concreto"
+  },
+  {
+   "level": 1,
+   "x": 19,
+   "z": 21,
+   "top": "concreto",
+   "bottom": "forro-placas"
+  },
+  {
+   "level": 0,
+   "x": 19,
+   "z": 22,
+   "top": "granilite",
+   "bottom": "concreto"
+  },
+  {
+   "level": 1,
+   "x": 19,
+   "z": 22,
+   "top": "concreto",
+   "bottom": "forro-placas"
+  },
+  {
+   "level": 0,
+   "x": 19,
+   "z": 23,
+   "top": "granilite",
+   "bottom": "concreto"
+  },
+  {
+   "level": 1,
+   "x": 19,
+   "z": 23,
+   "top": "concreto",
+   "bottom": "forro-placas"
+  },
+  {
+   "level": 0,
+   "x": 19,
+   "z": 24,
+   "top": "granilite",
+   "bottom": "concreto"
+  },
+  {
+   "level": 1,
+   "x": 19,
+   "z": 24,
+   "top": "concreto",
+   "bottom": "forro-placas"
+  },
+  {
+   "level": 0,
+   "x": 19,
+   "z": 25,
+   "top": "granilite",
+   "bottom": "concreto"
+  },
+  {
+   "level": 1,
+   "x": 19,
+   "z": 25,
+   "top": "concreto",
+   "bottom": "forro-placas"
+  },
+  {
+   "level": 0,
+   "x": 19,
+   "z": 26,
+   "top": "granilite",
+   "bottom": "concreto"
+  },
+  {
+   "level": 1,
+   "x": 19,
+   "z": 26,
+   "top": "concreto",
+   "bottom": "forro-placas"
+  },
+  {
+   "level": 0,
+   "x": 19,
+   "z": 27,
+   "top": "granilite",
+   "bottom": "concreto"
+  },
+  {
+   "level": 1,
+   "x": 19,
+   "z": 27,
+   "top": "concreto",
+   "bottom": "forro-placas"
+  },
+  {
+   "level": 0,
+   "x": 19,
+   "z": 28,
+   "top": "granilite",
+   "bottom": "concreto"
+  },
+  {
+   "level": 1,
+   "x": 19,
+   "z": 28,
+   "top": "concreto",
+   "bottom": "forro-placas"
+  },
+  {
+   "level": 0,
+   "x": 20,
+   "z": 16,
+   "top": "granilite",
+   "bottom": "concreto"
+  },
+  {
+   "level": 1,
+   "x": 20,
+   "z": 16,
+   "top": "concreto",
+   "bottom": "forro-placas"
+  },
+  {
+   "level": 0,
+   "x": 20,
+   "z": 17,
+   "top": "granilite",
+   "bottom": "concreto"
+  },
+  {
+   "level": 1,
+   "x": 20,
+   "z": 17,
+   "top": "concreto",
+   "bottom": "forro-placas"
+  },
+  {
+   "level": 0,
+   "x": 20,
+   "z": 18,
+   "top": "granilite",
+   "bottom": "concreto"
+  },
+  {
+   "level": 1,
+   "x": 20,
+   "z": 18,
+   "top": "concreto",
+   "bottom": "forro-placas"
+  },
+  {
+   "level": 0,
+   "x": 20,
+   "z": 19,
+   "top": "granilite",
+   "bottom": "concreto"
+  },
+  {
+   "level": 1,
+   "x": 20,
+   "z": 19,
+   "top": "concreto",
+   "bottom": "forro-placas"
+  },
+  {
+   "level": 0,
+   "x": 20,
+   "z": 20,
+   "top": "granilite",
+   "bottom": "concreto"
+  },
+  {
+   "level": 1,
+   "x": 20,
+   "z": 20,
+   "top": "concreto",
+   "bottom": "forro-placas"
+  },
+  {
+   "level": 0,
+   "x": 20,
+   "z": 21,
+   "top": "granilite",
+   "bottom": "concreto"
+  },
+  {
+   "level": 1,
+   "x": 20,
+   "z": 21,
+   "top": "concreto",
+   "bottom": "forro-placas"
+  },
+  {
+   "level": 0,
+   "x": 20,
+   "z": 22,
+   "top": "granilite",
+   "bottom": "concreto"
+  },
+  {
+   "level": 1,
+   "x": 20,
+   "z": 22,
+   "top": "concreto",
+   "bottom": "forro-placas"
+  },
+  {
+   "level": 0,
+   "x": 20,
+   "z": 23,
+   "top": "granilite",
+   "bottom": "concreto"
+  },
+  {
+   "level": 1,
+   "x": 20,
+   "z": 23,
+   "top": "concreto",
+   "bottom": "forro-placas"
+  },
+  {
+   "level": 0,
+   "x": 20,
+   "z": 24,
+   "top": "granilite",
+   "bottom": "concreto"
+  },
+  {
+   "level": 1,
+   "x": 20,
+   "z": 24,
+   "top": "concreto",
+   "bottom": "forro-placas"
+  },
+  {
+   "level": 0,
+   "x": 20,
+   "z": 25,
+   "top": "granilite",
+   "bottom": "concreto"
+  },
+  {
+   "level": 1,
+   "x": 20,
+   "z": 25,
+   "top": "concreto",
+   "bottom": "forro-placas"
+  },
+  {
+   "level": 0,
+   "x": 20,
+   "z": 26,
+   "top": "granilite",
+   "bottom": "concreto"
+  },
+  {
+   "level": 1,
+   "x": 20,
+   "z": 26,
+   "top": "concreto",
+   "bottom": "forro-placas"
+  },
+  {
+   "level": 0,
+   "x": 20,
+   "z": 27,
+   "top": "granilite",
+   "bottom": "concreto"
+  },
+  {
+   "level": 1,
+   "x": 20,
+   "z": 27,
+   "top": "concreto",
+   "bottom": "forro-placas"
+  },
+  {
+   "level": 0,
+   "x": 20,
+   "z": 28,
+   "top": "granilite",
+   "bottom": "concreto"
+  },
+  {
+   "level": 1,
+   "x": 20,
+   "z": 28,
+   "top": "concreto",
+   "bottom": "forro-placas"
+  },
+  {
+   "level": 0,
+   "x": 21,
+   "z": 16,
+   "top": "granilite",
+   "bottom": "concreto"
+  },
+  {
+   "level": 1,
+   "x": 21,
+   "z": 16,
+   "top": "concreto",
+   "bottom": "forro-placas"
+  },
+  {
+   "level": 0,
+   "x": 21,
+   "z": 17,
+   "top": "granilite",
+   "bottom": "concreto"
+  },
+  {
+   "level": 1,
+   "x": 21,
+   "z": 17,
+   "top": "concreto",
+   "bottom": "forro-placas"
+  },
+  {
+   "level": 0,
+   "x": 21,
+   "z": 18,
+   "top": "granilite",
+   "bottom": "concreto"
+  },
+  {
+   "level": 1,
+   "x": 21,
+   "z": 18,
+   "top": "concreto",
+   "bottom": "forro-placas"
+  },
+  {
+   "level": 0,
+   "x": 21,
+   "z": 19,
+   "top": "granilite",
+   "bottom": "concreto"
+  },
+  {
+   "level": 1,
+   "x": 21,
+   "z": 19,
+   "top": "concreto",
+   "bottom": "forro-placas"
+  },
+  {
+   "level": 0,
+   "x": 21,
+   "z": 20,
+   "top": "granilite",
+   "bottom": "concreto"
+  },
+  {
+   "level": 1,
+   "x": 21,
+   "z": 20,
+   "top": "concreto",
+   "bottom": "forro-placas"
+  },
+  {
+   "level": 0,
+   "x": 21,
+   "z": 21,
+   "top": "granilite",
+   "bottom": "concreto"
+  },
+  {
+   "level": 1,
+   "x": 21,
+   "z": 21,
+   "top": "concreto",
+   "bottom": "forro-placas"
+  },
+  {
+   "level": 0,
+   "x": 21,
+   "z": 22,
+   "top": "granilite",
+   "bottom": "concreto"
+  },
+  {
+   "level": 1,
+   "x": 21,
+   "z": 22,
+   "top": "concreto",
+   "bottom": "forro-placas"
+  },
+  {
+   "level": 0,
+   "x": 21,
+   "z": 23,
+   "top": "granilite",
+   "bottom": "concreto"
+  },
+  {
+   "level": 1,
+   "x": 21,
+   "z": 23,
+   "top": "concreto",
+   "bottom": "forro-placas"
+  },
+  {
+   "level": 0,
+   "x": 21,
+   "z": 24,
+   "top": "granilite",
+   "bottom": "concreto"
+  },
+  {
+   "level": 1,
+   "x": 21,
+   "z": 24,
+   "top": "concreto",
+   "bottom": "forro-placas"
+  },
+  {
+   "level": 0,
+   "x": 21,
+   "z": 25,
+   "top": "granilite",
+   "bottom": "concreto"
+  },
+  {
+   "level": 1,
+   "x": 21,
+   "z": 25,
+   "top": "concreto",
+   "bottom": "forro-placas"
+  },
+  {
+   "level": 0,
+   "x": 21,
+   "z": 26,
+   "top": "granilite",
+   "bottom": "concreto"
+  },
+  {
+   "level": 1,
+   "x": 21,
+   "z": 26,
+   "top": "concreto",
+   "bottom": "forro-placas"
+  },
+  {
+   "level": 0,
+   "x": 21,
+   "z": 27,
+   "top": "granilite",
+   "bottom": "concreto"
+  },
+  {
+   "level": 1,
+   "x": 21,
+   "z": 27,
+   "top": "concreto",
+   "bottom": "forro-placas"
+  },
+  {
+   "level": 0,
+   "x": 21,
+   "z": 28,
+   "top": "granilite",
+   "bottom": "concreto"
+  },
+  {
+   "level": 1,
+   "x": 21,
+   "z": 28,
+   "top": "concreto",
+   "bottom": "forro-placas"
+  },
+  {
+   "level": 0,
+   "x": 22,
+   "z": 16,
+   "top": "granilite",
+   "bottom": "concreto"
+  },
+  {
+   "level": 1,
+   "x": 22,
+   "z": 16,
+   "top": "concreto",
+   "bottom": "forro-placas"
+  },
+  {
+   "level": 0,
+   "x": 22,
+   "z": 17,
+   "top": "granilite",
+   "bottom": "concreto"
+  },
+  {
+   "level": 1,
+   "x": 22,
+   "z": 17,
+   "top": "concreto",
+   "bottom": "forro-placas"
+  },
+  {
+   "level": 0,
+   "x": 22,
+   "z": 18,
+   "top": "granilite",
+   "bottom": "concreto"
+  },
+  {
+   "level": 1,
+   "x": 22,
+   "z": 18,
+   "top": "concreto",
+   "bottom": "forro-placas"
+  },
+  {
+   "level": 0,
+   "x": 22,
+   "z": 19,
+   "top": "granilite",
+   "bottom": "concreto"
+  },
+  {
+   "level": 1,
+   "x": 22,
+   "z": 19,
+   "top": "concreto",
+   "bottom": "forro-placas"
+  },
+  {
+   "level": 0,
+   "x": 22,
+   "z": 20,
+   "top": "granilite",
+   "bottom": "concreto"
+  },
+  {
+   "level": 1,
+   "x": 22,
+   "z": 20,
+   "top": "concreto",
+   "bottom": "forro-placas"
+  },
+  {
+   "level": 0,
+   "x": 22,
+   "z": 21,
+   "top": "granilite",
+   "bottom": "concreto"
+  },
+  {
+   "level": 1,
+   "x": 22,
+   "z": 21,
+   "top": "concreto",
+   "bottom": "forro-placas"
+  },
+  {
+   "level": 0,
+   "x": 22,
+   "z": 22,
+   "top": "granilite",
+   "bottom": "concreto"
+  },
+  {
+   "level": 1,
+   "x": 22,
+   "z": 22,
+   "top": "concreto",
+   "bottom": "forro-placas"
+  },
+  {
+   "level": 0,
+   "x": 22,
+   "z": 23,
+   "top": "granilite",
+   "bottom": "concreto"
+  },
+  {
+   "level": 1,
+   "x": 22,
+   "z": 23,
+   "top": "concreto",
+   "bottom": "forro-placas"
+  },
+  {
+   "level": 0,
+   "x": 22,
+   "z": 24,
+   "top": "granilite",
+   "bottom": "concreto"
+  },
+  {
+   "level": 1,
+   "x": 22,
+   "z": 24,
+   "top": "concreto",
+   "bottom": "forro-placas"
+  },
+  {
+   "level": 0,
+   "x": 22,
+   "z": 25,
+   "top": "granilite",
+   "bottom": "concreto"
+  },
+  {
+   "level": 1,
+   "x": 22,
+   "z": 25,
+   "top": "concreto",
+   "bottom": "forro-placas"
+  },
+  {
+   "level": 0,
+   "x": 22,
+   "z": 26,
+   "top": "granilite",
+   "bottom": "concreto"
+  },
+  {
+   "level": 1,
+   "x": 22,
+   "z": 26,
+   "top": "concreto",
+   "bottom": "forro-placas"
+  },
+  {
+   "level": 0,
+   "x": 22,
+   "z": 27,
+   "top": "granilite",
+   "bottom": "concreto"
+  },
+  {
+   "level": 1,
+   "x": 22,
+   "z": 27,
+   "top": "concreto",
+   "bottom": "forro-placas"
+  },
+  {
+   "level": 0,
+   "x": 22,
+   "z": 28,
+   "top": "granilite",
+   "bottom": "concreto"
+  },
+  {
+   "level": 1,
+   "x": 22,
+   "z": 28,
+   "top": "concreto",
+   "bottom": "forro-placas"
+  },
+  {
+   "level": 0,
+   "x": 23,
+   "z": 16,
+   "top": "granilite",
+   "bottom": "concreto"
+  },
+  {
+   "level": 1,
+   "x": 23,
+   "z": 16,
+   "top": "concreto",
+   "bottom": "forro-placas"
+  },
+  {
+   "level": 0,
+   "x": 23,
+   "z": 17,
+   "top": "granilite",
+   "bottom": "concreto"
+  },
+  {
+   "level": 1,
+   "x": 23,
+   "z": 17,
+   "top": "concreto",
+   "bottom": "forro-placas"
+  },
+  {
+   "level": 0,
+   "x": 23,
+   "z": 18,
+   "top": "granilite",
+   "bottom": "concreto"
+  },
+  {
+   "level": 1,
+   "x": 23,
+   "z": 18,
+   "top": "concreto",
+   "bottom": "forro-placas"
+  },
+  {
+   "level": 0,
+   "x": 23,
+   "z": 19,
+   "top": "granilite",
+   "bottom": "concreto"
+  },
+  {
+   "level": 1,
+   "x": 23,
+   "z": 19,
+   "top": "concreto",
+   "bottom": "forro-placas"
+  },
+  {
+   "level": 0,
+   "x": 23,
+   "z": 20,
+   "top": "granilite",
+   "bottom": "concreto"
+  },
+  {
+   "level": 1,
+   "x": 23,
+   "z": 20,
+   "top": "concreto",
+   "bottom": "forro-placas"
+  },
+  {
+   "level": 0,
+   "x": 23,
+   "z": 21,
+   "top": "granilite",
+   "bottom": "concreto"
+  },
+  {
+   "level": 1,
+   "x": 23,
+   "z": 21,
+   "top": "concreto",
+   "bottom": "forro-placas"
+  },
+  {
+   "level": 0,
+   "x": 23,
+   "z": 22,
+   "top": "granilite",
+   "bottom": "concreto"
+  },
+  {
+   "level": 1,
+   "x": 23,
+   "z": 22,
+   "top": "concreto",
+   "bottom": "forro-placas"
+  },
+  {
+   "level": 0,
+   "x": 23,
+   "z": 23,
+   "top": "granilite",
+   "bottom": "concreto"
+  },
+  {
+   "level": 1,
+   "x": 23,
+   "z": 23,
+   "top": "concreto",
+   "bottom": "forro-placas"
+  },
+  {
+   "level": 0,
+   "x": 23,
+   "z": 24,
+   "top": "granilite",
+   "bottom": "concreto"
+  },
+  {
+   "level": 1,
+   "x": 23,
+   "z": 24,
+   "top": "concreto",
+   "bottom": "forro-placas"
+  },
+  {
+   "level": 0,
+   "x": 23,
+   "z": 25,
+   "top": "granilite",
+   "bottom": "concreto"
+  },
+  {
+   "level": 1,
+   "x": 23,
+   "z": 25,
+   "top": "concreto",
+   "bottom": "forro-placas"
+  },
+  {
+   "level": 0,
+   "x": 23,
+   "z": 26,
+   "top": "granilite",
+   "bottom": "concreto"
+  },
+  {
+   "level": 1,
+   "x": 23,
+   "z": 26,
+   "top": "concreto",
+   "bottom": "forro-placas"
+  },
+  {
+   "level": 0,
+   "x": 23,
+   "z": 27,
+   "top": "granilite",
+   "bottom": "concreto"
+  },
+  {
+   "level": 1,
+   "x": 23,
+   "z": 27,
+   "top": "concreto",
+   "bottom": "forro-placas"
+  },
+  {
+   "level": 0,
+   "x": 23,
+   "z": 28,
+   "top": "granilite",
+   "bottom": "concreto"
+  },
+  {
+   "level": 1,
+   "x": 23,
+   "z": 28,
+   "top": "concreto",
+   "bottom": "forro-placas"
+  },
+  {
+   "level": 0,
+   "x": 24,
+   "z": 16,
+   "top": "granilite",
+   "bottom": "concreto"
+  },
+  {
+   "level": 1,
+   "x": 24,
+   "z": 16,
+   "top": "concreto",
+   "bottom": "forro-placas"
+  },
+  {
+   "level": 0,
+   "x": 24,
+   "z": 17,
+   "top": "granilite",
+   "bottom": "concreto"
+  },
+  {
+   "level": 1,
+   "x": 24,
+   "z": 17,
+   "top": "concreto",
+   "bottom": "forro-placas"
+  },
+  {
+   "level": 0,
+   "x": 24,
+   "z": 18,
+   "top": "granilite",
+   "bottom": "concreto"
+  },
+  {
+   "level": 1,
+   "x": 24,
+   "z": 18,
+   "top": "concreto",
+   "bottom": "forro-placas"
+  },
+  {
+   "level": 0,
+   "x": 24,
+   "z": 19,
+   "top": "granilite",
+   "bottom": "concreto"
+  },
+  {
+   "level": 1,
+   "x": 24,
+   "z": 19,
+   "top": "concreto",
+   "bottom": "forro-placas"
+  },
+  {
+   "level": 0,
+   "x": 24,
+   "z": 20,
+   "top": "granilite",
+   "bottom": "concreto"
+  },
+  {
+   "level": 1,
+   "x": 24,
+   "z": 20,
+   "top": "concreto",
+   "bottom": "forro-placas"
+  },
+  {
+   "level": 0,
+   "x": 24,
+   "z": 21,
+   "top": "granilite",
+   "bottom": "concreto"
+  },
+  {
+   "level": 1,
+   "x": 24,
+   "z": 21,
+   "top": "concreto",
+   "bottom": "forro-placas"
+  },
+  {
+   "level": 0,
+   "x": 24,
+   "z": 22,
+   "top": "granilite",
+   "bottom": "concreto"
+  },
+  {
+   "level": 1,
+   "x": 24,
+   "z": 22,
+   "top": "concreto",
+   "bottom": "forro-placas"
+  },
+  {
+   "level": 0,
+   "x": 24,
+   "z": 23,
+   "top": "granilite",
+   "bottom": "concreto"
+  },
+  {
+   "level": 1,
+   "x": 24,
+   "z": 23,
+   "top": "concreto",
+   "bottom": "forro-placas"
+  },
+  {
+   "level": 0,
+   "x": 24,
+   "z": 24,
+   "top": "granilite",
+   "bottom": "concreto"
+  },
+  {
+   "level": 1,
+   "x": 24,
+   "z": 24,
+   "top": "concreto",
+   "bottom": "forro-placas"
+  },
+  {
+   "level": 0,
+   "x": 24,
+   "z": 25,
+   "top": "granilite",
+   "bottom": "concreto"
+  },
+  {
+   "level": 1,
+   "x": 24,
+   "z": 25,
+   "top": "concreto",
+   "bottom": "forro-placas"
+  },
+  {
+   "level": 0,
+   "x": 24,
+   "z": 26,
+   "top": "granilite",
+   "bottom": "concreto"
+  },
+  {
+   "level": 1,
+   "x": 24,
+   "z": 26,
+   "top": "concreto",
+   "bottom": "forro-placas"
+  },
+  {
+   "level": 0,
+   "x": 24,
+   "z": 27,
+   "top": "granilite",
+   "bottom": "concreto"
+  },
+  {
+   "level": 1,
+   "x": 24,
+   "z": 27,
+   "top": "concreto",
+   "bottom": "forro-placas"
+  },
+  {
+   "level": 0,
+   "x": 24,
+   "z": 28,
+   "top": "granilite",
+   "bottom": "concreto"
+  },
+  {
+   "level": 1,
+   "x": 24,
+   "z": 28,
+   "top": "concreto",
+   "bottom": "forro-placas"
+  },
+  {
+   "level": 0,
+   "x": 25,
+   "z": 16,
+   "top": "granilite",
+   "bottom": "concreto"
+  },
+  {
+   "level": 1,
+   "x": 25,
+   "z": 16,
+   "top": "concreto",
+   "bottom": "forro-placas"
+  },
+  {
+   "level": 0,
+   "x": 25,
+   "z": 17,
+   "top": "granilite",
+   "bottom": "concreto"
+  },
+  {
+   "level": 1,
+   "x": 25,
+   "z": 17,
+   "top": "concreto",
+   "bottom": "forro-placas"
+  },
+  {
+   "level": 0,
+   "x": 25,
+   "z": 18,
+   "top": "granilite",
+   "bottom": "concreto"
+  },
+  {
+   "level": 1,
+   "x": 25,
+   "z": 18,
+   "top": "concreto",
+   "bottom": "forro-placas"
+  },
+  {
+   "level": 0,
+   "x": 25,
+   "z": 19,
+   "top": "granilite",
+   "bottom": "concreto"
+  },
+  {
+   "level": 1,
+   "x": 25,
+   "z": 19,
+   "top": "concreto",
+   "bottom": "forro-placas"
+  },
+  {
+   "level": 0,
+   "x": 25,
+   "z": 20,
+   "top": "granilite",
+   "bottom": "concreto"
+  },
+  {
+   "level": 1,
+   "x": 25,
+   "z": 20,
+   "top": "concreto",
+   "bottom": "forro-placas"
+  },
+  {
+   "level": 0,
+   "x": 25,
+   "z": 21,
+   "top": "granilite",
+   "bottom": "concreto"
+  },
+  {
+   "level": 1,
+   "x": 25,
+   "z": 21,
+   "top": "concreto",
+   "bottom": "forro-placas"
+  },
+  {
+   "level": 0,
+   "x": 25,
+   "z": 22,
+   "top": "granilite",
+   "bottom": "concreto"
+  },
+  {
+   "level": 1,
+   "x": 25,
+   "z": 22,
+   "top": "concreto",
+   "bottom": "forro-placas"
+  },
+  {
+   "level": 0,
+   "x": 25,
+   "z": 23,
+   "top": "granilite",
+   "bottom": "concreto"
+  },
+  {
+   "level": 1,
+   "x": 25,
+   "z": 23,
+   "top": "concreto",
+   "bottom": "forro-placas"
+  },
+  {
+   "level": 0,
+   "x": 25,
+   "z": 24,
+   "top": "granilite",
+   "bottom": "concreto"
+  },
+  {
+   "level": 1,
+   "x": 25,
+   "z": 24,
+   "top": "concreto",
+   "bottom": "forro-placas"
+  },
+  {
+   "level": 0,
+   "x": 25,
+   "z": 25,
+   "top": "granilite",
+   "bottom": "concreto"
+  },
+  {
+   "level": 1,
+   "x": 25,
+   "z": 25,
+   "top": "concreto",
+   "bottom": "forro-placas"
+  },
+  {
+   "level": 0,
+   "x": 25,
+   "z": 26,
+   "top": "granilite",
+   "bottom": "concreto"
+  },
+  {
+   "level": 1,
+   "x": 25,
+   "z": 26,
+   "top": "concreto",
+   "bottom": "forro-placas"
+  },
+  {
+   "level": 0,
+   "x": 25,
+   "z": 27,
+   "top": "granilite",
+   "bottom": "concreto"
+  },
+  {
+   "level": 1,
+   "x": 25,
+   "z": 27,
+   "top": "concreto",
+   "bottom": "forro-placas"
+  },
+  {
+   "level": 0,
+   "x": 25,
+   "z": 28,
+   "top": "granilite",
+   "bottom": "concreto"
+  },
+  {
+   "level": 1,
+   "x": 25,
+   "z": 28,
+   "top": "concreto",
+   "bottom": "forro-placas"
+  },
+  {
+   "level": 0,
+   "x": 26,
+   "z": 16,
+   "top": "granilite",
+   "bottom": "concreto"
+  },
+  {
+   "level": 1,
+   "x": 26,
+   "z": 16,
+   "top": "concreto",
+   "bottom": "forro-placas"
+  },
+  {
+   "level": 0,
+   "x": 26,
+   "z": 17,
+   "top": "granilite",
+   "bottom": "concreto"
+  },
+  {
+   "level": 1,
+   "x": 26,
+   "z": 17,
+   "top": "concreto",
+   "bottom": "forro-placas"
+  },
+  {
+   "level": 0,
+   "x": 26,
+   "z": 18,
+   "top": "granilite",
+   "bottom": "concreto"
+  },
+  {
+   "level": 1,
+   "x": 26,
+   "z": 18,
+   "top": "concreto",
+   "bottom": "forro-placas"
+  },
+  {
+   "level": 0,
+   "x": 26,
+   "z": 19,
+   "top": "granilite",
+   "bottom": "concreto"
+  },
+  {
+   "level": 1,
+   "x": 26,
+   "z": 19,
+   "top": "concreto",
+   "bottom": "forro-placas"
+  },
+  {
+   "level": 0,
+   "x": 26,
+   "z": 20,
+   "top": "granilite",
+   "bottom": "concreto"
+  },
+  {
+   "level": 1,
+   "x": 26,
+   "z": 20,
+   "top": "concreto",
+   "bottom": "forro-placas"
+  },
+  {
+   "level": 0,
+   "x": 26,
+   "z": 21,
+   "top": "granilite",
+   "bottom": "concreto"
+  },
+  {
+   "level": 1,
+   "x": 26,
+   "z": 21,
+   "top": "concreto",
+   "bottom": "forro-placas"
+  },
+  {
+   "level": 0,
+   "x": 26,
+   "z": 22,
+   "top": "granilite",
+   "bottom": "concreto"
+  },
+  {
+   "level": 1,
+   "x": 26,
+   "z": 22,
+   "top": "concreto",
+   "bottom": "forro-placas"
+  },
+  {
+   "level": 0,
+   "x": 26,
+   "z": 23,
+   "top": "granilite",
+   "bottom": "concreto"
+  },
+  {
+   "level": 1,
+   "x": 26,
+   "z": 23,
+   "top": "concreto",
+   "bottom": "forro-placas"
+  },
+  {
+   "level": 0,
+   "x": 26,
+   "z": 24,
+   "top": "granilite",
+   "bottom": "concreto"
+  },
+  {
+   "level": 1,
+   "x": 26,
+   "z": 24,
+   "top": "concreto",
+   "bottom": "forro-placas"
+  },
+  {
+   "level": 0,
+   "x": 26,
+   "z": 25,
+   "top": "granilite",
+   "bottom": "concreto"
+  },
+  {
+   "level": 1,
+   "x": 26,
+   "z": 25,
+   "top": "concreto",
+   "bottom": "forro-placas"
+  },
+  {
+   "level": 0,
+   "x": 26,
+   "z": 26,
+   "top": "granilite",
+   "bottom": "concreto"
+  },
+  {
+   "level": 1,
+   "x": 26,
+   "z": 26,
+   "top": "concreto",
+   "bottom": "forro-placas"
+  },
+  {
+   "level": 0,
+   "x": 26,
+   "z": 27,
+   "top": "granilite",
+   "bottom": "concreto"
+  },
+  {
+   "level": 1,
+   "x": 26,
+   "z": 27,
+   "top": "concreto",
+   "bottom": "forro-placas"
+  },
+  {
+   "level": 0,
+   "x": 26,
+   "z": 28,
+   "top": "granilite",
+   "bottom": "concreto"
+  },
+  {
+   "level": 1,
+   "x": 26,
+   "z": 28,
+   "top": "concreto",
+   "bottom": "forro-placas"
+  },
+  {
+   "level": 0,
+   "x": 27,
+   "z": 16,
+   "top": "granilite",
+   "bottom": "concreto"
+  },
+  {
+   "level": 1,
+   "x": 27,
+   "z": 16,
+   "top": "concreto",
+   "bottom": "forro-placas"
+  },
+  {
+   "level": 0,
+   "x": 27,
+   "z": 17,
+   "top": "granilite",
+   "bottom": "concreto"
+  },
+  {
+   "level": 1,
+   "x": 27,
+   "z": 17,
+   "top": "concreto",
+   "bottom": "forro-placas"
+  },
+  {
+   "level": 0,
+   "x": 27,
+   "z": 18,
+   "top": "granilite",
+   "bottom": "concreto"
+  },
+  {
+   "level": 1,
+   "x": 27,
+   "z": 18,
+   "top": "concreto",
+   "bottom": "forro-placas"
+  },
+  {
+   "level": 0,
+   "x": 27,
+   "z": 19,
+   "top": "granilite",
+   "bottom": "concreto"
+  },
+  {
+   "level": 1,
+   "x": 27,
+   "z": 19,
+   "top": "concreto",
+   "bottom": "forro-placas"
+  },
+  {
+   "level": 0,
+   "x": 27,
+   "z": 20,
+   "top": "granilite",
+   "bottom": "concreto"
+  },
+  {
+   "level": 1,
+   "x": 27,
+   "z": 20,
+   "top": "concreto",
+   "bottom": "forro-placas"
+  },
+  {
+   "level": 0,
+   "x": 27,
+   "z": 21,
+   "top": "granilite",
+   "bottom": "concreto"
+  },
+  {
+   "level": 1,
+   "x": 27,
+   "z": 21,
+   "top": "concreto",
+   "bottom": "forro-placas"
+  },
+  {
+   "level": 0,
+   "x": 27,
+   "z": 22,
+   "top": "granilite",
+   "bottom": "concreto"
+  },
+  {
+   "level": 1,
+   "x": 27,
+   "z": 22,
+   "top": "concreto",
+   "bottom": "forro-placas"
+  },
+  {
+   "level": 0,
+   "x": 27,
+   "z": 23,
+   "top": "granilite",
+   "bottom": "concreto"
+  },
+  {
+   "level": 1,
+   "x": 27,
+   "z": 23,
+   "top": "concreto",
+   "bottom": "forro-placas"
+  },
+  {
+   "level": 0,
+   "x": 27,
+   "z": 24,
+   "top": "granilite",
+   "bottom": "concreto"
+  },
+  {
+   "level": 1,
+   "x": 27,
+   "z": 24,
+   "top": "concreto",
+   "bottom": "forro-placas"
+  },
+  {
+   "level": 0,
+   "x": 27,
+   "z": 25,
+   "top": "granilite",
+   "bottom": "concreto"
+  },
+  {
+   "level": 1,
+   "x": 27,
+   "z": 25,
+   "top": "concreto",
+   "bottom": "forro-placas"
+  },
+  {
+   "level": 0,
+   "x": 27,
+   "z": 26,
+   "top": "granilite",
+   "bottom": "concreto"
+  },
+  {
+   "level": 1,
+   "x": 27,
+   "z": 26,
+   "top": "concreto",
+   "bottom": "forro-placas"
+  },
+  {
+   "level": 0,
+   "x": 27,
+   "z": 27,
+   "top": "granilite",
+   "bottom": "concreto"
+  },
+  {
+   "level": 1,
+   "x": 27,
+   "z": 27,
+   "top": "concreto",
+   "bottom": "forro-placas"
+  },
+  {
+   "level": 0,
+   "x": 27,
+   "z": 28,
+   "top": "granilite",
+   "bottom": "concreto"
+  },
+  {
+   "level": 1,
+   "x": 27,
+   "z": 28,
+   "top": "concreto",
+   "bottom": "forro-placas"
+  },
+  {
+   "level": 0,
+   "x": 28,
+   "z": 16,
+   "top": "granilite",
+   "bottom": "concreto"
+  },
+  {
+   "level": 1,
+   "x": 28,
+   "z": 16,
+   "top": "concreto",
+   "bottom": "forro-placas"
+  },
+  {
+   "level": 0,
+   "x": 28,
+   "z": 17,
+   "top": "granilite",
+   "bottom": "concreto"
+  },
+  {
+   "level": 1,
+   "x": 28,
+   "z": 17,
+   "top": "concreto",
+   "bottom": "forro-placas"
+  },
+  {
+   "level": 0,
+   "x": 28,
+   "z": 18,
+   "top": "granilite",
+   "bottom": "concreto"
+  },
+  {
+   "level": 1,
+   "x": 28,
+   "z": 18,
+   "top": "concreto",
+   "bottom": "forro-placas"
+  },
+  {
+   "level": 0,
+   "x": 28,
+   "z": 19,
+   "top": "granilite",
+   "bottom": "concreto"
+  },
+  {
+   "level": 1,
+   "x": 28,
+   "z": 19,
+   "top": "concreto",
+   "bottom": "forro-placas"
+  },
+  {
+   "level": 0,
+   "x": 28,
+   "z": 20,
+   "top": "granilite",
+   "bottom": "concreto"
+  },
+  {
+   "level": 1,
+   "x": 28,
+   "z": 20,
+   "top": "concreto",
+   "bottom": "forro-placas"
+  },
+  {
+   "level": 0,
+   "x": 28,
+   "z": 21,
+   "top": "granilite",
+   "bottom": "concreto"
+  },
+  {
+   "level": 1,
+   "x": 28,
+   "z": 21,
+   "top": "concreto",
+   "bottom": "forro-placas"
+  },
+  {
+   "level": 0,
+   "x": 28,
+   "z": 22,
+   "top": "granilite",
+   "bottom": "concreto"
+  },
+  {
+   "level": 1,
+   "x": 28,
+   "z": 22,
+   "top": "concreto",
+   "bottom": "forro-placas"
+  },
+  {
+   "level": 0,
+   "x": 28,
+   "z": 23,
+   "top": "granilite",
+   "bottom": "concreto"
+  },
+  {
+   "level": 1,
+   "x": 28,
+   "z": 23,
+   "top": "concreto",
+   "bottom": "forro-placas"
+  },
+  {
+   "level": 0,
+   "x": 28,
+   "z": 24,
+   "top": "granilite",
+   "bottom": "concreto"
+  },
+  {
+   "level": 1,
+   "x": 28,
+   "z": 24,
+   "top": "concreto",
+   "bottom": "forro-placas"
+  },
+  {
+   "level": 0,
+   "x": 28,
+   "z": 25,
+   "top": "granilite",
+   "bottom": "concreto"
+  },
+  {
+   "level": 1,
+   "x": 28,
+   "z": 25,
+   "top": "concreto",
+   "bottom": "forro-placas"
+  },
+  {
+   "level": 0,
+   "x": 28,
+   "z": 26,
+   "top": "granilite",
+   "bottom": "concreto"
+  },
+  {
+   "level": 1,
+   "x": 28,
+   "z": 26,
+   "top": "concreto",
+   "bottom": "forro-placas"
+  },
+  {
+   "level": 0,
+   "x": 28,
+   "z": 27,
+   "top": "granilite",
+   "bottom": "concreto"
+  },
+  {
+   "level": 1,
+   "x": 28,
+   "z": 27,
+   "top": "concreto",
+   "bottom": "forro-placas"
+  },
+  {
+   "level": 0,
+   "x": 28,
+   "z": 28,
+   "top": "granilite",
+   "bottom": "concreto"
+  },
+  {
+   "level": 1,
+   "x": 28,
+   "z": 28,
+   "top": "concreto",
+   "bottom": "forro-placas"
+  },
+  {
+   "level": 0,
+   "x": 29,
+   "z": 16,
+   "top": "concreto",
+   "bottom": "concreto"
+  },
+  {
+   "level": 1,
+   "x": 29,
+   "z": 16,
+   "top": "concreto",
+   "bottom": "forro-usina"
+  },
+  {
+   "level": 0,
+   "x": 29,
+   "z": 17,
+   "top": "concreto",
+   "bottom": "concreto"
+  },
+  {
+   "level": 1,
+   "x": 29,
+   "z": 17,
+   "top": "concreto",
+   "bottom": "forro-usina"
+  },
+  {
+   "level": 0,
+   "x": 29,
+   "z": 18,
+   "top": "concreto",
+   "bottom": "concreto"
+  },
+  {
+   "level": 1,
+   "x": 29,
+   "z": 18,
+   "top": "concreto",
+   "bottom": "forro-usina"
+  },
+  {
+   "level": 0,
+   "x": 29,
+   "z": 19,
+   "top": "concreto",
+   "bottom": "concreto"
+  },
+  {
+   "level": 1,
+   "x": 29,
+   "z": 19,
+   "top": "concreto",
+   "bottom": "forro-usina"
+  },
+  {
+   "level": 0,
+   "x": 29,
+   "z": 20,
+   "top": "concreto",
+   "bottom": "concreto"
+  },
+  {
+   "level": 1,
+   "x": 29,
+   "z": 20,
+   "top": "concreto",
+   "bottom": "forro-usina"
+  },
+  {
+   "level": 0,
+   "x": 29,
+   "z": 21,
+   "top": "concreto",
+   "bottom": "concreto"
+  },
+  {
+   "level": 1,
+   "x": 29,
+   "z": 21,
+   "top": "concreto",
+   "bottom": "forro-usina"
+  },
+  {
+   "level": 0,
+   "x": 29,
+   "z": 22,
+   "top": "concreto",
+   "bottom": "concreto"
+  },
+  {
+   "level": 1,
+   "x": 29,
+   "z": 22,
+   "top": "concreto",
+   "bottom": "forro-usina"
+  },
+  {
+   "level": 0,
+   "x": 29,
+   "z": 23,
+   "top": "concreto",
+   "bottom": "concreto"
+  },
+  {
+   "level": 1,
+   "x": 29,
+   "z": 23,
+   "top": "concreto",
+   "bottom": "forro-usina"
+  },
+  {
+   "level": 0,
+   "x": 29,
+   "z": 24,
+   "top": "concreto",
+   "bottom": "concreto"
+  },
+  {
+   "level": 1,
+   "x": 29,
+   "z": 24,
+   "top": "concreto",
+   "bottom": "forro-usina"
+  },
+  {
+   "level": 0,
+   "x": 29,
+   "z": 25,
+   "top": "concreto",
+   "bottom": "concreto"
+  },
+  {
+   "level": 1,
+   "x": 29,
+   "z": 25,
+   "top": "concreto",
+   "bottom": "forro-usina"
+  },
+  {
+   "level": 0,
+   "x": 29,
+   "z": 26,
+   "top": "concreto",
+   "bottom": "concreto"
+  },
+  {
+   "level": 1,
+   "x": 29,
+   "z": 26,
+   "top": "concreto",
+   "bottom": "forro-usina"
+  },
+  {
+   "level": 0,
+   "x": 29,
+   "z": 27,
+   "top": "concreto",
+   "bottom": "concreto"
+  },
+  {
+   "level": 1,
+   "x": 29,
+   "z": 27,
+   "top": "concreto",
+   "bottom": "forro-usina"
+  },
+  {
+   "level": 0,
+   "x": 29,
+   "z": 28,
+   "top": "concreto",
+   "bottom": "concreto"
+  },
+  {
+   "level": 1,
+   "x": 29,
+   "z": 28,
+   "top": "concreto",
+   "bottom": "forro-usina"
+  },
+  {
+   "level": 0,
+   "x": 29,
+   "z": 29,
+   "top": "concreto",
+   "bottom": "concreto"
+  },
+  {
+   "level": 1,
+   "x": 29,
+   "z": 29,
+   "top": "concreto",
+   "bottom": "forro-usina"
+  },
+  {
+   "level": 0,
+   "x": 29,
+   "z": 30,
+   "top": "concreto",
+   "bottom": "concreto"
+  },
+  {
+   "level": 1,
+   "x": 29,
+   "z": 30,
+   "top": "concreto",
+   "bottom": "forro-usina"
+  },
+  {
+   "level": 0,
+   "x": 29,
+   "z": 31,
+   "top": "concreto",
+   "bottom": "concreto"
+  },
+  {
+   "level": 1,
+   "x": 29,
+   "z": 31,
+   "top": "concreto",
+   "bottom": "forro-usina"
+  },
+  {
+   "level": 0,
+   "x": 30,
+   "z": 16,
+   "top": "concreto",
+   "bottom": "concreto"
+  },
+  {
+   "level": 1,
+   "x": 30,
+   "z": 16,
+   "top": "concreto",
+   "bottom": "forro-usina"
+  },
+  {
+   "level": 0,
+   "x": 30,
+   "z": 17,
+   "top": "concreto",
+   "bottom": "concreto"
+  },
+  {
+   "level": 1,
+   "x": 30,
+   "z": 17,
+   "top": "concreto",
+   "bottom": "forro-usina"
+  },
+  {
+   "level": 0,
+   "x": 30,
+   "z": 18,
+   "top": "concreto",
+   "bottom": "concreto"
+  },
+  {
+   "level": 1,
+   "x": 30,
+   "z": 18,
+   "top": "concreto",
+   "bottom": "forro-usina"
+  },
+  {
+   "level": 0,
+   "x": 30,
+   "z": 19,
+   "top": "concreto",
+   "bottom": "concreto"
+  },
+  {
+   "level": 1,
+   "x": 30,
+   "z": 19,
+   "top": "concreto",
+   "bottom": "forro-usina"
+  },
+  {
+   "level": 0,
+   "x": 30,
+   "z": 20,
+   "top": "concreto",
+   "bottom": "concreto"
+  },
+  {
+   "level": 1,
+   "x": 30,
+   "z": 20,
+   "top": "concreto",
+   "bottom": "forro-usina"
+  },
+  {
+   "level": 0,
+   "x": 30,
+   "z": 21,
+   "top": "concreto",
+   "bottom": "concreto"
+  },
+  {
+   "level": 1,
+   "x": 30,
+   "z": 21,
+   "top": "concreto",
+   "bottom": "forro-usina"
+  },
+  {
+   "level": 0,
+   "x": 30,
+   "z": 22,
+   "top": "concreto",
+   "bottom": "concreto"
+  },
+  {
+   "level": 1,
+   "x": 30,
+   "z": 22,
+   "top": "concreto",
+   "bottom": "forro-usina"
+  },
+  {
+   "level": 0,
+   "x": 30,
+   "z": 23,
+   "top": "concreto",
+   "bottom": "concreto"
+  },
+  {
+   "level": 1,
+   "x": 30,
+   "z": 23,
+   "top": "concreto",
+   "bottom": "forro-usina"
+  },
+  {
+   "level": 0,
+   "x": 30,
+   "z": 24,
+   "top": "concreto",
+   "bottom": "concreto"
+  },
+  {
+   "level": 1,
+   "x": 30,
+   "z": 24,
+   "top": "concreto",
+   "bottom": "forro-usina"
+  },
+  {
+   "level": 0,
+   "x": 30,
+   "z": 25,
+   "top": "concreto",
+   "bottom": "concreto"
+  },
+  {
+   "level": 1,
+   "x": 30,
+   "z": 25,
+   "top": "concreto",
+   "bottom": "forro-usina"
+  },
+  {
+   "level": 0,
+   "x": 30,
+   "z": 26,
+   "top": "concreto",
+   "bottom": "concreto"
+  },
+  {
+   "level": 1,
+   "x": 30,
+   "z": 26,
+   "top": "concreto",
+   "bottom": "forro-usina"
+  },
+  {
+   "level": 0,
+   "x": 30,
+   "z": 27,
+   "top": "concreto",
+   "bottom": "concreto"
+  },
+  {
+   "level": 1,
+   "x": 30,
+   "z": 27,
+   "top": "concreto",
+   "bottom": "forro-usina"
+  },
+  {
+   "level": 0,
+   "x": 30,
+   "z": 28,
+   "top": "concreto",
+   "bottom": "concreto"
+  },
+  {
+   "level": 1,
+   "x": 30,
+   "z": 28,
+   "top": "concreto",
+   "bottom": "forro-usina"
+  },
+  {
+   "level": 0,
+   "x": 30,
+   "z": 29,
+   "top": "concreto",
+   "bottom": "concreto"
+  },
+  {
+   "level": 1,
+   "x": 30,
+   "z": 29,
+   "top": "concreto",
+   "bottom": "forro-usina"
+  },
+  {
+   "level": 0,
+   "x": 30,
+   "z": 30,
+   "top": "concreto",
+   "bottom": "concreto"
+  },
+  {
+   "level": 1,
+   "x": 30,
+   "z": 30,
+   "top": "concreto",
+   "bottom": "forro-usina"
+  },
+  {
+   "level": 0,
+   "x": 30,
+   "z": 31,
+   "top": "concreto",
+   "bottom": "concreto"
+  },
+  {
+   "level": 1,
+   "x": 30,
+   "z": 31,
+   "top": "concreto",
+   "bottom": "forro-usina"
+  },
+  {
+   "level": 0,
+   "x": 31,
+   "z": 16,
+   "top": "ladrilho-xadrez",
+   "bottom": "concreto"
+  },
+  {
+   "level": 1,
+   "x": 31,
+   "z": 16,
+   "top": "concreto",
+   "bottom": "forro-placas"
+  },
+  {
+   "level": 0,
+   "x": 31,
+   "z": 17,
+   "top": "ladrilho-xadrez",
+   "bottom": "concreto"
+  },
+  {
+   "level": 1,
+   "x": 31,
+   "z": 17,
+   "top": "concreto",
+   "bottom": "forro-placas"
+  },
+  {
+   "level": 0,
+   "x": 31,
+   "z": 18,
+   "top": "ladrilho-xadrez",
+   "bottom": "concreto"
+  },
+  {
+   "level": 1,
+   "x": 31,
+   "z": 18,
+   "top": "concreto",
+   "bottom": "forro-placas"
+  },
+  {
+   "level": 0,
+   "x": 31,
+   "z": 19,
+   "top": "ladrilho-xadrez",
+   "bottom": "concreto"
+  },
+  {
+   "level": 1,
+   "x": 31,
+   "z": 19,
+   "top": "concreto",
+   "bottom": "forro-placas"
+  },
+  {
+   "level": 0,
+   "x": 31,
+   "z": 20,
+   "top": "ladrilho-xadrez",
+   "bottom": "concreto"
+  },
+  {
+   "level": 1,
+   "x": 31,
+   "z": 20,
+   "top": "concreto",
+   "bottom": "forro-placas"
+  },
+  {
+   "level": 0,
+   "x": 31,
+   "z": 21,
+   "top": "ladrilho-xadrez",
+   "bottom": "concreto"
+  },
+  {
+   "level": 1,
+   "x": 31,
+   "z": 21,
+   "top": "concreto",
+   "bottom": "forro-placas"
+  },
+  {
+   "level": 0,
+   "x": 31,
+   "z": 22,
+   "top": "ladrilho-xadrez",
+   "bottom": "concreto"
+  },
+  {
+   "level": 1,
+   "x": 31,
+   "z": 22,
+   "top": "concreto",
+   "bottom": "forro-placas"
+  },
+  {
+   "level": 0,
+   "x": 31,
+   "z": 23,
+   "top": "ladrilho-xadrez",
+   "bottom": "concreto"
+  },
+  {
+   "level": 1,
+   "x": 31,
+   "z": 23,
+   "top": "concreto",
+   "bottom": "forro-placas"
+  },
+  {
+   "level": 0,
+   "x": 31,
+   "z": 24,
+   "top": "ladrilho-xadrez",
+   "bottom": "concreto"
+  },
+  {
+   "level": 1,
+   "x": 31,
+   "z": 24,
+   "top": "concreto",
+   "bottom": "forro-placas"
+  },
+  {
+   "level": 0,
+   "x": 31,
+   "z": 25,
+   "top": "ladrilho-xadrez",
+   "bottom": "concreto"
+  },
+  {
+   "level": 1,
+   "x": 31,
+   "z": 25,
+   "top": "concreto",
+   "bottom": "forro-placas"
+  },
+  {
+   "level": 0,
+   "x": 31,
+   "z": 26,
+   "top": "ladrilho-xadrez",
+   "bottom": "concreto"
+  },
+  {
+   "level": 1,
+   "x": 31,
+   "z": 26,
+   "top": "concreto",
+   "bottom": "forro-placas"
+  },
+  {
+   "level": 0,
+   "x": 31,
+   "z": 27,
+   "top": "ladrilho-xadrez",
+   "bottom": "concreto"
+  },
+  {
+   "level": 1,
+   "x": 31,
+   "z": 27,
+   "top": "concreto",
+   "bottom": "forro-placas"
+  },
+  {
+   "level": 0,
+   "x": 31,
+   "z": 28,
+   "top": "ladrilho-xadrez",
+   "bottom": "concreto"
+  },
+  {
+   "level": 1,
+   "x": 31,
+   "z": 28,
+   "top": "concreto",
+   "bottom": "forro-placas"
+  },
+  {
+   "level": 0,
+   "x": 16,
+   "z": 29,
+   "top": "granilite",
+   "bottom": "concreto"
+  },
+  {
+   "level": 1,
+   "x": 16,
+   "z": 29,
+   "top": "concreto",
+   "bottom": "forro-placas"
+  },
+  {
+   "level": 0,
+   "x": 16,
+   "z": 30,
+   "top": "granilite",
+   "bottom": "concreto"
+  },
+  {
+   "level": 1,
+   "x": 16,
+   "z": 30,
+   "top": "concreto",
+   "bottom": "forro-placas"
+  },
+  {
+   "level": 0,
+   "x": 16,
+   "z": 31,
+   "top": "granilite",
+   "bottom": "concreto"
+  },
+  {
+   "level": 1,
+   "x": 16,
+   "z": 31,
+   "top": "concreto",
+   "bottom": "forro-placas"
+  },
+  {
+   "level": 0,
+   "x": 17,
+   "z": 29,
+   "top": "granilite",
+   "bottom": "concreto"
+  },
+  {
+   "level": 1,
+   "x": 17,
+   "z": 29,
+   "top": "concreto",
+   "bottom": "forro-placas"
+  },
+  {
+   "level": 0,
+   "x": 17,
+   "z": 30,
+   "top": "granilite",
+   "bottom": "concreto"
+  },
+  {
+   "level": 1,
+   "x": 17,
+   "z": 30,
+   "top": "concreto",
+   "bottom": "forro-placas"
+  },
+  {
+   "level": 0,
+   "x": 17,
+   "z": 31,
+   "top": "granilite",
+   "bottom": "concreto"
+  },
+  {
+   "level": 1,
+   "x": 17,
+   "z": 31,
+   "top": "concreto",
+   "bottom": "forro-placas"
+  },
+  {
+   "level": 0,
+   "x": 18,
+   "z": 29,
+   "top": "granilite",
+   "bottom": "concreto"
+  },
+  {
+   "level": 1,
+   "x": 18,
+   "z": 29,
+   "top": "concreto",
+   "bottom": "forro-placas"
+  },
+  {
+   "level": 0,
+   "x": 18,
+   "z": 30,
+   "top": "granilite",
+   "bottom": "concreto"
+  },
+  {
+   "level": 1,
+   "x": 18,
+   "z": 30,
+   "top": "concreto",
+   "bottom": "forro-placas"
+  },
+  {
+   "level": 0,
+   "x": 18,
+   "z": 31,
+   "top": "granilite",
+   "bottom": "concreto"
+  },
+  {
+   "level": 1,
+   "x": 18,
+   "z": 31,
+   "top": "concreto",
+   "bottom": "forro-placas"
+  },
+  {
+   "level": 0,
+   "x": 19,
+   "z": 29,
+   "top": "granilite",
+   "bottom": "concreto"
+  },
+  {
+   "level": 1,
+   "x": 19,
+   "z": 29,
+   "top": "concreto",
+   "bottom": "forro-placas"
+  },
+  {
+   "level": 0,
+   "x": 19,
+   "z": 30,
+   "top": "granilite",
+   "bottom": "concreto"
+  },
+  {
+   "level": 1,
+   "x": 19,
+   "z": 30,
+   "top": "concreto",
+   "bottom": "forro-placas"
+  },
+  {
+   "level": 0,
+   "x": 19,
+   "z": 31,
+   "top": "granilite",
+   "bottom": "concreto"
+  },
+  {
+   "level": 1,
+   "x": 19,
+   "z": 31,
+   "top": "concreto",
+   "bottom": "forro-placas"
+  },
+  {
+   "level": 0,
+   "x": 20,
+   "z": 29,
+   "top": "granilite",
+   "bottom": "concreto"
+  },
+  {
+   "level": 1,
+   "x": 20,
+   "z": 29,
+   "top": "concreto",
+   "bottom": "forro-placas"
+  },
+  {
+   "level": 0,
+   "x": 20,
+   "z": 30,
+   "top": "granilite",
+   "bottom": "concreto"
+  },
+  {
+   "level": 1,
+   "x": 20,
+   "z": 30,
+   "top": "concreto",
+   "bottom": "forro-placas"
+  },
+  {
+   "level": 0,
+   "x": 20,
+   "z": 31,
+   "top": "granilite",
+   "bottom": "concreto"
+  },
+  {
+   "level": 1,
+   "x": 20,
+   "z": 31,
+   "top": "concreto",
+   "bottom": "forro-placas"
+  },
+  {
+   "level": 0,
+   "x": 21,
+   "z": 29,
+   "top": "granilite",
+   "bottom": "concreto"
+  },
+  {
+   "level": 1,
+   "x": 21,
+   "z": 29,
+   "top": "concreto",
+   "bottom": "forro-placas"
+  },
+  {
+   "level": 0,
+   "x": 21,
+   "z": 30,
+   "top": "granilite",
+   "bottom": "concreto"
+  },
+  {
+   "level": 1,
+   "x": 21,
+   "z": 30,
+   "top": "concreto",
+   "bottom": "forro-placas"
+  },
+  {
+   "level": 0,
+   "x": 21,
+   "z": 31,
+   "top": "granilite",
+   "bottom": "concreto"
+  },
+  {
+   "level": 1,
+   "x": 21,
+   "z": 31,
+   "top": "concreto",
+   "bottom": "forro-placas"
+  },
+  {
+   "level": 0,
+   "x": 22,
+   "z": 29,
+   "top": "granilite",
+   "bottom": "concreto"
+  },
+  {
+   "level": 1,
+   "x": 22,
+   "z": 29,
+   "top": "concreto",
+   "bottom": "forro-placas"
+  },
+  {
+   "level": 0,
+   "x": 22,
+   "z": 30,
+   "top": "granilite",
+   "bottom": "concreto"
+  },
+  {
+   "level": 1,
+   "x": 22,
+   "z": 30,
+   "top": "concreto",
+   "bottom": "forro-placas"
+  },
+  {
+   "level": 0,
+   "x": 22,
+   "z": 31,
+   "top": "granilite",
+   "bottom": "concreto"
+  },
+  {
+   "level": 1,
+   "x": 22,
+   "z": 31,
+   "top": "concreto",
+   "bottom": "forro-placas"
+  },
+  {
+   "level": 0,
+   "x": 23,
+   "z": 29,
+   "top": "granilite",
+   "bottom": "concreto"
+  },
+  {
+   "level": 1,
+   "x": 23,
+   "z": 29,
+   "top": "concreto",
+   "bottom": "forro-placas"
+  },
+  {
+   "level": 0,
+   "x": 23,
+   "z": 30,
+   "top": "granilite",
+   "bottom": "concreto"
+  },
+  {
+   "level": 1,
+   "x": 23,
+   "z": 30,
+   "top": "concreto",
+   "bottom": "forro-placas"
+  },
+  {
+   "level": 0,
+   "x": 23,
+   "z": 31,
+   "top": "granilite",
+   "bottom": "concreto"
+  },
+  {
+   "level": 1,
+   "x": 23,
+   "z": 31,
+   "top": "concreto",
+   "bottom": "forro-placas"
+  },
+  {
+   "level": 0,
+   "x": 24,
+   "z": 29,
+   "top": "granilite",
+   "bottom": "concreto"
+  },
+  {
+   "level": 1,
+   "x": 24,
+   "z": 29,
+   "top": "concreto",
+   "bottom": "forro-placas"
+  },
+  {
+   "level": 0,
+   "x": 24,
+   "z": 30,
+   "top": "granilite",
+   "bottom": "concreto"
+  },
+  {
+   "level": 1,
+   "x": 24,
+   "z": 30,
+   "top": "concreto",
+   "bottom": "forro-placas"
+  },
+  {
+   "level": 0,
+   "x": 24,
+   "z": 31,
+   "top": "granilite",
+   "bottom": "concreto"
+  },
+  {
+   "level": 1,
+   "x": 24,
+   "z": 31,
+   "top": "concreto",
+   "bottom": "forro-placas"
+  },
+  {
+   "level": 0,
+   "x": 25,
+   "z": 29,
+   "top": "granilite",
+   "bottom": "concreto"
+  },
+  {
+   "level": 1,
+   "x": 25,
+   "z": 29,
+   "top": "concreto",
+   "bottom": "forro-placas"
+  },
+  {
+   "level": 0,
+   "x": 25,
+   "z": 30,
+   "top": "granilite",
+   "bottom": "concreto"
+  },
+  {
+   "level": 1,
+   "x": 25,
+   "z": 30,
+   "top": "concreto",
+   "bottom": "forro-placas"
+  },
+  {
+   "level": 0,
+   "x": 25,
+   "z": 31,
+   "top": "granilite",
+   "bottom": "concreto"
+  },
+  {
+   "level": 1,
+   "x": 25,
+   "z": 31,
+   "top": "concreto",
+   "bottom": "forro-placas"
+  },
+  {
+   "level": 0,
+   "x": 26,
+   "z": 29,
+   "top": "granilite",
+   "bottom": "concreto"
+  },
+  {
+   "level": 1,
+   "x": 26,
+   "z": 29,
+   "top": "concreto",
+   "bottom": "forro-placas"
+  },
+  {
+   "level": 0,
+   "x": 26,
+   "z": 30,
+   "top": "granilite",
+   "bottom": "concreto"
+  },
+  {
+   "level": 1,
+   "x": 26,
+   "z": 30,
+   "top": "concreto",
+   "bottom": "forro-placas"
+  },
+  {
+   "level": 0,
+   "x": 26,
+   "z": 31,
+   "top": "granilite",
+   "bottom": "concreto"
+  },
+  {
+   "level": 1,
+   "x": 26,
+   "z": 31,
+   "top": "concreto",
+   "bottom": "forro-placas"
+  },
+  {
+   "level": 0,
+   "x": 27,
+   "z": 29,
+   "top": "granilite",
+   "bottom": "concreto"
+  },
+  {
+   "level": 1,
+   "x": 27,
+   "z": 29,
+   "top": "concreto",
+   "bottom": "forro-placas"
+  },
+  {
+   "level": 0,
+   "x": 27,
+   "z": 30,
+   "top": "granilite",
+   "bottom": "concreto"
+  },
+  {
+   "level": 1,
+   "x": 27,
+   "z": 30,
+   "top": "concreto",
+   "bottom": "forro-placas"
+  },
+  {
+   "level": 0,
+   "x": 27,
+   "z": 31,
+   "top": "granilite",
+   "bottom": "concreto"
+  },
+  {
+   "level": 1,
+   "x": 27,
+   "z": 31,
+   "top": "concreto",
+   "bottom": "forro-placas"
+  },
+  {
+   "level": 0,
+   "x": 28,
+   "z": 29,
+   "top": "granilite",
+   "bottom": "concreto"
+  },
+  {
+   "level": 1,
+   "x": 28,
+   "z": 29,
+   "top": "concreto",
+   "bottom": "forro-placas"
+  },
+  {
+   "level": 0,
+   "x": 28,
+   "z": 30,
+   "top": "granilite",
+   "bottom": "concreto"
+  },
+  {
+   "level": 1,
+   "x": 28,
+   "z": 30,
+   "top": "concreto",
+   "bottom": "forro-placas"
+  },
+  {
+   "level": 0,
+   "x": 28,
+   "z": 31,
+   "top": "granilite",
+   "bottom": "concreto"
+  },
+  {
+   "level": 1,
+   "x": 28,
+   "z": 31,
+   "top": "concreto",
+   "bottom": "forro-placas"
+  },
+  {
+   "level": 0,
+   "x": 31,
+   "z": 29,
+   "top": "concreto",
+   "bottom": "concreto"
+  },
+  {
+   "level": 1,
+   "x": 31,
+   "z": 29,
+   "top": "concreto",
+   "bottom": "forro-escuro"
+  },
+  {
+   "level": 0,
+   "x": 31,
+   "z": 30,
+   "top": "concreto",
+   "bottom": "concreto"
+  },
+  {
+   "level": 1,
+   "x": 31,
+   "z": 30,
+   "top": "concreto",
+   "bottom": "forro-escuro"
+  },
+  {
+   "level": 0,
+   "x": 31,
+   "z": 31,
+   "top": "concreto",
+   "bottom": "concreto"
+  },
+  {
+   "level": 1,
+   "x": 31,
+   "z": 31,
+   "top": "concreto",
+   "bottom": "forro-escuro"
+  }
+ ],
+ "openings": [],
+ "stairs": [],
+ "props": [
+  {
+   "id": "luminaria-tubos-114",
+   "type": "luminaria-tubos",
+   "level": 0,
+   "pos": [
+    17.333333333333332,
+    3.48,
+    17.333333333333332
+   ],
+   "rot": [
+    0,
+    0,
+    0
+   ],
+   "params": {
+    "modo": "normal"
+   }
+  },
+  {
+   "id": "luminaria-tubos-115",
+   "type": "luminaria-tubos",
+   "level": 0,
+   "pos": [
+    17.333333333333332,
+    3.48,
+    22
+   ],
+   "rot": [
+    0,
+    0,
+    0
+   ],
+   "params": {
+    "modo": "normal"
+   }
+  },
+  {
+   "id": "luminaria-tubos-116",
+   "type": "luminaria-tubos",
+   "level": 0,
+   "pos": [
+    17.333333333333332,
+    3.48,
+    26.666666666666664
+   ],
+   "rot": [
+    0,
+    0,
+    0
+   ],
+   "params": {
+    "modo": "normal"
+   }
+  },
+  {
+   "id": "luminaria-tubos-117",
+   "type": "luminaria-tubos",
+   "level": 0,
+   "pos": [
+    22,
+    3.48,
+    17.333333333333332
+   ],
+   "rot": [
+    0,
+    0,
+    0
+   ],
+   "params": {
+    "modo": "normal"
+   }
+  },
+  {
+   "id": "luminaria-tubos-118",
+   "type": "luminaria-tubos",
+   "level": 0,
+   "pos": [
+    22,
+    3.48,
+    22
+   ],
+   "rot": [
+    0,
+    0,
+    0
+   ],
+   "params": {
+    "modo": "normal"
+   }
+  },
+  {
+   "id": "luminaria-tubos-119",
+   "type": "luminaria-tubos",
+   "level": 0,
+   "pos": [
+    22,
+    3.48,
+    26.666666666666664
+   ],
+   "rot": [
+    0,
+    0,
+    0
+   ],
+   "params": {
+    "modo": "normal"
+   }
+  },
+  {
+   "id": "luminaria-tubos-120",
+   "type": "luminaria-tubos",
+   "level": 0,
+   "pos": [
+    26.666666666666664,
+    3.48,
+    17.333333333333332
+   ],
+   "rot": [
+    0,
+    0,
+    0
+   ],
+   "params": {
+    "modo": "normal"
+   }
+  },
+  {
+   "id": "luminaria-tubos-121",
+   "type": "luminaria-tubos",
+   "level": 0,
+   "pos": [
+    26.666666666666664,
+    3.48,
+    22
+   ],
+   "rot": [
+    0,
+    0,
+    0
+   ],
+   "params": {
+    "modo": "normal"
+   }
+  },
+  {
+   "id": "luminaria-tubos-122",
+   "type": "luminaria-tubos",
+   "level": 0,
+   "pos": [
+    26.666666666666664,
+    3.48,
+    26.666666666666664
+   ],
+   "rot": [
+    0,
+    0,
+    0
+   ],
+   "params": {
+    "modo": "normal"
+   }
+  },
+  {
+   "id": "lampada-teto-169",
+   "type": "lampada-teto",
+   "level": 0,
+   "pos": [
+    30,
+    3.48,
+    17
+   ],
+   "rot": [
+    0,
+    0,
+    0
+   ],
+   "params": {
+    "modo": "falhando"
+   }
+  },
+  {
+   "id": "lampada-teto-170",
+   "type": "lampada-teto",
+   "level": 0,
+   "pos": [
+    30,
+    3.48,
+    23
+   ],
+   "rot": [
+    0,
+    0,
+    0
+   ],
+   "params": {
+    "modo": "falhando"
+   }
+  },
+  {
+   "id": "lampada-teto-171",
+   "type": "lampada-teto",
+   "level": 0,
+   "pos": [
+    30,
+    3.48,
+    29
+   ],
+   "rot": [
+    0,
+    0,
+    0
+   ],
+   "params": {
+    "modo": "apagada"
+   }
+  },
+  {
+   "id": "mesa-refeitorio-174",
+   "type": "mesa-refeitorio",
+   "level": 0,
+   "pos": [
+    19,
+    0,
+    19.5
+   ],
+   "rot": [
+    0,
+    90,
+    0
+   ]
+  },
+  {
+   "id": "mesa-refeitorio-175",
+   "type": "mesa-refeitorio",
+   "level": 0,
+   "pos": [
+    19,
+    0,
+    24.5
+   ],
+   "rot": [
+    0,
+    90,
+    0
+   ]
+  },
+  {
+   "id": "mesa-refeitorio-176",
+   "type": "mesa-refeitorio",
+   "level": 0,
+   "pos": [
+    25,
+    0,
+    19.5
+   ],
+   "rot": [
+    0,
+    90,
+    0
+   ]
+  },
+  {
+   "id": "mesa-refeitorio-177",
+   "type": "mesa-refeitorio",
+   "level": 0,
+   "pos": [
+    25,
+    0,
+    24.5
+   ],
+   "rot": [
+    0,
+    90,
+    0
+   ]
+  },
+  {
+   "id": "bandeja-178",
+   "type": "bandeja",
+   "level": 0,
+   "pos": [
+    18.7,
+    0.75,
+    19.2
+   ],
+   "rot": [
+    0,
+    80,
+    0
+   ],
+   "free": true
+  },
+  {
+   "id": "bandeja-179",
+   "type": "bandeja",
+   "level": 0,
+   "pos": [
+    25.3,
+    0.75,
+    24.1
+   ],
+   "rot": [
+    0,
+    100,
+    0
+   ],
+   "free": true
+  },
+  {
+   "id": "bandeja-180",
+   "type": "bandeja",
+   "level": 0,
+   "pos": [
+    24.6,
+    0.75,
+    19.9
+   ],
+   "rot": [
+    0,
+    70,
+    0
+   ],
+   "free": true
+  },
+  {
+   "id": "tv-parede-181",
+   "type": "tv-parede",
+   "level": 0,
+   "pos": [
+    28.6,
+    1.8,
+    22
+   ],
+   "rot": [
+    0,
+    -90,
+    0
+   ],
+   "params": {
+    "modo": "normal"
+   }
+  },
+  {
+   "id": "caixa-madeira-183",
+   "type": "caixa-madeira",
+   "level": 0,
+   "pos": [
+    27.8,
+    0,
+    28
+   ],
+   "rot": [
+    0,
+    10,
+    0
+   ]
+  },
+  {
+   "id": "aparelho-pesquisa-194",
+   "type": "aparelho-pesquisa",
+   "level": 0,
+   "pos": [
+    31.5,
+    0,
+    20
+   ],
+   "rot": [
+    0,
+    90,
+    0
+   ]
+  },
+  {
+   "id": "quadro-branco-200",
+   "type": "quadro-branco",
+   "level": 0,
+   "pos": [
+    31.2,
+    1.8,
+    25
+   ],
+   "rot": [
+    0,
+    90,
+    0
+   ]
+  },
+  {
+   "id": "armario-aco-201",
+   "type": "armario-aco",
+   "level": 0,
+   "pos": [
+    31.4,
+    0,
+    16.4
+   ],
+   "rot": [
+    0,
+    90,
+    0
+   ]
+  },
+  {
+   "id": "armario-aco-202",
+   "type": "armario-aco",
+   "level": 0,
+   "pos": [
+    31.4,
+    0,
+    17
+   ],
+   "rot": [
+    0,
+    90,
+    0
+   ]
+  }
+ ],
+ "decals": [],
+ "points": []
+}

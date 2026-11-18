@@ -2,7 +2,8 @@
 // do Blockbench (modelos/aberturas/<tipo>.bbmodel, render/objetos3d.ts), igual aos objetos:
 //   porta: as guarnições dos dois lados e as folhas (as pastas folha_1 e folha_2 do modelo), fechadas ou abertas para o
 //          lado escolhido; trancada ganha um cadeado vermelho (só no editor, para você ver); no Testar, as folhas seguem
-//          o estado vivo das portas (game/world/portas.ts): abrem e fecham girando;
+//          o estado vivo das portas (game/world/portas.ts): abrem e fecham girando; a do elevador é pantográfica: a
+//          folha dobra para o começo do vão (encolhe em u), como uma sanfona;
 //   janela: as guarnições, o parapeito, o vidro e os caixilhos, e o luar 2D (Luar.tsx), calculado aqui pelas medidas do tipo.
 // Cada abertura é desenhada no seu próprio referencial: u ao longo da parede, y para cima, z atravessando.
 import { useEffect, useMemo } from 'react'
@@ -15,9 +16,11 @@ import { iluminarObjeto, materiaisDoObjeto } from '../render/assada'
 import { aplicarCorte } from '../render/corte'
 import { abertura3d } from '../render/objetos3d'
 import { buraco } from './wallMesh'
+import { tipoDaJanela } from './FerramentaAberturas'
 import { Luar } from './Luar'
 
 const ABERTA = 1.4 // quanto a folha aberta gira (rad, ~80°)
+const DOBRA = 0.84 // a porta do elevador aberta: quanto a sanfona encolhe (sobra 16% da largura, junto da coluna)
 const cadeado = aplicarCorte(new THREE.MeshBasicMaterial({ color: '#c2453a' }))
 
 export function Aberturas({ chunks, maxLevel, portas }: { chunks: Chunk[]; maxLevel: number; portas?: PortasVivas }) {
@@ -32,7 +35,7 @@ export function referencial(o: Opening) {
 }
 
 /** O modelo de cada abertura (o vão não tem: é só o buraco). */
-const tipoDe = (o: Opening) => (o.kind === 'janela' ? (o.window === 'grande' ? 'janela-grande' : 'janela') : o.door === 'vao' ? null : `porta-${o.door ?? 'comum'}`)
+const tipoDe = (o: Opening) => (o.kind === 'janela' ? tipoDaJanela(o.window) : o.door === 'vao' ? null : `porta-${o.door ?? 'comum'}`)
 /** As divisões da janela (onde o luar se parte): as mesmas do modelo. */
 const verticaisDe = (o: Opening) => (o.window === 'grande' ? [o.width * 0.25, o.width * 0.5, o.width * 0.75] : [o.width / 2])
 
@@ -57,6 +60,7 @@ function Abertura({ o, viva, assa }: { o: Opening; viva?: PortaViva; assa: Assad
 
   // gira as folhas: a 1 sai da dobradiça em u = 0 para +u, a 2 de u = W para −u; abre para o lado escolhido (z local)
   const girar = (ang: number, lado: 'a' | 'b') => {
+    if (o.door === 'elevador') { const f = folhas[0]; if (f) f.scale.x = 1 - DOBRA * (ang / ABERTA); return }
     const z = lado === 'b' ? sb : -sb
     folhas.forEach((f, i) => { if (f) f.rotation.y = -(i === 0 ? 1 : -1) * z * ang })
   }

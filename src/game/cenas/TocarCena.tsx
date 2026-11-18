@@ -7,6 +7,7 @@ import { useEffect, useRef, type MutableRefObject } from 'react'
 import { useFrame, useThree } from '@react-three/fiber'
 import * as THREE from 'three'
 import { som } from '../../audio/sintese'
+import { segurarMomento } from '../luz/luz'
 import { calarVozes, falar } from './vozes'
 import { duracao, estadoEm, inicios, type EstadoCena } from './tocador'
 import type { Cena } from './tipos'
@@ -26,7 +27,7 @@ export function TocarCena({ cena, relogio, onde, painel, aoAcabar }: {
   aoAcabar?: () => void
 }) {
   const camera = useThree((s) => s.camera) as THREE.PerspectiveCamera
-  const antes = useRef(relogio.t), canal = useRef<GainNode | null>(null), acabou = useRef(false), falou = useRef(false)
+  const antes = useRef(relogio.t), canal = useRef<GainNode | null>(null), acabou = useRef(false), falou = useRef(false), luz = useRef<string | null>(null)
   const _o = useRef(new THREE.Vector3()).current
 
   // o canal dos sons: some (o que estava tocando para) e na próxima vez nasce outro
@@ -36,7 +37,7 @@ export function TocarCena({ cena, relogio, onde, painel, aoAcabar }: {
     canal.current = null
     if (falou.current) { calarVozes(); falou.current = false }
   }
-  useEffect(() => () => calar(), [])
+  useEffect(() => () => { calar(); segurarMomento(null) }, [])
 
   useFrame((_, dtBruto) => {
     const R = relogio, total = duracao(cena), dt = Math.min(dtBruto, 0.1)
@@ -51,6 +52,8 @@ export function TocarCena({ cena, relogio, onde, painel, aoAcabar }: {
     camera.lookAt(_o)
     if (camera.fov !== e.lente) { camera.fov = e.lente; camera.updateProjectionMatrix() }
     onde.copy(camera.position)
+    // o momento de luz do plano (o alarme): segura enquanto o plano dura
+    if (e.luz !== luz.current) { luz.current = e.luz; segurarMomento(e.luz) }
     // os sons: só tocando para a frente, sem salto; pausar ou pular cala o canal
     if (!R.tocando || R.saltou) calar()
     else if (R.t > antes.current) tocarSons(antes.current, R.t)

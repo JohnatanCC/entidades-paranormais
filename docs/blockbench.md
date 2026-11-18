@@ -52,7 +52,7 @@ salvar no Blockbench atualiza o jogo (se o Testar estiver aberto, saia e entre d
 ## Os personagens em blocos refinados (decidido em 11/nov)
 
 As pessoas e os fantasmas são **menos "Minecraft"** que o cenário: o corpo é feito de muitas peças pequenas, chanfradas
-e inclinadas. Os objetos, as portas e as armas continuam simples. O Matheus (214 blocos; eram 89) e a Mãe (259; eram
+e inclinadas. Os objetos, as portas e as armas continuavam simples; **desde 18/nov os objetos que a câmera mostra de perto também são refinados** (os móveis do escritório do Victor: `docs/cenas.md`), sempre uma malha e uma textura por objeto. O Matheus (214 blocos; eram 89) e a Mãe (259; eram
 118) já estão assim; o Glutão, os Sombrios, Lara e Nicolas nascem assim. Os modelos antigos estão no git.
 
 - **O trecho chanfrado:** um braço, uma coxa ou a cintura não é um bloco só: são três blocos cruzados na mesma altura
@@ -118,7 +118,12 @@ referência do desenvolvedor; os traços, não o personagem dela):
 ## O Victor (11/nov; guardado em 17/nov)
 
 > **17/nov:** a função de ocultista e a roupa passaram para o Leonardo (abaixo). **18/nov:** o Victor volta como o chefe
-> do departamento do Matheus (a cena 2 do capítulo 0, `docs/cenas.md`), com este modelo.
+> do departamento do Matheus (a cena 2 do capítulo 0, `docs/cenas.md`), com este modelo. **18/nov, a roupa de chefe**
+> (pela referência do desenvolvedor): sai o sobretudo (as pastas `casaco_*`, a frente, as lapelas, o capuz) e entram a
+> camisa social branca de manga comprida, a gravata azul-marinho com bolinhas (larga, com o nó e a ponta em bico:
+> `gravata_cima`, `_baixo`, `_ponta`, `_laco`), o cinto preto com a fivela prateada, a calça social azul-marinho com o
+> vinco, o sapato social preto e o relógio no pulso esquerdo (`relogio_pulseira`, `relogio_mostrador`). O rosto e o
+> cabelo ficam. A descrição abaixo é a do ocultista, de antes.
 
 `modelos/victor.bbmodel`: um personagem secundário, para usar mais tarde. O ocultista da C.R.O.S., 35 anos (eram 45: mudado em 11/nov, a pedido): sente os
 fantasmas e consegue bani-los, com magia, sem armas. Branco, magro, 1,84 m. O desenho (com uma referência do

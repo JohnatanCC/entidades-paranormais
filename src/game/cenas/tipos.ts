@@ -1,8 +1,15 @@
 // O formato das cenas (cutscenes, docs/cenas.md): cada cena é um roteiro em dados, uma lista de planos. Um plano diz
 // quanto dura, onde a câmera começa e termina e para onde olha, as falas (as legendas), os sons e como entra e sai
 // (clareando do preto, escurecendo). O tocador (tocador.ts, TocarCena.tsx) lê o roteiro; nada aqui sabe desenhar.
-// Os atores (quem anda, senta, fala) entram com a cena 2.
+// Os atores (o elenco da cena) são os personagens montados no esqueleto do agente: cada um começa num lugar e, em
+// cada plano, pode ser posto em outro (o corte), andar até um ponto, virar, olhar para alguém e mudar a expressão. Quem
+// fala mexe a boca enquanto a legenda dele está na tela. O lugar de cada um é sempre uma conta do tempo da cena (atores.ts):
+// pular para um plano põe todo mundo onde deve estar.
+import type { ComponentType } from 'react'
 import type { Tocar } from '../enemies/sons'
+import type { ModeloAgente } from '../player/modelo'
+import type { Expressao } from '../player/rosto'
+import type { Relogio } from './TocarCena'
 
 /** Um ponto no mundo (m). */
 export type V3 = [number, number, number]
@@ -26,6 +33,24 @@ export interface Fala { t: number; dura: number; quem: string; texto: string; pe
 /** Um som que toca em `t` s do plano (só quando a cena anda para a frente, tocando). */
 export interface SomDaCena { t: number; tocar: Tocar }
 
+/** Um ator no elenco: o modelo e onde está quando a cena começa (vira: para onde fica de frente, em graus; 0 = +z). */
+export interface Ator { modelo: ModeloAgente; em: V3; vira: number }
+
+/** O que um ator faz num plano (o que não for dito continua como estava no plano anterior). */
+export interface AcaoDoAtor {
+  em?: V3 // põe o ator aqui no começo do plano (um corte)
+  vira?: number // para onde fica de frente (graus; 0 = +z, 90 = +x): gira no começo do plano, ou ao chegar, se anda
+  anda?: { para: V3; de?: number; ate?: number } // anda até o ponto entre os segundos `de` e `ate` do plano (sem: o plano todo)
+  corre?: boolean // anda correndo
+  olha?: string | V3 | null // a cabeça vira para outro ator (o nome dele) ou para um ponto; null = para a frente
+  expressao?: Expressao
+  alcanca?: { ponto: V3; t: number } // a mão esquerda vai a um ponto e volta, em `t` s do plano (a maçaneta da porta)
+}
+
+/** Uma porta do mapa (o id dela) que abre ou fecha em `t` s do plano. lado: para que lado a folha abre (como no mapa:
+ *  'b' = +z na parede em x, +x na parede em z); sem ele, o do mapa. Abra para longe de quem passa. */
+export interface PortaDaCena { id: string; t: number; abre: boolean; lado?: 'a' | 'b' }
+
 export interface Plano {
   nome: string // "1.2 · os campos de pesquisa": o que aparece no Ver cenas
   dura: number // s
@@ -35,6 +60,9 @@ export interface Plano {
   falas?: Fala[]
   sons?: SomDaCena[]
   titulo?: { t: number; dura: number; texto: string } // um texto grande no meio da tela (o nome do jogo)
+  atores?: Record<string, AcaoDoAtor> // o que cada ator do elenco faz neste plano (pelo nome)
+  portas?: PortaDaCena[]
+  luz?: string // um momento de luz (MOMENTOS em maps/ambientes.ts) que vale enquanto o plano dura (o alarme)
 }
 
 export interface Cena {
@@ -42,4 +70,8 @@ export interface Cena {
   nome: string
   mapa: string // o mapa do capítulo (maps/<mapa>): o cenário (docs/cenas.md: as partes de cena ficam soltas nele)
   planos: Plano[]
+  // o que a cena põe no mapa além dele, dentro do <Canvas>, andando com o relógio dela (o ectoplasma da cena 1)
+  cenario?: ComponentType<{ relogio: Relogio }>
+  // os atores, pelo nome (o mesmo das falas: quem fala mexe a boca)
+  elenco?: Record<string, Ator>
 }

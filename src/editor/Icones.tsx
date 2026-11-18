@@ -37,7 +37,9 @@ export const ICONES = {
   grande: <I><path d="M3 21V2h18v19M12 2v19" /><path d="M1 21h22M10 13h.01M14 13h.01" strokeWidth={2} /></I>,
   instalacao: <I><path d="M6 21V3h12v18" /><path d="M8 6l8 12M16 6L8 18" /><path d="M3 21h18" /></I>,
   contencao: <I><path d="M3 21V3h18v18" /><circle cx="12" cy="11" r="3.5" /><path d="M3 15h18M1 21h22" /></I>,
+  elevador: <I><path d="M4 21V3h16v18M4 8h16" /><path d="M6 10l3 9M9 10l-3 9M10 10l3 9M13 10l-3 9M14 10l3 9M17 10l-3 9" strokeWidth={1} /></I>,
   vao: <I><path d="M6 21V4h12v17" strokeDasharray="0" /><path d="M3 21h18" /><path d="M9 7h6" strokeDasharray="2 2" /></I>,
   janela: <I><rect x="6" y="5" width="12" height="13" /><path d="M12 5v13M6 11.5h12M4 18h16" /></I>,
+  'janela-instalacao': <I><rect x="6" y="5" width="12" height="13" /><path d="M8 5v13M10 5v13M12 5v13M14 5v13M16 5v13M6 9.5h12M6 14h12M4 18h16" /></I>,
   'janela-grande': <I><rect x="2" y="5" width="20" height="13" /><path d="M7 5v13M12 5v13M17 5v13M2 11.5h20M1 18h22" /></I>,
 } satisfies Record<string, ReactNode>

@@ -73,6 +73,7 @@ export const OBJETOS: Record<string, ObjDef> = {
   'estante-pastas': { nome: 'Estante com pastas', grupo: 'intro', tam: [1, 2, 0.38] },
   'pasta-dossie': { nome: 'Pasta (dossiê)', grupo: 'intro', tam: [0.24, 0.04, 0.34] },
   'foto-virada': { nome: 'Foto virada', grupo: 'intro', tam: [0.15, 0.03, 0.19] },
+  'painel-elevador': { nome: 'Painel do elevador (parede)', grupo: 'intro', tam: [0.22, 0.63, 0.04], apoio: 'parede' },
   'relogio-parede': { nome: 'Relógio de parede', grupo: 'intro', tam: [0.32, 0.34, 0.05], apoio: 'parede' },
   // os campos de pesquisa e o refeitório (docs/cenas.md)
   'bancada-lab': { nome: 'Bancada de laboratório', grupo: 'intro', tam: [1.8, 1.63, 0.76] },

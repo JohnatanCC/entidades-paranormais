@@ -4,7 +4,7 @@
 // objetos e luzes, o conta-gotas e a ambientação (as áreas de luz). Mais o gerenciador de mapas (novo, abrir, salvar, copiar, apagar, exportar, importar).
 // O mapa aberto é um documento (doc.ts): as ferramentas geram um documento novo e a vista desenha a partir dele.
 import { Suspense, useCallback, useEffect, useMemo, useRef, useState, type ReactNode } from 'react'
-import { Canvas } from '@react-three/fiber'
+import { Canvas, useFrame } from '@react-three/fiber'
 import { Grid } from '@react-three/drei'
 import type { Go } from '../App'
 import * as disco from '../maps/storage'
@@ -41,6 +41,8 @@ import { Paleta } from './Paleta'
 import { MapManager } from './MapManager'
 import { MapView } from './MapView'
 import { Hud, type EstadoHud } from '../game/hud/Hud'
+import { GanchosDaTela } from '../dev/GanchosDaTela'
+import { ASSADA, luzAssada, piscaEm } from '../render/assada'
 
 type Ferramenta = 'paredes' | 'apagar' | 'piso' | 'pincel' | 'aberturas' | 'escadas' | 'objetos' | 'contagotas' | 'ambiente'
 const FERRAMENTAS: { id: Ferramenta; nome: string; tecla: string; icone: ReactNode }[] = [
@@ -82,6 +84,14 @@ const EXTRA: Partial<Record<Ferramenta, string>> = {
   contagotas: 'Pegou? Ele troca sozinho para o pincel, o piso, as portas e janelas, as escadas ou os objetos, com a escolha pronta.',
 }
 
+
+/** A luz das lâmpadas no editor: a assada, como no jogo (nenhuma lâmpada é luz de verdade: render/sombras.ts); as que
+ *  falham piscam juntas. No Testar, quem manda é a <Iluminacao> (o nível), e ao sair volta esta. */
+function LuzDoEditor() {
+  useEffect(() => { luzAssada('assada'); return () => luzAssada('nao') }, [])
+  useFrame(({ clock }) => { ASSADA.pisca.value = piscaEm(clock.elapsedTime) })
+  return null
+}
 
 export function MapEditor({ go }: { go: Go }) {
   const hist = useHistorico<MapDoc | null>(null)
@@ -437,6 +447,8 @@ export function MapEditor({ go }: { go: Go }) {
           {/* a malha: 1 m em linha fina, o bloco de 16 m em linha forte (ajuda a medir e a manter a simetria) */}
           {!testando && <Grid position={[0, andar * LEVEL_H + 0.006, 0]} args={[64, 64]} cellSize={1} cellThickness={1} cellColor="#8a7552" sectionSize={CHUNK} sectionThickness={2} sectionColor="#e0a050" fadeDistance={260} fadeStrength={0.8} infiniteGrid />}
           <EditorCamera y={andar * LEVEL_H} inicio={inicio} ativa={!testando} />
+          {!testando && <GanchosDaTela />}
+          <LuzDoEditor />
         </Canvas>
         {!doc && <div className="vazio-b">Nenhum mapa aberto. Abra ou crie um em Mapas.</div>}
         {aviso && <div className="aviso-b">{aviso}</div>}

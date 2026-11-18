@@ -20,6 +20,7 @@ import { ganchos } from '../dev/ganchos'
 import { novaSombraDeChao } from './corpo/sombraDeChao'
 import { Iluminacao } from './luz/Iluminacao'
 import { momento } from './luz/luz'
+import { DURA_ALCANCE } from './player/alcancar'
 import { animarAgente } from './player/animacao'
 import { armadilhaFora, pegarArma, proximaArma } from './player/arma'
 import { novoJogador, passoJogador } from './player/controle'
@@ -42,9 +43,9 @@ import { novosImpactos, passoImpactos } from './weapons/impacto'
 import { grupoDaArma } from './player/arma'
 import { cortarRecarga, gastar, novaMunicao, passoMunicao, recarregar, temTiro } from './weapons/municao'
 import { alcanceCamera, andarDe, chaoEm, montarMundo, temChao, tetoEm, type Mundo } from './world/colisao'
-import { assadorDe, novaLuzVertice } from '../maps/luzAssada'
+import { assadorDe, limitarLampadas, novaLuzVertice } from '../maps/luzAssada'
 import { iluminarObjeto } from '../render/assada'
-import { animarPortas, dicaDaPorta, novasPortas, portaPerto, usarPorta, type PortasVivas } from './world/portas'
+import { animarPortas, dicaDaPorta, macanetaDe, novasPortas, portaPerto, usarPorta, type PortasVivas } from './world/portas'
 
 interface Props {
   chunks: Record<string, Chunk>
@@ -117,6 +118,7 @@ export function Testar({ chunks, levels, ambiente, semChao, areas, inicio, yaw, 
     msg: '', msgT: 0, dica: null as string | null, mira: 0, mirando: false, escuro: 0, cair: false, golpe: false,
     volta: { x: inicio[0], y: inicio[1], z: inicio[2], yaw }, // onde ele volta depois de cair (o roteiro muda: o começo da arena)
     lento: { quanto: 0, t: 0, dura: 1 }, // a gosma: o quanto e quanto falta para sumir
+    abrir: { t: -1, ponto: new THREE.Vector3() }, // a mão indo à maçaneta (t < 0: não está)
   })
   const sairRef = useRef(onSair); sairRef.current = onSair
   const travRef = useRef(onTravado); travRef.current = onTravado
@@ -271,14 +273,19 @@ export function Testar({ chunks, levels, ambiente, semChao, areas, inicio, yaw, 
     // Q: a outra arma (pistola e escopeta; a mão nunca fica vazia)
     // (trocar corta a recarga: municao.ts, com a outra arma na mão)
     if (acoes.trocarArma() && !caido) { recolher(armadilha); pegarArma(agente, proximaArma(agente.arma)) }
-    if (acoes.interagir() && porta && !caido) { const msg = usarPorta(mundo, portas, porta, j.x, j.z); if (msg) { s.msg = msg; s.msgT = 2.5 } }
+    // (a mão esquerda vai à maçaneta: também na trancada, ele tenta)
+    if (acoes.interagir() && porta && !caido) {
+      const msg = usarPorta(mundo, portas, porta, j.x, j.z); if (msg) { s.msg = msg; s.msgT = 2.5 }
+      s.abrir.t = 0; s.abrir.ponto.set(...macanetaDe(porta, j.x, j.z))
+    }
+    if (s.abrir.t >= 0 && (s.abrir.t += dt) > DURA_ALCANCE) s.abrir.t = -1
     acoes.fimDoQuadro()
     s.msgT -= dt
     const dica = s.msgT > 0 ? s.msg : porta ? dicaDaPorta(porta, portas) : null
     if (dica !== s.dica) { s.dica = dica; dicaRef.current(dica) }
     agente.root.position.set(j.x, j.y, j.z)
     sombra.position.set(j.x, j.y + 0.03, j.z) // o círculo escuro nos pés
-    if (quadro.current++ % 4 === 0) { const p: [number, number, number] = [j.x, j.y + 1, j.z]; assa(p, null, p, andarDe(j.y), luzAgente); iluminarObjeto(agente.root, luzAgente) }
+    if (quadro.current++ % 4 === 0) { const p: [number, number, number] = [j.x, j.y + 1, j.z]; assa(p, null, p, andarDe(j.y), luzAgente); limitarLampadas(luzAgente); iluminarObjeto(agente.root, luzAgente) }
     agente.root.rotation.y = j.yaw
     // a arma aponta para o ponto que a câmera mira (de onde a câmera estava no quadro anterior: ela anda depois)
     v.f.set(Math.sin(s.camYaw) * Math.cos(s.pitch), Math.sin(s.pitch), Math.cos(s.camYaw) * Math.cos(s.pitch))
@@ -292,7 +299,7 @@ export function Testar({ chunks, levels, ambiente, semChao, areas, inicio, yaw, 
     if (agente.arma === 'escopeta' && !caido && (recarrega || (atira && municao.balas === 0))) recarregar(municao)
     else if (agente.arma === 'escopeta' && atira && clicou && municao.balas > 0) cortarRecarga(municao)
     passoMunicao(municao, agente.arma, j.esquiva < 0 && !caido, dt)
-    const ea = { mover, velocidade: j.velocidade, corrida: j.corrida, esquiva: j.esquiva >= 0 ? Math.min(1, j.esquiva / 0.5) : -1, expressao: ver.current.exp, mao: ver.current.mao, mira: { quer, alvo: v.alvo }, queda: caido ? j.caido : undefined, ferido: machucado(vida), municao }
+    const ea = { mover, velocidade: j.velocidade, corrida: j.corrida, esquiva: j.esquiva >= 0 ? Math.min(1, j.esquiva / 0.5) : -1, expressao: ver.current.exp, mao: ver.current.mao, mira: { quer, alvo: v.alvo }, queda: caido ? j.caido : undefined, ferido: machucado(vida), municao, alcanca: s.abrir.t >= 0 ? s.abrir : undefined }
     animarAgente(agente, ea, dt)
     if (gatilho(agente, atira && temTiro(municao, agente.arma), dt)) {
       gastar(municao, agente.arma)

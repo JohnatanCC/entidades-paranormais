@@ -18,6 +18,7 @@
 //   await provas.sonsDemonios()                               o volume de cada som dos Sombrios, da Gralha e do Mestre (sem tocar)
 //   await provas.sonsAgente()                                 o volume de cada som das armas e do agente (sem tocar)
 //   provas.ir(x, z, yaw, pitch?, andar?)                    no Testar aberto: leva o agente a um ponto (fotos do mesmo lugar)
+//   await provas.gravar({ mudo: true })                      grava a cena aberta no Ver cenas em gravacoes/<id>.webm (dev/gravar.ts)
 //   provas.sombras()                                         quantas lâmpadas na cena e quantas fazem sombra agora
 //   provas.cena()                                            a cena do Testar aberto (luzes, malhas), para inspecionar
 //   provas.fase()                                            o controle do agente na fase (a vida não; os alvos das balas: .alvos)
@@ -42,6 +43,7 @@ import { PARTES_MESTRE } from '../game/enemies/mestre/sons'
 import { PARTES_ARMAS } from '../game/weapons/sons'
 import { PARTES_AGENTE } from '../game/player/sons'
 import { ganchos } from './ganchos'
+import { gravarCena } from './gravar'
 import { montarGralha } from '../game/enemies/gralha/modelo'
 import { animarGralha, atacar as atacarGralha, ferir as ferirGralha, pousar as pousarGralha } from '../game/enemies/gralha/animacao'
 import { estourarEmFumaca, novosEfeitosGralha, passoEfeitosGralha } from '../game/enemies/gralha/efeitos'
@@ -393,4 +395,4 @@ function ir(x: number, z: number, yaw: number, pitch?: number, andar?: number) {
   return 'ok'
 }
 
-export const provas = { mae, agente, sonsDemonios, sonsAgente, assombrado, asaSombria, devora, gralha, mestre, fotos, limpar, medidas, som: som_, ir, passo, escorrega, qualidade: nivelAtual, sombras: contarSombras, cena: () => ganchos.cena, gl: () => ganchos.gl, fase: () => ganchos.fase }
+export const provas = { mae, agente, sonsDemonios, sonsAgente, assombrado, asaSombria, devora, gralha, mestre, fotos, limpar, medidas, som: som_, ir, passo, escorrega, qualidade: nivelAtual, sombras: contarSombras, cena: () => ganchos.cena, gl: () => ganchos.gl, camera: () => ganchos.camera, relogio: () => ganchos.relogio, gravar: gravarCena, fase: () => ganchos.fase }

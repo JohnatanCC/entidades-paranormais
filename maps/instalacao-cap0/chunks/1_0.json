@@ -1,0 +1,4627 @@
+{
+ "cx": 1,
+ "cz": 0,
+ "walls": [
+  {
+   "level": 0,
+   "x": 16,
+   "z": 12,
+   "axis": "x",
+   "a": {
+    "tex": "bloco-concreto",
+    "base": {
+     "tex": "barra-verde",
+     "h": 1.1
+    }
+   },
+   "b": {
+    "tex": "tijolo-esmaltado",
+    "base": {
+     "tex": "barra-verde",
+     "h": 1.1
+    }
+   }
+  },
+  {
+   "level": 0,
+   "x": 16,
+   "z": 15,
+   "axis": "x",
+   "a": {
+    "tex": "tijolo-esmaltado",
+    "base": {
+     "tex": "barra-verde",
+     "h": 1.1
+    }
+   },
+   "b": {
+    "tex": "azulejo-branco",
+    "base": {
+     "tex": "lambri-azulejo",
+     "h": 1.2
+    }
+   }
+  },
+  {
+   "level": 0,
+   "x": 17,
+   "z": 12,
+   "axis": "x",
+   "a": {
+    "tex": "bloco-concreto",
+    "base": {
+     "tex": "barra-verde",
+     "h": 1.1
+    }
+   },
+   "b": {
+    "tex": "tijolo-esmaltado",
+    "base": {
+     "tex": "barra-verde",
+     "h": 1.1
+    }
+   }
+  },
+  {
+   "level": 0,
+   "x": 17,
+   "z": 15,
+   "axis": "x",
+   "a": {
+    "tex": "tijolo-esmaltado",
+    "base": {
+     "tex": "barra-verde",
+     "h": 1.1
+    }
+   },
+   "b": {
+    "tex": "azulejo-branco",
+    "base": {
+     "tex": "lambri-azulejo",
+     "h": 1.2
+    }
+   }
+  },
+  {
+   "level": 0,
+   "x": 18,
+   "z": 12,
+   "axis": "x",
+   "a": {
+    "tex": "bloco-concreto",
+    "base": {
+     "tex": "barra-verde",
+     "h": 1.1
+    }
+   },
+   "b": {
+    "tex": "tijolo-esmaltado",
+    "base": {
+     "tex": "barra-verde",
+     "h": 1.1
+    }
+   }
+  },
+  {
+   "level": 0,
+   "x": 18,
+   "z": 15,
+   "axis": "x",
+   "a": {
+    "tex": "tijolo-esmaltado",
+    "base": {
+     "tex": "barra-verde",
+     "h": 1.1
+    }
+   },
+   "b": {
+    "tex": "azulejo-branco",
+    "base": {
+     "tex": "lambri-azulejo",
+     "h": 1.2
+    }
+   }
+  },
+  {
+   "level": 0,
+   "x": 19,
+   "z": 12,
+   "axis": "x",
+   "a": {
+    "tex": "bloco-concreto",
+    "base": {
+     "tex": "barra-verde",
+     "h": 1.1
+    }
+   },
+   "b": {
+    "tex": "tijolo-esmaltado",
+    "base": {
+     "tex": "barra-verde",
+     "h": 1.1
+    }
+   }
+  },
+  {
+   "level": 0,
+   "x": 19,
+   "z": 15,
+   "axis": "x",
+   "a": {
+    "tex": "tijolo-esmaltado",
+    "base": {
+     "tex": "barra-verde",
+     "h": 1.1
+    }
+   },
+   "b": {
+    "tex": "azulejo-branco",
+    "base": {
+     "tex": "lambri-azulejo",
+     "h": 1.2
+    }
+   }
+  },
+  {
+   "level": 0,
+   "x": 20,
+   "z": 12,
+   "axis": "x",
+   "a": {
+    "tex": "bloco-concreto",
+    "base": {
+     "tex": "barra-verde",
+     "h": 1.1
+    }
+   },
+   "b": {
+    "tex": "tijolo-esmaltado",
+    "base": {
+     "tex": "barra-verde",
+     "h": 1.1
+    }
+   }
+  },
+  {
+   "level": 0,
+   "x": 20,
+   "z": 15,
+   "axis": "x",
+   "a": {
+    "tex": "tijolo-esmaltado",
+    "base": {
+     "tex": "barra-verde",
+     "h": 1.1
+    }
+   },
+   "b": {
+    "tex": "azulejo-branco",
+    "base": {
+     "tex": "lambri-azulejo",
+     "h": 1.2
+    }
+   }
+  },
+  {
+   "level": 0,
+   "x": 21,
+   "z": 12,
+   "axis": "x",
+   "a": {
+    "tex": "bloco-concreto",
+    "base": {
+     "tex": "barra-verde",
+     "h": 1.1
+    }
+   },
+   "b": {
+    "tex": "tijolo-esmaltado",
+    "base": {
+     "tex": "barra-verde",
+     "h": 1.1
+    }
+   }
+  },
+  {
+   "level": 0,
+   "x": 21,
+   "z": 15,
+   "axis": "x",
+   "a": {
+    "tex": "tijolo-esmaltado",
+    "base": {
+     "tex": "barra-verde",
+     "h": 1.1
+    }
+   },
+   "b": {
+    "tex": "azulejo-branco",
+    "base": {
+     "tex": "lambri-azulejo",
+     "h": 1.2
+    }
+   }
+  },
+  {
+   "level": 0,
+   "x": 22,
+   "z": 12,
+   "axis": "x",
+   "a": {
+    "tex": "chapa-verde"
+   },
+   "b": {
+    "tex": "tijolo-esmaltado",
+    "base": {
+     "tex": "barra-verde",
+     "h": 1.1
+    }
+   }
+  },
+  {
+   "level": 0,
+   "x": 22,
+   "z": 15,
+   "axis": "x",
+   "a": {
+    "tex": "tijolo-esmaltado",
+    "base": {
+     "tex": "barra-verde",
+     "h": 1.1
+    }
+   },
+   "b": {
+    "tex": "azulejo-branco",
+    "base": {
+     "tex": "lambri-azulejo",
+     "h": 1.2
+    }
+   }
+  },
+  {
+   "level": 0,
+   "x": 23,
+   "z": 12,
+   "axis": "x",
+   "a": {
+    "tex": "chapa-verde"
+   },
+   "b": {
+    "tex": "tijolo-esmaltado",
+    "base": {
+     "tex": "barra-verde",
+     "h": 1.1
+    }
+   }
+  },
+  {
+   "level": 0,
+   "x": 23,
+   "z": 15,
+   "axis": "x",
+   "a": {
+    "tex": "tijolo-esmaltado",
+    "base": {
+     "tex": "barra-verde",
+     "h": 1.1
+    }
+   },
+   "b": {
+    "tex": "azulejo-branco",
+    "base": {
+     "tex": "lambri-azulejo",
+     "h": 1.2
+    }
+   }
+  },
+  {
+   "level": 0,
+   "x": 24,
+   "z": 12,
+   "axis": "x",
+   "a": {
+    "tex": "chapa-verde"
+   },
+   "b": {
+    "tex": "tijolo-esmaltado",
+    "base": {
+     "tex": "barra-verde",
+     "h": 1.1
+    }
+   }
+  },
+  {
+   "level": 0,
+   "x": 24,
+   "z": 15,
+   "axis": "x",
+   "a": {
+    "tex": "tijolo-esmaltado",
+    "base": {
+     "tex": "barra-verde",
+     "h": 1.1
+    }
+   },
+   "b": {
+    "tex": "azulejo-branco",
+    "base": {
+     "tex": "lambri-azulejo",
+     "h": 1.2
+    }
+   }
+  },
+  {
+   "level": 0,
+   "x": 25,
+   "z": 12,
+   "axis": "x",
+   "a": {
+    "tex": "chapa-verde"
+   },
+   "b": {
+    "tex": "tijolo-esmaltado",
+    "base": {
+     "tex": "barra-verde",
+     "h": 1.1
+    }
+   }
+  },
+  {
+   "level": 0,
+   "x": 25,
+   "z": 15,
+   "axis": "x",
+   "a": {
+    "tex": "tijolo-esmaltado",
+    "base": {
+     "tex": "barra-verde",
+     "h": 1.1
+    }
+   },
+   "b": {
+    "tex": "azulejo-branco",
+    "base": {
+     "tex": "lambri-azulejo",
+     "h": 1.2
+    }
+   }
+  },
+  {
+   "level": 0,
+   "x": 26,
+   "z": 12,
+   "axis": "x",
+   "a": {
+    "tex": "chapa-verde"
+   },
+   "b": {
+    "tex": "tijolo-esmaltado",
+    "base": {
+     "tex": "barra-verde",
+     "h": 1.1
+    }
+   }
+  },
+  {
+   "level": 0,
+   "x": 26,
+   "z": 15,
+   "axis": "x",
+   "a": {
+    "tex": "tijolo-esmaltado",
+    "base": {
+     "tex": "barra-verde",
+     "h": 1.1
+    }
+   },
+   "b": {
+    "tex": "azulejo-branco",
+    "base": {
+     "tex": "lambri-azulejo",
+     "h": 1.2
+    }
+   }
+  },
+  {
+   "level": 0,
+   "x": 27,
+   "z": 12,
+   "axis": "x",
+   "a": {
+    "tex": "chapa-verde"
+   },
+   "b": {
+    "tex": "tijolo-esmaltado",
+    "base": {
+     "tex": "barra-verde",
+     "h": 1.1
+    }
+   }
+  },
+  {
+   "level": 0,
+   "x": 27,
+   "z": 15,
+   "axis": "x",
+   "a": {
+    "tex": "tijolo-esmaltado",
+    "base": {
+     "tex": "barra-verde",
+     "h": 1.1
+    }
+   },
+   "b": {
+    "tex": "azulejo-branco",
+    "base": {
+     "tex": "lambri-azulejo",
+     "h": 1.2
+    }
+   }
+  },
+  {
+   "level": 0,
+   "x": 28,
+   "z": 12,
+   "axis": "x",
+   "a": {
+    "tex": "chapa-verde"
+   },
+   "b": {
+    "tex": "tijolo-esmaltado",
+    "base": {
+     "tex": "barra-verde",
+     "h": 1.1
+    }
+   }
+  },
+  {
+   "level": 0,
+   "x": 28,
+   "z": 15,
+   "axis": "x",
+   "a": {
+    "tex": "tijolo-esmaltado",
+    "base": {
+     "tex": "barra-verde",
+     "h": 1.1
+    }
+   },
+   "b": {
+    "tex": "azulejo-branco",
+    "base": {
+     "tex": "lambri-azulejo",
+     "h": 1.2
+    }
+   }
+  },
+  {
+   "level": 0,
+   "x": 29,
+   "z": 12,
+   "axis": "x",
+   "a": {
+    "tex": "chapa-verde"
+   },
+   "b": {
+    "tex": "tijolo-esmaltado",
+    "base": {
+     "tex": "barra-verde",
+     "h": 1.1
+    }
+   }
+  },
+  {
+   "level": 0,
+   "x": 29,
+   "z": 15,
+   "axis": "x",
+   "a": {
+    "tex": "tijolo-esmaltado",
+    "base": {
+     "tex": "barra-verde",
+     "h": 1.1
+    }
+   },
+   "b": {
+    "tex": "concreto-aparente"
+   }
+  },
+  {
+   "level": 0,
+   "x": 30,
+   "z": 12,
+   "axis": "x",
+   "a": {
+    "tex": "concreto-aparente"
+   },
+   "b": {
+    "tex": "tijolo-esmaltado",
+    "base": {
+     "tex": "barra-verde",
+     "h": 1.1
+    }
+   }
+  },
+  {
+   "level": 0,
+   "x": 30,
+   "z": 15,
+   "axis": "x",
+   "a": {
+    "tex": "tijolo-esmaltado",
+    "base": {
+     "tex": "barra-verde",
+     "h": 1.1
+    }
+   },
+   "b": {
+    "tex": "concreto-aparente"
+   }
+  },
+  {
+   "level": 0,
+   "x": 31,
+   "z": 12,
+   "axis": "x",
+   "a": {
+    "tex": "concreto-aparente"
+   },
+   "b": {
+    "tex": "tijolo-esmaltado",
+    "base": {
+     "tex": "barra-verde",
+     "h": 1.1
+    }
+   }
+  },
+  {
+   "level": 0,
+   "x": 31,
+   "z": 15,
+   "axis": "x",
+   "a": {
+    "tex": "tijolo-esmaltado",
+    "base": {
+     "tex": "barra-verde",
+     "h": 1.1
+    }
+   },
+   "b": {
+    "tex": "bloco-concreto",
+    "base": {
+     "tex": "barra-verde",
+     "h": 1.1
+    }
+   }
+  },
+  {
+   "level": 0,
+   "x": 29,
+   "z": 15,
+   "axis": "z",
+   "a": {
+    "tex": "azulejo-branco",
+    "base": {
+     "tex": "lambri-azulejo",
+     "h": 1.2
+    }
+   },
+   "b": {
+    "tex": "concreto-aparente"
+   }
+  },
+  {
+   "level": 0,
+   "x": 31,
+   "z": 15,
+   "axis": "z",
+   "a": {
+    "tex": "concreto-aparente"
+   },
+   "b": {
+    "tex": "bloco-concreto",
+    "base": {
+     "tex": "barra-verde",
+     "h": 1.1
+    }
+   }
+  },
+  {
+   "level": 0,
+   "x": 16,
+   "z": 2,
+   "axis": "x",
+   "a": {
+    "tex": "concreto-aparente"
+   },
+   "b": {
+    "tex": "bloco-concreto",
+    "base": {
+     "tex": "barra-verde",
+     "h": 1.1
+    }
+   }
+  },
+  {
+   "level": 0,
+   "x": 17,
+   "z": 2,
+   "axis": "x",
+   "a": {
+    "tex": "concreto-aparente"
+   },
+   "b": {
+    "tex": "bloco-concreto",
+    "base": {
+     "tex": "barra-verde",
+     "h": 1.1
+    }
+   }
+  },
+  {
+   "level": 0,
+   "x": 18,
+   "z": 2,
+   "axis": "x",
+   "a": {
+    "tex": "concreto-aparente"
+   },
+   "b": {
+    "tex": "bloco-concreto",
+    "base": {
+     "tex": "barra-verde",
+     "h": 1.1
+    }
+   }
+  },
+  {
+   "level": 0,
+   "x": 19,
+   "z": 2,
+   "axis": "x",
+   "a": {
+    "tex": "concreto-aparente"
+   },
+   "b": {
+    "tex": "bloco-concreto",
+    "base": {
+     "tex": "barra-verde",
+     "h": 1.1
+    }
+   }
+  },
+  {
+   "level": 0,
+   "x": 20,
+   "z": 2,
+   "axis": "x",
+   "a": {
+    "tex": "concreto-aparente"
+   },
+   "b": {
+    "tex": "bloco-concreto",
+    "base": {
+     "tex": "barra-verde",
+     "h": 1.1
+    }
+   }
+  },
+  {
+   "level": 0,
+   "x": 22,
+   "z": 2,
+   "axis": "z",
+   "a": {
+    "tex": "bloco-concreto",
+    "base": {
+     "tex": "barra-verde",
+     "h": 1.1
+    }
+   },
+   "b": {
+    "tex": "chapa-verde"
+   }
+  },
+  {
+   "level": 0,
+   "x": 21,
+   "z": 2,
+   "axis": "x",
+   "a": {
+    "tex": "concreto-aparente"
+   },
+   "b": {
+    "tex": "bloco-concreto",
+    "base": {
+     "tex": "barra-verde",
+     "h": 1.1
+    }
+   }
+  },
+  {
+   "level": 0,
+   "x": 22,
+   "z": 3,
+   "axis": "z",
+   "a": {
+    "tex": "bloco-concreto",
+    "base": {
+     "tex": "barra-verde",
+     "h": 1.1
+    }
+   },
+   "b": {
+    "tex": "chapa-verde"
+   }
+  },
+  {
+   "level": 0,
+   "x": 22,
+   "z": 4,
+   "axis": "z",
+   "a": {
+    "tex": "bloco-concreto",
+    "base": {
+     "tex": "barra-verde",
+     "h": 1.1
+    }
+   },
+   "b": {
+    "tex": "chapa-verde"
+   }
+  },
+  {
+   "level": 0,
+   "x": 22,
+   "z": 5,
+   "axis": "z",
+   "a": {
+    "tex": "bloco-concreto",
+    "base": {
+     "tex": "barra-verde",
+     "h": 1.1
+    }
+   },
+   "b": {
+    "tex": "chapa-verde"
+   }
+  },
+  {
+   "level": 0,
+   "x": 22,
+   "z": 6,
+   "axis": "z",
+   "a": {
+    "tex": "bloco-concreto",
+    "base": {
+     "tex": "barra-verde",
+     "h": 1.1
+    }
+   },
+   "b": {
+    "tex": "chapa-verde"
+   }
+  },
+  {
+   "level": 0,
+   "x": 22,
+   "z": 7,
+   "axis": "z",
+   "a": {
+    "tex": "bloco-concreto",
+    "base": {
+     "tex": "barra-verde",
+     "h": 1.1
+    }
+   },
+   "b": {
+    "tex": "chapa-verde"
+   }
+  },
+  {
+   "level": 0,
+   "x": 22,
+   "z": 8,
+   "axis": "z",
+   "a": {
+    "tex": "bloco-concreto",
+    "base": {
+     "tex": "barra-verde",
+     "h": 1.1
+    }
+   },
+   "b": {
+    "tex": "chapa-verde"
+   }
+  },
+  {
+   "level": 0,
+   "x": 22,
+   "z": 9,
+   "axis": "z",
+   "a": {
+    "tex": "bloco-concreto",
+    "base": {
+     "tex": "barra-verde",
+     "h": 1.1
+    }
+   },
+   "b": {
+    "tex": "chapa-verde"
+   }
+  },
+  {
+   "level": 0,
+   "x": 22,
+   "z": 10,
+   "axis": "z",
+   "a": {
+    "tex": "bloco-concreto",
+    "base": {
+     "tex": "barra-verde",
+     "h": 1.1
+    }
+   },
+   "b": {
+    "tex": "chapa-verde"
+   }
+  },
+  {
+   "level": 0,
+   "x": 22,
+   "z": 11,
+   "axis": "z",
+   "a": {
+    "tex": "bloco-concreto",
+    "base": {
+     "tex": "barra-verde",
+     "h": 1.1
+    }
+   },
+   "b": {
+    "tex": "chapa-verde"
+   }
+  },
+  {
+   "level": 0,
+   "x": 22,
+   "z": 2,
+   "axis": "x",
+   "a": {
+    "tex": "concreto-aparente"
+   },
+   "b": {
+    "tex": "chapa-verde"
+   }
+  },
+  {
+   "level": 0,
+   "x": 23,
+   "z": 2,
+   "axis": "x",
+   "a": {
+    "tex": "concreto-aparente"
+   },
+   "b": {
+    "tex": "chapa-verde"
+   }
+  },
+  {
+   "level": 0,
+   "x": 24,
+   "z": 2,
+   "axis": "x",
+   "a": {
+    "tex": "concreto-aparente"
+   },
+   "b": {
+    "tex": "chapa-verde"
+   }
+  },
+  {
+   "level": 0,
+   "x": 25,
+   "z": 2,
+   "axis": "x",
+   "a": {
+    "tex": "concreto-aparente"
+   },
+   "b": {
+    "tex": "chapa-verde"
+   }
+  },
+  {
+   "level": 0,
+   "x": 26,
+   "z": 2,
+   "axis": "x",
+   "a": {
+    "tex": "concreto-aparente"
+   },
+   "b": {
+    "tex": "chapa-verde"
+   }
+  },
+  {
+   "level": 0,
+   "x": 27,
+   "z": 2,
+   "axis": "x",
+   "a": {
+    "tex": "concreto-aparente"
+   },
+   "b": {
+    "tex": "chapa-verde"
+   }
+  },
+  {
+   "level": 0,
+   "x": 28,
+   "z": 2,
+   "axis": "x",
+   "a": {
+    "tex": "concreto-aparente"
+   },
+   "b": {
+    "tex": "chapa-verde"
+   }
+  },
+  {
+   "level": 0,
+   "x": 30,
+   "z": 2,
+   "axis": "z",
+   "a": {
+    "tex": "chapa-verde"
+   },
+   "b": {
+    "tex": "concreto-aparente"
+   }
+  },
+  {
+   "level": 0,
+   "x": 29,
+   "z": 2,
+   "axis": "x",
+   "a": {
+    "tex": "concreto-aparente"
+   },
+   "b": {
+    "tex": "chapa-verde"
+   }
+  },
+  {
+   "level": 0,
+   "x": 30,
+   "z": 3,
+   "axis": "z",
+   "a": {
+    "tex": "chapa-verde"
+   },
+   "b": {
+    "tex": "concreto-aparente"
+   }
+  },
+  {
+   "level": 0,
+   "x": 30,
+   "z": 4,
+   "axis": "z",
+   "a": {
+    "tex": "chapa-verde"
+   },
+   "b": {
+    "tex": "concreto-aparente"
+   }
+  },
+  {
+   "level": 0,
+   "x": 30,
+   "z": 5,
+   "axis": "z",
+   "a": {
+    "tex": "chapa-verde"
+   },
+   "b": {
+    "tex": "concreto-aparente"
+   }
+  },
+  {
+   "level": 0,
+   "x": 30,
+   "z": 6,
+   "axis": "z",
+   "a": {
+    "tex": "chapa-verde"
+   },
+   "b": {
+    "tex": "concreto-aparente"
+   }
+  },
+  {
+   "level": 0,
+   "x": 30,
+   "z": 7,
+   "axis": "z",
+   "a": {
+    "tex": "chapa-verde"
+   },
+   "b": {
+    "tex": "concreto-aparente"
+   }
+  },
+  {
+   "level": 0,
+   "x": 30,
+   "z": 8,
+   "axis": "z",
+   "a": {
+    "tex": "chapa-verde"
+   },
+   "b": {
+    "tex": "concreto-aparente"
+   }
+  },
+  {
+   "level": 0,
+   "x": 30,
+   "z": 9,
+   "axis": "z",
+   "a": {
+    "tex": "chapa-verde"
+   },
+   "b": {
+    "tex": "concreto-aparente"
+   }
+  },
+  {
+   "level": 0,
+   "x": 30,
+   "z": 10,
+   "axis": "z",
+   "a": {
+    "tex": "chapa-verde"
+   },
+   "b": {
+    "tex": "concreto-aparente"
+   }
+  },
+  {
+   "level": 0,
+   "x": 30,
+   "z": 11,
+   "axis": "z",
+   "a": {
+    "tex": "chapa-verde"
+   },
+   "b": {
+    "tex": "concreto-aparente"
+   }
+  },
+  {
+   "level": 0,
+   "x": 30,
+   "z": 2,
+   "axis": "x",
+   "a": {
+    "tex": "concreto-aparente"
+   },
+   "b": {
+    "tex": "concreto-aparente"
+   }
+  },
+  {
+   "level": 0,
+   "x": 31,
+   "z": 2,
+   "axis": "x",
+   "a": {
+    "tex": "concreto-aparente"
+   },
+   "b": {
+    "tex": "concreto-aparente"
+   }
+  }
+ ],
+ "floors": [
+  {
+   "level": 0,
+   "x": 16,
+   "z": 12,
+   "top": "concreto",
+   "bottom": "concreto"
+  },
+  {
+   "level": 1,
+   "x": 16,
+   "z": 12,
+   "top": "concreto",
+   "bottom": "forro-escuro"
+  },
+  {
+   "level": 0,
+   "x": 16,
+   "z": 13,
+   "top": "concreto",
+   "bottom": "concreto"
+  },
+  {
+   "level": 1,
+   "x": 16,
+   "z": 13,
+   "top": "concreto",
+   "bottom": "forro-escuro"
+  },
+  {
+   "level": 0,
+   "x": 16,
+   "z": 14,
+   "top": "concreto",
+   "bottom": "concreto"
+  },
+  {
+   "level": 1,
+   "x": 16,
+   "z": 14,
+   "top": "concreto",
+   "bottom": "forro-escuro"
+  },
+  {
+   "level": 0,
+   "x": 17,
+   "z": 12,
+   "top": "concreto",
+   "bottom": "concreto"
+  },
+  {
+   "level": 1,
+   "x": 17,
+   "z": 12,
+   "top": "concreto",
+   "bottom": "forro-escuro"
+  },
+  {
+   "level": 0,
+   "x": 17,
+   "z": 13,
+   "top": "concreto",
+   "bottom": "concreto"
+  },
+  {
+   "level": 1,
+   "x": 17,
+   "z": 13,
+   "top": "concreto",
+   "bottom": "forro-escuro"
+  },
+  {
+   "level": 0,
+   "x": 17,
+   "z": 14,
+   "top": "concreto",
+   "bottom": "concreto"
+  },
+  {
+   "level": 1,
+   "x": 17,
+   "z": 14,
+   "top": "concreto",
+   "bottom": "forro-escuro"
+  },
+  {
+   "level": 0,
+   "x": 18,
+   "z": 12,
+   "top": "concreto",
+   "bottom": "concreto"
+  },
+  {
+   "level": 1,
+   "x": 18,
+   "z": 12,
+   "top": "concreto",
+   "bottom": "forro-escuro"
+  },
+  {
+   "level": 0,
+   "x": 18,
+   "z": 13,
+   "top": "concreto",
+   "bottom": "concreto"
+  },
+  {
+   "level": 1,
+   "x": 18,
+   "z": 13,
+   "top": "concreto",
+   "bottom": "forro-escuro"
+  },
+  {
+   "level": 0,
+   "x": 18,
+   "z": 14,
+   "top": "concreto",
+   "bottom": "concreto"
+  },
+  {
+   "level": 1,
+   "x": 18,
+   "z": 14,
+   "top": "concreto",
+   "bottom": "forro-escuro"
+  },
+  {
+   "level": 0,
+   "x": 19,
+   "z": 12,
+   "top": "concreto",
+   "bottom": "concreto"
+  },
+  {
+   "level": 1,
+   "x": 19,
+   "z": 12,
+   "top": "concreto",
+   "bottom": "forro-escuro"
+  },
+  {
+   "level": 0,
+   "x": 19,
+   "z": 13,
+   "top": "concreto",
+   "bottom": "concreto"
+  },
+  {
+   "level": 1,
+   "x": 19,
+   "z": 13,
+   "top": "concreto",
+   "bottom": "forro-escuro"
+  },
+  {
+   "level": 0,
+   "x": 19,
+   "z": 14,
+   "top": "concreto",
+   "bottom": "concreto"
+  },
+  {
+   "level": 1,
+   "x": 19,
+   "z": 14,
+   "top": "concreto",
+   "bottom": "forro-escuro"
+  },
+  {
+   "level": 0,
+   "x": 20,
+   "z": 12,
+   "top": "concreto",
+   "bottom": "concreto"
+  },
+  {
+   "level": 1,
+   "x": 20,
+   "z": 12,
+   "top": "concreto",
+   "bottom": "forro-escuro"
+  },
+  {
+   "level": 0,
+   "x": 20,
+   "z": 13,
+   "top": "concreto",
+   "bottom": "concreto"
+  },
+  {
+   "level": 1,
+   "x": 20,
+   "z": 13,
+   "top": "concreto",
+   "bottom": "forro-escuro"
+  },
+  {
+   "level": 0,
+   "x": 20,
+   "z": 14,
+   "top": "concreto",
+   "bottom": "concreto"
+  },
+  {
+   "level": 1,
+   "x": 20,
+   "z": 14,
+   "top": "concreto",
+   "bottom": "forro-escuro"
+  },
+  {
+   "level": 0,
+   "x": 21,
+   "z": 12,
+   "top": "concreto",
+   "bottom": "concreto"
+  },
+  {
+   "level": 1,
+   "x": 21,
+   "z": 12,
+   "top": "concreto",
+   "bottom": "forro-escuro"
+  },
+  {
+   "level": 0,
+   "x": 21,
+   "z": 13,
+   "top": "concreto",
+   "bottom": "concreto"
+  },
+  {
+   "level": 1,
+   "x": 21,
+   "z": 13,
+   "top": "concreto",
+   "bottom": "forro-escuro"
+  },
+  {
+   "level": 0,
+   "x": 21,
+   "z": 14,
+   "top": "concreto",
+   "bottom": "concreto"
+  },
+  {
+   "level": 1,
+   "x": 21,
+   "z": 14,
+   "top": "concreto",
+   "bottom": "forro-escuro"
+  },
+  {
+   "level": 0,
+   "x": 22,
+   "z": 12,
+   "top": "concreto",
+   "bottom": "concreto"
+  },
+  {
+   "level": 1,
+   "x": 22,
+   "z": 12,
+   "top": "concreto",
+   "bottom": "forro-escuro"
+  },
+  {
+   "level": 0,
+   "x": 22,
+   "z": 13,
+   "top": "concreto",
+   "bottom": "concreto"
+  },
+  {
+   "level": 1,
+   "x": 22,
+   "z": 13,
+   "top": "concreto",
+   "bottom": "forro-escuro"
+  },
+  {
+   "level": 0,
+   "x": 22,
+   "z": 14,
+   "top": "concreto",
+   "bottom": "concreto"
+  },
+  {
+   "level": 1,
+   "x": 22,
+   "z": 14,
+   "top": "concreto",
+   "bottom": "forro-escuro"
+  },
+  {
+   "level": 0,
+   "x": 23,
+   "z": 12,
+   "top": "concreto",
+   "bottom": "concreto"
+  },
+  {
+   "level": 1,
+   "x": 23,
+   "z": 12,
+   "top": "concreto",
+   "bottom": "forro-escuro"
+  },
+  {
+   "level": 0,
+   "x": 23,
+   "z": 13,
+   "top": "concreto",
+   "bottom": "concreto"
+  },
+  {
+   "level": 1,
+   "x": 23,
+   "z": 13,
+   "top": "concreto",
+   "bottom": "forro-escuro"
+  },
+  {
+   "level": 0,
+   "x": 23,
+   "z": 14,
+   "top": "concreto",
+   "bottom": "concreto"
+  },
+  {
+   "level": 1,
+   "x": 23,
+   "z": 14,
+   "top": "concreto",
+   "bottom": "forro-escuro"
+  },
+  {
+   "level": 0,
+   "x": 24,
+   "z": 12,
+   "top": "concreto",
+   "bottom": "concreto"
+  },
+  {
+   "level": 1,
+   "x": 24,
+   "z": 12,
+   "top": "concreto",
+   "bottom": "forro-escuro"
+  },
+  {
+   "level": 0,
+   "x": 24,
+   "z": 13,
+   "top": "concreto",
+   "bottom": "concreto"
+  },
+  {
+   "level": 1,
+   "x": 24,
+   "z": 13,
+   "top": "concreto",
+   "bottom": "forro-escuro"
+  },
+  {
+   "level": 0,
+   "x": 24,
+   "z": 14,
+   "top": "concreto",
+   "bottom": "concreto"
+  },
+  {
+   "level": 1,
+   "x": 24,
+   "z": 14,
+   "top": "concreto",
+   "bottom": "forro-escuro"
+  },
+  {
+   "level": 0,
+   "x": 25,
+   "z": 12,
+   "top": "concreto",
+   "bottom": "concreto"
+  },
+  {
+   "level": 1,
+   "x": 25,
+   "z": 12,
+   "top": "concreto",
+   "bottom": "forro-escuro"
+  },
+  {
+   "level": 0,
+   "x": 25,
+   "z": 13,
+   "top": "concreto",
+   "bottom": "concreto"
+  },
+  {
+   "level": 1,
+   "x": 25,
+   "z": 13,
+   "top": "concreto",
+   "bottom": "forro-escuro"
+  },
+  {
+   "level": 0,
+   "x": 25,
+   "z": 14,
+   "top": "concreto",
+   "bottom": "concreto"
+  },
+  {
+   "level": 1,
+   "x": 25,
+   "z": 14,
+   "top": "concreto",
+   "bottom": "forro-escuro"
+  },
+  {
+   "level": 0,
+   "x": 26,
+   "z": 12,
+   "top": "concreto",
+   "bottom": "concreto"
+  },
+  {
+   "level": 1,
+   "x": 26,
+   "z": 12,
+   "top": "concreto",
+   "bottom": "forro-escuro"
+  },
+  {
+   "level": 0,
+   "x": 26,
+   "z": 13,
+   "top": "concreto",
+   "bottom": "concreto"
+  },
+  {
+   "level": 1,
+   "x": 26,
+   "z": 13,
+   "top": "concreto",
+   "bottom": "forro-escuro"
+  },
+  {
+   "level": 0,
+   "x": 26,
+   "z": 14,
+   "top": "concreto",
+   "bottom": "concreto"
+  },
+  {
+   "level": 1,
+   "x": 26,
+   "z": 14,
+   "top": "concreto",
+   "bottom": "forro-escuro"
+  },
+  {
+   "level": 0,
+   "x": 27,
+   "z": 12,
+   "top": "concreto",
+   "bottom": "concreto"
+  },
+  {
+   "level": 1,
+   "x": 27,
+   "z": 12,
+   "top": "concreto",
+   "bottom": "forro-escuro"
+  },
+  {
+   "level": 0,
+   "x": 27,
+   "z": 13,
+   "top": "concreto",
+   "bottom": "concreto"
+  },
+  {
+   "level": 1,
+   "x": 27,
+   "z": 13,
+   "top": "concreto",
+   "bottom": "forro-escuro"
+  },
+  {
+   "level": 0,
+   "x": 27,
+   "z": 14,
+   "top": "concreto",
+   "bottom": "concreto"
+  },
+  {
+   "level": 1,
+   "x": 27,
+   "z": 14,
+   "top": "concreto",
+   "bottom": "forro-escuro"
+  },
+  {
+   "level": 0,
+   "x": 28,
+   "z": 12,
+   "top": "concreto",
+   "bottom": "concreto"
+  },
+  {
+   "level": 1,
+   "x": 28,
+   "z": 12,
+   "top": "concreto",
+   "bottom": "forro-escuro"
+  },
+  {
+   "level": 0,
+   "x": 28,
+   "z": 13,
+   "top": "concreto",
+   "bottom": "concreto"
+  },
+  {
+   "level": 1,
+   "x": 28,
+   "z": 13,
+   "top": "concreto",
+   "bottom": "forro-escuro"
+  },
+  {
+   "level": 0,
+   "x": 28,
+   "z": 14,
+   "top": "concreto",
+   "bottom": "concreto"
+  },
+  {
+   "level": 1,
+   "x": 28,
+   "z": 14,
+   "top": "concreto",
+   "bottom": "forro-escuro"
+  },
+  {
+   "level": 0,
+   "x": 29,
+   "z": 12,
+   "top": "concreto",
+   "bottom": "concreto"
+  },
+  {
+   "level": 1,
+   "x": 29,
+   "z": 12,
+   "top": "concreto",
+   "bottom": "forro-escuro"
+  },
+  {
+   "level": 0,
+   "x": 29,
+   "z": 13,
+   "top": "concreto",
+   "bottom": "concreto"
+  },
+  {
+   "level": 1,
+   "x": 29,
+   "z": 13,
+   "top": "concreto",
+   "bottom": "forro-escuro"
+  },
+  {
+   "level": 0,
+   "x": 29,
+   "z": 14,
+   "top": "concreto",
+   "bottom": "concreto"
+  },
+  {
+   "level": 1,
+   "x": 29,
+   "z": 14,
+   "top": "concreto",
+   "bottom": "forro-escuro"
+  },
+  {
+   "level": 0,
+   "x": 30,
+   "z": 12,
+   "top": "concreto",
+   "bottom": "concreto"
+  },
+  {
+   "level": 1,
+   "x": 30,
+   "z": 12,
+   "top": "concreto",
+   "bottom": "forro-escuro"
+  },
+  {
+   "level": 0,
+   "x": 30,
+   "z": 13,
+   "top": "concreto",
+   "bottom": "concreto"
+  },
+  {
+   "level": 1,
+   "x": 30,
+   "z": 13,
+   "top": "concreto",
+   "bottom": "forro-escuro"
+  },
+  {
+   "level": 0,
+   "x": 30,
+   "z": 14,
+   "top": "concreto",
+   "bottom": "concreto"
+  },
+  {
+   "level": 1,
+   "x": 30,
+   "z": 14,
+   "top": "concreto",
+   "bottom": "forro-escuro"
+  },
+  {
+   "level": 0,
+   "x": 31,
+   "z": 12,
+   "top": "concreto",
+   "bottom": "concreto"
+  },
+  {
+   "level": 1,
+   "x": 31,
+   "z": 12,
+   "top": "concreto",
+   "bottom": "forro-escuro"
+  },
+  {
+   "level": 0,
+   "x": 31,
+   "z": 13,
+   "top": "concreto",
+   "bottom": "concreto"
+  },
+  {
+   "level": 1,
+   "x": 31,
+   "z": 13,
+   "top": "concreto",
+   "bottom": "forro-escuro"
+  },
+  {
+   "level": 0,
+   "x": 31,
+   "z": 14,
+   "top": "concreto",
+   "bottom": "concreto"
+  },
+  {
+   "level": 1,
+   "x": 31,
+   "z": 14,
+   "top": "concreto",
+   "bottom": "forro-escuro"
+  },
+  {
+   "level": 0,
+   "x": 16,
+   "z": 15,
+   "top": "granilite",
+   "bottom": "concreto"
+  },
+  {
+   "level": 1,
+   "x": 16,
+   "z": 15,
+   "top": "concreto",
+   "bottom": "forro-placas"
+  },
+  {
+   "level": 0,
+   "x": 17,
+   "z": 15,
+   "top": "granilite",
+   "bottom": "concreto"
+  },
+  {
+   "level": 1,
+   "x": 17,
+   "z": 15,
+   "top": "concreto",
+   "bottom": "forro-placas"
+  },
+  {
+   "level": 0,
+   "x": 18,
+   "z": 15,
+   "top": "granilite",
+   "bottom": "concreto"
+  },
+  {
+   "level": 1,
+   "x": 18,
+   "z": 15,
+   "top": "concreto",
+   "bottom": "forro-placas"
+  },
+  {
+   "level": 0,
+   "x": 19,
+   "z": 15,
+   "top": "granilite",
+   "bottom": "concreto"
+  },
+  {
+   "level": 1,
+   "x": 19,
+   "z": 15,
+   "top": "concreto",
+   "bottom": "forro-placas"
+  },
+  {
+   "level": 0,
+   "x": 20,
+   "z": 15,
+   "top": "granilite",
+   "bottom": "concreto"
+  },
+  {
+   "level": 1,
+   "x": 20,
+   "z": 15,
+   "top": "concreto",
+   "bottom": "forro-placas"
+  },
+  {
+   "level": 0,
+   "x": 21,
+   "z": 15,
+   "top": "granilite",
+   "bottom": "concreto"
+  },
+  {
+   "level": 1,
+   "x": 21,
+   "z": 15,
+   "top": "concreto",
+   "bottom": "forro-placas"
+  },
+  {
+   "level": 0,
+   "x": 22,
+   "z": 15,
+   "top": "granilite",
+   "bottom": "concreto"
+  },
+  {
+   "level": 1,
+   "x": 22,
+   "z": 15,
+   "top": "concreto",
+   "bottom": "forro-placas"
+  },
+  {
+   "level": 0,
+   "x": 23,
+   "z": 15,
+   "top": "granilite",
+   "bottom": "concreto"
+  },
+  {
+   "level": 1,
+   "x": 23,
+   "z": 15,
+   "top": "concreto",
+   "bottom": "forro-placas"
+  },
+  {
+   "level": 0,
+   "x": 24,
+   "z": 15,
+   "top": "granilite",
+   "bottom": "concreto"
+  },
+  {
+   "level": 1,
+   "x": 24,
+   "z": 15,
+   "top": "concreto",
+   "bottom": "forro-placas"
+  },
+  {
+   "level": 0,
+   "x": 25,
+   "z": 15,
+   "top": "granilite",
+   "bottom": "concreto"
+  },
+  {
+   "level": 1,
+   "x": 25,
+   "z": 15,
+   "top": "concreto",
+   "bottom": "forro-placas"
+  },
+  {
+   "level": 0,
+   "x": 26,
+   "z": 15,
+   "top": "granilite",
+   "bottom": "concreto"
+  },
+  {
+   "level": 1,
+   "x": 26,
+   "z": 15,
+   "top": "concreto",
+   "bottom": "forro-placas"
+  },
+  {
+   "level": 0,
+   "x": 27,
+   "z": 15,
+   "top": "granilite",
+   "bottom": "concreto"
+  },
+  {
+   "level": 1,
+   "x": 27,
+   "z": 15,
+   "top": "concreto",
+   "bottom": "forro-placas"
+  },
+  {
+   "level": 0,
+   "x": 28,
+   "z": 15,
+   "top": "granilite",
+   "bottom": "concreto"
+  },
+  {
+   "level": 1,
+   "x": 28,
+   "z": 15,
+   "top": "concreto",
+   "bottom": "forro-placas"
+  },
+  {
+   "level": 0,
+   "x": 29,
+   "z": 15,
+   "top": "concreto",
+   "bottom": "concreto"
+  },
+  {
+   "level": 1,
+   "x": 29,
+   "z": 15,
+   "top": "concreto",
+   "bottom": "forro-usina"
+  },
+  {
+   "level": 0,
+   "x": 30,
+   "z": 15,
+   "top": "concreto",
+   "bottom": "concreto"
+  },
+  {
+   "level": 1,
+   "x": 30,
+   "z": 15,
+   "top": "concreto",
+   "bottom": "forro-usina"
+  },
+  {
+   "level": 0,
+   "x": 31,
+   "z": 15,
+   "top": "ladrilho-xadrez",
+   "bottom": "concreto"
+  },
+  {
+   "level": 1,
+   "x": 31,
+   "z": 15,
+   "top": "concreto",
+   "bottom": "forro-placas"
+  },
+  {
+   "level": 0,
+   "x": 16,
+   "z": 2,
+   "top": "concreto",
+   "bottom": "concreto"
+  },
+  {
+   "level": 1,
+   "x": 16,
+   "z": 2,
+   "top": "concreto",
+   "bottom": "forro-placas"
+  },
+  {
+   "level": 0,
+   "x": 16,
+   "z": 3,
+   "top": "concreto",
+   "bottom": "concreto"
+  },
+  {
+   "level": 1,
+   "x": 16,
+   "z": 3,
+   "top": "concreto",
+   "bottom": "forro-placas"
+  },
+  {
+   "level": 0,
+   "x": 16,
+   "z": 4,
+   "top": "concreto",
+   "bottom": "concreto"
+  },
+  {
+   "level": 1,
+   "x": 16,
+   "z": 4,
+   "top": "concreto",
+   "bottom": "forro-placas"
+  },
+  {
+   "level": 0,
+   "x": 16,
+   "z": 5,
+   "top": "concreto",
+   "bottom": "concreto"
+  },
+  {
+   "level": 1,
+   "x": 16,
+   "z": 5,
+   "top": "concreto",
+   "bottom": "forro-placas"
+  },
+  {
+   "level": 0,
+   "x": 16,
+   "z": 6,
+   "top": "concreto",
+   "bottom": "concreto"
+  },
+  {
+   "level": 1,
+   "x": 16,
+   "z": 6,
+   "top": "concreto",
+   "bottom": "forro-placas"
+  },
+  {
+   "level": 0,
+   "x": 16,
+   "z": 7,
+   "top": "concreto",
+   "bottom": "concreto"
+  },
+  {
+   "level": 1,
+   "x": 16,
+   "z": 7,
+   "top": "concreto",
+   "bottom": "forro-placas"
+  },
+  {
+   "level": 0,
+   "x": 16,
+   "z": 8,
+   "top": "concreto",
+   "bottom": "concreto"
+  },
+  {
+   "level": 1,
+   "x": 16,
+   "z": 8,
+   "top": "concreto",
+   "bottom": "forro-placas"
+  },
+  {
+   "level": 0,
+   "x": 16,
+   "z": 9,
+   "top": "concreto",
+   "bottom": "concreto"
+  },
+  {
+   "level": 1,
+   "x": 16,
+   "z": 9,
+   "top": "concreto",
+   "bottom": "forro-placas"
+  },
+  {
+   "level": 0,
+   "x": 16,
+   "z": 10,
+   "top": "concreto",
+   "bottom": "concreto"
+  },
+  {
+   "level": 1,
+   "x": 16,
+   "z": 10,
+   "top": "concreto",
+   "bottom": "forro-placas"
+  },
+  {
+   "level": 0,
+   "x": 16,
+   "z": 11,
+   "top": "concreto",
+   "bottom": "concreto"
+  },
+  {
+   "level": 1,
+   "x": 16,
+   "z": 11,
+   "top": "concreto",
+   "bottom": "forro-placas"
+  },
+  {
+   "level": 0,
+   "x": 17,
+   "z": 2,
+   "top": "concreto",
+   "bottom": "concreto"
+  },
+  {
+   "level": 1,
+   "x": 17,
+   "z": 2,
+   "top": "concreto",
+   "bottom": "forro-placas"
+  },
+  {
+   "level": 0,
+   "x": 17,
+   "z": 3,
+   "top": "concreto",
+   "bottom": "concreto"
+  },
+  {
+   "level": 1,
+   "x": 17,
+   "z": 3,
+   "top": "concreto",
+   "bottom": "forro-placas"
+  },
+  {
+   "level": 0,
+   "x": 17,
+   "z": 4,
+   "top": "concreto",
+   "bottom": "concreto"
+  },
+  {
+   "level": 1,
+   "x": 17,
+   "z": 4,
+   "top": "concreto",
+   "bottom": "forro-placas"
+  },
+  {
+   "level": 0,
+   "x": 17,
+   "z": 5,
+   "top": "concreto",
+   "bottom": "concreto"
+  },
+  {
+   "level": 1,
+   "x": 17,
+   "z": 5,
+   "top": "concreto",
+   "bottom": "forro-placas"
+  },
+  {
+   "level": 0,
+   "x": 17,
+   "z": 6,
+   "top": "concreto",
+   "bottom": "concreto"
+  },
+  {
+   "level": 1,
+   "x": 17,
+   "z": 6,
+   "top": "concreto",
+   "bottom": "forro-placas"
+  },
+  {
+   "level": 0,
+   "x": 17,
+   "z": 7,
+   "top": "concreto",
+   "bottom": "concreto"
+  },
+  {
+   "level": 1,
+   "x": 17,
+   "z": 7,
+   "top": "concreto",
+   "bottom": "forro-placas"
+  },
+  {
+   "level": 0,
+   "x": 17,
+   "z": 8,
+   "top": "concreto",
+   "bottom": "concreto"
+  },
+  {
+   "level": 1,
+   "x": 17,
+   "z": 8,
+   "top": "concreto",
+   "bottom": "forro-placas"
+  },
+  {
+   "level": 0,
+   "x": 17,
+   "z": 9,
+   "top": "concreto",
+   "bottom": "concreto"
+  },
+  {
+   "level": 1,
+   "x": 17,
+   "z": 9,
+   "top": "concreto",
+   "bottom": "forro-placas"
+  },
+  {
+   "level": 0,
+   "x": 17,
+   "z": 10,
+   "top": "concreto",
+   "bottom": "concreto"
+  },
+  {
+   "level": 1,
+   "x": 17,
+   "z": 10,
+   "top": "concreto",
+   "bottom": "forro-placas"
+  },
+  {
+   "level": 0,
+   "x": 17,
+   "z": 11,
+   "top": "concreto",
+   "bottom": "concreto"
+  },
+  {
+   "level": 1,
+   "x": 17,
+   "z": 11,
+   "top": "concreto",
+   "bottom": "forro-placas"
+  },
+  {
+   "level": 0,
+   "x": 18,
+   "z": 2,
+   "top": "concreto",
+   "bottom": "concreto"
+  },
+  {
+   "level": 1,
+   "x": 18,
+   "z": 2,
+   "top": "concreto",
+   "bottom": "forro-placas"
+  },
+  {
+   "level": 0,
+   "x": 18,
+   "z": 3,
+   "top": "concreto",
+   "bottom": "concreto"
+  },
+  {
+   "level": 1,
+   "x": 18,
+   "z": 3,
+   "top": "concreto",
+   "bottom": "forro-placas"
+  },
+  {
+   "level": 0,
+   "x": 18,
+   "z": 4,
+   "top": "concreto",
+   "bottom": "concreto"
+  },
+  {
+   "level": 1,
+   "x": 18,
+   "z": 4,
+   "top": "concreto",
+   "bottom": "forro-placas"
+  },
+  {
+   "level": 0,
+   "x": 18,
+   "z": 5,
+   "top": "concreto",
+   "bottom": "concreto"
+  },
+  {
+   "level": 1,
+   "x": 18,
+   "z": 5,
+   "top": "concreto",
+   "bottom": "forro-placas"
+  },
+  {
+   "level": 0,
+   "x": 18,
+   "z": 6,
+   "top": "concreto",
+   "bottom": "concreto"
+  },
+  {
+   "level": 1,
+   "x": 18,
+   "z": 6,
+   "top": "concreto",
+   "bottom": "forro-placas"
+  },
+  {
+   "level": 0,
+   "x": 18,
+   "z": 7,
+   "top": "concreto",
+   "bottom": "concreto"
+  },
+  {
+   "level": 1,
+   "x": 18,
+   "z": 7,
+   "top": "concreto",
+   "bottom": "forro-placas"
+  },
+  {
+   "level": 0,
+   "x": 18,
+   "z": 8,
+   "top": "concreto",
+   "bottom": "concreto"
+  },
+  {
+   "level": 1,
+   "x": 18,
+   "z": 8,
+   "top": "concreto",
+   "bottom": "forro-placas"
+  },
+  {
+   "level": 0,
+   "x": 18,
+   "z": 9,
+   "top": "concreto",
+   "bottom": "concreto"
+  },
+  {
+   "level": 1,
+   "x": 18,
+   "z": 9,
+   "top": "concreto",
+   "bottom": "forro-placas"
+  },
+  {
+   "level": 0,
+   "x": 18,
+   "z": 10,
+   "top": "concreto",
+   "bottom": "concreto"
+  },
+  {
+   "level": 1,
+   "x": 18,
+   "z": 10,
+   "top": "concreto",
+   "bottom": "forro-placas"
+  },
+  {
+   "level": 0,
+   "x": 18,
+   "z": 11,
+   "top": "concreto",
+   "bottom": "concreto"
+  },
+  {
+   "level": 1,
+   "x": 18,
+   "z": 11,
+   "top": "concreto",
+   "bottom": "forro-placas"
+  },
+  {
+   "level": 0,
+   "x": 19,
+   "z": 2,
+   "top": "concreto",
+   "bottom": "concreto"
+  },
+  {
+   "level": 1,
+   "x": 19,
+   "z": 2,
+   "top": "concreto",
+   "bottom": "forro-placas"
+  },
+  {
+   "level": 0,
+   "x": 19,
+   "z": 3,
+   "top": "concreto",
+   "bottom": "concreto"
+  },
+  {
+   "level": 1,
+   "x": 19,
+   "z": 3,
+   "top": "concreto",
+   "bottom": "forro-placas"
+  },
+  {
+   "level": 0,
+   "x": 19,
+   "z": 4,
+   "top": "concreto",
+   "bottom": "concreto"
+  },
+  {
+   "level": 1,
+   "x": 19,
+   "z": 4,
+   "top": "concreto",
+   "bottom": "forro-placas"
+  },
+  {
+   "level": 0,
+   "x": 19,
+   "z": 5,
+   "top": "concreto",
+   "bottom": "concreto"
+  },
+  {
+   "level": 1,
+   "x": 19,
+   "z": 5,
+   "top": "concreto",
+   "bottom": "forro-placas"
+  },
+  {
+   "level": 0,
+   "x": 19,
+   "z": 6,
+   "top": "concreto",
+   "bottom": "concreto"
+  },
+  {
+   "level": 1,
+   "x": 19,
+   "z": 6,
+   "top": "concreto",
+   "bottom": "forro-placas"
+  },
+  {
+   "level": 0,
+   "x": 19,
+   "z": 7,
+   "top": "concreto",
+   "bottom": "concreto"
+  },
+  {
+   "level": 1,
+   "x": 19,
+   "z": 7,
+   "top": "concreto",
+   "bottom": "forro-placas"
+  },
+  {
+   "level": 0,
+   "x": 19,
+   "z": 8,
+   "top": "concreto",
+   "bottom": "concreto"
+  },
+  {
+   "level": 1,
+   "x": 19,
+   "z": 8,
+   "top": "concreto",
+   "bottom": "forro-placas"
+  },
+  {
+   "level": 0,
+   "x": 19,
+   "z": 9,
+   "top": "concreto",
+   "bottom": "concreto"
+  },
+  {
+   "level": 1,
+   "x": 19,
+   "z": 9,
+   "top": "concreto",
+   "bottom": "forro-placas"
+  },
+  {
+   "level": 0,
+   "x": 19,
+   "z": 10,
+   "top": "concreto",
+   "bottom": "concreto"
+  },
+  {
+   "level": 1,
+   "x": 19,
+   "z": 10,
+   "top": "concreto",
+   "bottom": "forro-placas"
+  },
+  {
+   "level": 0,
+   "x": 19,
+   "z": 11,
+   "top": "concreto",
+   "bottom": "concreto"
+  },
+  {
+   "level": 1,
+   "x": 19,
+   "z": 11,
+   "top": "concreto",
+   "bottom": "forro-placas"
+  },
+  {
+   "level": 0,
+   "x": 20,
+   "z": 2,
+   "top": "concreto",
+   "bottom": "concreto"
+  },
+  {
+   "level": 1,
+   "x": 20,
+   "z": 2,
+   "top": "concreto",
+   "bottom": "forro-placas"
+  },
+  {
+   "level": 0,
+   "x": 20,
+   "z": 3,
+   "top": "concreto",
+   "bottom": "concreto"
+  },
+  {
+   "level": 1,
+   "x": 20,
+   "z": 3,
+   "top": "concreto",
+   "bottom": "forro-placas"
+  },
+  {
+   "level": 0,
+   "x": 20,
+   "z": 4,
+   "top": "concreto",
+   "bottom": "concreto"
+  },
+  {
+   "level": 1,
+   "x": 20,
+   "z": 4,
+   "top": "concreto",
+   "bottom": "forro-placas"
+  },
+  {
+   "level": 0,
+   "x": 20,
+   "z": 5,
+   "top": "concreto",
+   "bottom": "concreto"
+  },
+  {
+   "level": 1,
+   "x": 20,
+   "z": 5,
+   "top": "concreto",
+   "bottom": "forro-placas"
+  },
+  {
+   "level": 0,
+   "x": 20,
+   "z": 6,
+   "top": "concreto",
+   "bottom": "concreto"
+  },
+  {
+   "level": 1,
+   "x": 20,
+   "z": 6,
+   "top": "concreto",
+   "bottom": "forro-placas"
+  },
+  {
+   "level": 0,
+   "x": 20,
+   "z": 7,
+   "top": "concreto",
+   "bottom": "concreto"
+  },
+  {
+   "level": 1,
+   "x": 20,
+   "z": 7,
+   "top": "concreto",
+   "bottom": "forro-placas"
+  },
+  {
+   "level": 0,
+   "x": 20,
+   "z": 8,
+   "top": "concreto",
+   "bottom": "concreto"
+  },
+  {
+   "level": 1,
+   "x": 20,
+   "z": 8,
+   "top": "concreto",
+   "bottom": "forro-placas"
+  },
+  {
+   "level": 0,
+   "x": 20,
+   "z": 9,
+   "top": "concreto",
+   "bottom": "concreto"
+  },
+  {
+   "level": 1,
+   "x": 20,
+   "z": 9,
+   "top": "concreto",
+   "bottom": "forro-placas"
+  },
+  {
+   "level": 0,
+   "x": 20,
+   "z": 10,
+   "top": "concreto",
+   "bottom": "concreto"
+  },
+  {
+   "level": 1,
+   "x": 20,
+   "z": 10,
+   "top": "concreto",
+   "bottom": "forro-placas"
+  },
+  {
+   "level": 0,
+   "x": 20,
+   "z": 11,
+   "top": "concreto",
+   "bottom": "concreto"
+  },
+  {
+   "level": 1,
+   "x": 20,
+   "z": 11,
+   "top": "concreto",
+   "bottom": "forro-placas"
+  },
+  {
+   "level": 0,
+   "x": 21,
+   "z": 2,
+   "top": "concreto",
+   "bottom": "concreto"
+  },
+  {
+   "level": 1,
+   "x": 21,
+   "z": 2,
+   "top": "concreto",
+   "bottom": "forro-placas"
+  },
+  {
+   "level": 0,
+   "x": 21,
+   "z": 3,
+   "top": "concreto",
+   "bottom": "concreto"
+  },
+  {
+   "level": 1,
+   "x": 21,
+   "z": 3,
+   "top": "concreto",
+   "bottom": "forro-placas"
+  },
+  {
+   "level": 0,
+   "x": 21,
+   "z": 4,
+   "top": "concreto",
+   "bottom": "concreto"
+  },
+  {
+   "level": 1,
+   "x": 21,
+   "z": 4,
+   "top": "concreto",
+   "bottom": "forro-placas"
+  },
+  {
+   "level": 0,
+   "x": 21,
+   "z": 5,
+   "top": "concreto",
+   "bottom": "concreto"
+  },
+  {
+   "level": 1,
+   "x": 21,
+   "z": 5,
+   "top": "concreto",
+   "bottom": "forro-placas"
+  },
+  {
+   "level": 0,
+   "x": 21,
+   "z": 6,
+   "top": "concreto",
+   "bottom": "concreto"
+  },
+  {
+   "level": 1,
+   "x": 21,
+   "z": 6,
+   "top": "concreto",
+   "bottom": "forro-placas"
+  },
+  {
+   "level": 0,
+   "x": 21,
+   "z": 7,
+   "top": "concreto",
+   "bottom": "concreto"
+  },
+  {
+   "level": 1,
+   "x": 21,
+   "z": 7,
+   "top": "concreto",
+   "bottom": "forro-placas"
+  },
+  {
+   "level": 0,
+   "x": 21,
+   "z": 8,
+   "top": "concreto",
+   "bottom": "concreto"
+  },
+  {
+   "level": 1,
+   "x": 21,
+   "z": 8,
+   "top": "concreto",
+   "bottom": "forro-placas"
+  },
+  {
+   "level": 0,
+   "x": 21,
+   "z": 9,
+   "top": "concreto",
+   "bottom": "concreto"
+  },
+  {
+   "level": 1,
+   "x": 21,
+   "z": 9,
+   "top": "concreto",
+   "bottom": "forro-placas"
+  },
+  {
+   "level": 0,
+   "x": 21,
+   "z": 10,
+   "top": "concreto",
+   "bottom": "concreto"
+  },
+  {
+   "level": 1,
+   "x": 21,
+   "z": 10,
+   "top": "concreto",
+   "bottom": "forro-placas"
+  },
+  {
+   "level": 0,
+   "x": 21,
+   "z": 11,
+   "top": "concreto",
+   "bottom": "concreto"
+  },
+  {
+   "level": 1,
+   "x": 21,
+   "z": 11,
+   "top": "concreto",
+   "bottom": "forro-placas"
+  },
+  {
+   "level": 0,
+   "x": 22,
+   "z": 2,
+   "top": "chapa-xadrez",
+   "bottom": "concreto"
+  },
+  {
+   "level": 1,
+   "x": 22,
+   "z": 2,
+   "top": "concreto",
+   "bottom": "forro-escuro"
+  },
+  {
+   "level": 0,
+   "x": 22,
+   "z": 3,
+   "top": "chapa-xadrez",
+   "bottom": "concreto"
+  },
+  {
+   "level": 1,
+   "x": 22,
+   "z": 3,
+   "top": "concreto",
+   "bottom": "forro-escuro"
+  },
+  {
+   "level": 0,
+   "x": 22,
+   "z": 4,
+   "top": "chapa-xadrez",
+   "bottom": "concreto"
+  },
+  {
+   "level": 1,
+   "x": 22,
+   "z": 4,
+   "top": "concreto",
+   "bottom": "forro-escuro"
+  },
+  {
+   "level": 0,
+   "x": 22,
+   "z": 5,
+   "top": "chapa-xadrez",
+   "bottom": "concreto"
+  },
+  {
+   "level": 1,
+   "x": 22,
+   "z": 5,
+   "top": "concreto",
+   "bottom": "forro-escuro"
+  },
+  {
+   "level": 0,
+   "x": 22,
+   "z": 6,
+   "top": "chapa-xadrez",
+   "bottom": "concreto"
+  },
+  {
+   "level": 1,
+   "x": 22,
+   "z": 6,
+   "top": "concreto",
+   "bottom": "forro-escuro"
+  },
+  {
+   "level": 0,
+   "x": 22,
+   "z": 7,
+   "top": "chapa-xadrez",
+   "bottom": "concreto"
+  },
+  {
+   "level": 1,
+   "x": 22,
+   "z": 7,
+   "top": "concreto",
+   "bottom": "forro-escuro"
+  },
+  {
+   "level": 0,
+   "x": 22,
+   "z": 8,
+   "top": "chapa-xadrez",
+   "bottom": "concreto"
+  },
+  {
+   "level": 1,
+   "x": 22,
+   "z": 8,
+   "top": "concreto",
+   "bottom": "forro-escuro"
+  },
+  {
+   "level": 0,
+   "x": 22,
+   "z": 9,
+   "top": "chapa-xadrez",
+   "bottom": "concreto"
+  },
+  {
+   "level": 1,
+   "x": 22,
+   "z": 9,
+   "top": "concreto",
+   "bottom": "forro-escuro"
+  },
+  {
+   "level": 0,
+   "x": 22,
+   "z": 10,
+   "top": "chapa-xadrez",
+   "bottom": "concreto"
+  },
+  {
+   "level": 1,
+   "x": 22,
+   "z": 10,
+   "top": "concreto",
+   "bottom": "forro-escuro"
+  },
+  {
+   "level": 0,
+   "x": 22,
+   "z": 11,
+   "top": "chapa-xadrez",
+   "bottom": "concreto"
+  },
+  {
+   "level": 1,
+   "x": 22,
+   "z": 11,
+   "top": "concreto",
+   "bottom": "forro-escuro"
+  },
+  {
+   "level": 0,
+   "x": 23,
+   "z": 2,
+   "top": "chapa-xadrez",
+   "bottom": "concreto"
+  },
+  {
+   "level": 1,
+   "x": 23,
+   "z": 2,
+   "top": "concreto",
+   "bottom": "forro-escuro"
+  },
+  {
+   "level": 0,
+   "x": 23,
+   "z": 3,
+   "top": "chapa-xadrez",
+   "bottom": "concreto"
+  },
+  {
+   "level": 1,
+   "x": 23,
+   "z": 3,
+   "top": "concreto",
+   "bottom": "forro-escuro"
+  },
+  {
+   "level": 0,
+   "x": 23,
+   "z": 4,
+   "top": "chapa-xadrez",
+   "bottom": "concreto"
+  },
+  {
+   "level": 1,
+   "x": 23,
+   "z": 4,
+   "top": "concreto",
+   "bottom": "forro-escuro"
+  },
+  {
+   "level": 0,
+   "x": 23,
+   "z": 5,
+   "top": "chapa-xadrez",
+   "bottom": "concreto"
+  },
+  {
+   "level": 1,
+   "x": 23,
+   "z": 5,
+   "top": "concreto",
+   "bottom": "forro-escuro"
+  },
+  {
+   "level": 0,
+   "x": 23,
+   "z": 6,
+   "top": "chapa-xadrez",
+   "bottom": "concreto"
+  },
+  {
+   "level": 1,
+   "x": 23,
+   "z": 6,
+   "top": "concreto",
+   "bottom": "forro-escuro"
+  },
+  {
+   "level": 0,
+   "x": 23,
+   "z": 7,
+   "top": "chapa-xadrez",
+   "bottom": "concreto"
+  },
+  {
+   "level": 1,
+   "x": 23,
+   "z": 7,
+   "top": "concreto",
+   "bottom": "forro-escuro"
+  },
+  {
+   "level": 0,
+   "x": 23,
+   "z": 8,
+   "top": "chapa-xadrez",
+   "bottom": "concreto"
+  },
+  {
+   "level": 1,
+   "x": 23,
+   "z": 8,
+   "top": "concreto",
+   "bottom": "forro-escuro"
+  },
+  {
+   "level": 0,
+   "x": 23,
+   "z": 9,
+   "top": "chapa-xadrez",
+   "bottom": "concreto"
+  },
+  {
+   "level": 1,
+   "x": 23,
+   "z": 9,
+   "top": "concreto",
+   "bottom": "forro-escuro"
+  },
+  {
+   "level": 0,
+   "x": 23,
+   "z": 10,
+   "top": "chapa-xadrez",
+   "bottom": "concreto"
+  },
+  {
+   "level": 1,
+   "x": 23,
+   "z": 10,
+   "top": "concreto",
+   "bottom": "forro-escuro"
+  },
+  {
+   "level": 0,
+   "x": 23,
+   "z": 11,
+   "top": "chapa-xadrez",
+   "bottom": "concreto"
+  },
+  {
+   "level": 1,
+   "x": 23,
+   "z": 11,
+   "top": "concreto",
+   "bottom": "forro-escuro"
+  },
+  {
+   "level": 0,
+   "x": 24,
+   "z": 2,
+   "top": "chapa-xadrez",
+   "bottom": "concreto"
+  },
+  {
+   "level": 1,
+   "x": 24,
+   "z": 2,
+   "top": "concreto",
+   "bottom": "forro-escuro"
+  },
+  {
+   "level": 0,
+   "x": 24,
+   "z": 3,
+   "top": "chapa-xadrez",
+   "bottom": "concreto"
+  },
+  {
+   "level": 1,
+   "x": 24,
+   "z": 3,
+   "top": "concreto",
+   "bottom": "forro-escuro"
+  },
+  {
+   "level": 0,
+   "x": 24,
+   "z": 4,
+   "top": "chapa-xadrez",
+   "bottom": "concreto"
+  },
+  {
+   "level": 1,
+   "x": 24,
+   "z": 4,
+   "top": "concreto",
+   "bottom": "forro-escuro"
+  },
+  {
+   "level": 0,
+   "x": 24,
+   "z": 5,
+   "top": "chapa-xadrez",
+   "bottom": "concreto"
+  },
+  {
+   "level": 1,
+   "x": 24,
+   "z": 5,
+   "top": "concreto",
+   "bottom": "forro-escuro"
+  },
+  {
+   "level": 0,
+   "x": 24,
+   "z": 6,
+   "top": "chapa-xadrez",
+   "bottom": "concreto"
+  },
+  {
+   "level": 1,
+   "x": 24,
+   "z": 6,
+   "top": "concreto",
+   "bottom": "forro-escuro"
+  },
+  {
+   "level": 0,
+   "x": 24,
+   "z": 7,
+   "top": "chapa-xadrez",
+   "bottom": "concreto"
+  },
+  {
+   "level": 1,
+   "x": 24,
+   "z": 7,
+   "top": "concreto",
+   "bottom": "forro-escuro"
+  },
+  {
+   "level": 0,
+   "x": 24,
+   "z": 8,
+   "top": "chapa-xadrez",
+   "bottom": "concreto"
+  },
+  {
+   "level": 1,
+   "x": 24,
+   "z": 8,
+   "top": "concreto",
+   "bottom": "forro-escuro"
+  },
+  {
+   "level": 0,
+   "x": 24,
+   "z": 9,
+   "top": "chapa-xadrez",
+   "bottom": "concreto"
+  },
+  {
+   "level": 1,
+   "x": 24,
+   "z": 9,
+   "top": "concreto",
+   "bottom": "forro-escuro"
+  },
+  {
+   "level": 0,
+   "x": 24,
+   "z": 10,
+   "top": "chapa-xadrez",
+   "bottom": "concreto"
+  },
+  {
+   "level": 1,
+   "x": 24,
+   "z": 10,
+   "top": "concreto",
+   "bottom": "forro-escuro"
+  },
+  {
+   "level": 0,
+   "x": 24,
+   "z": 11,
+   "top": "chapa-xadrez",
+   "bottom": "concreto"
+  },
+  {
+   "level": 1,
+   "x": 24,
+   "z": 11,
+   "top": "concreto",
+   "bottom": "forro-escuro"
+  },
+  {
+   "level": 0,
+   "x": 25,
+   "z": 2,
+   "top": "chapa-xadrez",
+   "bottom": "concreto"
+  },
+  {
+   "level": 1,
+   "x": 25,
+   "z": 2,
+   "top": "concreto",
+   "bottom": "forro-escuro"
+  },
+  {
+   "level": 0,
+   "x": 25,
+   "z": 3,
+   "top": "chapa-xadrez",
+   "bottom": "concreto"
+  },
+  {
+   "level": 1,
+   "x": 25,
+   "z": 3,
+   "top": "concreto",
+   "bottom": "forro-escuro"
+  },
+  {
+   "level": 0,
+   "x": 25,
+   "z": 4,
+   "top": "chapa-xadrez",
+   "bottom": "concreto"
+  },
+  {
+   "level": 1,
+   "x": 25,
+   "z": 4,
+   "top": "concreto",
+   "bottom": "forro-escuro"
+  },
+  {
+   "level": 0,
+   "x": 25,
+   "z": 5,
+   "top": "chapa-xadrez",
+   "bottom": "concreto"
+  },
+  {
+   "level": 1,
+   "x": 25,
+   "z": 5,
+   "top": "concreto",
+   "bottom": "forro-escuro"
+  },
+  {
+   "level": 0,
+   "x": 25,
+   "z": 6,
+   "top": "chapa-xadrez",
+   "bottom": "concreto"
+  },
+  {
+   "level": 1,
+   "x": 25,
+   "z": 6,
+   "top": "concreto",
+   "bottom": "forro-escuro"
+  },
+  {
+   "level": 0,
+   "x": 25,
+   "z": 7,
+   "top": "chapa-xadrez",
+   "bottom": "concreto"
+  },
+  {
+   "level": 1,
+   "x": 25,
+   "z": 7,
+   "top": "concreto",
+   "bottom": "forro-escuro"
+  },
+  {
+   "level": 0,
+   "x": 25,
+   "z": 8,
+   "top": "chapa-xadrez",
+   "bottom": "concreto"
+  },
+  {
+   "level": 1,
+   "x": 25,
+   "z": 8,
+   "top": "concreto",
+   "bottom": "forro-escuro"
+  },
+  {
+   "level": 0,
+   "x": 25,
+   "z": 9,
+   "top": "chapa-xadrez",
+   "bottom": "concreto"
+  },
+  {
+   "level": 1,
+   "x": 25,
+   "z": 9,
+   "top": "concreto",
+   "bottom": "forro-escuro"
+  },
+  {
+   "level": 0,
+   "x": 25,
+   "z": 10,
+   "top": "chapa-xadrez",
+   "bottom": "concreto"
+  },
+  {
+   "level": 1,
+   "x": 25,
+   "z": 10,
+   "top": "concreto",
+   "bottom": "forro-escuro"
+  },
+  {
+   "level": 0,
+   "x": 25,
+   "z": 11,
+   "top": "chapa-xadrez",
+   "bottom": "concreto"
+  },
+  {
+   "level": 1,
+   "x": 25,
+   "z": 11,
+   "top": "concreto",
+   "bottom": "forro-escuro"
+  },
+  {
+   "level": 0,
+   "x": 26,
+   "z": 2,
+   "top": "chapa-xadrez",
+   "bottom": "concreto"
+  },
+  {
+   "level": 1,
+   "x": 26,
+   "z": 2,
+   "top": "concreto",
+   "bottom": "forro-escuro"
+  },
+  {
+   "level": 0,
+   "x": 26,
+   "z": 3,
+   "top": "chapa-xadrez",
+   "bottom": "concreto"
+  },
+  {
+   "level": 1,
+   "x": 26,
+   "z": 3,
+   "top": "concreto",
+   "bottom": "forro-escuro"
+  },
+  {
+   "level": 0,
+   "x": 26,
+   "z": 4,
+   "top": "chapa-xadrez",
+   "bottom": "concreto"
+  },
+  {
+   "level": 1,
+   "x": 26,
+   "z": 4,
+   "top": "concreto",
+   "bottom": "forro-escuro"
+  },
+  {
+   "level": 0,
+   "x": 26,
+   "z": 5,
+   "top": "chapa-xadrez",
+   "bottom": "concreto"
+  },
+  {
+   "level": 1,
+   "x": 26,
+   "z": 5,
+   "top": "concreto",
+   "bottom": "forro-escuro"
+  },
+  {
+   "level": 0,
+   "x": 26,
+   "z": 6,
+   "top": "chapa-xadrez",
+   "bottom": "concreto"
+  },
+  {
+   "level": 1,
+   "x": 26,
+   "z": 6,
+   "top": "concreto",
+   "bottom": "forro-escuro"
+  },
+  {
+   "level": 0,
+   "x": 26,
+   "z": 7,
+   "top": "chapa-xadrez",
+   "bottom": "concreto"
+  },
+  {
+   "level": 1,
+   "x": 26,
+   "z": 7,
+   "top": "concreto",
+   "bottom": "forro-escuro"
+  },
+  {
+   "level": 0,
+   "x": 26,
+   "z": 8,
+   "top": "chapa-xadrez",
+   "bottom": "concreto"
+  },
+  {
+   "level": 1,
+   "x": 26,
+   "z": 8,
+   "top": "concreto",
+   "bottom": "forro-escuro"
+  },
+  {
+   "level": 0,
+   "x": 26,
+   "z": 9,
+   "top": "chapa-xadrez",
+   "bottom": "concreto"
+  },
+  {
+   "level": 1,
+   "x": 26,
+   "z": 9,
+   "top": "concreto",
+   "bottom": "forro-escuro"
+  },
+  {
+   "level": 0,
+   "x": 26,
+   "z": 10,
+   "top": "chapa-xadrez",
+   "bottom": "concreto"
+  },
+  {
+   "level": 1,
+   "x": 26,
+   "z": 10,
+   "top": "concreto",
+   "bottom": "forro-escuro"
+  },
+  {
+   "level": 0,
+   "x": 26,
+   "z": 11,
+   "top": "chapa-xadrez",
+   "bottom": "concreto"
+  },
+  {
+   "level": 1,
+   "x": 26,
+   "z": 11,
+   "top": "concreto",
+   "bottom": "forro-escuro"
+  },
+  {
+   "level": 0,
+   "x": 27,
+   "z": 2,
+   "top": "chapa-xadrez",
+   "bottom": "concreto"
+  },
+  {
+   "level": 1,
+   "x": 27,
+   "z": 2,
+   "top": "concreto",
+   "bottom": "forro-escuro"
+  },
+  {
+   "level": 0,
+   "x": 27,
+   "z": 3,
+   "top": "chapa-xadrez",
+   "bottom": "concreto"
+  },
+  {
+   "level": 1,
+   "x": 27,
+   "z": 3,
+   "top": "concreto",
+   "bottom": "forro-escuro"
+  },
+  {
+   "level": 0,
+   "x": 27,
+   "z": 4,
+   "top": "chapa-xadrez",
+   "bottom": "concreto"
+  },
+  {
+   "level": 1,
+   "x": 27,
+   "z": 4,
+   "top": "concreto",
+   "bottom": "forro-escuro"
+  },
+  {
+   "level": 0,
+   "x": 27,
+   "z": 5,
+   "top": "chapa-xadrez",
+   "bottom": "concreto"
+  },
+  {
+   "level": 1,
+   "x": 27,
+   "z": 5,
+   "top": "concreto",
+   "bottom": "forro-escuro"
+  },
+  {
+   "level": 0,
+   "x": 27,
+   "z": 6,
+   "top": "chapa-xadrez",
+   "bottom": "concreto"
+  },
+  {
+   "level": 1,
+   "x": 27,
+   "z": 6,
+   "top": "concreto",
+   "bottom": "forro-escuro"
+  },
+  {
+   "level": 0,
+   "x": 27,
+   "z": 7,
+   "top": "chapa-xadrez",
+   "bottom": "concreto"
+  },
+  {
+   "level": 1,
+   "x": 27,
+   "z": 7,
+   "top": "concreto",
+   "bottom": "forro-escuro"
+  },
+  {
+   "level": 0,
+   "x": 27,
+   "z": 8,
+   "top": "chapa-xadrez",
+   "bottom": "concreto"
+  },
+  {
+   "level": 1,
+   "x": 27,
+   "z": 8,
+   "top": "concreto",
+   "bottom": "forro-escuro"
+  },
+  {
+   "level": 0,
+   "x": 27,
+   "z": 9,
+   "top": "chapa-xadrez",
+   "bottom": "concreto"
+  },
+  {
+   "level": 1,
+   "x": 27,
+   "z": 9,
+   "top": "concreto",
+   "bottom": "forro-escuro"
+  },
+  {
+   "level": 0,
+   "x": 27,
+   "z": 10,
+   "top": "chapa-xadrez",
+   "bottom": "concreto"
+  },
+  {
+   "level": 1,
+   "x": 27,
+   "z": 10,
+   "top": "concreto",
+   "bottom": "forro-escuro"
+  },
+  {
+   "level": 0,
+   "x": 27,
+   "z": 11,
+   "top": "chapa-xadrez",
+   "bottom": "concreto"
+  },
+  {
+   "level": 1,
+   "x": 27,
+   "z": 11,
+   "top": "concreto",
+   "bottom": "forro-escuro"
+  },
+  {
+   "level": 0,
+   "x": 28,
+   "z": 2,
+   "top": "chapa-xadrez",
+   "bottom": "concreto"
+  },
+  {
+   "level": 1,
+   "x": 28,
+   "z": 2,
+   "top": "concreto",
+   "bottom": "forro-escuro"
+  },
+  {
+   "level": 0,
+   "x": 28,
+   "z": 3,
+   "top": "chapa-xadrez",
+   "bottom": "concreto"
+  },
+  {
+   "level": 1,
+   "x": 28,
+   "z": 3,
+   "top": "concreto",
+   "bottom": "forro-escuro"
+  },
+  {
+   "level": 0,
+   "x": 28,
+   "z": 4,
+   "top": "chapa-xadrez",
+   "bottom": "concreto"
+  },
+  {
+   "level": 1,
+   "x": 28,
+   "z": 4,
+   "top": "concreto",
+   "bottom": "forro-escuro"
+  },
+  {
+   "level": 0,
+   "x": 28,
+   "z": 5,
+   "top": "chapa-xadrez",
+   "bottom": "concreto"
+  },
+  {
+   "level": 1,
+   "x": 28,
+   "z": 5,
+   "top": "concreto",
+   "bottom": "forro-escuro"
+  },
+  {
+   "level": 0,
+   "x": 28,
+   "z": 6,
+   "top": "chapa-xadrez",
+   "bottom": "concreto"
+  },
+  {
+   "level": 1,
+   "x": 28,
+   "z": 6,
+   "top": "concreto",
+   "bottom": "forro-escuro"
+  },
+  {
+   "level": 0,
+   "x": 28,
+   "z": 7,
+   "top": "chapa-xadrez",
+   "bottom": "concreto"
+  },
+  {
+   "level": 1,
+   "x": 28,
+   "z": 7,
+   "top": "concreto",
+   "bottom": "forro-escuro"
+  },
+  {
+   "level": 0,
+   "x": 28,
+   "z": 8,
+   "top": "chapa-xadrez",
+   "bottom": "concreto"
+  },
+  {
+   "level": 1,
+   "x": 28,
+   "z": 8,
+   "top": "concreto",
+   "bottom": "forro-escuro"
+  },
+  {
+   "level": 0,
+   "x": 28,
+   "z": 9,
+   "top": "chapa-xadrez",
+   "bottom": "concreto"
+  },
+  {
+   "level": 1,
+   "x": 28,
+   "z": 9,
+   "top": "concreto",
+   "bottom": "forro-escuro"
+  },
+  {
+   "level": 0,
+   "x": 28,
+   "z": 10,
+   "top": "chapa-xadrez",
+   "bottom": "concreto"
+  },
+  {
+   "level": 1,
+   "x": 28,
+   "z": 10,
+   "top": "concreto",
+   "bottom": "forro-escuro"
+  },
+  {
+   "level": 0,
+   "x": 28,
+   "z": 11,
+   "top": "chapa-xadrez",
+   "bottom": "concreto"
+  },
+  {
+   "level": 1,
+   "x": 28,
+   "z": 11,
+   "top": "concreto",
+   "bottom": "forro-escuro"
+  },
+  {
+   "level": 0,
+   "x": 29,
+   "z": 2,
+   "top": "chapa-xadrez",
+   "bottom": "concreto"
+  },
+  {
+   "level": 1,
+   "x": 29,
+   "z": 2,
+   "top": "concreto",
+   "bottom": "forro-escuro"
+  },
+  {
+   "level": 0,
+   "x": 29,
+   "z": 3,
+   "top": "chapa-xadrez",
+   "bottom": "concreto"
+  },
+  {
+   "level": 1,
+   "x": 29,
+   "z": 3,
+   "top": "concreto",
+   "bottom": "forro-escuro"
+  },
+  {
+   "level": 0,
+   "x": 29,
+   "z": 4,
+   "top": "chapa-xadrez",
+   "bottom": "concreto"
+  },
+  {
+   "level": 1,
+   "x": 29,
+   "z": 4,
+   "top": "concreto",
+   "bottom": "forro-escuro"
+  },
+  {
+   "level": 0,
+   "x": 29,
+   "z": 5,
+   "top": "chapa-xadrez",
+   "bottom": "concreto"
+  },
+  {
+   "level": 1,
+   "x": 29,
+   "z": 5,
+   "top": "concreto",
+   "bottom": "forro-escuro"
+  },
+  {
+   "level": 0,
+   "x": 29,
+   "z": 6,
+   "top": "chapa-xadrez",
+   "bottom": "concreto"
+  },
+  {
+   "level": 1,
+   "x": 29,
+   "z": 6,
+   "top": "concreto",
+   "bottom": "forro-escuro"
+  },
+  {
+   "level": 0,
+   "x": 29,
+   "z": 7,
+   "top": "chapa-xadrez",
+   "bottom": "concreto"
+  },
+  {
+   "level": 1,
+   "x": 29,
+   "z": 7,
+   "top": "concreto",
+   "bottom": "forro-escuro"
+  },
+  {
+   "level": 0,
+   "x": 29,
+   "z": 8,
+   "top": "chapa-xadrez",
+   "bottom": "concreto"
+  },
+  {
+   "level": 1,
+   "x": 29,
+   "z": 8,
+   "top": "concreto",
+   "bottom": "forro-escuro"
+  },
+  {
+   "level": 0,
+   "x": 29,
+   "z": 9,
+   "top": "chapa-xadrez",
+   "bottom": "concreto"
+  },
+  {
+   "level": 1,
+   "x": 29,
+   "z": 9,
+   "top": "concreto",
+   "bottom": "forro-escuro"
+  },
+  {
+   "level": 0,
+   "x": 29,
+   "z": 10,
+   "top": "chapa-xadrez",
+   "bottom": "concreto"
+  },
+  {
+   "level": 1,
+   "x": 29,
+   "z": 10,
+   "top": "concreto",
+   "bottom": "forro-escuro"
+  },
+  {
+   "level": 0,
+   "x": 29,
+   "z": 11,
+   "top": "chapa-xadrez",
+   "bottom": "concreto"
+  },
+  {
+   "level": 1,
+   "x": 29,
+   "z": 11,
+   "top": "concreto",
+   "bottom": "forro-escuro"
+  },
+  {
+   "level": 0,
+   "x": 30,
+   "z": 2,
+   "top": "concreto",
+   "bottom": "concreto"
+  },
+  {
+   "level": 1,
+   "x": 30,
+   "z": 2,
+   "top": "concreto",
+   "bottom": "forro-escuro"
+  },
+  {
+   "level": 0,
+   "x": 30,
+   "z": 3,
+   "top": "concreto",
+   "bottom": "concreto"
+  },
+  {
+   "level": 1,
+   "x": 30,
+   "z": 3,
+   "top": "concreto",
+   "bottom": "forro-escuro"
+  },
+  {
+   "level": 0,
+   "x": 30,
+   "z": 4,
+   "top": "concreto",
+   "bottom": "concreto"
+  },
+  {
+   "level": 1,
+   "x": 30,
+   "z": 4,
+   "top": "concreto",
+   "bottom": "forro-escuro"
+  },
+  {
+   "level": 0,
+   "x": 30,
+   "z": 5,
+   "top": "concreto",
+   "bottom": "concreto"
+  },
+  {
+   "level": 1,
+   "x": 30,
+   "z": 5,
+   "top": "concreto",
+   "bottom": "forro-escuro"
+  },
+  {
+   "level": 0,
+   "x": 30,
+   "z": 6,
+   "top": "concreto",
+   "bottom": "concreto"
+  },
+  {
+   "level": 1,
+   "x": 30,
+   "z": 6,
+   "top": "concreto",
+   "bottom": "forro-escuro"
+  },
+  {
+   "level": 0,
+   "x": 30,
+   "z": 7,
+   "top": "concreto",
+   "bottom": "concreto"
+  },
+  {
+   "level": 1,
+   "x": 30,
+   "z": 7,
+   "top": "concreto",
+   "bottom": "forro-escuro"
+  },
+  {
+   "level": 0,
+   "x": 30,
+   "z": 8,
+   "top": "concreto",
+   "bottom": "concreto"
+  },
+  {
+   "level": 1,
+   "x": 30,
+   "z": 8,
+   "top": "concreto",
+   "bottom": "forro-escuro"
+  },
+  {
+   "level": 0,
+   "x": 30,
+   "z": 9,
+   "top": "concreto",
+   "bottom": "concreto"
+  },
+  {
+   "level": 1,
+   "x": 30,
+   "z": 9,
+   "top": "concreto",
+   "bottom": "forro-escuro"
+  },
+  {
+   "level": 0,
+   "x": 30,
+   "z": 10,
+   "top": "concreto",
+   "bottom": "concreto"
+  },
+  {
+   "level": 1,
+   "x": 30,
+   "z": 10,
+   "top": "concreto",
+   "bottom": "forro-escuro"
+  },
+  {
+   "level": 0,
+   "x": 30,
+   "z": 11,
+   "top": "concreto",
+   "bottom": "concreto"
+  },
+  {
+   "level": 1,
+   "x": 30,
+   "z": 11,
+   "top": "concreto",
+   "bottom": "forro-escuro"
+  },
+  {
+   "level": 0,
+   "x": 31,
+   "z": 2,
+   "top": "concreto",
+   "bottom": "concreto"
+  },
+  {
+   "level": 1,
+   "x": 31,
+   "z": 2,
+   "top": "concreto",
+   "bottom": "forro-escuro"
+  },
+  {
+   "level": 0,
+   "x": 31,
+   "z": 3,
+   "top": "concreto",
+   "bottom": "concreto"
+  },
+  {
+   "level": 1,
+   "x": 31,
+   "z": 3,
+   "top": "concreto",
+   "bottom": "forro-escuro"
+  },
+  {
+   "level": 0,
+   "x": 31,
+   "z": 4,
+   "top": "concreto",
+   "bottom": "concreto"
+  },
+  {
+   "level": 1,
+   "x": 31,
+   "z": 4,
+   "top": "concreto",
+   "bottom": "forro-escuro"
+  },
+  {
+   "level": 0,
+   "x": 31,
+   "z": 5,
+   "top": "concreto",
+   "bottom": "concreto"
+  },
+  {
+   "level": 1,
+   "x": 31,
+   "z": 5,
+   "top": "concreto",
+   "bottom": "forro-escuro"
+  },
+  {
+   "level": 0,
+   "x": 31,
+   "z": 6,
+   "top": "concreto",
+   "bottom": "concreto"
+  },
+  {
+   "level": 1,
+   "x": 31,
+   "z": 6,
+   "top": "concreto",
+   "bottom": "forro-escuro"
+  },
+  {
+   "level": 0,
+   "x": 31,
+   "z": 7,
+   "top": "concreto",
+   "bottom": "concreto"
+  },
+  {
+   "level": 1,
+   "x": 31,
+   "z": 7,
+   "top": "concreto",
+   "bottom": "forro-escuro"
+  },
+  {
+   "level": 0,
+   "x": 31,
+   "z": 8,
+   "top": "concreto",
+   "bottom": "concreto"
+  },
+  {
+   "level": 1,
+   "x": 31,
+   "z": 8,
+   "top": "concreto",
+   "bottom": "forro-escuro"
+  },
+  {
+   "level": 0,
+   "x": 31,
+   "z": 9,
+   "top": "concreto",
+   "bottom": "concreto"
+  },
+  {
+   "level": 1,
+   "x": 31,
+   "z": 9,
+   "top": "concreto",
+   "bottom": "forro-escuro"
+  },
+  {
+   "level": 0,
+   "x": 31,
+   "z": 10,
+   "top": "concreto",
+   "bottom": "concreto"
+  },
+  {
+   "level": 1,
+   "x": 31,
+   "z": 10,
+   "top": "concreto",
+   "bottom": "forro-escuro"
+  },
+  {
+   "level": 0,
+   "x": 31,
+   "z": 11,
+   "top": "concreto",
+   "bottom": "concreto"
+  },
+  {
+   "level": 1,
+   "x": 31,
+   "z": 11,
+   "top": "concreto",
+   "bottom": "forro-escuro"
+  }
+ ],
+ "openings": [
+  {
+   "id": "vestiario",
+   "level": 0,
+   "axis": "x",
+   "x": 16,
+   "z": 12,
+   "width": 1,
+   "kind": "porta",
+   "door": "instalacao",
+   "estado": "fechada",
+   "lado": "a"
+  },
+  {
+   "id": "arsenal",
+   "level": 0,
+   "axis": "x",
+   "x": 25,
+   "z": 12,
+   "width": 1,
+   "kind": "porta",
+   "door": "instalacao",
+   "estado": "fechada",
+   "lado": "a"
+  },
+  {
+   "id": "arsenal-estande",
+   "level": 0,
+   "axis": "z",
+   "x": 30,
+   "z": 6,
+   "width": 1,
+   "kind": "porta",
+   "door": "instalacao",
+   "estado": "fechada",
+   "lado": "b"
+  },
+  {
+   "id": "refeitorio-norte",
+   "level": 0,
+   "axis": "x",
+   "x": 19,
+   "z": 15,
+   "width": 2,
+   "kind": "porta",
+   "door": "vao"
+  },
+  {
+   "id": "manutencao-norte",
+   "level": 0,
+   "axis": "x",
+   "x": 29,
+   "z": 15,
+   "width": 2,
+   "kind": "porta",
+   "door": "vao"
+  }
+ ],
+ "stairs": [],
+ "props": [
+  {
+   "id": "luminaria-tubos-30",
+   "type": "luminaria-tubos",
+   "level": 0,
+   "pos": [
+    17,
+    3.48,
+    13.5
+   ],
+   "rot": [
+    0,
+    0,
+    0
+   ],
+   "params": {
+    "modo": "normal"
+   }
+  },
+  {
+   "id": "luminaria-tubos-31",
+   "type": "luminaria-tubos",
+   "level": 0,
+   "pos": [
+    21,
+    3.48,
+    13.5
+   ],
+   "rot": [
+    0,
+    0,
+    0
+   ],
+   "params": {
+    "modo": "normal"
+   }
+  },
+  {
+   "id": "luminaria-tubos-32",
+   "type": "luminaria-tubos",
+   "level": 0,
+   "pos": [
+    25,
+    3.48,
+    13.5
+   ],
+   "rot": [
+    0,
+    0,
+    0
+   ],
+   "params": {
+    "modo": "normal"
+   }
+  },
+  {
+   "id": "luminaria-tubos-33",
+   "type": "luminaria-tubos",
+   "level": 0,
+   "pos": [
+    29,
+    3.48,
+    13.5
+   ],
+   "rot": [
+    0,
+    0,
+    0
+   ],
+   "params": {
+    "modo": "normal"
+   }
+  },
+  {
+   "id": "canos-teto-37",
+   "type": "canos-teto",
+   "level": 0,
+   "pos": [
+    16,
+    3.48,
+    12.35
+   ],
+   "rot": [
+    0,
+    0,
+    0
+   ]
+  },
+  {
+   "id": "canos-teto-38",
+   "type": "canos-teto",
+   "level": 0,
+   "pos": [
+    18,
+    3.48,
+    12.35
+   ],
+   "rot": [
+    0,
+    0,
+    0
+   ]
+  },
+  {
+   "id": "canos-teto-39",
+   "type": "canos-teto",
+   "level": 0,
+   "pos": [
+    20,
+    3.48,
+    12.35
+   ],
+   "rot": [
+    0,
+    0,
+    0
+   ]
+  },
+  {
+   "id": "canos-teto-40",
+   "type": "canos-teto",
+   "level": 0,
+   "pos": [
+    22,
+    3.48,
+    12.35
+   ],
+   "rot": [
+    0,
+    0,
+    0
+   ]
+  },
+  {
+   "id": "canos-teto-41",
+   "type": "canos-teto",
+   "level": 0,
+   "pos": [
+    24,
+    3.48,
+    12.35
+   ],
+   "rot": [
+    0,
+    0,
+    0
+   ]
+  },
+  {
+   "id": "canos-teto-42",
+   "type": "canos-teto",
+   "level": 0,
+   "pos": [
+    26,
+    3.48,
+    12.35
+   ],
+   "rot": [
+    0,
+    0,
+    0
+   ]
+  },
+  {
+   "id": "canos-teto-43",
+   "type": "canos-teto",
+   "level": 0,
+   "pos": [
+    28,
+    3.48,
+    12.35
+   ],
+   "rot": [
+    0,
+    0,
+    0
+   ]
+  },
+  {
+   "id": "canos-teto-44",
+   "type": "canos-teto",
+   "level": 0,
+   "pos": [
+    30,
+    3.48,
+    12.35
+   ],
+   "rot": [
+    0,
+    0,
+    0
+   ]
+  },
+  {
+   "id": "luminaria-tubos-142",
+   "type": "luminaria-tubos",
+   "level": 0,
+   "pos": [
+    19.5,
+    3.48,
+    4.5
+   ],
+   "rot": [
+    0,
+    0,
+    0
+   ],
+   "params": {
+    "modo": "normal"
+   }
+  },
+  {
+   "id": "luminaria-tubos-143",
+   "type": "luminaria-tubos",
+   "level": 0,
+   "pos": [
+    19.5,
+    3.48,
+    9.5
+   ],
+   "rot": [
+    0,
+    0,
+    0
+   ],
+   "params": {
+    "modo": "normal"
+   }
+  },
+  {
+   "id": "luminaria-tubos-144",
+   "type": "luminaria-tubos",
+   "level": 0,
+   "pos": [
+    24,
+    3.48,
+    4.5
+   ],
+   "rot": [
+    0,
+    0,
+    0
+   ],
+   "params": {
+    "modo": "normal"
+   }
+  },
+  {
+   "id": "luminaria-tubos-145",
+   "type": "luminaria-tubos",
+   "level": 0,
+   "pos": [
+    24,
+    3.48,
+    9.5
+   ],
+   "rot": [
+    0,
+    0,
+    0
+   ],
+   "params": {
+    "modo": "normal"
+   }
+  },
+  {
+   "id": "luminaria-tubos-146",
+   "type": "luminaria-tubos",
+   "level": 0,
+   "pos": [
+    28,
+    3.48,
+    4.5
+   ],
+   "rot": [
+    0,
+    0,
+    0
+   ],
+   "params": {
+    "modo": "normal"
+   }
+  },
+  {
+   "id": "luminaria-tubos-147",
+   "type": "luminaria-tubos",
+   "level": 0,
+   "pos": [
+    28,
+    3.48,
+    9.5
+   ],
+   "rot": [
+    0,
+    0,
+    0
+   ],
+   "params": {
+    "modo": "normal"
+   }
+  }
+ ],
+ "decals": [],
+ "points": []
+}

@@ -37,6 +37,16 @@ export function momento(nome: string) {
   if (m) tocando = { m, t: 0 }
 }
 
+// o momento que alguém segura (uma cena: o alarme): entra e fica até soltarem; enquanto existe, vale no lugar do que toca
+let preso: { m: Momento; w: number; solto: boolean } | null = null
+
+/** Segura um momento do catálogo até soltar (null solta: a luz volta no tempo de saída dele). */
+export function segurarMomento(nome: string | null) {
+  const m = nome ? MOMENTOS[nome] : null
+  if (m) preso = { m, w: preso?.m === m ? preso.w : 0, solto: false }
+  else if (preso) preso.solto = true
+}
+
 export interface LuzViva { lugar: Luz; agora: Luz } // a luz do lugar (andando até o alvo) e a que vale (com o momento)
 
 export function novaLuzViva(a: Ambiente): LuzViva {
@@ -55,6 +65,11 @@ export function passoLuz(v: LuzViva, alvo: Ambiente, dt: number) {
     const { entra, dura, sai } = tocando.m, t = tocando.t
     w = t < entra ? t / entra : t < entra + dura ? 1 : 1 - (t - entra - dura) / sai
     if (w <= 0) { tocando = null; w = 0 } else { w = w * w * (3 - 2 * w); muda = pronta(tocando.m.muda) }
+  }
+  if (preso) {
+    preso.w = Math.max(0, Math.min(1, preso.w + (preso.solto ? -dt / preso.m.sai : dt / preso.m.entra)))
+    if (preso.solto && preso.w <= 0) preso = null
+    else { w = preso.w * preso.w * (3 - 2 * preso.w); muda = pronta(preso.m.muda) }
   }
   for (const c of CORES) { A[c].copy(L[c]); const m = muda[c]; if (m) A[c].lerp(m, w) }
   for (const n of NUMEROS) { const m = muda[n]; A[n] = m === undefined ? L[n] : L[n] + (m - L[n]) * w }
