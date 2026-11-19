@@ -40,6 +40,10 @@ capítulo 1 e lançá-lo na web, no itch.io (`docs/lancamento.md`).
 - **Otimize sempre**: o jogo precisa rodar em qualquer aparelho atual, celular incluído. Poucas chamadas de desenho (juntar
   malhas, um material por modelo), texturas pequenas, nada recalculado a cada quadro sem precisar, modelos repetidos
   compartilhando geometria e material.
+- **Sugira os comandos depois de cada desenvolvimento ou ideia nova** (pedido em 19/nov): no fim da resposta, uma lista
+  curta dos comandos que ajudam naquele momento, só como lembrete e sem rodar nenhum (por exemplo `/escopo` para uma
+  ideia, `/desempenho` e `/code-review` ao fechar uma etapa, `/teste-de-jogo` depois de jogar, `/lancamento` na fase C,
+  o modo de plano com o Fable 5.2 para uma etapa grande, `/simplify` para limpar o que mudou).
 - **Avalie toda ideia nova antes de aceitar.** É o maior projeto dele e pode virar produto: para cada ideia, diga se ela
   conflita com alguma mecânica já decidida (agente, armas, captura, chefes), com o formato do mapa ou com o mobile.
   Aponte o conflito e proponha a saída antes de construir. Estabilidade vem antes de recurso novo.
@@ -86,6 +90,8 @@ npm run typecheck  # só os tipos
 ```
 index.html                 a página (fontes VT323 e IBM Plex Mono)
 vite.config.ts             o Vite + o plugin que salva mapas (tools/mapsDevApi.ts)
+.claude/skills/            as skills do projeto, chamadas com /nome: /lancamento (pronto para o itch?), /desempenho (medir e
+                           achar o gargalo), /teste-de-jogo (o roteiro e o relatório de um teste), /escopo (a ideia cabe no capítulo?)
 tools/mapsDevApi.ts        a API dos mapas (só no npm run dev): listar, ler, salvar, apagar em maps/; e salvar o vídeo de uma
                            cena em gravacoes/ (a pasta fica fora do git)
 maps/<id>/                 os mapas (JSON). map.json = cabeçalho; chunks/<cx>_<cz>.json = um bloco de 16 × 16 m;
