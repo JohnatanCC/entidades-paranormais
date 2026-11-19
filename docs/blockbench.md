@@ -45,6 +45,12 @@ salvar no Blockbench atualiza o jogo (se o Testar estiver aberto, saia e entre d
 - O modelo tem bastante peça (214 blocos), mas o jogo junta os blocos de cada pasta numa malha só: o peso vem do número
   de pastas, não de blocos. Detalhe à vontade dentro das pastas que já existem.
 - **Proporções quase realistas:** cabeça só um pouco maior, mãos normais. O terror vem da ambientação e dos fantasmas.
+  **As medidas do Matheus (19/nov, o passo 1 da etapa 3 de `docs/plano-visual.md`),** em cm: de ombro a ombro com os
+  braços, 51,6 (eram 62,8); o tronco, 35 de largura (39,4); o braço, 10,5 × 11,6 (14,1 × 15,6); o antebraço, 9 (10,9); a
+  mão, 8,5 (10,2); o quadril, 35 (39); a coxa, 16 (17,2). A linha do meio do braço fica a 20,75 cm do meio do corpo (o
+  pivô do ombro, do cotovelo e do pulso: x = 6,64 unidades; era 7,9). A cabeça inteira (o rosto, o cabelo, as mechas)
+encolheu 10% em volta do pivô dela, sem repintar: 20 × 22,5 (era 22 × 25), e o topo do cabelo fica a 1,76 m (era 1,79). Os outros
+  humanos ainda têm as medidas antigas: recebem as mesmas quando o Matheus estiver aprovado.
 - Peça nova (um coldre, óculos, o cabelo com mais volume): ponha dentro da pasta que deve levá-la junto (óculos na
   `cabeca`, coldre na `coxa_d`). A bota fica na pasta do pé (`pe_e`): é por ela que o jogo acha a sola e põe os pés no chão.
 - Uma textura só por modelo (a primeira da lista é a que vale).
@@ -214,6 +220,13 @@ uma referência do desenvolvedor; os traços, não a pessoa da foto):
 - **Sem costura:** a textura se repete lado a lado; o que sai por uma borda tem que entrar pela outra. Para pintar com a
   emenda à vista, um editor de pixel com o modo lado a lado (Piskel, grátis no navegador; LibreSprite) é melhor que o Blockbench.
 - Textura nova: o PNG e uma linha no catálogo `src/maps/textures.ts` (o nome na tela, em que paletas aparece, a cor de base).
+- **O cenário é o fundo calmo** (19/nov, a etapa 2 de `docs/plano-visual.md`): o personagem tem que ser a coisa mais
+  nítida da imagem. O motivo de um papel de parede é tom sobre tom, pequeno e em meio-salto (as colunas alternadas descem
+  meia altura, para não formar grade); o piso não tem pixels soltos de cor muito diferente. A medida é a **faixa de
+  claridade** da textura (do 5% mais escuro ao 5% mais claro, de 0 a 255): o `papel-floral` tinha 54 e ficou com 17
+  (o damasco); o `ladrilho-xadrez` tem 154, o `ladrilho-hidraulico` 116, o `granilite` 53. As madeiras escuras (lambri,
+  forro, tábua, taco) ficam entre 23 e 32 e não precisam mudar. Faixa de aviso e outras marcas de perigo são contraste
+  de propósito.
 
 ## As armas
 

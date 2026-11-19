@@ -160,6 +160,15 @@ grandes".
 `braco_e`/`braco_d` → `antebraco_*` → `mao_*` e os dedos; `pescoco` → `cabeca` → `cabelo` com as `mecha_nuca_*`). O tronco
 tem 35 blocos, e a mochila está nele.
 
+**O andamento (19/nov), em três passos, cada um com fotos de antes e depois:**
+- **Passo 1, as proporções: feito no Matheus, à espera da aprovação.** Os ombros foram de 62,8 para 51,6 cm, os braços e
+  as mãos afinaram, o quadril e as coxas também (as medidas em `docs/blockbench.md`, "As regras"). Só mudaram o tamanho e
+  o lugar dos blocos e os pivôs; a textura não foi repintada (as faces dos blocos mudados ficaram com UV próprio). A
+  cabeça inteira encolheu 10% (a pedido, depois da foto: com os ombros estreitos ela parecia maior), sem repintar o rosto.
+- **Passo 2, menos blocos:** juntar as fatias vizinhas de cada membro (de 217 para perto de 140 blocos), refazendo a
+  textura por script a partir da atual.
+- **Passo 3, as costas:** a mochila com silhueta, o detalhe da jaqueta na textura, as pontas do cabelo da nuca.
+
 1. **As fotos de antes, como o jogador vê:** de costas e na câmera do jogo (o Testar, parado, andando, mirando a pistola e
    a escopeta, com a lamparina erguida), mais de lado e de frente no Ver modelos. Meça com `provas.medidas(c)`.
 2. **A proposta no papel, com números,** antes de mexer: a largura dos ombros (um homem de 1,80 m tem uns 40 a 45 cm de
