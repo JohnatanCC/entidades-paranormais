@@ -108,8 +108,17 @@ cada nível e a linha em `OPCOES` (ela aparece sozinha nas configurações). A t
 | Nível | Resolução (pixels por ponto da tela) | Passada final (cor, vinheta) | Bloom | Suavização das bordas | Lâmpadas no cenário | Sombras |
 | --- | --- | --- | --- | --- | --- | --- |
 | Baixo (celular) | até 1 | não | não | a da tela | assadas | não |
-| Médio | até 1,5 | sim | a partir de 1/4 da tela, 4 níveis | 2 amostras | mistas (de verdade a 1 com sombra) | a lua e 1 lâmpada |
-| Alto | até 2 | sim | a partir de 1/2 da tela, 5 níveis | 4 amostras | mistas (de verdade as 3 com sombra) | a lua e 3 lâmpadas |
+| Médio | até 1,5 | sim | a partir de 1/4 da tela, 4 níveis | na passada final | mistas (de verdade a 1 com sombra) | a lua e 1 lâmpada |
+| Alto | até 2 | sim | a partir de 1/2 da tela, 5 níveis | na passada final | mistas (de verdade a 1 com sombra) | a lua e 1 lâmpada, com a borda macia |
+
+**As bordas suaves são feitas na passada final desde 19/nov** (`render/passeFinal.ts`, o FXAA curto: onde os vizinhos
+mostram uma borda, o pixel vira a média ao longo dela; a textura não é tocada). Antes eram amostras múltiplas (MSAA) na
+textura da cena, de 16 bits: numa placa embutida (Intel UHD, 1920 × 1080) custavam metade do quadro. Medido no mesmo ponto,
+um código logo depois do outro: na mansão (o salão), o Médio foi de 46 para 55 quadros e o Alto de 27 para 36; na
+instalação (a medida de antes é de mais cedo no mesmo dia), o Médio de 29 para 60 e o Alto de 14 para 27. O recurso virou
+sim ou não (eram 0, 2 ou 4 amostras). **O Alto ficou com 1 lâmpada com sombra (19/nov; eram 3; as 3 são do Ultra):** as 3 custavam metade do quadro, e com 1 a
+instalação foi de 27 para 54 quadros e a mansão (o salão) de 29 para 42. O Alto continua diferente do Médio na sombra de borda macia e refeita todo quadro,
+na sombra da lua maior e no bloom cheio.
 
 **As metas** (do desenvolvedor, 11/nov, na mansão): Baixo 60 quadros por segundo ou mais, Médio de 50 a 60, Alto de 30 a
 40. Medido no PC dele (1875 × 964 px) antes de aliviar o Médio: Baixo 60, Médio 46, Alto 37 a 40. No Médio o
@@ -151,7 +160,7 @@ vale até recarregar a página.
    (decidido em 11/nov):
    - **3a. A sombra de canto.** ✅ (11/nov) O escurecimento macio dos cantos, calculado ao montar a malha.
    - **3b. A luz das lâmpadas assada.** ✅ (11/nov) No Baixo e no Médio, com as paredes bloqueando.
-4. **Sombras em tempo real.** ✅ (11/nov) No Médio (a lua e 1 lâmpada) e no Alto (a lua e 3 lâmpadas).
+4. **Sombras em tempo real.** ✅ (11/nov) No Médio (a lua e 1 lâmpada) e no Alto (a lua e 3 lâmpadas; desde 19/nov, 1 no Alto e 3 no Ultra).
 5. **Materiais.** **5a ✅ (11/nov)** o brilho de cada textura: o catálogo (`src/maps/textures.ts`) diz o `brilho` de 0
    (fosca) a 1 (polida) e se é `metal`; mármore, azulejo e ladrilho refletem a luz, tapete, reboco e grama não. Sem
    custo (é um número do material). Só as luzes de verdade fazem reflexo (o luar, o preenchimento e as lâmpadas com
@@ -191,7 +200,7 @@ Fora da numeração, já feito: **o céu da noite** ✅ (11/nov). Ficaram para d
   por igual, e a porta entre um cômodo aceso e um escuro fica com a média dos dois.
 - No Baixo os objetos e os personagens não recebem nenhuma lâmpada de verdade: só a amostra, sem lado claro e escuro.
 - Um vértice guarda só as duas lâmpadas mais fortes com número: uma terceira lâmpada fraca num ponto, se virar luz de
-  verdade no Alto, conta duas vezes ali (fica um pouco mais claro). Só acontece onde três lâmpadas se cruzam.
+  verdade no Ultra, conta duas vezes ali (fica um pouco mais claro). Só acontece onde três lâmpadas se cruzam.
 - A luz da janela não chega nos personagens nem nos móveis (só no cenário), e não muda com a ambientação.
 - O feixe de luar das janelas tem a neblina dele, fixa: não acompanha a densidade da ambientação. E a direção dele é
   própria de cada janela: não segue a posição da lua no céu (toda janela com luar tem feixe, de qualquer lado da casa).

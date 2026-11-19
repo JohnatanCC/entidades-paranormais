@@ -143,7 +143,9 @@ que a ruptura abre.
 
 ## A ordem de construir: em cinza primeiro
 
-Para não refazer: **nada ganha arte antes de ser jogado em cinza.**
+Para não refazer: **nada ganha arte antes de ser jogado em cinza.** É uma sugestão, não uma trava (19/nov): o que já
+existe (a luz, as texturas, os personagens) pode ficar pronto desde já pelo `docs/plano-visual.md` e ser ajustado depois;
+o cinza vale para o que é novo neste capítulo.
 
 1. **Este roteiro no papel** ✅ (19/nov).
 2. **A planta da instalação** ✅ aprovada (19/nov). Falta passar para o mapa: os cortes, a parede do refeitório, as

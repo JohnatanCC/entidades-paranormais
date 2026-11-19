@@ -23,7 +23,7 @@ export type Qualidade = 'auto' | Nivel
 export interface Recursos {
   resolucao: 0.75 | 1 | 1.5 | 2 // quantos pixels desenhados por ponto da tela, no máximo (o celular tem 2 a 3: é o que mais pesa)
   passe: boolean // o passe final de tela cheia: a correção de cor e a vinheta (sem ele, o tom vem só das luzes e da neblina)
-  bordas: 0 | 2 | 4 // a suavização das bordas da imagem (só com o passe; sem ele, vale a da própria tela)
+  bordas: boolean // a suavização das bordas da imagem, feita no passe final (só com o passe; sem ele, vale a da própria tela)
   bloom: 'nao' | 'leve' | 'cheio' // o brilho em volta do que é claro (só com o passe)
   sombraLampadas: 0 | 1 | 3 // quantas lâmpadas (as mais perto do agente) fazem sombra; as outras vêm da luz assada
   sombraDetalhe: 512 | 1024 // o tamanho da textura da sombra de cada lâmpada
@@ -37,10 +37,10 @@ export interface Recursos {
 }
 
 export const NIVEIS: Record<Nivel, Recursos & { nome: string }> = {
-  baixo: { nome: 'Baixo', resolucao: 1, passe: false, bordas: 0, bloom: 'nao', sombraLampadas: 0, sombraDetalhe: 512, sombraLua: 0, sombraMacia: false, sombraRitmo: 2, indireta: false, brilho: true, relevo: 'nao', filtro: 1 },
-  medio: { nome: 'Médio', resolucao: 1.5, passe: true, bordas: 2, bloom: 'leve', sombraLampadas: 1, sombraDetalhe: 512, sombraLua: 1024, sombraMacia: false, sombraRitmo: 2, indireta: false, brilho: true, relevo: 'nao', filtro: 4 },
-  alto: { nome: 'Alto', resolucao: 2, passe: true, bordas: 4, bloom: 'cheio', sombraLampadas: 3, sombraDetalhe: 512, sombraLua: 2048, sombraMacia: true, sombraRitmo: 1, indireta: false, brilho: true, relevo: 'nao', filtro: 4 },
-  ultra: { nome: 'Ultra', resolucao: 2, passe: true, bordas: 4, bloom: 'cheio', sombraLampadas: 3, sombraDetalhe: 1024, sombraLua: 4096, sombraMacia: true, sombraRitmo: 1, indireta: true, brilho: true, relevo: 'fundo', filtro: 8 },
+  baixo: { nome: 'Baixo', resolucao: 1, passe: false, bordas: false, bloom: 'nao', sombraLampadas: 0, sombraDetalhe: 512, sombraLua: 0, sombraMacia: false, sombraRitmo: 2, indireta: false, brilho: true, relevo: 'nao', filtro: 1 },
+  medio: { nome: 'Médio', resolucao: 1.5, passe: true, bordas: true, bloom: 'leve', sombraLampadas: 1, sombraDetalhe: 512, sombraLua: 1024, sombraMacia: false, sombraRitmo: 2, indireta: false, brilho: true, relevo: 'nao', filtro: 4 },
+  alto: { nome: 'Alto', resolucao: 2, passe: true, bordas: true, bloom: 'cheio', sombraLampadas: 1, sombraDetalhe: 512, sombraLua: 2048, sombraMacia: true, sombraRitmo: 1, indireta: false, brilho: true, relevo: 'nao', filtro: 4 },
+  ultra: { nome: 'Ultra', resolucao: 2, passe: true, bordas: true, bloom: 'cheio', sombraLampadas: 3, sombraDetalhe: 1024, sombraLua: 4096, sombraMacia: true, sombraRitmo: 1, indireta: true, brilho: true, relevo: 'fundo', filtro: 8 },
 }
 const ORDEM: Nivel[] = ['baixo', 'medio', 'alto', 'ultra']
 
@@ -50,7 +50,7 @@ const opcao = <K extends keyof Recursos>(o: Opcao<K>) => o as unknown as Opcao
 export const OPCOES: Opcao[] = [
   opcao({ chave: 'resolucao', grupo: 'Imagem', nome: 'Resolução', ajuda: 'Quantos pixels são desenhados. É o que mais pesa em telas de celular e 4K.', valores: [[0.75, '75%'], [1, 'Normal'], [1.5, 'Alta'], [2, 'Máxima']] }),
   opcao({ chave: 'passe', grupo: 'Imagem', nome: 'Correção de cor', ajuda: 'O tom das sombras e das luzes, o contraste e a vinheta. As bordas suaves e o brilho dependem dela.', valores: [[false, 'Desligada'], [true, 'Ligada']] }),
-  opcao({ chave: 'bordas', grupo: 'Imagem', nome: 'Bordas suaves', ajuda: 'Tira o serrilhado das bordas.', valores: [[0, 'Não'], [2, '2×'], [4, '4×']] }),
+  opcao({ chave: 'bordas', grupo: 'Imagem', nome: 'Bordas suaves', ajuda: 'Tira o serrilhado das bordas.', valores: [[false, 'Não'], [true, 'Sim']] }),
   opcao({ chave: 'indireta', grupo: 'Luz e sombra', nome: 'Luz indireta', ajuda: 'A luz se espalha pelos cômodos e o que está longe dela fica escuro de verdade. Não pesa por quadro.', valores: [[false, 'Desligada'], [true, 'Ligada']] }),
   opcao({ chave: 'bloom', grupo: 'Luz e sombra', nome: 'Brilho das luzes', ajuda: 'O halo em volta das lâmpadas, do luar e dos olhos.', valores: [['nao', 'Não'], ['leve', 'Leve'], ['cheio', 'Completo']] }),
   opcao({ chave: 'sombraLampadas', grupo: 'Luz e sombra', nome: 'Sombra das lâmpadas', ajuda: 'Quantas lâmpadas perto de você fazem sombra. Cada uma desenha a cena seis vezes.', valores: [[0, 'Nenhuma'], [1, '1'], [3, '3']] }),
@@ -68,7 +68,7 @@ export interface Definicao {
   recursos: Recursos
   dpr: number // o máximo de pixels por ponto da tela (abaixo de 1: uma fração da tela)
   passe: boolean
-  amostras: number // a suavização das bordas no passe final (MSAA)
+  bordas: boolean // a suavização das bordas, dentro do passe final (render/passeFinal.ts)
   bloom: Bloom | null // o tamanho da maior textura do bloom e quantas reduções (null = sem)
   lampadas: 'assada' | 'mista' // no cenário (render/assada.ts): 'assada' = todas da malha; 'mista' = as com sombra são de verdade
   sombras: { lampadas: number; mapa: number; lua: number; cada: number; macia: boolean }
@@ -78,7 +78,7 @@ const BLOOM: Record<Recursos['bloom'], Bloom | null> = { nao: null, leve: { de: 
 
 export function definicaoDe(r: Recursos): Definicao {
   return {
-    recursos: r, dpr: r.resolucao, passe: r.passe, amostras: r.passe ? r.bordas : 0, bloom: r.passe ? BLOOM[r.bloom] : null,
+    recursos: r, dpr: r.resolucao, passe: r.passe, bordas: r.passe && !!r.bordas /* !!: um ajuste salvo antes de 19/nov guardava 0, 2 ou 4 amostras */, bloom: r.passe ? BLOOM[r.bloom] : null,
     lampadas: r.sombraLampadas > 0 ? 'mista' : 'assada',
     sombras: { lampadas: r.sombraLampadas, mapa: r.sombraDetalhe, lua: r.sombraLua, cada: r.sombraRitmo, macia: r.sombraMacia },
   }

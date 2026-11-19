@@ -30,7 +30,31 @@ void main() {
     + texture2D(tFonte, vUv + uPx * vec2(-0.5, 0.5)).rgb + texture2D(tFonte, vUv + uPx * vec2(0.5, 0.5)).rgb);
   gl_FragColor = vec4(c, 1.0);
 }`
-const FINAL = /* glsl */ `uniform sampler2D tCena, tBloom; uniform float uExp, uBrilho, uContraste, uSat, uVig, uT, uAspecto; uniform vec3 uSombras, uLuzes; varying vec2 vUv;
+// As bordas suaves (BORDAS) são feitas aqui mesmo, na imagem crua (o FXAA curto): onde os vizinhos em diagonal mostram
+// uma borda, o pixel vira a média de pontos ao longo dela. Antes eram amostras múltiplas na textura da cena (MSAA), que
+// numa textura de 16 bits custavam metade do quadro numa placa embutida (19/nov: o Médio ia de 29 para 58 quadros sem elas).
+// A média é feita com as cores apertadas (aperta/solta): senão um pixel muito claro engole os escuros e a borda volta a serrilhar.
+const FINAL = /* glsl */ `uniform sampler2D tCena, tBloom; uniform float uExp, uBrilho, uContraste, uSat, uVig, uT, uAspecto; uniform vec3 uSombras, uLuzes; uniform vec2 uPx; varying vec2 vUv;
+vec3 cena(vec2 uv) { return max(texture2D(tCena, uv).rgb, 0.0); }
+#ifdef BORDAS
+vec3 aperta(vec3 c) { return c / (1.0 + max(c.r, max(c.g, c.b))); }
+vec3 solta(vec3 c) { return c / max(1.0 - max(c.r, max(c.g, c.b)), 0.001); }
+float clareza(vec3 c) { return sqrt(dot(c, vec3(0.299, 0.587, 0.114))); }
+vec3 suave(vec2 uv) {
+  vec3 m = aperta(cena(uv));
+  float lM = clareza(m), lNO = clareza(aperta(cena(uv + uPx * vec2(-1.0, -1.0)))), lNE = clareza(aperta(cena(uv + uPx * vec2(1.0, -1.0))));
+  float lSO = clareza(aperta(cena(uv + uPx * vec2(-1.0, 1.0)))), lSE = clareza(aperta(cena(uv + uPx)));
+  float lMin = min(lM, min(min(lNO, lNE), min(lSO, lSE))), lMax = max(lM, max(max(lNO, lNE), max(lSO, lSE)));
+  if (lMax - lMin < max(0.03, lMax * 0.125)) return solta(m); // sem borda aqui: o pixel como está
+  vec2 dir = vec2(-((lNO + lNE) - (lSO + lSE)), (lNO + lSO) - (lNE + lSE));
+  float menor = min(abs(dir.x), abs(dir.y)) + max((lNO + lNE + lSO + lSE) * 0.03125, 0.0078125);
+  dir = clamp(dir / menor, -8.0, 8.0) * uPx;
+  vec3 a = 0.5 * (aperta(cena(uv + dir * (1.0 / 3.0 - 0.5))) + aperta(cena(uv + dir * (2.0 / 3.0 - 0.5))));
+  vec3 b = a * 0.5 + 0.25 * (aperta(cena(uv - dir * 0.5)) + aperta(cena(uv + dir * 0.5)));
+  float lB = clareza(b);
+  return solta(lB < lMin || lB > lMax ? a : b); // a média larga saiu da faixa dos vizinhos: fica a curta
+}
+#endif
 vec3 RRTAndODTFit(vec3 v) { vec3 a = v * (v + 0.0245786) - 0.000090537; vec3 b = v * (0.983729 * v + 0.4329510) + 0.238081; return a / b; }
 vec3 aces(vec3 c) {
   const mat3 entra = mat3(vec3(0.59719, 0.07600, 0.02840), vec3(0.35458, 0.90834, 0.13383), vec3(0.04823, 0.01566, 0.83777));
@@ -40,7 +64,12 @@ vec3 aces(vec3 c) {
 vec3 paraSRGB(vec3 c) { return mix(c * 12.92, 1.055 * pow(c, vec3(1.0 / 2.4)) - 0.055, step(0.0031308, c)); }
 float ruido(vec2 p) { return fract(sin(dot(p, vec2(12.9898, 78.233))) * 43758.5453); }
 void main() {
-  vec3 cru = max(texture2D(tCena, vUv).rgb, 0.0) + texture2D(tBloom, vUv).rgb * uBrilho; // o brilho entra antes do tonemapping
+  #ifdef BORDAS
+  vec3 cru = suave(vUv);
+  #else
+  vec3 cru = cena(vUv);
+  #endif
+  cru += texture2D(tBloom, vUv).rgb * uBrilho; // o brilho entra antes do tonemapping
   vec3 col = paraSRGB(aces(cru));
   float l = dot(col, vec3(0.2126, 0.7152, 0.0722));
   col = mix(vec3(l), col, uSat);
@@ -58,10 +87,10 @@ export interface PasseFinal {
   descartar: () => void
 }
 
-/** bloom = null: sem bloom (só a correção de cor). */
-export function novoPasseFinal(amostras: number, bloom: Bloom | null): PasseFinal {
+/** bordas = as bordas suaves, na passada final; bloom = null: sem bloom (só a correção de cor). */
+export function novoPasseFinal(bordas: boolean, bloom: Bloom | null): PasseFinal {
   const textura = (extra?: THREE.RenderTargetOptions) => new THREE.WebGLRenderTarget(4, 4, { type: THREE.HalfFloatType, minFilter: THREE.LinearFilter, magFilter: THREE.LinearFilter, ...extra })
-  const alvo = textura({ samples: amostras })
+  const alvo = textura()
   const niveis = Array.from({ length: bloom?.niveis ?? 0 }, () => textura({ depthBuffer: false })), de = bloom?.de ?? 1
   const material = (frag: string, uniforms: Record<string, THREE.IUniform>, soma = false) => new THREE.ShaderMaterial({
     uniforms, depthTest: false, depthWrite: false, toneMapped: false, vertexShader: VERT, fragmentShader: frag,
@@ -71,8 +100,10 @@ export function novoPasseFinal(amostras: number, bloom: Bloom | null): PasseFina
   const u = {
     tCena: { value: alvo.texture }, tBloom: { value: (niveis[0] ?? alvo).texture }, uExp: { value: 1 }, uBrilho: { value: 0 }, uContraste: { value: 1 }, uSat: { value: 1 },
     uVig: { value: 0 }, uT: { value: 0 }, uAspecto: { value: 1 }, uSombras: { value: new THREE.Color() }, uLuzes: { value: new THREE.Color() },
+    uPx: { value: new THREE.Vector2() },
   }
   const reduzir = material(REDUZIR, uR), ampliar = material(AMPLIAR, uA, true), final = material(FINAL, u)
+  if (bordas) final.defines = { BORDAS: '' }
   // um triângulo que cobre a tela (um quadrado seriam dois, com a diagonal desenhada duas vezes)
   const geo = new THREE.BufferGeometry()
   geo.setAttribute('position', new THREE.Float32BufferAttribute([-1, -1, 0, 3, -1, 0, -1, 3, 0], 3))
@@ -109,7 +140,7 @@ export function novoPasseFinal(amostras: number, bloom: Bloom | null): PasseFina
       u.uBrilho.value = niveis.length ? tom.brilho / niveis.length : 0 // a soma dos níveis não cresce com a quantidade deles
       // as cores do tom são contas em cima da imagem pronta (sRGB): entram como foram escritas, sem virar "luz"
       tom.sombras.getRGB(u.uSombras.value, THREE.SRGBColorSpace); tom.luzes.getRGB(u.uLuzes.value, THREE.SRGBColorSpace)
-      u.uT.value = t; u.uAspecto.value = tam.x / tam.y
+      u.uT.value = t; u.uAspecto.value = tam.x / tam.y; u.uPx.value.set(1 / tam.x, 1 / tam.y)
       gl.setRenderTarget(null); gl.render(cenaTela, cam)
     },
     descartar() { alvo.dispose(); niveis.forEach((n) => n.dispose()); reduzir.dispose(); ampliar.dispose(); final.dispose(); geo.dispose() },

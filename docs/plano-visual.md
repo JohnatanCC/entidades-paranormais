@@ -1,8 +1,8 @@
 # Plano: a primeira impressão visual
 
 Escrito em 19/nov para ser executado num chat novo (com o Fable 5.2). Vem de uma análise das capturas do jogo e dos
-modelos (`docs/direcao-cap0.md` explica por que os primeiros 20 minutos importam: é a demo do itch). São cinco etapas
-e uma medição antes delas. **Uma etapa por vez:** cada uma termina numa versão que o desenvolvedor testa e aprova antes da
+modelos (`docs/direcao-cap0.md` explica por que os primeiros 20 minutos importam: é a demo do itch). São quatro etapas
+e uma medição antes delas (as armas saíram do plano em 19/nov: não precisam mudar). **Uma etapa por vez:** cada uma termina numa versão que o desenvolvedor testa e aprova antes da
 próxima (a regra do `CLAUDE.md`).
 
 ## Para quem vai executar
@@ -11,11 +11,15 @@ próxima (a regra do `CLAUDE.md`).
 `docs/blockbench.md` (as regras dos modelos: as juntas, a escala, as densidades), `docs/direcao-cap0.md` (o que o capítulo
 0 precisa mostrar) e este plano inteiro.
 
+**A ordem (19/nov):** o plano roda **agora**, sem esperar o capítulo 0 em cinza (o "em cinza primeiro" de
+`docs/direcao-cap0.md` é uma sugestão): o visual do que já existe fica pronto e é ajustado depois.
+
 **O objetivo:** numa única captura de tela, o jogo tem que parecer **terror bem feito**, e não "um jogo de blocos". Os
 personagens são a coisa mais nítida da imagem, o cenário fica calmo atrás deles, o escuro tem forma e nada estoura.
 
 **O que já está bom e não deve mudar:** a base técnica (cada personagem é uma malha só, com uma textura só); os rostos
-(128 px por metro); as silhuetas dos inimigos; a resolução do cenário (32 px por metro); o formato do mapa.
+(128 px por metro); as silhuetas dos inimigos; a resolução do cenário (32 px por metro); o formato do mapa; as armas e a
+lamparina (decidido em 19/nov: ficam como estão, com 64 px por metro).
 
 **As regras de todas as etapas:**
 - **Antes e depois, sempre com foto.** Antes de mudar, tire as fotos de referência da etapa (no navegador do app, com o
@@ -54,6 +58,17 @@ está lento só piora o problema.
 
 **Pronto quando:** o Alto passa de 50 quadros no PC dele e o Baixo fica liso, ou ele decide seguir mesmo assim.
 
+**Medido em 19/nov** (o navegador do app, a placa embutida Intel UHD, 1920 × 1080, parado):
+- O Baixo fica em 59 a 60 nos dois mapas. O Médio estava em 29 (instalação) e 40 a 46 (mansão); o Alto, em 14 e 24 a 27.
+- **Feito: as bordas suaves foram para a passada final** (os números estão em `docs/iluminacao.md`, "Os níveis de
+  qualidade"). O Médio passou a 55 a 60; o Alto, a 27 (instalação) e 36 (mansão).
+- **Feito: o Alto com 1 lâmpada com sombra** (eram 3; as 3 ficaram no Ultra): a instalação foi de 27 para 54 e a mansão de 29 para 42 (ainda abaixo dos 50).
+- **Falta escolher:** as malhas de cópias fazendo
+  sombra inteiras em cada face (`render/instancias.ts`, hipótese); as luminárias soltas (2 desenhos cada, 105 na
+  instalação: `editor/Objetos.tsx`); os batentes e as janelas da mansão (cerca de 100 desenhos).
+- As outras suspeitas: a resolução 2× não faz nada numa tela de 1 pixel por ponto; o bloom custa pouco; o mapa inteiro
+  carregado não é o gargalo (os blocos de 16 m fora da vista não são desenhados).
+
 ## Etapa 1: a luz (o item mais barato e o que mais muda a imagem)
 
 **O problema:** a imagem vai de preto absoluto (as paredes somem, o Matheus de costas vira uma mancha) a estourada (o
@@ -66,6 +81,15 @@ rosto do Victor fica branco na cena do escritório, perto da luminária de mesa)
 - **O personagem se destaca do fundo** pelo contorno de luz, e não por luz ambiente que clareia tudo.
 - **O contraste continua sendo o terror:** as poças de luz âmbar e o luar frio contra o escuro (`docs/iluminacao.md`).
   Não clareie a cena inteira.
+
+**Antes dos números, a revisão da luz (pedido em 19/nov): ela pode estar pesada demais ou faltando algo.** Com as
+medições da etapa 0 na mão, responda as duas perguntas e mostre a ele antes de ajustar:
+- **O que pesa:** quanto custa cada parte (as lâmpadas com sombra, a luz assada, o contorno, o bloom, a passada final, o
+  luar e a neblina) em cada nível, e o que dá para tirar ou baratear sem a imagem mudar.
+- **O que falta:** o que a imagem pede e a luz de hoje não entrega (por exemplo: a cor no escuro, a luz de lado no rosto,
+  o personagem separado do fundo), e se isso se resolve com os números que já existem.
+Se a resposta for uma luz nova ou um recurso novo, **pergunte antes** e diga o custo (a regra de "nada de luz nova"
+continua valendo até ele decidir o contrário).
 
 **Onde mexer (só números):** `src/maps/ambientes.ts`, nas ambientações `mansao`, `corredor`, `instalacao` e no momento
 `alarme`: `forca` e as cores `ceu` e `chao` (a luz ambiente), `preenchimento` e `forcaPreenchimento`, `contorno` e
@@ -111,15 +135,21 @@ quiser.
 **Pronto quando:** as fotos dos corredores da mansão e da instalação mostram o personagem como a coisa mais nítida. **Atualize**
 `docs/blockbench.md` ("As texturas") com a regra do contraste.
 
-## Etapa 3: o Matheus de costas e as proporções
+## Etapa 3: o Matheus de costas, as proporções e o desenho dos personagens
 
 **Por quê:** a câmera fica sobre o ombro, então **as costas do Matheus são a imagem mais vista do jogo**. Hoje elas são
 uma mancha escura e quadrada: a mochila em caixa e os ombros largos. E as proporções ainda estão "de bloco grande", o que
 aproxima o jogo de um Minecraft numa captura. A regra do projeto é "proporções quase realistas, nada de cabeça e mãos
 grandes".
 
-**Primeiro, pergunte ao desenvolvedor:** ele quer remodelar no Blockbench com uma especificação sua, ou prefere que você
-altere o arquivo por script e ele repinte depois? Siga o que ele escolher.
+**Decidido em 19/nov:**
+- **Quem executa tem controle total dos modelos:** altera os `.bbmodel` por script (a geometria e a textura), sem
+  esperar ele remodelar. Ele aprova pelas fotos; as regras dos modelos continuam (as pastas, as origens das juntas).
+- **O desenho dos humanos é repensado** (os fantasmas estão bons e ficam como estão): detalhado e **bem polido, mas sem
+  tantos quadrados de detalhe**, e **fácil de animar**. Menos peças, cada uma com um motivo para existir (muda a silhueta
+  ou se mexe); a forma limpa e a textura bem pintada no lugar do enfeite em bloco. A regra está em `docs/blockbench.md`
+  ("Os personagens em blocos refinados").
+- **As runas do traje saíram** (nada de runas nas costas nem de acender com a sobrecarga).
 
 **O modelo:** `modelos/agente.bbmodel` (217 blocos, textura 256 × 416, o esqueleto de todos: `quadril` → `tronco` →
 `braco_e`/`braco_d` → `antebraco_*` → `mao_*` e os dedos; `pescoco` → `cabeca` → `cabelo` com as `mecha_nuca_*`). O tronco
@@ -128,13 +158,12 @@ tem 35 blocos, e a mochila está nele.
 1. **As fotos de antes, como o jogador vê:** de costas e na câmera do jogo (o Testar, parado, andando, mirando a pistola e
    a escopeta, com a lamparina erguida), mais de lado e de frente no Ver modelos. Meça com `provas.medidas(c)`.
 2. **A proposta no papel, com números,** antes de mexer: a largura dos ombros (um homem de 1,80 m tem uns 40 a 45 cm de
-   ombro a ombro), a espessura do braço e do antebraço, e o desenho novo das costas:
-   - **a mochila com silhueta,** e não uma caixa: as alças, o saco de dormir enrolado, os frascos e os cartuchos de sal
-     (o traje "Selado", `docs/jogo.md`, "Personagens");
-   - **a jaqueta com detalhe atrás:** a costura, a gola alta, o desgaste;
-   - **as runas do traje nas costas, acendendo com a sobrecarga da pistola** (hoje só o frasco mostra: `player/arma.ts`).
-     O jogador vê o estado da arma onde ele já está olhando. Os blocos `luz_` já brilham; o acender com a sobrecarga é
-     código novo, então **pergunte antes** (é um recurso a mais);
+   ombro a ombro), a espessura do braço e do antebraço, e o desenho novo do traje (o que ele veste e carrega, e por quê;
+   o traje "Selado" de `docs/jogo.md`, "Personagens", é o ponto de partida, e não uma obrigação):
+   - **quais blocos de detalhe saem** e o que fica no lugar (a forma maior, ou a textura): a contagem de blocos antes e
+     depois, por parte do corpo;
+   - **as costas com silhueta,** e não uma caixa: o que ele carrega tem que se ler de longe com poucas peças;
+   - **a jaqueta com o detalhe pintado:** a costura, a gola, o desgaste, na textura e não em blocos;
    - **o cabelo da nuca** (as `mecha_nuca_*`), que balança nas molas.
 3. **O contorno de luz do agente** (o `forcaContorno` da etapa 1): confira se as costas ganham forma no escuro.
 4. **Depois de mudar, reteste tudo o que depende das mãos e dos ombros,** porque a posição das mãos muda com a largura:
@@ -143,45 +172,23 @@ tem 35 blocos, e a mochila está nele.
    Nada pode atravessar o corpo.
 5. **Os outros personagens, um por vez, depois que ele aprovar o Matheus:** primeiro o **Nicolas** (os ombros dele são os
    piores: as ombreiras parecem caixas), depois a Lara, o Victor e o Leonardo. Todos usam o mesmo esqueleto, então a
-   proporção aprovada no Matheus vale para eles.
+   proporção aprovada no Matheus vale para eles, e o desenho de cada um é repensado do mesmo jeito (menos blocos de
+   detalhe, mais polido).
 
 **Pronto quando:** ele aprova as fotos de costas na câmera do jogo e as ações não atravessam nada. **Atualize**
 `docs/blockbench.md` (as medidas novas) e `docs/jogo.md` (o traje), se mudarem.
 
-## Etapa 4: as armas e a lamparina
+## Etapa 4: a folha de estilo
 
-**O problema:** a pistola tem textura de 64 × 32 px e a lamparina de 32 × 32. Elas seguem a regra dos 64 px por metro dos
-personagens, mas **ficam sempre perto da câmera**: na mão, ao mirar, erguidas. A lamparina é a luz do jogador, a
-armadilha de captura e uma peça da cena do porão (`docs/direcao-cap0.md`).
-
-**A proposta (pergunte antes: muda uma regra de `docs/blockbench.md`):** as armas e a lamparina passam a ter **128 px por
-metro**, como o rosto, porque a câmera as mostra de perto. E a geometria fica **refinada** (chanfros, peças pequenas),
-como a regra de 18/nov para os objetos que a câmera mostra de perto.
-
-**Os arquivos:** `modelos/armas/pistola.bbmodel`, `escopeta.bbmodel`, `lamparina.bbmodel` e `cartucho.bbmodel`.
-
-1. Fotos de antes: mirando cada arma (`provas.agente(arma, 'mirar', t)`), a recarga da escopeta, a lamparina na cintura
-   e erguida.
-2. Dobre a resolução da textura (o pixel vira 2 × 2, sem borrar) e então pinte o detalhe que a densidade nova permite: o
-   desgaste do metal, as gravações, o vidro e a chama da lamparina, o frasco de ectoplasma da pistola (o `luz_`).
-3. **Não mexa** nas pastas `empunhadura`, `cano` e `bomba` (onde a mão segura e de onde sai o tiro; `player/arma.ts`)
-   nem nas balas do cartucho (`bala_1` a `bala_4`).
-4. Fotos de depois, dos mesmos ângulos.
-
-**Pronto quando:** ele aprova as fotos. **Atualize** `docs/blockbench.md` ("As armas") e a linha da identidade visual no
-`CLAUDE.md` (as densidades).
-
-## Etapa 5: a folha de estilo
-
-Junte o que as etapas 1 a 4 decidiram numa página, `docs/arte.md`: as densidades (incluindo a exceção das armas), as
-proporções dos personagens, a paleta e a luz de cada lugar, o limite de contraste das texturas, as 5 posições das fotos de
+Junte o que as etapas 1 a 3 decidiram numa página, `docs/arte.md`: as densidades, as
+proporções e o desenho dos personagens (quanto detalhe em bloco e quanto na textura), a paleta e a luz de cada lugar, o limite de contraste das texturas, as 5 posições das fotos de
 referência e como medir. A partir dela, todo modelo novo é conferido contra estas regras. **O Glutão novo**, que o
 desenvolvedor vai desenhar e que aparece no primeiro minuto do jogo, é o primeiro a nascer seguindo a folha. Ponha o
 `docs/arte.md` na lista de docs do `CLAUDE.md`.
 
 ## O que fica fora deste plano
 
-Os fantasmas e os demônios (o desenho deles é do desenvolvedor), a decoração dos mapas (vem depois do cinza,
+As armas e a lamparina (não precisam mudar), os fantasmas e os demônios (o desenho deles é do desenvolvedor), a decoração dos mapas (vem depois do cinza,
 `docs/direcao-cap0.md`), as cenas (a skill `/cena`) e o celular (os controles de toque).
 
 ## Para começar o chat novo

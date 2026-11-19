@@ -55,6 +55,13 @@ As pessoas e os fantasmas são **menos "Minecraft"** que o cenário: o corpo é 
 e inclinadas. Os objetos, as portas e as armas continuavam simples; **desde 18/nov os objetos que a câmera mostra de perto também são refinados** (os móveis do escritório do Victor: `docs/cenas.md`), sempre uma malha e uma textura por objeto. O Matheus (214 blocos; eram 89) e a Mãe (259; eram
 118) já estão assim; o Glutão, os Sombrios, Lara e Nicolas nascem assim. Os modelos antigos estão no git.
 
+**As pessoas ficam mais limpas (decidido em 19/nov).** Os fantasmas estão bons e continuam como estão. Os humanos
+(Matheus, Lara, Nicolas, Victor, Leonardo) tinham quadrados de detalhe demais: continuam detalhados e bem polidos, mas com
+**menos blocos**. O trecho chanfrado e as peças inclinadas que dão a forma do corpo ficam; o enfeite pequeno (costura,
+fivela, bolso, desgaste) vai para a textura. Cada bloco precisa de um motivo: muda a silhueta ou se mexe. O modelo tem que
+ser **fácil de animar** (nada de peça que atravessa a outra quando a junta dobra). A revisão é a etapa 3 de
+`docs/plano-visual.md`.
+
 - **O trecho chanfrado:** um braço, uma coxa ou a cintura não é um bloco só: são três blocos cruzados na mesma altura
   (um largo e raso, um médio, um estreito e fundo), e o corte fica um octógono. Vários trechos empilhados, cada um um
   pouco mais fino, fazem o membro afinar (bíceps, pulso, coxa, panturrilha).

@@ -133,12 +133,12 @@ export function Iluminacao({ ambiente, areas = SEM_AREAS, em, semCeu, definicao 
     }
   })
 
-  return N.passe ? <Passe amostras={N.amostras} bloom={N.bloom} luz={c.viva.agora} /> : null
+  return N.passe ? <Passe bordas={N.bordas} bloom={N.bloom} luz={c.viva.agora} /> : null
 }
 
 /** O passe final (Médio e Alto): assume o desenho da cena enquanto está montado. */
-function Passe({ amostras, bloom, luz }: { amostras: number; bloom: Bloom | null; luz: Luz }) {
-  const passe = useMemo<PasseFinal>(() => novoPasseFinal(amostras, bloom), [amostras, bloom])
+function Passe({ bordas, bloom, luz }: { bordas: boolean; bloom: Bloom | null; luz: Luz }) {
+  const passe = useMemo<PasseFinal>(() => novoPasseFinal(bordas, bloom), [bordas, bloom])
   useEffect(() => () => passe.descartar(), [passe])
   // com o bloom, o que acende sozinho (as lâmpadas, os olhos) passa do branco: é o que faz o halo
   useEffect(() => { BRILHO.value = bloom ? FORCA_COM_BLOOM : 1; return () => { BRILHO.value = 1 } }, [bloom])

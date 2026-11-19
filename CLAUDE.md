@@ -13,7 +13,7 @@ capítulo 1 e lançá-lo na web, no itch.io (`docs/lancamento.md`).
    `docs/demonios.md` — os Sombrios (Assombrado, Asa sombria, Devora almas): o desenho, os modelos, como lutam e as etapas.
    `docs/intro.md` — a Demo · Intro do submundo (as três arenas, as hordas, o chefe): desde 17/nov não é a Intro do jogo, fica para mais tarde.
    `docs/musicas.md` — as músicas: onde cada uma toca e o que precisa ter (a perseguição da Mãe, para o Suno).
-   `docs/plano-visual.md` — o plano da primeira impressão visual (19/nov): medir, a luz, o cenário calmo, o Matheus de costas, as armas, a folha de estilo.
+   `docs/plano-visual.md` — o plano da primeira impressão visual (19/nov): medir, a luz, o cenário calmo, o Matheus de costas e o desenho dos personagens, a folha de estilo.
    `docs/direcao-cap0.md` — **a direção do capítulo 0** (19/nov): o que ele é, a sequência, o clima e a ordem de construir (em cinza primeiro).
    `docs/cenas.md` — as cenas (cutscenes) do capítulo 0: como são feitas (no motor, em dados, com legendas) e o storyboard de cada uma.
    `docs/dublagem.md` — as vozes: o roteiro de cada personagem para os testes, como gravar e a voz provisória (a do navegador).
@@ -68,7 +68,7 @@ capítulo 1 e lançá-lo na web, no itch.io (`docs/lancamento.md`).
   Fora agora não quer dizer fora para sempre: se o desenvolvedor trouxer de volta, atualize esta lista.
 - **A identidade visual** (decidida em 10/nov): cenário e personagens em **blocos com textura pintada em pixel** (cenário
   com 32 px por metro, personagens com 64 e o rosto com 128), com **proporções quase realistas** (nada de cabeça e mãos grandes). As pessoas e os fantasmas são em **blocos refinados**
-  (decidido em 11/nov): muitas peças pequenas, chanfradas e inclinadas, dentro das mesmas juntas. **Os objetos que a câmera mostra de perto também são refinados** (18/nov, a pedido: os móveis do escritório do Victor; molduras, chanfros, gavetas, puxadores, lombadas), sempre uma malha e uma textura por objeto; os outros continuam simples até chegar a vez deles. O terror vem da ambientação: pouca luz,
+  (decidido em 11/nov): muitas peças pequenas, chanfradas e inclinadas, dentro das mesmas juntas. **As pessoas ficam mais limpas** (19/nov, a pedido: os fantasmas estão bons; os humanos tinham quadrados de detalhe demais): detalhadas e bem polidas, mas com menos blocos, o detalhe pequeno pintado na textura, fáceis de animar (`docs/plano-visual.md`, etapa 3). **Os objetos que a câmera mostra de perto também são refinados** (18/nov, a pedido: os móveis do escritório do Victor; molduras, chanfros, gavetas, puxadores, lombadas), sempre uma malha e uma textura por objeto; os outros continuam simples até chegar a vez deles. O terror vem da ambientação: pouca luz,
   fantasmas com formas erradas, olhos que brilham, movimentos travados. O estilo é parecido com o do Hytale, mas os
   personagens são nossos: não copiar os deles. Os Sombrios têm o clima das sombras do Don't Starve, sem copiar o desenho.
 - Os modelos dos personagens, dos objetos e (quando chegarem) das armas são feitos no **Blockbench** (o passo a passo
