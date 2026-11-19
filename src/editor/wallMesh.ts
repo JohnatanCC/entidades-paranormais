@@ -8,11 +8,12 @@
 // dos tetos guarda o quanto ele está encostado num canto (parede com chão, com teto, com outra parede), e a malha escurece
 // macio ali. Não fica gravado no mapa: sai das paredes e dos pisos toda vez que a malha é montada, e não custa nada por
 // quadro (é uma cor por vértice; vale para os três níveis de qualidade).
-// A luz das lâmpadas assada (a etapa 3b): cada vértice guarda também a luz que chega nele de cada lâmpada do mapa, com
-// as paredes bloqueando (maps/luzAssada.ts); o Baixo e o Médio usam isso no lugar das lâmpadas de verdade (render/assada.ts).
+// A luz das lâmpadas assada (a etapa 3b): a malha guarda também a luz de cada lâmpada do mapa, com as paredes bloqueando
+// (maps/luzAssada.ts); o jogo usa isso no lugar das lâmpadas de verdade (render/assada.ts). As duas lâmpadas mais fortes
+// de cada face vão inteiras (onde estão, a cor, o alcance) para a conta ser feita em cada pixel; o resto, em cada vértice.
 import * as THREE from 'three'
 import { CHUNK, LEVEL_H, PORTA_GRANDE_H as GRANDE_H, PORTA_H, portaAlta, type Axis, type Chunk, type Opening, type Wall, type WallSide } from '../maps/types'
-import { assadorDe, novaLuzVertice, type Assador } from '../maps/luzAssada'
+import { assadorDe, novaLuzFace, type Assador } from '../maps/luzAssada'
 import { BATENTE, TOPO } from '../render/materiais' // o corte da parede (topo e vergas) e a madeira do batente
 
 export const ESPESSURA = 0.12 // a espessura da parede (m)
@@ -24,8 +25,9 @@ const sombra = (encostos: number) => (1 - SOMBRA.forca) ** encostos
 const PASSO_LUZ = 0.5 // de quanto em quanto a parede ganha vértices para a luz assada (m)
 const PASSOS_Y = Array.from({ length: Math.ceil(LEVEL_H / PASSO_LUZ) - 1 }, (_, i) => (i + 1) * PASSO_LUZ)
 
-interface Buf { p: number[]; n: number[]; uv: number[]; c: number[]; la: number[]; lb: number[]; lr: number[]; lj: number[]; li: number[]; i: number[] }
-const novoBuf = (): Buf => ({ p: [], n: [], uv: [], c: [], la: [], lb: [], lr: [], lj: [], li: [], i: [] })
+// la, lb = a cor e o número das duas lâmpadas da face; pa, pb = onde cada uma está e se o canto a vê; al = o alcance das duas
+interface Buf { p: number[]; n: number[]; uv: number[]; c: number[]; la: number[]; lb: number[]; pa: number[]; pb: number[]; al: number[]; lr: number[]; lj: number[]; li: number[]; i: number[] }
+const novoBuf = (): Buf => ({ p: [], n: [], uv: [], c: [], la: [], lb: [], pa: [], pb: [], al: [], lr: [], lj: [], li: [], i: [] })
 // As malhas saem por bloco de 16 m (a etapa 7b): uma por textura em cada bloco, com a chave "cx_cz|textura". Assim o
 // three descarta os blocos que a câmera não vê, e a sombra de uma lâmpada só desenha os blocos ao alcance dela (antes
 // cada sombra desenhava o mapa inteiro). As contas que olham os vizinhos (os cantos, a sombra de canto, a luz assada)
@@ -36,7 +38,7 @@ const blocoDe = (x: number, z: number) => `${Math.floor(x / CHUNK)}_${Math.floor
 export const texturaDaChave = (k: string) => k.slice(k.indexOf('|') + 1)
 // a luz assada da malha sendo montada agora: quem calcula e o andar do que está sendo desenhado (quad lê daqui)
 let assa: Assador | null = null, andar = 0
-const _luz = novaLuzVertice(), SEM_LUZ = novaLuzVertice()
+const _luz = novaLuzFace(), SEM_LUZ = novaLuzFace()
 type V3 = [number, number, number]
 
 const k = (level: number, axis: Axis, x: number, z: number) => `${level}|${axis}|${x}|${z}`
@@ -49,15 +51,18 @@ function quad(b: Buf, c: V3[], n: V3, uv: [number, number][], luz: number[] = SE
   const ordem = cr[0] * n[0] + cr[1] * n[1] + cr[2] * n[2] >= 0 ? [0, 1, 2, 3] : [0, 3, 2, 1]
   const v0 = b.p.length / 3
   const mx = (c[0][0] + c[1][0] + c[2][0] + c[3][0]) / 4, my = (c[0][1] + c[1][1] + c[2][1] + c[3][1]) / 4, mz = (c[0][2] + c[1][2] + c[2][2] + c[3][2]) / 4
+  // a luz das lâmpadas e das janelas na face: as duas lâmpadas mais fortes valem para os quatro cantos (a conta delas é
+  // em cada pixel: render/assada.ts); cada canto olha de um ponto um pouco para dentro da face (ele fica em cima da parede)
+  if (assa) {
+    const de = c.map((v): V3 => { const dx = mx - v[0], dy = my - v[1], dz = mz - v[2], k = 0.1 / (Math.hypot(dx, dy, dz) || 1); return [v[0] + dx * k + n[0] * 0.05, v[1] + dy * k + n[1] * 0.05, v[2] + dz * k + n[2] * 0.05] })
+    assa.face(c, n, de, andar, _luz)
+  }
+  const L = assa ? _luz : SEM_LUZ
   for (const j of ordem) {
     b.p.push(...c[j]); b.n.push(...n); b.uv.push(...uv[j]); b.c.push(luz[j], luz[j], luz[j])
-    // a luz das lâmpadas e das janelas neste canto, olhando de um ponto um pouco para dentro da face (o canto fica em cima da parede)
-    if (assa) {
-      const dx = mx - c[j][0], dy = my - c[j][1], dz = mz - c[j][2], k = 0.1 / (Math.hypot(dx, dy, dz) || 1)
-      assa(c[j], n, [c[j][0] + dx * k + n[0] * 0.05, c[j][1] + dy * k + n[1] * 0.05, c[j][2] + dz * k + n[2] * 0.05], andar, _luz)
-    }
-    const L = assa ? _luz : SEM_LUZ
-    b.la.push(...L.a); b.lb.push(...L.b); b.lr.push(...L.resto); b.lj.push(...L.janela); b.li.push(...L.indireta)
+    b.la.push(...L.a.cor); b.lb.push(...L.b.cor); b.pa.push(...L.a.pos, L.a.ve[j]); b.pb.push(...L.b.pos, L.b.ve[j]); b.al.push(L.a.alcance, L.b.alcance)
+    const C = L.cantos[j]
+    b.lr.push(...C.resto); b.lj.push(...C.janela); b.li.push(...C.indireta)
   }
   // a diagonal liga os dois cantos mais claros: com um canto só escuro, o degradê não "quebra" no meio do quadrado
   if (luz[1] + luz[3] > luz[0] + luz[2]) b.i.push(v0, v0 + 1, v0 + 3, v0 + 1, v0 + 2, v0 + 3)
@@ -239,8 +244,11 @@ function geometrias(bufs: Map<string, Buf>) {
     g.setAttribute('normal', new THREE.Float32BufferAttribute(b.n, 3))
     g.setAttribute('uv', new THREE.Float32BufferAttribute(b.uv, 2))
     g.setAttribute('color', new THREE.Float32BufferAttribute(b.c, 3)) // a sombra de canto (o material multiplica)
-    // a luz assada: as duas lâmpadas mais fortes (com o número de cada uma), o resto delas e a das janelas
+    // a luz assada: as duas lâmpadas mais fortes da face (a cor com o número, onde está com o "vê", o alcance), o resto
+    // delas e a das janelas
     g.setAttribute('luzA', new THREE.Float32BufferAttribute(b.la, 4)); g.setAttribute('luzB', new THREE.Float32BufferAttribute(b.lb, 4))
+    g.setAttribute('luzPosA', new THREE.Float32BufferAttribute(b.pa, 4)); g.setAttribute('luzPosB', new THREE.Float32BufferAttribute(b.pb, 4))
+    g.setAttribute('luzAlc', new THREE.Float32BufferAttribute(b.al, 2))
     g.setAttribute('luzResto', new THREE.Float32BufferAttribute(b.lr, 3)); g.setAttribute('luzJanela', new THREE.Float32BufferAttribute(b.lj, 3))
     g.setAttribute('luzIndireta', new THREE.Float32BufferAttribute(b.li, 3)) // a luz indireta (o recurso do Ultra)
     g.setIndex(b.i)

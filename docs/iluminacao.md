@@ -75,8 +75,15 @@ O que está decidido sobre a luz, como ela é feita e as etapas. Os números fic
   - Porta e vão deixam a luz passar só pelo buraco deles (aberta ou fechada; a parede em cima bloqueia); parede e
     janela bloqueiam; o piso bloqueia entre andares, menos no buraco da escada.
   - As lâmpadas **falhando** **piscam todas juntas** no jogo, nos três níveis (decidido em 11/nov).
-  - As paredes têm vértices a cada 0,5 m para a luz ter onde cair; os pisos e tetos, a cada 1 m. A poça de luz fica
-    mais macia e em losangos, no estilo do Minecraft.
+  - As paredes têm vértices a cada 0,5 m para a luz ter onde cair; os pisos e tetos, a cada 1 m.
+  - **As duas lâmpadas mais fortes de cada face são contadas em cada pixel (19/nov).** Antes a luz ia de vértice em
+    vértice e a poça saía em losango; só a lâmpada com sombra (a mais perto do agente) ficava redonda, e a diferença
+    aparecia ao chegar a uns 4 m dela. Agora cada face (um retângulo da malha) escolhe as duas lâmpadas que mais a
+    iluminam, as mesmas nos quatro cantos, e guarda onde cada uma está, a cor, o alcance e se cada canto a vê; o pixel faz
+    a queda com a distância e o ângulo (a mesma conta de `luzAssada.ts`). O que continua por vértice: se o canto vê a
+    lâmpada (a sombra das paredes sai macia, de canto a canto), o resto das lâmpadas somado, as janelas e a indireta. Vale
+    nos quatro níveis e no editor. Medido no Baixo a 3840 × 2160 (para o custo aparecer), na mansão: 17 a 19 quadros antes
+    e depois. Não é luz de verdade do three: não tem sombra nem o reflexo do material (só a lâmpada com sombra tem).
 - **As sombras em tempo real** (etapa 4, no Médio e no Alto; `src/render/sombras.ts`): a **lua** faz uma sombra para
   tudo em volta do agente (48 × 48 m; textura de 2048 no Alto e 1024 no Médio), e as **lâmpadas acesas mais perto do
   agente** fazem sombra (512 cada): 3 no Alto e 1 no Médio (a pedido, 11/nov: no começo era só no Alto). Sombra de lâmpada é cara: cada uma desenha a cena seis vezes por quadro; por isso só as mais perto, escolhidas

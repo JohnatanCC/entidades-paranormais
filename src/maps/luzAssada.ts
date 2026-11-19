@@ -5,6 +5,8 @@
 //     que fazem sombra são de verdade, e as outras vêm daqui (assim nenhuma vaza pela parede: render/assada.ts). Para
 //     o jogo poder tirar da conta as que são de verdade, cada vértice guarda as duas lâmpadas mais fortes nele com o
 //     número de cada uma (idLampada), e o resto somado. O número negativo marca a lâmpada "falhando" (pisca).
+//     No cenário (19/nov) as duas mais fortes são escolhidas por face e contadas em cada pixel (LuzFace, `face`); a
+//     amostra de um ponto só (LuzVertice) continua valendo para os objetos e os personagens.
 //   - as janelas com luar: iluminam o cômodo de verdade (o feixe e a mancha de editor/Luar.tsx são só o desenho);
 //     valem em todos os níveis.
 //   - a luz indireta (o recurso "Luz indireta", do Ultra): a luz que sobra depois de bater nas coisas. É calculada
@@ -24,7 +26,7 @@ type V3 = [number, number, number]
 type V4 = [number, number, number, number]
 interface Fonte { x: number; y: number; z: number; level: number; r: number; g: number; b: number; alcance: number; id: number; dentro?: V3 }
 
-const DECAIMENTO = 1.6 // o mesmo das lâmpadas de verdade (editor/Objetos.tsx)
+export const DECAIMENTO = 1.6 // o mesmo das lâmpadas de verdade (render/sombras.ts) e da conta em cada pixel (render/assada.ts)
 /** A luz de uma janela com luar: a cor, a força por metro de largura, o alcance e a que altura fica o meio dela (m). */
 export const JANELA = { cor: '#a9c2f0', forca: 5, alcance: 8, altura: 1.5 }
 /** A luz indireta: rebote = quanto da força de uma lâmpada ou janela vira luz no quadrado dela; queda = o que sobra a
@@ -78,7 +80,21 @@ export const novaLuzVertice = (): LuzVertice => ({ a: [0, 0, 0, 0], b: [0, 0, 0,
 /** Calcula em `out` a luz que chega no ponto p, de normal n. `de` = um ponto um pouco para dentro da face (é dele que
  *  se olha para a fonte: o vértice mesmo fica em cima da linha da parede).
  *  n = null: a amostra de um objeto inteiro (um móvel, o agente), sem direção: metade da luz de cada fonte que o vê. */
-export type Assador = (p: V3, n: V3 | null, de: V3, level: number, out: LuzVertice) => void
+export type Assador = ((p: V3, n: V3 | null, de: V3, level: number, out: LuzVertice) => void) & {
+  /** A luz de uma face do cenário (os cantos p, a normal n e os pontos `de`, um por canto): ver LuzFace. */
+  face: (p: V3[], n: V3, de: V3[], level: number, out: LuzFace) => void
+}
+
+/** Uma das duas lâmpadas mais fortes de uma face: onde está, o alcance, a cor × a força com o número dela (negativo =
+ *  falhando) e se cada canto da face a vê (1) ou tem parede ou piso no caminho (0). */
+export interface LampadaDaFace { pos: V3; alcance: number; cor: V4; ve: number[] }
+/** A luz de uma face do cenário (19/nov). As duas lâmpadas mais fortes são as mesmas nos cantos todos, e a conta delas
+ *  (a distância, o ângulo) é feita em cada pixel (render/assada.ts): a poça de luz sai redonda e macia, e não em losango
+ *  de vértice a vértice. O que continua por canto: se ele vê cada lâmpada, o resto das lâmpadas somado, as janelas e a
+ *  indireta. */
+export interface LuzFace { a: LampadaDaFace; b: LampadaDaFace; cantos: { resto: V3; janela: V3; indireta: V3 }[] }
+const semLampada = (): LampadaDaFace => ({ pos: [0, 0, 0], alcance: 1, cor: [0, 0, 0, 0], ve: [0, 0, 0, 0] })
+export const novaLuzFace = (): LuzFace => ({ a: semLampada(), b: semLampada(), cantos: [0, 1, 2, 3].map(() => ({ resto: [0, 0, 0], janela: [0, 0, 0], indireta: [0, 0, 0] })) })
 
 export function assadorDe(chunks: Chunk[]): Assador {
   const paredes = new Set<string>(), pisos = new Set<string>(), portas = new Map<string, number>(), fontes: Fonte[] = [] // portas: a altura do buraco de cada pedaço
@@ -173,25 +189,58 @@ export function assadorDe(chunks: Chunk[]): Assador {
     out[0] = r / n; out[1] = g / n; out[2] = b / n
   }
 
-  return (p, n, de, level, out) => {
+  /** O quanto da fonte chega no ponto p de normal n, sem olhar o que há no caminho (0 = fora do alcance ou de costas):
+   *  a mesma queda da luz pontual do three, 1 / d^decaimento, apagando até o alcance. */
+  function forca(l: Fonte, p: V3, n: V3 | null) {
+    const lx = l.x - p[0], ly = l.y - p[1], lz = l.z - p[2], d2 = lx * lx + ly * ly + lz * lz
+    if (d2 >= l.alcance * l.alcance) return 0
+    const d = Math.sqrt(d2) || 1e-4, nl = n ? (n[0] * lx + n[1] * ly + n[2] * lz) / d : 0.5
+    if (nl <= 0) return 0
+    const q = d / l.alcance, corte = Math.max(0, 1 - q * q * q * q)
+    return (nl * corte * corte) / Math.max(d ** DECAIMENTO, 0.01)
+  }
+  /** O ponto `de`, no andar level, vê a fonte? (o lado de dentro da janela, os pisos e as paredes no caminho) */
+  function ve(l: Fonte, de: V3, level: number) {
+    if (l.dentro && (de[0] - l.x) * l.dentro[0] + (de[2] - l.z) * l.dentro[2] < -0.25) return false // a janela não ilumina para fora
+    // em andares diferentes: o piso no meio bloqueia (em cima do ponto ou embaixo da fonte)
+    if (l.level !== level) {
+      for (let L = Math.min(l.level, level) + 1; L <= Math.max(l.level, level); L++) if (pisos.has(`${L}|${Math.floor(de[0])}|${Math.floor(de[2])}`) || pisos.has(`${L}|${Math.floor(l.x)}|${Math.floor(l.z)}`)) return false
+    }
+    return !(tapado(level, de[0], de[1], de[2], l.x, l.y, l.z) || (l.level !== level && tapado(l.level, de[0], de[1], de[2], l.x, l.y, l.z)))
+  }
+
+  // a face inteira: as duas lâmpadas que mais iluminam os quatro cantos juntos ficam para a conta de cada pixel
+  const ks = [0, 0, 0, 0], ka = [0, 0, 0, 0], kb = [0, 0, 0, 0] // o quanto chega em cada canto: da fonte da vez, da lâmpada A, da B
+  const face: Assador['face'] = (p, n, de, level, out) => {
+    for (let j = 0; j < 4; j++) { const c = out.cantos[j]; c.resto.fill(0); c.janela.fill(0); indiretaEm(p[j], de[j], level, c.indireta) }
+    let A: Fonte | null = null, B: Fonte | null = null, fa = 0, fb = 0 // as duas guardadas e a força delas nos quatro cantos
+    const somar = (onde: 'resto' | 'janela', l: Fonte, k: number[]) => { for (let j = 0; j < 4; j++) { const c = out.cantos[j][onde]; c[0] += l.r * k[j]; c[1] += l.g * k[j]; c[2] += l.b * k[j] } }
+    for (const l of fontes) {
+      let total = 0
+      for (let j = 0; j < 4; j++) { const k = forca(l, p[j], n); total += ks[j] = k > 0 && ve(l, de[j], level) ? k : 0 }
+      if (total <= 0) continue
+      if (l.dentro) { somar('janela', l, ks); continue }
+      // entra entre as duas mais fortes (a que sair vai para o resto de cada canto), ou vai direto para o resto
+      const f = total * (l.r + l.g + l.b)
+      if (f > fa) { if (B) somar('resto', B, kb); B = A; fb = fa; for (let j = 0; j < 4; j++) { kb[j] = ka[j]; ka[j] = ks[j] } A = l; fa = f }
+      else if (f > fb) { if (B) somar('resto', B, kb); B = l; fb = f; for (let j = 0; j < 4; j++) kb[j] = ks[j] }
+      else somar('resto', l, ks)
+    }
+    const guardar = (x: LampadaDaFace, l: Fonte | null, k: number[]) => {
+      if (!l) { x.cor.fill(0); x.ve.fill(0); x.alcance = 1; return }
+      x.pos[0] = l.x; x.pos[1] = l.y; x.pos[2] = l.z; x.alcance = l.alcance; x.cor[0] = l.r; x.cor[1] = l.g; x.cor[2] = l.b; x.cor[3] = l.id
+      for (let j = 0; j < 4; j++) x.ve[j] = k[j] > 0 ? 1 : 0
+    }
+    guardar(out.a, A, ka); guardar(out.b, B, kb)
+  }
+
+  const vertice: (p: V3, n: V3 | null, de: V3, level: number, out: LuzVertice) => void = (p, n, de, level, out) => {
     out.a.fill(0); out.b.fill(0); out.resto.fill(0); out.janela.fill(0)
     indiretaEm(p, de, level, out.indireta)
     let fa = 0, fb = 0 // a força das duas lâmpadas guardadas
     for (const l of fontes) {
-      const lx = l.x - p[0], ly = l.y - p[1], lz = l.z - p[2], d2 = lx * lx + ly * ly + lz * lz
-      if (d2 >= l.alcance * l.alcance) continue
-      const d = Math.sqrt(d2) || 1e-4, nl = n ? (n[0] * lx + n[1] * ly + n[2] * lz) / d : 0.5
-      if (nl <= 0) continue
-      if (l.dentro && (de[0] - l.x) * l.dentro[0] + (de[2] - l.z) * l.dentro[2] < -0.25) continue // a janela não ilumina para fora
-      // em andares diferentes: o piso no meio bloqueia (em cima do ponto ou embaixo da fonte)
-      if (l.level !== level) {
-        let piso = false
-        for (let L = Math.min(l.level, level) + 1; L <= Math.max(l.level, level) && !piso; L++) piso = pisos.has(`${L}|${Math.floor(de[0])}|${Math.floor(de[2])}`) || pisos.has(`${L}|${Math.floor(l.x)}|${Math.floor(l.z)}`)
-        if (piso) continue
-      }
-      if (tapado(level, de[0], de[1], de[2], l.x, l.y, l.z) || (l.level !== level && tapado(l.level, de[0], de[1], de[2], l.x, l.y, l.z))) continue
-      // a mesma queda da luz pontual do three: 1 / d^decaimento, apagando até o alcance
-      const q = d / l.alcance, corte = Math.max(0, 1 - q * q * q * q), k = (nl * corte * corte) / Math.max(d ** DECAIMENTO, 0.01)
+      const k = forca(l, p, n)
+      if (k <= 0 || !ve(l, de, level)) continue
       const r = l.r * k, g = l.g * k, b = l.b * k, f = r + g + b
       if (l.dentro) { out.janela[0] += r; out.janela[1] += g; out.janela[2] += b; continue }
       // entra entre as duas mais fortes (a que sair vai para o resto), ou vai direto para o resto
@@ -202,4 +251,5 @@ export function assadorDe(chunks: Chunk[]): Assador {
       out.resto[0] += sai[0]; out.resto[1] += sai[1]; out.resto[2] += sai[2]
     }
   }
+  return Object.assign(vertice, { face })
 }

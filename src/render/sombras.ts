@@ -7,6 +7,7 @@
 // 3), que vão para as lâmpadas mais perto do agente. Sombra de lâmpada é cara: cada uma desenha a cena seis vezes por
 // quadro (uma para cada lado dela). A lua faz uma sombra só para o mapa inteiro em volta do agente (game/luz/Iluminacao.tsx).
 import * as THREE from 'three'
+import { DECAIMENTO } from '../maps/luzAssada' // a mesma queda da luz assada
 import { ASSADA } from './assada'
 
 /** Uma lâmpada acesa do mapa: onde, a cor, a força, o alcance, o número (luzAssada.ts) e se falha. */
@@ -18,7 +19,6 @@ export function lampadaNaCena(l: Lampada) { lampadas.add(l); return () => { lamp
 
 // as luzes de verdade (as das sombras) e a lâmpada que cada uma está fazendo agora
 let fila: { luz: THREE.PointLight; lampada: Lampada | null }[] = []
-const DECAIMENTO = 1.6 // o mesmo da luz assada (maps/luzAssada.ts)
 
 /** As `quantas` luzes de verdade do nível, com sombra de `tamanho` pixels de lado (quem chama põe na cena). Ficam
  *  sempre com sombra ligada: ligar e desligar a sombra refaz os programas de todos os materiais. */

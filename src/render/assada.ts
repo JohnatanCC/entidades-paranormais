@@ -5,7 +5,8 @@
 //   'mista'  Médio e Alto: só as lâmpadas que fazem sombra são de verdade (COM_SOMBRA diz quais, pelo número de cada
 //            uma); as outras vêm da luz assada. Assim nenhuma lâmpada vaza pela parede: ou tem sombra, ou é assada.
 // Vale para dois tipos de material:
-//   - o cenário (paredes, pisos, tetos, escadas): a luz vem em cada vértice da malha (aplicarAssada);
+//   - o cenário (paredes, pisos, tetos, escadas): a luz vem da malha (aplicarAssada): as duas lâmpadas mais fortes de
+//     cada face são contadas em cada pixel; o resto, as janelas e a indireta, em cada vértice;
 //   - os objetos (móveis, portas, janelas, personagens, armas): a luz é uma amostra só para o objeto inteiro, tirada
 //     no lugar onde ele está (aplicarLuzObjeto + iluminarObjeto). Sem direção: o objeto clareia por igual;
 //   - os objetos repetidos juntados numa malha só, no jogo (render/instancias.ts): a amostra de cada cópia vem com
@@ -16,7 +17,7 @@
 // (a face virada para longe dela fica escura: a parede não deixa passar pelo lado de trás) e o feixe em cone quando
 // erguida. Sem sombra (só nos níveis altos, depois): o raio curto esconde o que vazaria.
 import { ShaderChunk, Vector3, Vector4, type Material, type Mesh, type Object3D } from 'three'
-import type { LuzVertice } from '../maps/luzAssada'
+import { DECAIMENTO, type LuzVertice } from '../maps/luzAssada'
 import { anotar, clonar } from './remendos'
 
 export type ModoAssada = 'nao' | 'assada' | 'mista'
@@ -56,8 +57,32 @@ if (!LUZES.includes('LUZ_ASSADA') || !LUZES.includes('LUZ_MISTA')) console.error
 // uma das duas lâmpadas mais fortes (do vértice ou do objeto): fora da conta se ela é de verdade agora (tem sombra);
 // pisca se está falhando
 const LAMPADA = `uniform float uPisca; uniform float uIndireta; uniform vec3 uComSombra; varying vec3 vLuzMalha; varying vec3 vLuzIndireta;
-vec3 lampadaDaMalha( vec4 l ) { float id = abs( l.a ); return ( id == uComSombra.x || id == uComSombra.y || id == uComSombra.z ) ? vec3( 0.0 ) : l.rgb * ( l.a < 0.0 ? uPisca : 1.0 ); }
+float pesoDaLampada( float num ) { float id = abs( num ); return ( id == uComSombra.x || id == uComSombra.y || id == uComSombra.z ) ? 0.0 : ( num < 0.0 ? uPisca : 1.0 ); }
+vec3 lampadaDaMalha( vec4 l ) { return l.rgb * pesoDaLampada( l.a ); }
 `
+// O cenário (19/nov): as duas lâmpadas mais fortes de cada face são contadas em cada pixel, e não mais de vértice a
+// vértice (a poça de luz no teto saía em losango, e só a lâmpada com sombra, a mais perto do agente, ficava redonda).
+// O vértice manda o caminho até cada lâmpada (no espaço da câmera: entre os vértices ele é exato), o peso (se o canto a
+// vê; zero se ela é de verdade agora; o pisca) e a cor com o alcance; o pixel faz a queda e o ângulo, a mesma conta de
+// maps/luzAssada.ts.
+const LAMPADAS_DA_FACE = 'varying vec4 vLampA; varying vec4 vLampB; varying vec4 vLampCorA; varying vec4 vLampCorB;\n'
+const LAMPADA_NO_PIXEL = `vec3 lampadaNoPixel( vec4 v, vec4 cor, vec3 n ) {
+  float d = max( length( v.xyz ), 0.0001 ), q = d / cor.a, corte = max( 0.0, 1.0 - q * q * q * q );
+  return cor.rgb * ( v.w * max( dot( n, v.xyz / d ), 0.0 ) * corte * corte / max( pow( d, ${DECAIMENTO.toFixed(2)} ), 0.01 ) );
+}
+`
+const SOMA_DO_CENARIO = `vLuzIndireta = luzIndireta * uIndireta;
+vLuzMalha = luzJanela; vLampA = vec4( 0.0 ); vLampB = vec4( 0.0 ); vLampCorA = vec4( 0.0, 0.0, 0.0, 1.0 ); vLampCorB = vec4( 0.0, 0.0, 0.0, 1.0 );
+#if defined( LUZ_ASSADA ) || defined( LUZ_MISTA )
+vLuzMalha += luzResto;
+vec3 pontoLuz = ( modelViewMatrix * vec4( position, 1.0 ) ).xyz;
+vLampA = vec4( ( viewMatrix * vec4( luzPosA.xyz, 1.0 ) ).xyz - pontoLuz, luzPosA.w * pesoDaLampada( luzA.a ) ); vLampCorA = vec4( luzA.rgb, luzAlc.x );
+vLampB = vec4( ( viewMatrix * vec4( luzPosB.xyz, 1.0 ) ).xyz - pontoLuz, luzPosB.w * pesoDaLampada( luzB.a ) ); vLampCorB = vec4( luzB.rgb, luzAlc.y );
+#endif`
+const LUZ_DA_FACE = `
+#if defined( LUZ_ASSADA ) || defined( LUZ_MISTA )
+reflectedLight.directDiffuse += ( lampadaNoPixel( vLampA, vLampCorA, normal ) + lampadaNoPixel( vLampB, vLampCorB, normal ) ) * BRDF_Lambert( material.diffuseColor );
+#endif`
 interface LuzObjeto { a: { value: Vector4 }; b: { value: Vector4 }; resto: { value: Vector3 }; indireta: { value: Vector3 } }
 const doObjeto = new WeakMap<Material, LuzObjeto>()
 
@@ -79,14 +104,14 @@ function remendar(mat: Material, objeto: Fonte) {
     if (objeto && objeto !== 'instancias') { s.uniforms.uObjA = objeto.a; s.uniforms.uObjB = objeto.b; s.uniforms.uObjResto = objeto.resto; s.uniforms.uObjIndireta = objeto.indireta }
     const dados = objeto === 'instancias' ? 'attribute vec4 iLuzA; attribute vec4 iLuzB; attribute vec3 iLuzResto; attribute vec3 iLuzIndireta;\n'
       : objeto ? 'uniform vec4 uObjA; uniform vec4 uObjB; uniform vec3 uObjResto; uniform vec3 uObjIndireta;\n'
-      : 'attribute vec4 luzA; attribute vec4 luzB; attribute vec3 luzResto; attribute vec3 luzJanela; attribute vec3 luzIndireta;\n'
+      : 'attribute vec4 luzA; attribute vec4 luzB; attribute vec4 luzPosA; attribute vec4 luzPosB; attribute vec2 luzAlc; attribute vec3 luzResto; attribute vec3 luzJanela; attribute vec3 luzIndireta;\n' + LAMPADAS_DA_FACE
     const soma = objeto === 'instancias' ? somaDoObjeto('iLuzA', 'iLuzB', 'iLuzResto', 'iLuzIndireta')
       : objeto ? somaDoObjeto('uObjA', 'uObjB', 'uObjResto', 'uObjIndireta')
-      : 'vLuzIndireta = luzIndireta * uIndireta;\nvLuzMalha = luzJanela;\n#if defined( LUZ_ASSADA ) || defined( LUZ_MISTA )\nvLuzMalha += luzResto + lampadaDaMalha( luzA ) + lampadaDaMalha( luzB );\n#endif'
+      : SOMA_DO_CENARIO
     s.vertexShader = dados + LAMPADA + s.vertexShader.replace('#include <begin_vertex>', '#include <begin_vertex>\n' + soma)
-    s.fragmentShader = 'varying vec3 vLuzMalha; varying vec3 vLuzIndireta;\n' + UNIFORMS_LAMPARINA + s.fragmentShader
+    s.fragmentShader = 'varying vec3 vLuzMalha; varying vec3 vLuzIndireta;\n' + (objeto ? '' : LAMPADAS_DA_FACE + LAMPADA_NO_PIXEL) + UNIFORMS_LAMPARINA + s.fragmentShader
       .replace('#include <lights_fragment_begin>', LUZES)
-      .replace('#include <lights_fragment_end>', '#include <lights_fragment_end>\nreflectedLight.directDiffuse += vLuzMalha * BRDF_Lambert( material.diffuseColor );\nreflectedLight.indirectDiffuse += vLuzIndireta * BRDF_Lambert( material.diffuseColor );' + LUZ_LAMPARINA)
+      .replace('#include <lights_fragment_end>', '#include <lights_fragment_end>\nreflectedLight.directDiffuse += vLuzMalha * BRDF_Lambert( material.diffuseColor );\nreflectedLight.indirectDiffuse += vLuzIndireta * BRDF_Lambert( material.diffuseColor );' + (objeto ? '' : LUZ_DA_FACE) + LUZ_LAMPARINA)
   }
   mat.customProgramCacheKey = () => (objeto === 'instancias' ? 'assada-instancias' : objeto ? 'assada-objeto' : 'assada')
   const d = DEFINE[ASSADA.modo]
@@ -94,7 +119,7 @@ function remendar(mat: Material, objeto: Fonte) {
   materiais.add(mat)
 }
 
-/** Ensina um material do cenário a usar a luz da malha (luzA, luzB, luzResto, luzJanela). */
+/** Ensina um material do cenário a usar a luz da malha (luzA, luzB, luzPosA, luzPosB, luzAlc, luzResto, luzJanela). */
 export function aplicarAssada<M extends Material>(mat: M): M {
   remendar(mat, null)
   return anotar(mat, aplicarAssada as (m: Material) => unknown)

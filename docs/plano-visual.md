@@ -91,6 +91,11 @@ medições da etapa 0 na mão, responda as duas perguntas e mostre a ele antes d
 Se a resposta for uma luz nova ou um recurso novo, **pergunte antes** e diga o custo (a regra de "nada de luz nova"
 continua valendo até ele decidir o contrário).
 
+**Feito em 19/nov, da revisão "o que falta":** a poça de luz das lâmpadas saía em losango (a luz ia de vértice em
+vértice) e só ficava redonda a uns 4 m, quando a lâmpada virava a de verdade. Agora as duas lâmpadas mais fortes de cada
+face são contadas em cada pixel (`docs/iluminacao.md`). **As 5 fotos de referência desta etapa são tiradas a partir
+daqui.**
+
 **Onde mexer (só números):** `src/maps/ambientes.ts`, nas ambientações `mansao`, `corredor`, `instalacao` e no momento
 `alarme`: `forca` e as cores `ceu` e `chao` (a luz ambiente), `preenchimento` e `forcaPreenchimento`, `contorno` e
 `forcaContorno`, `exposicao`, `brilho` (o bloom), `sombras` e `luzes` (o tom), `contraste`. Se o rosto estourar mesmo com
