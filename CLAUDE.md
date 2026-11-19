@@ -13,6 +13,7 @@ capítulo 1 e lançá-lo na web, no itch.io (`docs/lancamento.md`).
    `docs/demonios.md` — os Sombrios (Assombrado, Asa sombria, Devora almas): o desenho, os modelos, como lutam e as etapas.
    `docs/intro.md` — a Demo · Intro do submundo (as três arenas, as hordas, o chefe): desde 17/nov não é a Intro do jogo, fica para mais tarde.
    `docs/musicas.md` — as músicas: onde cada uma toca e o que precisa ter (a perseguição da Mãe, para o Suno).
+   `docs/direcao-cap0.md` — **a direção do capítulo 0** (19/nov): o que ele é, a sequência, o clima e a ordem de construir (em cinza primeiro).
    `docs/cenas.md` — as cenas (cutscenes) do capítulo 0: como são feitas (no motor, em dados, com legendas) e o storyboard de cada uma.
    `docs/dublagem.md` — as vozes: o roteiro de cada personagem para os testes, como gravar e a voz provisória (a do navegador).
    `docs/cap2-sombra.md` — o capítulo 2 (a Sombra), no papel; e a lamparina, a armadilha reformulada, que vale para o jogo todo.
@@ -91,13 +92,15 @@ npm run typecheck  # só os tipos
 index.html                 a página (fontes VT323 e IBM Plex Mono)
 vite.config.ts             o Vite + o plugin que salva mapas (tools/mapsDevApi.ts)
 .claude/skills/            as skills do projeto, chamadas com /nome: /lancamento (pronto para o itch?), /desempenho (medir e
-                           achar o gargalo), /teste-de-jogo (o roteiro e o relatório de um teste), /escopo (a ideia cabe no capítulo?)
+                           achar o gargalo), /teste-de-jogo (o roteiro e o relatório de um teste), /escopo (a ideia cabe no capítulo?),
+                           /cena (dirigir uma cutscene: o storyboard, a câmera, a atuação, o ritmo, a revisão)
 tools/mapsDevApi.ts        a API dos mapas (só no npm run dev): listar, ler, salvar, apagar em maps/; e salvar o vídeo de uma
                            cena em gravacoes/ (a pasta fica fora do git)
 maps/<id>/                 os mapas (JSON). map.json = cabeçalho; chunks/<cx>_<cz>.json = um bloco de 16 × 16 m;
                            maps/intro = a Demo · Intro (o submundo, sem chão: docs/intro.md); teste-gralhas, teste-mestre e teste-mae = os
                            mapas de teste das entidades (docs/criador-de-mapas.md); maps/instalacao-cap0 = o
-                           capítulo 0 (o andar de contenção e, solto, o escritório do Victor: docs/cenas.md)
+                           capítulo 0 (o andar de contenção e, solto, o escritório do Victor: docs/cenas.md; o Palacete
+                           real entra solto nele também: docs/direcao-cap0.md)
 src/
   main.tsx, App.tsx        as telas (menu → novo jogo → Demo · Intro | configurações | modo desenvolvedor → criador de mapas)
   styles.css               a paleta e as telas

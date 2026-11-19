@@ -26,10 +26,10 @@ Uma etapa por vez, na ordem em que o jogador vê. Cada uma termina numa versão 
    da instalação, o mapa e as duas cenas nele, com os atores; a próxima etapa são os gestos e as expressões das cenas).
    Jogável: depois das cenas, na instalação, com a introdução e o tutorial inicial; depois a missão no Palacete e a ruptura que suga os três. É o maior pedaço novo
    do lançamento (um mapa novo, `maps/instalacao-cap0`: cada capítulo tem um mapa só, com as partes de cena soltas nele; o tutorial; o caminho até o portal): vai ser dividido em etapas menores quando as
-   decisões abaixo estiverem tomadas. **Decidir antes:** aproveitar a Intro do laboratório (o elevador, a eclusa, o
-   escritório, o refeitório, a enfermaria, a usina e o Glutão: `docs/design/intro.md`) ou fazer outra; quais entidades
-   o tutorial usa; e o caminho da instalação até o portal (uma cena ou jogável; se jogável, sugestão: o Palacete de
-   verdade, o mesmo mapa `mansao-cap1` com outra ambientação e sem a Mãe).
+   decisões abaixo estiverem tomadas. **Decidido em 19/nov** (`docs/direcao-cap0.md`): um tutorial novo, linear e curto,
+   na instalação; os fugitivos são o Glutão e fantasmas pequenos, redesenhados; o Palacete é jogável, sem luta, no mapa
+   `mansao-cap1` com a luz de casa real, guiado por um detector; e o portal suga os três porque o Matheus liga a máquina
+   antes da hora. A ordem é construir tudo em cinza primeiro; a captura sobe para esta etapa.
 2. **A chegada na mansão** (a Intro nova, decidida em 17/nov; `docs/jogo.md`, "Capítulo 1"): o Matheus é arremessado para
    fora de um armário num quarto, fala com a Lara e o Nicolas pelo rádio, e entende o objetivo (destruir os objetos e
    capturar a Mãe). **Decidir antes:** qual quarto, e como as falas aparecem (legendas com som de rádio, sem vozes
@@ -111,7 +111,7 @@ escolhe): quantas pessoas jogaram, quantas seguiram a página e quantos vídeos 
 
 ## Em aberto
 
-- O capítulo 0: a Intro do laboratório ou outra, as entidades do tutorial, o caminho até o portal (etapa A1). O menu de cada capítulo: o que muda além da música (etapa A8). A chegada: qual quarto e como aparecem as falas do rádio (etapa A2).
+- O capítulo 0: o que ainda falta está em `docs/direcao-cap0.md`, "Em aberto" (etapa A1). O menu de cada capítulo: o que muda além da música (etapa A8). A chegada: qual quarto e como aparecem as falas do rádio (etapa A2).
 - A Demo · Intro do submundo fica no menu até lá ou sai da versão publicada.
 - Destruir os objetos muda a Mãe? Quanto tempo ela fica atordoada (etapas A4 e A5).
 - De onde vêm as músicas e se podem ser usadas (fase C).

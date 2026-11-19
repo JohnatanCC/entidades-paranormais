@@ -143,8 +143,8 @@ Lara e no Nicolas esperando por ele no elevador (a ordem mudou em 18/nov). **Dep
 andar, mirar, atirar e capturar. Depois a C.R.O.S. manda o Matheus, a Lara e o Nicolas ao Palacete Monteval, e a ruptura
 suga os três para o submundo. Termina quando eles entram no portal. A instalação já existiu no laboratório (a demo Intro
 abaixo, `docs/design/intro.md`), e o catálogo do criador de mapas já tem as texturas e os móveis dela.
-**Em aberto** (`docs/lancamento.md`, etapa A1): aproveitar a Intro do laboratório ou fazer outra; quais entidades o
-tutorial usa (os Sombrios são do submundo e não estão na instalação); e o caminho da instalação até o portal.
+**A direção do capítulo** (19/nov) está em `docs/direcao-cap0.md`: o tutorial linear na instalação (o Glutão e
+fantasmas pequenos, redesenhados), o Palacete jogável com o detector, e a falha do Matheus no portal.
 
 **O menu muda a cada capítulo** (17/nov, como no Poppy Playtime): mostra o capítulo mais adiantado a que o jogador
 chegou, com a música dele (`docs/musicas.md`).
