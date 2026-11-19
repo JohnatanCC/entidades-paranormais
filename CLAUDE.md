@@ -13,6 +13,7 @@ capítulo 1 e lançá-lo na web, no itch.io (`docs/lancamento.md`).
    `docs/demonios.md` — os Sombrios (Assombrado, Asa sombria, Devora almas): o desenho, os modelos, como lutam e as etapas.
    `docs/intro.md` — a Demo · Intro do submundo (as três arenas, as hordas, o chefe): desde 17/nov não é a Intro do jogo, fica para mais tarde.
    `docs/musicas.md` — as músicas: onde cada uma toca e o que precisa ter (a perseguição da Mãe, para o Suno).
+   `docs/plano-visual.md` — o plano da primeira impressão visual (19/nov): medir, a luz, o cenário calmo, o Matheus de costas, as armas, a folha de estilo.
    `docs/direcao-cap0.md` — **a direção do capítulo 0** (19/nov): o que ele é, a sequência, o clima e a ordem de construir (em cinza primeiro).
    `docs/cenas.md` — as cenas (cutscenes) do capítulo 0: como são feitas (no motor, em dados, com legendas) e o storyboard de cada uma.
    `docs/dublagem.md` — as vozes: o roteiro de cada personagem para os testes, como gravar e a voz provisória (a do navegador).
