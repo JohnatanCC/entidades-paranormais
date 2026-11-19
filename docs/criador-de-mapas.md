@@ -249,8 +249,13 @@ Pedido do desenvolvedor: pôr no cenário qualquer entidade criada e ver como el
     trancos, três garradas e fica exausta. Se o agente foge no meio, a sequência para; sem ver o agente, ela vai até onde
     o viu por último e, depois de 6 s sem ver (ou longe demais), volta para o lugar dela. Dano: garrada 25, carga 35.
     Toca a perseguição da Mãe (na frente da das Gralhas). Fica para a etapa da Mãe perseguidora (`docs/lancamento.md`):
-    achar o caminho pela casa (hoje ela vai reto e para na parede), abaixar nas portas, a patrulha, a escuta, o tiro e o
-    atordoamento (na mansão ela é imortal).
+    achar o caminho pela casa (hoje ela vai reto e para na parede), abaixar nas portas, a patrulha e a escuta.
+  - ✅ **D, o tiro (18/nov):** a Mãe tem uma vida que não aparece (300); zerada, cai atordoada (6 s) e levanta com ela
+    cheia; levar tiro parada a acorda. No Mestre a bala atravessa e ele falha (o glitch), sem parar; tiro nele parado o
+    acorda. As Gralhas continuam estourando com os tiros.
+  - ✅ **E, a lamparina (18/nov):** acesa na cintura (a luz amarelada em volta); segurando C, erguida, com o feixe à
+    frente; no feixe, sem parede no meio, o Mestre se cobre e recua, e volta a caçar quando sai dele. A armadilha de
+    jogar saiu do código.
 
 ### Os mapas de teste das entidades (18/nov)
 

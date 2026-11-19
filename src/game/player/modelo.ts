@@ -13,6 +13,7 @@ import * as THREE from 'three'
 import { arquivoModelo, caixaDaPasta, montarBB, vestir } from '../../render/bbmodel'
 import { animarAgente } from './animacao'
 import { novaAnimArma, type AnimArma, type Arma } from './arma'
+import type { Lamparina } from './lamparina'
 import { prepararMolas, type Molas } from '../corpo/molas'
 import { CABELO } from './numeros'
 import { novaMao, type AnimMao } from './maos'
@@ -57,6 +58,7 @@ export interface Agente {
   sola: [THREE.Vector3, THREE.Vector3] // o calcanhar e a ponta da bota, no espaço do pé (para os pés ficarem no chão)
   perna: number // m do quadril ao chão, em pé (o passo acompanha: perna mais comprida, passo maior)
   arma: Arma | null // a arma na mão direita (arma.ts: pegarArma)
+  lamparina: Lamparina | null // a lamparina na cintura (lamparina.ts: montarLamparina; null = sem ela, como nas cenas)
   anim: AnimAgente
 }
 
@@ -112,7 +114,7 @@ export function montarAgente(modelo: ModeloAgente = 'agente'): Agente {
   const panels = ([['casaco_d', -1], ['casaco_e', 1], ['casaco_tras', 0]] as const).flatMap(([n, s]) => { const g = pastas.get(n); return g ? [{ g, s, sw: 0, v: 0 }] : [] })
   const a: Agente = {
     root, roll, pelvis, legs, panels, spine, chest, pack: blocos.get('mochila') ?? chest, neck, head, arms, rosto, cabelo: null,
-    sola: solaDe(legs[0].ft), perna: pelvis.position.y + legs[0].th.position.y, arma: null, anim: { fase: 0, amp: 0, corrida: 0, tempo: 0, chao: 0, passo: 0, vel: 0, yaw: 0, inclina: 0, deita: 0, pernas: 0, pes: novosPes(), maos: [novaMao(), novaMao()], rosto: novoRosto(), parado: novoParado(), arma: novaAnimArma(), dano: novoDano() },
+    sola: solaDe(legs[0].ft), perna: pelvis.position.y + legs[0].th.position.y, arma: null, lamparina: null, anim: { fase: 0, amp: 0, corrida: 0, tempo: 0, chao: 0, passo: 0, vel: 0, yaw: 0, inclina: 0, deita: 0, pernas: 0, pes: novosPes(), maos: [novaMao(), novaMao()], rosto: novoRosto(), parado: novoParado(), arma: novaAnimArma(), dano: novoDano() },
   }
   // o corpo inteiro numa malha com ossos (uma chamada de desenho); o tronco vai preso no peito, que gira por dentro dele
   vestir(root, montado, { tronco: chest })

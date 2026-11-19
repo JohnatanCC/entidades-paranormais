@@ -22,17 +22,6 @@ export const MUNICAO = {
   pistola: { tiro: 0.025, pausa: 0.35, esfria: 0.08, esfriaRapido: 0.25, espera: 2, trava: 5, volta: 0.3 },
 }
 
-// A armadilha jogada (weapons/armadilha.ts): os números do laboratório (11 m/s para onde mira, mais 1,6 para cima)
-export const ARREMESSO = {
-  forca: 11, sobe: 1.6, // m/s para o ponto mirado, e a mais para cima (o arco)
-  solta: [-0.27, 1.5, 0.37], // de onde ela sai, no espaço do agente: onde a lanterna está no instante de soltar (à frente do ombro direito)
-  dura: 0.45, soltaEm: 0.4, // a animação do arremesso (s) e em que parte dela a armadilha sai da mão
-  passo: 0.06, // m: a conta do voo anda nesses passos (não atravessa parede fina)
-  maxVoo: 4, // s: voando mais que isso, para onde estiver
-  volta: 16, chega: 0.25, // chamada de volta: m/s até a mão, e a que distância ela já está na mão
-  arco: { pontos: 60, dt: 0.035 }, // a linha do arco na mira: quantos pontos e o tempo entre eles (s)
-}
-
 // A bala (weapons/bala.ts; a etapa 4b): os números da tabela do docs/jogo.md. vel = m/s; dano por bala; n = quantas
 // saem de uma vez (a escopeta: os bagos) e o leque (rad: o quanto cada uma desvia do centro); tam = o comprimento do
 // risco que ela deixa no ar (m). alcance = até onde ela vai (m); passo = de quanto em quanto a conta procura a parede (m)

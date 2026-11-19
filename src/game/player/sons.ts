@@ -5,13 +5,11 @@
 //     e o lugar devolve; na madeira, o baque oco e às vezes a tábua range;
 //   a cambalhota: o pano e o ar, o esforço curto, o corpo rolando no chão;
 //   o golpe: o tranco do pano e um gemido curto; a queda: o gemido caindo, os joelhos e o corpo no chão (sem violência);
-//   as armas: o tiro, a bomba, a recarga (a bolsa, cada bala, a bomba no fim), o calor da pistola, a troca, a armadilha.
+//   as armas: o tiro, a bomba, a recarga (a bolsa, cada bala, a bomba no fim), o calor da pistola, a troca; a lamparina.
 // O kit não tem animação: quem usa chama somDoKit.
-import * as THREE from 'three'
 import { pancada, rangido, ruido, som, tom, voz, type Som } from '../../audio/sintese'
-import { somEm, type Parte, type Tocar } from '../enemies/sons'
-import type { EstadoArmadilha } from '../weapons/armadilha'
-import { armadilhaPresa, armadilhaVolta, arremesso, balaEntra, bolsa, bomba, comEco, ganho, esfriou, superaquece, tiroEscopeta, tiroPistola, troca } from '../weapons/sons'
+import type { Parte, Tocar } from '../enemies/sons'
+import { baixaLamparina, balaEntra, bolsa, bomba, comEco, ganho, esfriou, ergueLamparina, superaquece, tiroEscopeta, tiroPistola, troca } from '../weapons/sons'
 import { TIRO } from '../weapons/numeros'
 import type { EstadoAnim } from './animacao'
 import type { Arma } from './arma'
@@ -79,14 +77,13 @@ export const kit: Tocar = (s, t, d) => {
 export function somDoKit() { const s = som(); if (s) kit(s, s.ctx.currentTime + 0.01, s.saida) }
 
 // ---------- quando cada um toca ----------
-interface Visto { fase: number; esquiva: number; queda: number; dano: number; tiroT: number; arma: Arma | null; recarga: number; entraram: number; travada: number; lanca: number; armadilha: EstadoArmadilha }
+interface Visto { fase: number; esquiva: number; queda: number; dano: number; tiroT: number; arma: Arma | null; recarga: number; entraram: number; travada: number; lamparina: boolean }
 const vistos = new WeakMap<Agente, Visto>()
 
-/** Depois de animarAgente: toca o que aconteceu neste quadro (e = o mesmo estado da animação; armadilha = o estado
- *  dela, onde = onde ela está; chao = o chão embaixo dele). */
-export function ouvirAgente(a: Agente, e: EstadoAnim, chao: Chao, armadilha?: EstadoArmadilha, onde?: THREE.Vector3) {
+/** Depois de animarAgente: toca o que aconteceu neste quadro (e = o mesmo estado da animação; chao = o chão embaixo dele). */
+export function ouvirAgente(a: Agente, e: EstadoAnim, chao: Chao) {
   const m = a.anim, A = m.arma, M = e.municao, q = e.queda ?? -1
-  const agora: Visto = { fase: m.fase, esquiva: e.esquiva, queda: q, dano: m.dano.t, tiroT: A.tiroT, arma: a.arma, recarga: M?.recarga ?? -1, entraram: M?.entraram ?? 0, travada: M?.travada ?? 0, lanca: A.lanca, armadilha: armadilha ?? 'mao' }
+  const agora: Visto = { fase: m.fase, esquiva: e.esquiva, queda: q, dano: m.dano.t, tiroT: A.tiroT, arma: a.arma, recarga: M?.recarga ?? -1, entraram: M?.entraram ?? 0, travada: M?.travada ?? 0, lamparina: !!e.lamparina }
   const v = vistos.get(a)
   vistos.set(a, agora)
   const s = som()
@@ -110,11 +107,8 @@ export function ouvirAgente(a: Agente, e: EstadoAnim, chao: Chao, armadilha?: Es
     if (v.travada <= 0 && M.travada > 0) superaquece(s, t, d)
     else if (v.travada > 0 && M.travada <= 0) esfriou(s, t, d)
   }
-  if (v.lanca < 0 && A.lanca >= 0) arremesso(s, t, d)
-  if (armadilha && v.armadilha !== armadilha) {
-    if (armadilha === 'presa' && onde) somEm(onde, armadilhaPresa, 3, 1) // no lugar dela
-    else if (armadilha === 'mao' && v.armadilha === 'voltando') armadilhaVolta(s, t, d)
-  }
+  // a lamparina: erguer e baixar
+  if (a.lamparina && e.lamparina !== v.lamparina && q < 0) (e.lamparina ? ergueLamparina : baixaLamparina)(s, t, d)
 }
 
 /** As partes, para as provas medirem (provas.sonsArmas). */

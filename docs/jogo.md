@@ -116,9 +116,8 @@ verdade à mansão.
   - **com a pistola:** a mão na guarda com o indicador esticado por fora do gatilho, e a arma nunca parada de todo (o
     braço e o pulso derivam devagar); gestos: olhar em volta (o peito vira mais e o braço sobe, a arma acompanha o
     olhar), conferir o frasco (a pistola sobe deitada na frente do peito, o frasco virado para os olhos) e girar o pulso.
-  - **com a armadilha:** a lanterna balança pela alça como um pêndulo (a gravidade e o tranco da mão: andando, parando,
-    virando) e o vidro aceso respira devagar; gestos: olhar em volta (a lanterna vai à frente, iluminando o caminho),
-    levantar até o rosto (na altura do queixo, o vidro acende mais) e girar a lanterna pela alça. O vidro não ilumina
+  - ~~com a armadilha~~ (saiu em 18/nov com a lamparina: a lanterna na mão direita, os gestos de levantar até o rosto e
+    de girar pela alça). O vidro não ilumina
     o rosto: seria uma luz a mais na cena, pesada no celular (fica para quando o jogo tiver a luz dele).
   - **com a escopeta:** parado mais de 1,2 s, ele apoia a escopeta no ombro direito (o cano para cima e para trás, a
     mão no cabo); andou, ela volta para as duas mãos em menos de meio segundo. Gestos: olhar em volta, conferir a
@@ -177,7 +176,10 @@ de costura, onde a Mãe começa; sugestão: o quarto de hóspedes, no andar de c
 
 **Em aberto (decidir antes de montar o capítulo):**
 - Destruir a foto e a pelúcia muda a Mãe (menos vida, outro comportamento) ou só libera o caminho?
-- Quanto tempo ela fica atordoada.
+- ~~Quanto tempo ela fica atordoada.~~ **Decidido em 18/nov:** a vida dela na mansão **não aparece** (a barra só aparece
+  nas lutas de chefe); zerada, ela cai **atordoada** (a animação, 6 s) e, quando levanta, **a vida volta cheia**: ela
+  nunca morre fora do berçário e continua uma ameaça no mapa. Levar tiro sem ter visto o agente a acorda (ela grita e
+  caça). A vida: 300 (60 tiros da pistola, uns 4 da escopeta de perto), em `src/game/entidades/numeros.ts` (MAE).
 
 **Decidido (9/nov):** o barulho que a Mãe escuta **não vem do piso**. Vem de quebrar objetos, abrir porta com força e
 atirar. Mais tarde entra **agachar / esgueirar-se** (andar sem fazer barulho).
@@ -237,7 +239,7 @@ luta não é para ser lenta; os ataques dos inimigos são legíveis para o jogad
 | --- | --- | --- | --- | --- |
 | Pistola de plasma | Q | a cada 0,2 s, bala a 40 m/s | 5 | **sobrecarga**: +2,5% por tiro; cheia, trava por 5 s. Munição infinita |
 | Escopeta de Demantino (o ferro extraído dos objetos amaldiçoados) | Q | a cada 1 s, 5 bagos em leque 0,065, 46 m/s | 5 × 15 | **balas**: 4 no cano; **a recarga leva 1 s por bala que falta** (4 = 4 s), e cada bala vale ao entrar. Sem sobrecarga |
-| Armadilha (a lamparina) | — | **não se equipa mais** (12/nov). **Reformulada em 17/nov: é a lamparina** na cintura, acesa; erguer ilumina a frente e captura absorvendo; o jogar sai (`docs/cap2-sombra.md`, "A lamparina") | — | — |
+| A lamparina (a armadilha reformulada) | C (segurar) | **feita em 18/nov:** na cintura, sempre acesa (a luz amarelada em volta); segurando C, erguida para a frente, com o feixe que afasta o Mestre; a captura absorvendo vem depois (`docs/cap2-sombra.md`, "A lamparina"). Não fica no Q | — | — |
 | Kit médico | F | — | cura 60 | — |
 
 **A recarga da escopeta (decidida e feita em 12/nov; mudada no mesmo dia):** leva **1 s por bala que falta** (1 bala
@@ -279,12 +281,12 @@ Os modelos (10/nov) estão em `modelos/armas/` e o agente já segura cada uma (`
 - a pistola numa mão, na guarda: a arma apontada para o chão na frente;
 - **a escopeta com as duas mãos** (decidido em 10/nov: é pesada e exige força): atravessada na frente do corpo, a mão
   esquerda na bomba, o peito um pouco para trás com o peso; correndo, ela sobe; **mirar também vai ser com as duas**;
-- a armadilha pendurada pela alça, balançando.
+- a lamparina na cintura, do lado esquerdo, balançando pela alça (18/nov; era a armadilha na mão direita).
 
 No Testar e no jogo, o agente **já começa com a pistola na mão e nunca fica de mão vazia** (12/nov); Q troca entre ela
 e a escopeta e R recarrega a
-escopeta. A armadilha saiu da troca (12/nov): o jogar e o chamar de volta continuam no código, esperando a ação nova.
-**17/nov:** a ação nova é erguer a lamparina; o jogar e o chamar de volta saem quando ela for feita.
+escopeta. A armadilha saiu da troca (12/nov) e, em 18/nov, virou a lamparina (C ergue): o jogar e o chamar de volta
+saíram do código.
 
 **Mirar e atirar (10/nov, sem bala ainda):** o botão direito mira; o esquerdo atira (atirar sem mirar levanta a arma
 antes, e o tiro sai quando ela chega). Mirando, a câmera chega mais perto, mais de lado e fecha (um ponto no meio da
@@ -295,7 +297,7 @@ tela); ele anda devagar (1,45 m/s, como na tabela do agente), não corre e vira 
 - o tiro: o cano sobe e a arma vem para trás (o coice), e um clarão em pixel no cano (brasa na pistola, sal na escopeta;
   sem luz nova na cena). A cadência, o coice e o clarão em `src/game/weapons/numeros.ts`.
 
-**Jogar a armadilha (10/nov):** com ela na mão, o botão direito mira: o braço arma para fora, na altura do ombro (longe da cabeça), a mão esquerda aponta
+**~~Jogar a armadilha (10/nov)~~** (saiu em 18/nov: a lamparina não se joga; fica o registro): com ela na mão, o botão direito mira: o braço arma para fora, na altura do ombro (longe da cabeça), a mão esquerda aponta
 o alvo e uma linha pontilhada mostra o arco, com um anel onde ela vai cair. O esquerdo joga (sem mirar, levanta antes):
 o braço passa por cima do ombro, ela sai (11 m/s para o ponto mirado, mais 1,6 para cima, como no laboratório) e o braço
 acompanha para baixo. Ela voa girando e **gruda no chão (em pé) ou na parede (com a base na parede)**; bate no teto e desce.
@@ -327,7 +329,8 @@ armadilha pousa ficam no lugar).
   entra com um toque de ferro, e a bomba no fim.
 - **Onde a bala bate:** a brasa chiando (pistola) ou o ferro ricocheteando (escopeta); num demônio, um baque molhado. No
   máximo dois por quadro (os bagos chegam juntos).
-- **A armadilha:** a corrente no arremesso; pousa e a íris abre; volta à mão. **Trocar de arma:** o couro e o metal.
+- **A lamparina** (18/nov; era a armadilha): erguer, a alça e a corrente chacoalham; baixar, o metal bate na cintura.
+  **Trocar de arma:** o couro e o metal.
 - **O agente:** os passos a cada pé no chão, mais fortes correndo (no submundo, pedra; no resto, madeira, por enquanto);
   a cambalhota (o pano, o esforço, o corpo rolando); o golpe (o tranco e um gemido curto); a queda (o gemido caindo, os
   joelhos, o corpo no chão); o kit (o spray e um sininho subindo, como o Sino). A voz dele é grave e curta, nunca grita.
@@ -554,7 +557,7 @@ atalhos 1/2/3) e os avisos de controle.
 
 - **Vida**: anel grande com o número em %, linha de ECG e o estado (bem / cuidado / perigo); o fôlego é um anel por dentro.
 - **Kits**: um selo com a quantidade e um anel que mostra o tempo até o próximo kit (quando está com 0).
-- **Arma**: um mostrador com a silhueta SVG da arma atual (pistola com anel de sino, escopeta de cano duplo, armadilha em disco com runas, kit),
+- **Arma**: um mostrador com a silhueta SVG da arma atual (pistola com anel de sino, escopeta de cano duplo, kit),
   o anel da sobrecarga em volta e as outras armas como satélites; o nome da arma embaixo.
 - **Roda de armas** (Tab): latão e âmbar, um arco por arma.
 - **Legendas e avisos**: embaixo, grandes, empilham (a anterior sobe), ficam bastante tempo (máx(4,2 s, duração × 1,7)), no máximo 3.

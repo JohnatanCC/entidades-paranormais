@@ -13,13 +13,14 @@ import { BALA, TIRO } from './numeros'
 
 /** Quem pode levar tiro: uma caixa alinhada com o mundo (o centro e as meias medidas, m) e o que fazer quando a bala
  *  acerta. */
-export interface Alvejavel { c: THREE.Vector3; m: THREE.Vector3; acerta: (dano: number, ponto: THREE.Vector3, dir: THREE.Vector3) => void }
+/** atravessa: a bala passa por ele (avisa que acertou e segue: o Mestre, que é sombra) */
+export interface Alvejavel { c: THREE.Vector3; m: THREE.Vector3; acerta: (dano: number, ponto: THREE.Vector3, dir: THREE.Vector3) => void; atravessa?: boolean }
 /** p está dentro da caixa do alvo? */
 export const dentro = (a: Alvejavel, p: THREE.Vector3) => Math.abs(p.x - a.c.x) < a.m.x && Math.abs(p.y - a.c.y) < a.m.y && Math.abs(p.z - a.c.z) < a.m.z
 type ArmaDeTiro = 'pistola' | 'escopeta'
 
 const MAX = 48
-interface Bala { viva: boolean; p: THREE.Vector3; v: THREE.Vector3; dist: number; arma: ArmaDeTiro }
+interface Bala { viva: boolean; p: THREE.Vector3; v: THREE.Vector3; dist: number; arma: ArmaDeTiro; passou: Alvejavel | null /* o que ela atravessou (avisa uma vez) */ }
 export interface Balas { grupo: THREE.Group; malha: THREE.InstancedMesh; balas: Bala[] }
 
 const ZERO = new THREE.Matrix4().makeScale(0, 0, 0)
@@ -29,7 +30,7 @@ export function novasBalas(): Balas {
   malha.frustumCulled = false; malha.visible = false
   for (let i = 0; i < MAX; i++) { malha.setMatrixAt(i, ZERO); malha.setColorAt(i, new THREE.Color('#fff')) }
   grupo.add(malha)
-  return { grupo, malha, balas: Array.from({ length: MAX }, () => ({ viva: false, p: new THREE.Vector3(), v: new THREE.Vector3(), dist: 0, arma: 'pistola' as ArmaDeTiro })) }
+  return { grupo, malha, balas: Array.from({ length: MAX }, () => ({ viva: false, p: new THREE.Vector3(), v: new THREE.Vector3(), dist: 0, arma: 'pistola' as ArmaDeTiro, passou: null })) }
 }
 
 const _d = new THREE.Vector3(), _x = new THREE.Vector3(), _y = new THREE.Vector3(), _c = new THREE.Color()
@@ -43,7 +44,7 @@ export function atirar(B: Balas, arma: ArmaDeTiro, de: THREE.Vector3, para: THRE
     const i = B.balas.findIndex((b) => !b.viva), b = B.balas[i < 0 ? 0 : i]
     const a = Math.random() * Math.PI * 2, r = N.leque * Math.sqrt(Math.random()) // espalhado dentro do cone
     b.v.copy(_d).addScaledVector(_x, Math.cos(a) * r).addScaledVector(_y, Math.sin(a) * r).normalize().multiplyScalar(N.vel)
-    b.viva = true; b.dist = 0; b.arma = arma; b.p.copy(de).addScaledVector(_d, -atras)
+    b.viva = true; b.dist = 0; b.arma = arma; b.passou = null; b.p.copy(de).addScaledVector(_d, -atras)
     B.malha.setColorAt(i < 0 ? 0 : i, _c.set(TIRO[arma].cor))
   }
   B.malha.instanceColor!.needsUpdate = true
@@ -101,7 +102,7 @@ const _r = new THREE.Vector3(), _rn = new THREE.Vector3()
 export function pontoMirado(m: Mundo, alvos: Alvejavel[], de: THREE.Vector3, dir: THREE.Vector3, out: THREE.Vector3, longe = BALA.alcance): THREE.Vector3 {
   for (let t = 0.5; t < longe; t += 0.25) {
     _r.copy(de).addScaledVector(dir, t)
-    const alvo = alvos.find((a) => dentro(a, _r))
+    const alvo = alvos.find((a) => !a.atravessa && dentro(a, _r)) // (a mira passa pelo que a bala atravessa)
     if (alvo) return out.copy(alvo.c) // a mira em cima de um demônio: o tiro vai no meio dele (não na borda)
     if (bateNoMundo(m, _r, _rn)) return out.copy(_r)
   }
@@ -120,8 +121,9 @@ export function passoBalas(B: Balas, dt: number, m: Mundo, alvos: Alvejavel[], I
     for (let k = 0; k < passos && b.viva; k++) {
       _p.copy(b.p).addScaledVector(b.v, dt / passos)
       // um alvo (o primeiro que a bala atravessa)
-      const alvo = alvos.find((a) => dentro(a, _p))
-      if (alvo) { b.viva = false; alvo.acerta(BALA[b.arma].dano, _p.clone(), _dir.clone()); faiscas(I, _p, _n.copy(_dir).negate(), TIRO[b.arma].cor, 3); aoBater?.(_p, b.arma, true); break }
+      const alvo = alvos.find((a) => a !== b.passou && dentro(a, _p))
+      if (alvo?.atravessa) { b.passou = alvo; alvo.acerta(BALA[b.arma].dano, _p.clone(), _dir.clone()) } // passa por ele e segue
+      else if (alvo) { b.viva = false; alvo.acerta(BALA[b.arma].dano, _p.clone(), _dir.clone()); faiscas(I, _p, _n.copy(_dir).negate(), TIRO[b.arma].cor, 3); aoBater?.(_p, b.arma, true); break }
       // o chão (onde tem: no mapa sem chão, o vazio não para a bala), o teto e as caixas (paredes, portas, objetos)
       if (bateNoMundo(m, _p, _n)) { b.viva = false; faiscas(I, _p, _n, TIRO[b.arma].cor); marca(I, _p, _n); aoBater?.(_p, b.arma, false); break }
       b.p.copy(_p); b.dist += total / passos

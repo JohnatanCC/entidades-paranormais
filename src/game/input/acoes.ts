@@ -68,11 +68,13 @@ export class Acoes {
   recarregar() { const v = this.apertou.has('KeyR'); this.apertou.delete('KeyR'); return v }
   /** Usar um kit médico: true uma vez por aperto do F. */
   kit() { const v = this.apertou.has('KeyF'); this.apertou.delete('KeyF'); return v }
+  /** A lamparina: o C segurado (ergue para a frente; soltou, volta para a cintura). */
+  lamparina() { return this.teclas.has('KeyC') }
   /** Mirar: o botão direito segurado. */
   mirar() { return (this.botoes & 2) !== 0 }
   /** Atirar: o botão esquerdo segurado, com o cursor travado. */
   atirar() { return (this.botoes & 1) !== 0 && !!this.alvo && document.pointerLockElement === this.alvo }
-  /** Clicou o botão esquerdo (com o cursor travado): true uma vez por clique (chamar a armadilha de volta). */
+  /** Clicou o botão esquerdo (com o cursor travado): true uma vez por clique (cortar a recarga da escopeta). */
   clicou() { const v = this.apertou.has('Mouse0'); this.apertou.delete('Mouse0'); return v }
   /** O quanto o mouse andou desde a última leitura (em pixels). */
   olhar(): [number, number] { const r: [number, number] = [this.dx, this.dy]; this.dx = this.dy = 0; return r }

@@ -1,6 +1,6 @@
 // O gatilho: a cadência de cada arma e o que sai no tiro (o coice no corpo, o clarão no cano e, na escopeta, a bomba
 // depois). Se ainda há tiro (as balas, a sobrecarga) quem diz é municao.ts: quem chama só aperta quando temTiro. Ainda
-// sem bala nem dano (a etapa 4b). Só a pistola e a escopeta atiram; a armadilha é jogada (armadilha.ts). Atirar sem
+// sem bala nem dano (a etapa 4b). Atirar sem
 // estar mirando levanta a arma antes (o tiro sai quando ela chega).
 import type { Agente } from '../player/modelo'
 import { TIRO } from './numeros'

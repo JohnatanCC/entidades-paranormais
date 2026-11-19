@@ -3,7 +3,7 @@
 // ferro amaldiçoado tocando depois, como sinos desafinados, com o sal caindo). Os outros seguem os dois:
 //   a pistola superaquecida: o vidro do frasco estalando; esfriou: um sininho descendo (pronta de novo);
 //   a escopeta: a bomba é o ferro deslizando e o trinco batendo; a recarga: a bolsa abre, cada bala entra com um toque
-//     de ferro, e no fim a bomba; a armadilha: a corrente chacoalha no arremesso, pousa e a íris abre, volta à mão;
+//     de ferro, e no fim a bomba; a lamparina: a alça e a corrente chacoalham ao erguer, e o metal bate ao baixar;
 //   trocar de arma: o couro e o metal; onde a bala bate: a brasa chiando (pistola) ou o ferro ricocheteando (escopeta);
 //   num demônio: o baque molhado da matéria escura.
 // O agente está perto da câmera: os sons dele vão direto para a saída (com um pouco do eco); onde a bala bate, o som
@@ -90,23 +90,16 @@ export const balaEntra: Tocar = (s, t, d) => {
   return 0.5
 }
 
-// ---------- a armadilha e a troca ----------
-/** O arremesso: a corrente chacoalha e o ar. */
-export const arremesso: Tocar = (s, t, d) => {
+// ---------- a lamparina e a troca ----------
+/** Erguer a lamparina: a alça e a corrente chacoalham, e o ar. */
+export const ergueLamparina: Tocar = (s, t, d) => {
   d = ganho(s, d, 3)
-  estalos(s, { t, n: 9, i0: 0.02, i1: 0.035, f: 2600, q: 7, gain: 0.14, dest: d })
-  ruido(s, { t, dur: 0.22, a: 0.03, r: 0.06, f: 500, f2: 1500, q: 1.1, gain: 0.12, dest: d })
-  return 0.35
+  estalos(s, { t, n: 6, i0: 0.02, i1: 0.035, f: 2600, q: 7, gain: 0.1, dest: d })
+  ruido(s, { t, dur: 0.18, a: 0.03, r: 0.06, f: 500, f2: 1500, q: 1.1, gain: 0.07, dest: d })
+  return 0.3
 }
-/** Ela pousa e a íris abre (no lugar dela). */
-export const armadilhaPresa: Tocar = (s, t, d) => {
-  pancada(s, t, 130, 0.24, d)
-  estalos(s, { t: t + 0.04, n: 8, i0: 0.03, i1: 0.012, f: 2000, q: 6, gain: 0.14, dest: d })
-  tom(s, { t: t + 0.2, f: 784, dur: 0.01, r: 0.6, gain: 0.06, lp: 2600, dest: comEco(s, d, 0.5) })
-  return 0.9
-}
-/** Ela volta à mão. */
-export const armadilhaVolta: Tocar = (s, t, d) => {
+/** Baixar a lamparina: o metal bate de volta na cintura. */
+export const baixaLamparina: Tocar = (s, t, d) => {
   pancada(s, t, 150, 0.2, d)
   estalos(s, { t, n: 3, i0: 0.015, i1: 0.02, f: 2200, q: 6, gain: 0.12, dest: d })
   return 0.3
@@ -138,6 +131,6 @@ export function somDaBala(p: THREE.Vector3, arma: 'pistola' | 'escopeta', alvo: 
 export const PARTES_ARMAS: Parte[] = [
   ['Pistola: tiro', tiroPistola], ['Pistola: superaquece', superaquece], ['Pistola: esfriou', esfriou],
   ['Escopeta: tiro', tiroEscopeta], ['Escopeta: bomba', bomba], ['Escopeta: bolsa', bolsa], ['Escopeta: bala entra', balaEntra],
-  ['Armadilha: arremesso', arremesso], ['Armadilha: presa', armadilhaPresa], ['Armadilha: volta', armadilhaVolta], ['Troca', troca],
+  ['Lamparina: ergue', ergueLamparina], ['Lamparina: baixa', baixaLamparina], ['Troca', troca],
   ['Bala: brasa', bateBrasa], ['Bala: ferro', bateFerro], ['Bala: no demônio', acerta],
 ]

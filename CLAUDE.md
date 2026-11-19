@@ -53,7 +53,7 @@ capítulo 1 e lançá-lo na web, no itch.io (`docs/lancamento.md`).
 - **A base é o laboratório v130**: `reference/laboratorio.html`, igual ao publicado em
   https://claude.ai/artifact/BDUaLP6DmvqwsBXhkdJdYw. O link antigo (`2wZHuEXpxxiRrKP9h2J1jM`, com fatia, pé de cabra e
   orbe) está desatualizado: não use como referência.
-- Faz parte da base: o agente, as duas armas e a armadilha, a captura por poça (dos fantasmas maiores), o Glutão, o HUD conceito C,
+- Faz parte da base: o agente, as duas armas e a lamparina (a armadilha reformulada, 18/nov), a captura por poça (dos fantasmas maiores), o Glutão, o HUD conceito C,
   Lara e Nicolas (a demo Intro) e **a Mãe com a luta do berçário** (o berço, o tornado, as quatro barras).
 - **A Sombra voltou** (17/nov) como o fantasma do capítulo 2, reformulada (`docs/cap2-sombra.md`), só no papel até o lançamento.
 - Fora do projeto (eram testes do laboratório): os outros fantasmas do laboratório (Desconhecido, Garota, Mordomo,
@@ -118,7 +118,7 @@ src/
                            tela cheia do Médio e do Alto: bloom, tonemapping, correção de cor, vinheta), contorno.ts (o contorno de luz
                            dos personagens e o brilho do golpe), golpe.ts (quem leva um golpe acende vermelho por um instante; o demônio que
                            prepara um ataque acende âmbar), brilho.ts (os blocos "luz_" mais fortes que o branco quando o bloom está ligado),
-                           assada.ts (o cenário e os objetos usam a luz assada: todas as lâmpadas no Baixo; no Médio e no Alto, as que não fazem
+                           assada.ts (o cenário e os objetos usam a luz assada, e a luz da lamparina, a única que anda: todas as lâmpadas no Baixo; no Médio e no Alto, as que não fazem
                            sombra), remendos.ts (anota as mudanças de shader de cada material, para a cópia levar junto),
                            sombras.ts (as lâmpadas do mapa são só dados, no jogo e no editor; as poucas luzes de verdade, as das sombras, vão para as mais perto), materiais.ts (nome da textura -> material),
                            relevo.ts (o relevo das texturas do cenário, gerado da imagem: na luz e o de verdade, do Ultra),
@@ -147,7 +147,7 @@ src/
 texturas/                  as texturas do cenário: <nome>.png, 32 × 32 px por bloco de 1 m, pintadas em pixel e sem costura
 modelos/                   os modelos do Blockbench (.bbmodel), lidos direto pelo jogo: agente.bbmodel, lara.bbmodel,
                            nicolas.bbmodel, victor.bbmodel e leonardo.bbmodel (o mesmo esqueleto do agente), objetos/<tipo>.bbmodel,
-                           aberturas/<tipo>.bbmodel (as portas e janelas; a porta da instalação, a de contenção, a do elevador e a janela da instalação, do capítulo 0), armas/<nome>.bbmodel (pistola, escopeta, armadilha; e o cartucho da recarga),
+                           aberturas/<tipo>.bbmodel (as portas e janelas; a porta da instalação, a de contenção, a do elevador e a janela da instalação, do capítulo 0), armas/<nome>.bbmodel (pistola, escopeta, lamparina; e o cartucho da recarga),
                            fantasmas/<nome>.bbmodel (a Mãe; a Gralha e o Mestre, do capítulo 2, ainda fora do jogo), demonios/<nome>.bbmodel (os Sombrios: o Assombrado, a Asa sombria, o Devora almas)
 public/musica/             as músicas do jogo (menu.mp3: o menu e o criador de mapas; batalha.mp3: as hordas e devorador.mp3:
                            o chefe, na Demo · Intro; perseguicao-gralhas.mp3 e perseguicao-mae.mp3: as perseguições; tensao.mp3 e
@@ -185,8 +185,8 @@ src/game/                  (já existem: Testar.tsx, player/, input/, world/, we
   Desempenho.tsx           o medidor de uma cena de jogo: os quadros por segundo e, com F3, o detalhe (desenhos, triângulos,
                            memória da placa, nível, lâmpadas)
   player/                  o agente: modelo.ts (liga modelos/agente.bbmodel no esqueleto), animacao.ts, maos.ts (os dedos),
-                           arma.ts (a arma na mão; a escopeta com as duas mãos ou no ombro; o pêndulo da armadilha; o frasco
-                           da pistola com o calor; Q troca no Testar), mira.ts (mirar: a pose, o coice, a bomba depois do tiro),
+                           arma.ts (a arma na mão; a escopeta com as duas mãos ou no ombro; o frasco
+                           da pistola com o calor; Q troca no Testar), lamparina.ts (na cintura, acesa; C ergue: a mão esquerda, o feixe), mira.ts (mirar: a pose, o coice, a bomba depois do tiro),
                            recarga.ts (a recarga da escopeta: a bolsa, o cartucho, as balas puxadas pela arma), queda.ts (cair sem violência), dano.ts (o tranco de um golpe,
                            machucado), vida.ts (a vida, a invulnerabilidade, os kits), parado.ts (a respiração, o
                            peso e os gestos de parado), alcancar.ts (o braço alcança um ponto: IK de dois ossos; a mão esquerda na maçaneta ao abrir a porta),
@@ -196,10 +196,9 @@ src/game/                  (já existem: Testar.tsx, player/, input/, world/, we
                            o Testar aplica na câmera), sons.ts (ouvirAgente: os passos, a cambalhota, o golpe,
                            a queda, o kit e os sons das armas no momento da animação), numeros.ts
   weapons/                 tiro.ts (o gatilho e a cadência), clarao.ts (o clarão no cano), municao.ts (as 4 balas e a
-                           recarga da escopeta, a sobrecarga da pistola, o contador simples), armadilha.ts (jogar: o voo em
-                           arco, grudar, chamar de volta, a linha do arco), bala.ts (a bala: a mira de verdade, o voo, bater e
-                           acertar os alvos), impacto.ts (as faíscas e a marca), sons.ts (o Sino da pistola, o Ferro que
-                           canta da escopeta, a recarga, a armadilha, onde a bala bate), numeros.ts
+                           recarga da escopeta, a sobrecarga da pistola, o contador simples), bala.ts (a bala: a mira de verdade, o voo, bater e
+                           acertar os alvos; o que a bala atravessa: o Mestre), impacto.ts (as faíscas e a marca), sons.ts (o Sino da pistola, o Ferro que
+                           canta da escopeta, a recarga, a lamparina, onde a bala bate), numeros.ts
   enemies/<nome>/          um inimigo por pasta (mae/, glutao/, assombrado/, asa-sombria/, devora-almas/): IA, ataques, modelo, números; a Mãe já tem
                            modelo.ts (monta o modelo, a saia e o cabelo com molas), pose.ts (as molas da pose, do
                            laboratório), animacao.ts (parada, andar, passar pela porta), rosto.ts (as expressões, os
@@ -223,7 +222,7 @@ src/game/                  (já existem: Testar.tsx, player/, input/, world/, we
                            de uma vez; a brisa e o arrasto no manto; o grito: o manto abre e a tela treme; a corrida, a mordida com o bico, cobrir-se
                            da luz e recuar), corvo.ts (o corvo gigante de
                            sombra que sai no grito, explode e solta 3 Gralhas), disfarce.ts (a entrada: um corvo pousado que cresce e
-                           se revela), fumaca.ts (a fumaça escura dentro do manto,
+                           se revela), glitch.ts (o tiro passa por ele e ele falha: pula, estica, some, chia), fumaca.ts (a fumaça escura dentro do manto,
                            uma malha só), sons.ts (a respiração, o osso, o manto, o grito, o corvo) e numeros.ts
   enemies/gralha/          a Gralha, do capítulo 2, só no Ver modelos por enquanto: modelo.ts, animacao.ts (voar, planar, pousada, o
                            ataque: mergulho e bicada; o tiro e estourar), efeitos.ts (as penas que caem e o estouro em fumaça), ia.ts (perseguir: rodear o agente e mergulhar nele), sons.ts (as asas, o grasnado) e numeros.ts
@@ -243,7 +242,7 @@ src/game/                  (já existem: Testar.tsx, player/, input/, world/, we
   hud/                     Hud.tsx + hud.css: o HUD conceito C (a vida e o fôlego, os kits, a arma, as barras do chefe); o jogo
                            conta a cada quadro (EstadoHud) e ele só muda o que mudou; as legendas e a roda de armas vêm depois
   input/                   acoes.ts: ações do jogador (teclado e mouse; depois controle e toque): o jogo lê ações, nunca teclas
-  world/                   colisao.ts (paredes, portas, móveis, corrimão, chão, escadas, braço da câmera, a armadilha jogada, a beirada do mapa sem chão, os bloqueios do roteiro), portas.ts (abrir e fechar
+  world/                   colisao.ts (paredes, portas, móveis, corrimão, chão, escadas, braço da câmera, a beirada do mapa sem chão, os bloqueios do roteiro), portas.ts (abrir e fechar
                            com E, o estado vivo das portas, onde fica a maçaneta); depois carregar por blocos
 src/chapters/cap0/         (já existe) o capítulo 0: cenas/ (escritorio.ts, a cena 1; instalacao.ts, a cena 2, com o alarme; comum.ts, o
                            tempo das falas), sons.ts (os sons da instalação e das cenas) ectoplasma.tsx (a poça que escorre debaixo da porta de contenção) e pasta.tsx (a

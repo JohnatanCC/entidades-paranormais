@@ -5,6 +5,7 @@ import * as THREE from 'three'
 import type { Agente } from './modelo'
 import { maoNoPonto } from './alcancar'
 import { animarArma, maoNaBomba, POSE_DA_ARMA, posturaDaEscopeta } from './arma'
+import { animarLamparina, erguerLamparina } from './lamparina'
 import { animarMolas } from '../corpo/molas'
 import { animarMaos, type PoseMao } from './maos'
 import { AGENTE, ANDAR, CORRER, PARADO, QUEDA, TRANSICAO } from './numeros'
@@ -30,6 +31,7 @@ export interface EstadoAnim {
   mover?: [number, number] // a velocidade no espaço dele (m/s): x para a esquerda, z para a frente; sem = para a frente
   municao?: Municao // a munição (weapons/municao.ts): a recarga da escopeta e o calor da pistola aparecem no corpo e na arma
   alcanca?: { ponto: THREE.Vector3; t: number } // a mão esquerda vai a um ponto do mundo (a maçaneta da porta); t = s desde o começo do gesto
+  lamparina?: boolean // segurando C: a mão esquerda ergue a lamparina para a frente (lamparina.ts)
 }
 
 const STAND = 0.42 // a altura do quadril dentro do pivô da cambalhota, antes de acertar os pés no chão
@@ -176,8 +178,7 @@ export function animarAgente(a: Agente, e: EstadoAnim, dt: number): void {
 
   // ---------- os braços: soltos, balançam opostos às pernas; correndo, o cotovelo dobra ----------
   // com pistola ou escopeta, o direito fica na guarda: o cotovelo dobrado e a arma apontada para o chão na frente (a
-  // escopeta ainda vai para as duas mãos, posturaDaEscopeta; mirar e o coice vêm na etapa das armas); a armadilha vai
-  // pendurada, o braço balança
+  // escopeta ainda vai para as duas mãos, posturaDaEscopeta; mirar e o coice vêm na etapa das armas)
   const guarda = a.arma === 'pistola' || a.arma === 'escopeta'
   for (const b of a.arms) {
     // o braço vai à frente quando a perna do mesmo lado vai para trás, um pouco atrasado; o cotovelo dobra mais na
@@ -210,8 +211,10 @@ export function animarAgente(a: Agente, e: EstadoAnim, dt: number): void {
   const gesto = gestoParado(a, parado && fk < 0.5, dt) // machucado, ele não fica fazendo gestos
   const maoRecarga = poseDaRecarga(a, recarga, solto, dt)
   maoNaBomba(a) // a mão esquerda na bomba, onde a escopeta estiver agora
-  // machucado: a mão esquerda segura o lado, quando está livre (não está na bomba, na pistola mirando, apontando ou jogando)
-  const Ar = a.anim.arma, ocupada = Math.max(Ar.esquerda, a.arma === 'pistola' || (a.arma === 'armadilha' && !Ar.fora) ? Ar.mira : 0, Ar.lanca >= 0 ? 1 : 0, Ar.recarga)
+  // a lamparina erguida (segurando C): por cima da bomba e da pistola mirando (a mão esquerda larga a arma)
+  const lamp = erguerLamparina(a, !!e.lamparina && q < 0, solto, dt)
+  // machucado: a mão esquerda segura o lado, quando está livre (não está na bomba, na pistola mirando nem na lamparina)
+  const Ar = a.anim.arma, ocupada = Math.max(Ar.esquerda, a.arma === 'pistola' ? Ar.mira : 0, Ar.recarga, lamp)
   const noLado = maoNoLado(a, (1 - ocupada) * solto)
   const naPorta = e.alcanca ? maoNoPonto(a, e.alcanca.ponto, e.alcanca.t, solto) : 0 // abrir a porta: por cima das armas
   poseDoTranco(a) // o tranco de um golpe: por cima de tudo, até da mira
@@ -222,11 +225,10 @@ export function animarAgente(a: Agente, e: EstadoAnim, dt: number): void {
   // ---------- as mãos e o rosto ----------
   // a mão da arma fica fechada nela (mirando, o indicador vai para o gatilho); a esquerda fecha na bomba da escopeta
   // ou, mirando a pistola, por cima da direita
-  // (a armadilha: fora da mão, a direita fica livre, aberta logo depois de soltar; mirando, a esquerda aponta o alvo)
-  const A = a.anim.arma, mirada = A.mira > 0.5 && (a.arma === 'pistola' || a.arma === 'escopeta')
-  const direita: PoseMao | undefined = !a.arma ? gesto[0] : a.arma === 'armadilha' && A.fora ? (A.lanca >= 0 ? 'aberta' : gesto[0]) : mirada ? 'segurar' : POSE_DA_ARMA[a.arma]
-  const aponta = a.arma === 'armadilha' && !A.fora && A.mira > 0.5 && A.lanca < 0
-  const forca: typeof gesto = [direita, maoRecarga ?? (A.esquerda > 0.5 || (mirada && a.arma === 'pistola') ? 'segurar' : aponta ? 'apontar' : gesto[1])]
+  // (a lamparina erguida: a esquerda fecha na alça)
+  const A = a.anim.arma, mirada = A.mira > 0.5 && !!a.arma
+  const direita: PoseMao | undefined = !a.arma ? gesto[0] : mirada ? 'segurar' : POSE_DA_ARMA[a.arma]
+  const forca: typeof gesto = [direita, lamp > 0.4 ? 'segurar' : maoRecarga ?? (A.esquerda > 0.5 || (mirada && a.arma === 'pistola') ? 'segurar' : gesto[1])]
   if (noLado > 0.5 && !forca[1]) forca[1] = 'aberta' // a mão espalmada no lado
   if (naPorta > 0.4) forca[1] = 'aberta' // a mão espalmada na porta
   if (q >= 0) forca[1] = undefined // caído: a mão livre solta (a da arma continua nela)
@@ -244,8 +246,9 @@ export function animarAgente(a: Agente, e: EstadoAnim, dt: number): void {
   }
   // ---------- o cabelo: as mechas balançam com o movimento da cabeça (depois de tudo posto no lugar) ----------
   if (a.cabelo) animarMolas(a.cabelo, a.root, dt)
-  // ---------- a arma (depois do braço no lugar): as balas da recarga voam, o frasco da pistola, a armadilha balança ----------
+  // ---------- a arma (depois do braço no lugar): as balas da recarga voam, o frasco da pistola; a lamparina balança ----------
   voarBalas(a)
   A.calor = e.municao?.calor ?? 0; A.travada = e.municao?.travada ?? 0
   animarArma(a, dt)
+  animarLamparina(a, dt)
 }

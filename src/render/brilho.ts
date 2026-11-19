@@ -1,4 +1,4 @@
-// O brilho do que acende sozinho (os blocos "luz_" dos modelos: a lâmpada, a chama, os olhos, a luz da armadilha).
+// O brilho do que acende sozinho (os blocos "luz_" dos modelos: a lâmpada, a chama, os olhos, o vidro da lamparina).
 // Com o bloom ligado (Médio e Alto) essas peças ficam mais fortes que o branco, e é isso que faz o halo em volta delas
 // (render/passeFinal.ts). Sem o bloom (o Baixo, o editor, o estúdio do Ver modelos) a força é 1 e a peça fica como era.
 // A força é uma só para todos os modelos (um número dividido pelos materiais): quem liga e desliga é game/luz.

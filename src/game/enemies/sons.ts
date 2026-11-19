@@ -49,7 +49,7 @@ export function calar(dono: object) {
   if (f) { soltarFonte(f); fontes.delete(dono) }
 }
 /** Um som num ponto do mundo (uma fonte só para ele, solta depois que ele acaba). volume: o dos Sombrios (os sons do
- *  agente num ponto, a bala batendo e a armadilha, passam 1). */
+ *  agente num ponto, a bala batendo, passam 1). */
 export function somEm(p: THREE.Vector3, tocar: Tocar, ref = 2, volume = VOLUME) {
   const s = som(), f = s ? fonteDeDemonio(ref, volume) : null
   if (!s || !f) return

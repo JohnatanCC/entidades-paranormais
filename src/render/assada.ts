@@ -11,6 +11,10 @@
 //   - os objetos repetidos juntados numa malha só, no jogo (render/instancias.ts): a amostra de cada cópia vem com
 //     ela, nos atributos da instância (aplicarLuzInstancias).
 // A luz das janelas vem sempre daqui. As lâmpadas "falhando" piscam todas juntas no jogo (um número só).
+// E a lamparina do agente (18/nov: game/player/lamparina.ts), a única luz que anda: não dá para assar, e uma luz de
+// verdade do three não entraria (o modo assada pula as pontuais). Ela vem aqui, na conta de cada pixel: a luz em volta
+// (a face virada para longe dela fica escura: a parede não deixa passar pelo lado de trás) e o feixe em cone quando
+// erguida. Sem sombra (só nos níveis altos, depois): o raio curto esconde o que vazaria.
 import { ShaderChunk, Vector3, Vector4, type Material, type Mesh, type Object3D } from 'three'
 import type { LuzVertice } from '../maps/luzAssada'
 import { anotar, clonar } from './remendos'
@@ -18,6 +22,22 @@ import { anotar, clonar } from './remendos'
 export type ModoAssada = 'nao' | 'assada' | 'mista'
 // indireta: 1 = o cenário e os objetos somam a luz indireta do mapa (o recurso "Luz indireta"); 0 = não
 export const ASSADA = { modo: 'nao' as ModoAssada, pisca: { value: 1 }, comSombra: { value: new Vector3() }, indireta: { value: 0 } }
+/** A lamparina: pos = onde (xyz) e o alcance (w, m); cor = a cor × a força (0 = apagada); feixe = para onde (xyz) e o
+ *  cosseno da metade da abertura (w); feixeCor = a cor × a força do feixe (0 = abaixada); feixeAlcance = m. */
+export const LAMPARINA = { pos: { value: new Vector4(0, -99, 0, 1) }, cor: { value: new Vector3() }, feixe: { value: new Vector4(0, 0, 1, 1) }, feixeCor: { value: new Vector3() }, feixeAlcance: { value: 8 } }
+const UNIFORMS_LAMPARINA = 'uniform vec4 uLampPos; uniform vec3 uLampCor; uniform vec4 uLampFeixe; uniform vec3 uLampFeixeCor; uniform float uLampFeixeAlc;\n'
+const LUZ_LAMPARINA = `
+{
+  vec3 pv = - vViewPosition, lv = ( viewMatrix * vec4( uLampPos.xyz, 1.0 ) ).xyz - pv;
+  float d = max( length( lv ), 0.05 ); vec3 L = lv / d;
+  float nl = max( dot( normal, L ), 0.0 );
+  vec3 c = uLampCor * pow( clamp( 1.0 - d / uLampPos.w, 0.0, 1.0 ), 2.0 ) * nl;
+  vec3 fv = normalize( ( viewMatrix * vec4( uLampFeixe.xyz, 0.0 ) ).xyz );
+  float cone = smoothstep( uLampFeixe.w, mix( uLampFeixe.w, 1.0, 0.35 ), dot( - L, fv ) );
+  c += uLampFeixeCor * cone * pow( clamp( 1.0 - d / uLampFeixeAlc, 0.0, 1.0 ), 1.3 ) * nl;
+  reflectedLight.directDiffuse += c * BRDF_Lambert( material.diffuseColor );
+}
+`
 const DEFINE: Record<ModoAssada, string | null> = { nao: null, assada: 'LUZ_ASSADA', mista: 'LUZ_MISTA' }
 const materiais = new Set<Material>()
 
@@ -54,6 +74,8 @@ function remendar(mat: Material, objeto: Fonte) {
     s.uniforms.uPisca = ASSADA.pisca
     s.uniforms.uComSombra = ASSADA.comSombra
     s.uniforms.uIndireta = ASSADA.indireta
+    s.uniforms.uLampPos = LAMPARINA.pos; s.uniforms.uLampCor = LAMPARINA.cor; s.uniforms.uLampFeixe = LAMPARINA.feixe
+    s.uniforms.uLampFeixeCor = LAMPARINA.feixeCor; s.uniforms.uLampFeixeAlc = LAMPARINA.feixeAlcance
     if (objeto && objeto !== 'instancias') { s.uniforms.uObjA = objeto.a; s.uniforms.uObjB = objeto.b; s.uniforms.uObjResto = objeto.resto; s.uniforms.uObjIndireta = objeto.indireta }
     const dados = objeto === 'instancias' ? 'attribute vec4 iLuzA; attribute vec4 iLuzB; attribute vec3 iLuzResto; attribute vec3 iLuzIndireta;\n'
       : objeto ? 'uniform vec4 uObjA; uniform vec4 uObjB; uniform vec3 uObjResto; uniform vec3 uObjIndireta;\n'
@@ -62,9 +84,9 @@ function remendar(mat: Material, objeto: Fonte) {
       : objeto ? somaDoObjeto('uObjA', 'uObjB', 'uObjResto', 'uObjIndireta')
       : 'vLuzIndireta = luzIndireta * uIndireta;\nvLuzMalha = luzJanela;\n#if defined( LUZ_ASSADA ) || defined( LUZ_MISTA )\nvLuzMalha += luzResto + lampadaDaMalha( luzA ) + lampadaDaMalha( luzB );\n#endif'
     s.vertexShader = dados + LAMPADA + s.vertexShader.replace('#include <begin_vertex>', '#include <begin_vertex>\n' + soma)
-    s.fragmentShader = 'varying vec3 vLuzMalha; varying vec3 vLuzIndireta;\n' + s.fragmentShader
+    s.fragmentShader = 'varying vec3 vLuzMalha; varying vec3 vLuzIndireta;\n' + UNIFORMS_LAMPARINA + s.fragmentShader
       .replace('#include <lights_fragment_begin>', LUZES)
-      .replace('#include <lights_fragment_end>', '#include <lights_fragment_end>\nreflectedLight.directDiffuse += vLuzMalha * BRDF_Lambert( material.diffuseColor );\nreflectedLight.indirectDiffuse += vLuzIndireta * BRDF_Lambert( material.diffuseColor );')
+      .replace('#include <lights_fragment_end>', '#include <lights_fragment_end>\nreflectedLight.directDiffuse += vLuzMalha * BRDF_Lambert( material.diffuseColor );\nreflectedLight.indirectDiffuse += vLuzIndireta * BRDF_Lambert( material.diffuseColor );' + LUZ_LAMPARINA)
   }
   mat.customProgramCacheKey = () => (objeto === 'instancias' ? 'assada-instancias' : objeto ? 'assada-objeto' : 'assada')
   const d = DEFINE[ASSADA.modo]

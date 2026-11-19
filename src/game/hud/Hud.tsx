@@ -29,7 +29,6 @@ export interface ChefeHud { nome: string; barras: number[] }
 const SILHUETA: Record<Arma | 'kit', string> = {
   pistola: '<path d="M6 21 H47 L52 24 V30 H6 Z"/><path d="M10 30 H30 L28 35 H23 L20 52 H9 L12 35 Z"/><path d="M23 35 Q23 41 29 41 L31 35" fill="none" stroke-width="2.6"/><circle cx="56.5" cy="27" r="5" fill="none" stroke-width="2.6"/><path d="M14 25 H38 M14 27.5 H30" style="stroke:var(--cut)" stroke-width="1.2"/>',
   escopeta: '<path d="M2 37 L15 30 H21 V40 H14 L5 47 Z"/><path d="M20 28 H31 V40 H20 Z"/><rect x="31" y="27" width="31" height="4"/><rect x="31" y="32" width="31" height="4"/><path d="M35 36 H50 V40 H35 Z"/><path d="M24 40 Q24 45 29 45" fill="none" stroke-width="2.4"/><path d="M22 31 H29 M22 34 H27" style="stroke:var(--cut)" stroke-width="1.2"/>',
-  armadilha: '<rect x="26" y="9" width="12" height="7" rx="1.5"/><circle cx="32" cy="37" r="19"/><circle cx="32" cy="37" r="12" fill="none" style="stroke:var(--cut)" stroke-width="2.2"/><path d="M32 27 V47 M22 37 H42" style="stroke:var(--cut)" stroke-width="2.2"/><path d="M32 18 V22 M32 52 V56 M13 37 H17 M47 37 H51" style="stroke:var(--cut)" stroke-width="1.6"/>',
   kit: '<rect x="12" y="19" width="40" height="31" rx="4"/><path d="M25 19 V13 H39 V19" fill="none" stroke-width="2.6"/><path d="M32 26 V43 M23.5 34.5 H40.5" style="stroke:var(--cut)" stroke-width="5"/>',
 }
 const svg = (k: Arma | 'kit') => `<svg viewBox="0 0 64 64" fill="currentColor" stroke="currentColor" stroke-linejoin="round" stroke-linecap="round" aria-hidden="true">${SILHUETA[k]}</svg>`

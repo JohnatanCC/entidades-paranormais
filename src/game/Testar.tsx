@@ -4,8 +4,8 @@
 // a escopeta gasta as 4 balas e recarrega, a pistola esquenta e trava (weapons/municao.ts), a bala voa e acerta
 // (weapons/bala.ts); a vida, os kits e a arma vão para o HUD (game/hud: onHud, a cada quadro). Fica dentro do <Canvas>.
 //   clique trava o mouse · WASD anda · Shift corre · Espaço esquiva · E abre e fecha porta · Q troca a arma · R recarrega · mouse olha
-//   botão direito mira · botão esquerdo atira · Esc volta ao editor
-//   (a armadilha saiu da troca, 12/nov: o jogar e o chamar de volta continuam aqui, esperando a ação própria dela)
+//   botão direito mira · botão esquerdo atira · C (segurando) ergue a lamparina · Esc volta ao editor
+//   (a lamparina fica acesa na cintura, sempre: player/lamparina.ts)
 //   para ver o modelo (só no Testar, não é controle do jogo): 1–6 expressões, 7–9 poses da mão, 0 volta ao automático,
 //   K cai (a queda: a tela escurece e ele volta no começo do teste, que por enquanto é o checkpoint), J toma 25 de dano
 //   de uma direção sorteada (30% ou menos, machucado; zerou, cai) · F usa um kit (+60; zerado, nasce um a cada 1:30)
@@ -23,7 +23,8 @@ import { momento } from './luz/luz'
 import { DURA_ALCANCE } from './player/alcancar'
 import { Entidades } from './entidades/Entidades'
 import { animarAgente } from './player/animacao'
-import { armadilhaFora, pegarArma, proximaArma } from './player/arma'
+import { pegarArma, proximaArma } from './player/arma'
+import { descartarLamparina, montarLamparina } from './player/lamparina'
 import { novoJogador, passoJogador } from './player/controle'
 import type { PoseMao } from './player/maos'
 import { montarAgente, type Agente } from './player/modelo'
@@ -37,7 +38,6 @@ import { ouvinte } from '../audio/espaco'
 import { aplicarTremor } from './player/tremor'
 import { somDaBala } from './weapons/sons'
 import { passoGolpes } from '../render/golpe'
-import { chamar, descartarArco, desenharArco, gatilhoArmadilha, lancar, novaArmadilha, novoArco, passoArmadilha, pontoDeSoltar, recolher, velocidadeDoArremesso } from './weapons/armadilha'
 import { gatilho } from './weapons/tiro'
 import { atirar, novasBalas, passoBalas, pontoMirado, type Alvejavel } from './weapons/bala'
 import { novosImpactos, passoImpactos } from './weapons/impacto'
@@ -88,6 +88,8 @@ export interface AgenteNaFase {
   aoVoltar: (() => void) | null
   /** o que pode levar tiro agora (o roteiro põe os demônios aqui, a cada quadro): as balas acertam e chamam quem foi */
   alvos: Alvejavel[]
+  /** a lamparina: o quanto está erguida (0..1), de onde sai a luz e para onde vai o feixe (no mundo) */
+  lamparina: { ergue: number; pos: THREE.Vector3; dir: THREE.Vector3 }
 }
 
 // as teclas de ver o modelo: 1–6 forçam uma expressão, 7–9 uma pose das mãos, 0 solta as duas
@@ -106,13 +108,12 @@ export function Testar({ chunks, levels, ambiente, semChao, areas, inicio, yaw, 
     return m
   }, [chunks, levels, portas, semChao])
   // o agente já com a pistola na mão
-  const agente = useMemo(() => { const a = montarAgente(); pegarArma(a, 'pistola'); return a }, []), sombra = useMemo(() => novaSombraDeChao(), [])
+  const agente = useMemo(() => { const a = montarAgente(); pegarArma(a, 'pistola'); montarLamparina(a); return a }, []), sombra = useMemo(() => novaSombraDeChao(), [])
 
   // a luz assada de onde o agente está (as lâmpadas sem sombra e as janelas), tirada de novo a cada poucos quadros
   const listaDeBlocos = useMemo(() => Object.values(chunks), [chunks])
   const assa = useMemo(() => assadorDe(listaDeBlocos), [listaDeBlocos]), luzAgente = useMemo(() => novaLuzVertice(), []), quadro = useRef(0)
   const acoes = useMemo(() => new Acoes(), [])
-  const armadilha = useMemo(() => novaArmadilha(), []), arco = useMemo(() => novoArco(), [])
   const balas = useMemo(() => novasBalas(), []), impactos = useMemo(() => novosImpactos(), []) // a bala e o que ela deixa onde bate
   const est = useRef({
     j: novoJogador(inicio[0], chaoEm(mundo, inicio[0], inicio[2], inicio[1] + 0.3) ?? inicio[1], inicio[2], yaw),
@@ -135,7 +136,7 @@ export function Testar({ chunks, levels, ambiente, semChao, areas, inicio, yaw, 
     const escurecer = (k: number) => { const s = est.current; if (s.escuro !== k) { s.escuro = k; escuroRef.current(k) } }
     const preso = (sim: boolean) => { const s = est.current; s.j.preso = sim; agente.root.visible = !sim; sombra.visible = !sim; escurecer(sim ? ENGOLIDO.escuro : 0) }
     return {
-      agente, mundo, aoVoltar: null, alvos: [],
+      agente, mundo, aoVoltar: null, alvos: [], lamparina: { ergue: 0, pos: new THREE.Vector3(), dir: new THREE.Vector3(0, 0, 1) },
       pode: () => est.current.j.caido < 0 && !est.current.j.preso,
       ferir: (dano, de, sempre = false) => {
         const s = est.current, j = s.j, E = AGENTE.esquiva.invul
@@ -200,7 +201,7 @@ export function Testar({ chunks, levels, ambiente, semChao, areas, inicio, yaw, 
   // o agente na cena, a entrada ligada, o mouse travado com um clique; Esc (ou soltar o mouse) volta ao editor
   useEffect(() => {
     const el = gl.domElement
-    scene.add(agente.root, sombra, arco.linha, arco.marca, balas.grupo, impactos.grupo)
+    scene.add(agente.root, sombra, balas.grupo, impactos.grupo)
     acoes.ligar(el)
     const clique = () => { if (document.pointerLockElement !== el) { try { const r = el.requestPointerLock() as unknown as Promise<void> | undefined; r?.catch?.(() => {}) } catch { /* sem trava: segue sem olhar com o mouse */ } } }
     const trava = () => {
@@ -217,7 +218,7 @@ export function Testar({ chunks, levels, ambiente, semChao, areas, inicio, yaw, 
     clique() // tenta travar já (o clique no botão Testar conta como gesto do usuário)
     return () => {
       scene.remove(agente.root, sombra, balas.grupo, impactos.grupo)
-      descartarArco(arco); recolher(armadilha)
+      descartarLamparina(agente) // a luz dela apaga no editor
       acoes.desligar()
       el.removeEventListener('click', clique)
       document.removeEventListener('pointerlockchange', trava)
@@ -226,7 +227,7 @@ export function Testar({ chunks, levels, ambiente, semChao, areas, inicio, yaw, 
       const c = camera as THREE.PerspectiveCamera
       c.fov = 50; c.updateProjectionMatrix() // o campo de visão do editor
     }
-  }, [gl, scene, agente, sombra, acoes, camera, armadilha, arco, balas, impactos])
+  }, [gl, scene, agente, sombra, acoes, camera, balas, impactos])
 
   const cam = camera as THREE.PerspectiveCamera
   const v = useMemo(() => ({ f: new THREE.Vector3(), r: new THREE.Vector3(), de: new THREE.Vector3(), para: new THREE.Vector3(), alvo: new THREE.Vector3(), vel: new THREE.Vector3(), mao: new THREE.Vector3() }), [])
@@ -237,7 +238,7 @@ export function Testar({ chunks, levels, ambiente, semChao, areas, inicio, yaw, 
     const [dx, dy] = acoes.olhar(), sens = CAMERA.sens * sensibilidade
     s.camYaw -= dx * sens
     s.pitch = Math.min(CAMERA.pitchMax, Math.max(CAMERA.pitchMin, s.pitch - dy * sens))
-    // mirar (o botão direito; atirar sem mirar também levanta a arma; a armadilha só na mão) e andar
+    // mirar (o botão direito; atirar sem mirar também levanta a arma) e andar
     // a queda (K, para testar): caído, nada responde; a tela escurece e ele volta em pé no começo (o checkpoint, por enquanto)
     // um golpe (J): de uma direção sorteada; zerou a vida, cai. F: um kit
     passoVida(vida, dt)
@@ -254,7 +255,6 @@ export function Testar({ chunks, levels, ambiente, semChao, areas, inicio, yaw, 
       j.caido += dt
       if (j.caido >= QUEDA.escurece && s.escuro < 1) { s.escuro = 1; escuroRef.current(1) }
       if (j.caido >= QUEDA.volta) {
-        recolher(armadilha); armadilhaFora(agente, false)
         const V = s.volta // o ponto de volta (o começo do teste; numa fase, o começo da arena)
         s.j = novoJogador(V.x, chaoEm(mundo, V.x, V.z, V.y + 0.3) ?? V.y, V.z, V.yaw)
         s.camYaw = V.yaw; s.pitch = -0.12; s.pivX = V.x; s.pivZ = V.z; s.pivY = s.j.y
@@ -264,8 +264,7 @@ export function Testar({ chunks, levels, ambiente, semChao, areas, inicio, yaw, 
         return // o próximo quadro começa em pé, no lugar novo
       }
     }
-    const naMao = agente.arma === 'armadilha' && !agente.anim.arma.fora
-    const quer = !caido && !j.preso && (acoes.mirar() || acoes.atirar()) && (agente.arma === 'pistola' || agente.arma === 'escopeta' || naMao)
+    const quer = !caido && !j.preso && (acoes.mirar() || acoes.atirar()) && !!agente.arma
     const clicou = acoes.clicou(), recarrega = acoes.recarregar()
     j.mira = quer
     passoJogador(j, acoes, s.camYaw, mundo, dt)
@@ -274,7 +273,7 @@ export function Testar({ chunks, levels, ambiente, semChao, areas, inicio, yaw, 
     const porta = portaPerto(mundo, j.x, j.y, j.z, [j.yaw, s.camYaw])
     // Q: a outra arma (pistola e escopeta; a mão nunca fica vazia)
     // (trocar corta a recarga: municao.ts, com a outra arma na mão)
-    if (acoes.trocarArma() && !caido) { recolher(armadilha); pegarArma(agente, proximaArma(agente.arma)) }
+    if (acoes.trocarArma() && !caido) pegarArma(agente, proximaArma(agente.arma))
     // (a mão esquerda vai à maçaneta: também na trancada, ele tenta)
     if (acoes.interagir() && porta && !caido) {
       const msg = usarPorta(mundo, portas, porta, j.x, j.z); if (msg) { s.msg = msg; s.msgT = 2.5 }
@@ -301,7 +300,7 @@ export function Testar({ chunks, levels, ambiente, semChao, areas, inicio, yaw, 
     if (agente.arma === 'escopeta' && !caido && (recarrega || (atira && municao.balas === 0))) recarregar(municao)
     else if (agente.arma === 'escopeta' && atira && clicou && municao.balas > 0) cortarRecarga(municao)
     passoMunicao(municao, agente.arma, j.esquiva < 0 && !caido, dt)
-    const ea = { mover, velocidade: j.velocidade, corrida: j.corrida, esquiva: j.esquiva >= 0 ? Math.min(1, j.esquiva / 0.5) : -1, expressao: ver.current.exp, mao: ver.current.mao, mira: { quer, alvo: v.alvo }, queda: caido ? j.caido : undefined, ferido: machucado(vida), municao, alcanca: s.abrir.t >= 0 ? s.abrir : undefined }
+    const ea = { mover, velocidade: j.velocidade, corrida: j.corrida, esquiva: j.esquiva >= 0 ? Math.min(1, j.esquiva / 0.5) : -1, expressao: ver.current.exp, mao: ver.current.mao, mira: { quer, alvo: v.alvo }, queda: caido ? j.caido : undefined, ferido: machucado(vida), municao, alcanca: s.abrir.t >= 0 ? s.abrir : undefined, lamparina: !caido && !j.preso && acoes.lamparina() }
     animarAgente(agente, ea, dt)
     if (gatilho(agente, atira && temTiro(municao, agente.arma), dt)) {
       gastar(municao, agente.arma)
@@ -311,19 +310,13 @@ export function Testar({ chunks, levels, ambiente, semChao, areas, inicio, yaw, 
     }
     passoBalas(balas, dt, mundo, naFase.alvos, impactos, (p, arma, alvo) => somDaBala(p, arma, alvo, quadro.current))
     // os sons dele e das armas, no momento da animação (o chão: o submundo é pedra; o resto, por enquanto, madeira)
-    ouvirAgente(agente, ea, semChao ? 'pedra' : 'madeira', armadilha.estado, armadilha.pos)
+    ouvirAgente(agente, ea, semChao ? 'pedra' : 'madeira')
     passoImpactos(impactos, dt)
     passoGolpes(dt) // o brilho de quem levou golpe (o agente e os demônios da fase) apaga
     ouvinte(cam) // o ouvido do som 3D é a câmera (sem isto ele fica na origem do mapa e os demônios longe dela somem)
-    // a armadilha: o arremesso solta ela no meio da animação; fora, um clique chama de volta; voltando, chega na mão
-    if (gatilhoArmadilha(agente, atira, dt)) {
-      const de = pontoDeSoltar(agente)
-      lancar(armadilha, scene, de, velocidadeDoArremesso(de, v.alvo, v.vel)); armadilhaFora(agente, true)
-    } else if (clicou && agente.anim.arma.fora && !caido) chamar(armadilha)
-    if (passoArmadilha(armadilha, mundo, agente.arms[0].hd.getWorldPosition(v.mao), dt)) armadilhaFora(agente, false)
-    // mirando com ela na mão: o arco e onde ela cai
-    if (naMao && agente.anim.arma.mira > 0.5 && agente.anim.arma.lanca < 0) { const de = pontoDeSoltar(agente); desenharArco(arco, mundo, de, velocidadeDoArremesso(de, v.alvo, v.vel)) }
-    else arco.linha.visible = arco.marca.visible = false
+    // a lamparina para quem conduz a fase (o feixe afasta o Mestre: game/entidades)
+    const Lp = agente.lamparina
+    if (Lp) { naFase.lamparina.ergue = Lp.ergue; naFase.lamparina.pos.copy(Lp.pos); naFase.lamparina.dir.copy(Lp.dir) }
     if (quer !== s.mirando) { s.mirando = quer; miraRef.current(quer) }
     // o HUD: o que ele mostra (ele só mexe na tela no que mudou)
     hud.vida = vida.atual / AGENTE.vida; hud.folego = s.j.folego / AGENTE.folego; hud.folegoTravado = s.j.folegoTravado

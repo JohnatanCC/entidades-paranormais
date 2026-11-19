@@ -81,3 +81,7 @@ export const FUMACA = {
   rasteira: 0.1, // a parte das nuvens que escorre pelo chão (maiores, mais fracas)
   escorre: 0.07, // m/s para fora
 }
+
+// a falha quando a bala passa por ele (glitch.ts): dura = s; trocas = saltos por s; pulo = m de lado no começo; estica =
+// o quanto a largura muda (fração); some = a chance de sumir num salto
+export const GLITCH = { dura: 0.35, trocas: 22, pulo: 0.16, estica: 0.3, some: 0.2 }

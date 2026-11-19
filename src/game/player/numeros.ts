@@ -100,10 +100,23 @@ export const PARADO = {
   sai: 9, // quão rápido o gesto some quando é cortado (andar, esquivar, trocar de arma)
 }
 
-// A armadilha na mão (player/arma.ts): pendurada pela alça, balança como um pêndulo; o vidro aceso respira
-export const ARMADILHA = {
-  pendulo: { comprimento: 0.1, amortece: 2.2, limite: 1.0 }, // m da alça ao peso; quanto acalma (por s); o máximo que abre (rad)
-  brilho: { volta: 3.4, minimo: 0.7 }, // s de uma respiração do vidro; o mais fraco (1 = o brilho cheio)
+// A lamparina (player/lamparina.ts): na cintura, sempre acesa; segurando C, erguida para a frente com o feixe.
+//   tamanho = a escala do modelo; cinto = onde a alça fica presa (m, no espaço do quadril: +x é a esquerda dele);
+//   erguida = onde a alça vai erguida (m, no espaço do peito); erguer = quão rápido sobe e desce (por s);
+//   pendulo = m da alça ao peso (antes da escala), quanto acalma (por s), o máximo que abre (rad);
+//   brilho = s de uma respiração do vidro, o mais fraco (1 = cheio), quanto acende a mais erguida;
+//   luz = a luz em volta: a força (na cintura e erguida), o alcance (m, idem) e quanto ela sai à frente do vidro (m);
+//   feixe = o cone erguido: a metade da abertura (rad), o alcance (m), a força da luz, o brilho do cone que se vê e
+//     quanto aponta para baixo (y da direção)
+export const LAMPARINA = {
+  cor: '#ffb45a', tamanho: 1.5,
+  cinto: [0.2, -0.02, 0.06] as [number, number, number],
+  erguida: [0.16, 0.44, 0.42] as [number, number, number],
+  erguer: { sobe: 9, desce: 6 },
+  pendulo: { comprimento: 0.1, amortece: 2.2, limite: 1.0 },
+  brilho: { volta: 3.4, minimo: 0.7, erguida: 0.6 },
+  luz: { forca: 1.6, erguida: 2.4, alcance: 5.5, alcanceErguida: 6.5, frente: 0.3 },
+  feixe: { abre: 0.3, alcance: 9, forca: 8, brilho: 0.4, desce: -0.08 },
 }
 
 // A pistola na mão (player/arma.ts): o frasco de ectoplasma mostra a sobrecarga (weapons/municao.ts)

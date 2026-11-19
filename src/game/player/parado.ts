@@ -1,7 +1,6 @@
 // O agente parado: a base (a respiração, o peso passando de uma perna para a outra e, com a pistola, o balanço leve da
 // arma) e os gestos que ele faz sozinho depois de um tempo sem se mexer. Cada estado tem os seus gestos (sem arma, com
-// a pistola, a escopeta ou a armadilha). O pêndulo da armadilha, a escopeta no ombro e a mão esquerda na bomba ficam em
-// arma.ts. Andar, esquivar ou trocar de arma corta o gesto na hora: a animação nunca segura o controle.
+// a pistola ou a escopeta). A escopeta no ombro e a mão esquerda na bomba ficam em arma.ts. Andar, esquivar ou trocar de arma corta o gesto na hora: a animação nunca segura o controle.
 // Os tempos ficam em numeros.ts (PARADO).
 import * as THREE from 'three'
 import { alcancar } from './alcancar'
@@ -10,18 +9,16 @@ import type { PoseMao } from './maos'
 import type { Agente } from './modelo'
 import { PARADO } from './numeros'
 
-export type Gesto = 'olhar' | 'alca' | 'bolsa' | 'mao' | 'frasco' | 'pulso' | 'rosto' | 'girar' | 'camara' | 'bomba'
+export type Gesto = 'olhar' | 'alca' | 'bolsa' | 'mao' | 'frasco' | 'pulso' | 'camara' | 'bomba'
 const NOMES: Record<Gesto, string> = {
   olhar: 'Olhar em volta', alca: 'Ajustar a alça', bolsa: 'Conferir a bolsa', mao: 'Abrir e fechar a mão',
-  frasco: 'Conferir o frasco', pulso: 'Girar o pulso', rosto: 'Levantar até o rosto', girar: 'Girar a lanterna',
-  camara: 'Conferir os cartuchos', bomba: 'Puxar a bomba',
+  frasco: 'Conferir o frasco', pulso: 'Girar o pulso', camara: 'Conferir os cartuchos', bomba: 'Puxar a bomba',
 }
 // os gestos de cada estado
 const DO_ESTADO: Record<Arma | 'nenhuma', Gesto[]> = {
   nenhuma: ['olhar', 'alca', 'bolsa', 'mao'],
   pistola: ['olhar', 'frasco', 'pulso'],
   escopeta: ['olhar', 'camara', 'bomba'],
-  armadilha: ['olhar', 'rosto', 'girar'],
 }
 /** Os gestos (e os nomes) de quem está com esta arma na mão (null = mão vazia). */
 export const gestosDe = (arma: Arma | null): [Gesto, string][] => DO_ESTADO[arma ?? 'nenhuma'].map((g) => [g, NOMES[g]])
@@ -61,7 +58,7 @@ export function balancoDaArma(a: Agente, quieto: number) {
 // ---------- os gestos: cada um mexe a cabeça e os braços por cima da pose (k = quanto, 0..1) ----------
 const V = (x: number, y: number, z: number) => new THREE.Vector3(x, y, z)
 const _alvo = new THREE.Vector3(), _y = new THREE.Vector3(), _z = new THREE.Vector3()
-const _qArma = new THREE.Quaternion(), _qMao = new THREE.Quaternion(), _qPai = new THREE.Quaternion(), _qGira = new THREE.Quaternion()
+const _qArma = new THREE.Quaternion(), _qGira = new THREE.Quaternion()
 const EIXO_CANO = V(0, 0, 1)
 type Maos = [PoseMao | undefined, PoseMao | undefined]
 interface DefGesto { dur: number; fazer: (a: Agente, t: number, k: number) => Maos }
@@ -77,9 +74,6 @@ function olhos(a: Agente, adiante: number) {
   r.olharAlvo = Math.max(-0.008, Math.min(0.008, adiante * 0.02)); r.olharT = 0.5
 }
 
-// a mão por cima da lanterna, com os dedos para a frente (no espaço do peito): o gesto de levantar até o rosto
-const _qMaoChao = new THREE.Quaternion().setFromRotationMatrix(new THREE.Matrix4().makeBasis(V(-1, 0, 0), V(0, 0.25, -1).normalize(), V(0, -1, -0.25).normalize()))
-
 const GESTO: Record<Gesto, DefGesto> = {
   // olha devagar para a esquerda, para, e para a direita; os olhos chegam primeiro. Com a pistola, o peito vira mais
   // (a arma acompanha o olhar) e o braço sobe um pouco, pronto
@@ -93,10 +87,6 @@ const GESTO: Record<Gesto, DefGesto> = {
       if (a.arma === 'pistola') {
         a.chest.rotation.y += y * 0.2 * k
         a.arms[0].up.rotation.x -= 0.22 * Math.min(1, Math.abs(y) / 0.6) * k
-      } else if (a.arma === 'armadilha') { // a lanterna vai um pouco à frente, iluminando o caminho
-        const b = curva(t, [[0, 0], [0.7, 1], [3.9, 1], [4.6, 0]]) * k
-        a.arms[0].up.rotation.x -= 0.35 * b; a.arms[0].fo.rotation.x -= 0.45 * b
-        a.chest.rotation.y += y * 0.15 * k
       }
       return [undefined, undefined]
     },
@@ -160,31 +150,6 @@ const GESTO: Record<Gesto, DefGesto> = {
       return [undefined, undefined]
     },
   },
-  // levanta a lanterna na frente do rosto, a mão por cima com os dedos para a frente, e olha o vidro, que acende mais
-  rosto: {
-    dur: 3.8,
-    fazer: (a, t, k) => {
-      const b = curva(t, [[0, 0], [0.9, 1], [2.9, 1], [3.8, 0]]) * k, braco = a.arms[0]
-      alcancar(braco, _alvo.set(-0.05, 0.55, 0.28), V(-0.5, -1, 0.1), b)
-      _qPai.copy(braco.up.quaternion).multiply(braco.fo.quaternion).invert()
-      braco.hd.quaternion.slerp(_qMao.copy(_qMaoChao).premultiply(_qPai), b)
-      cabeca(a, -0.12 * b, 0.22 * b)
-      a.anim.arma.brilho += 0.35 * curva(t, [[0.6, 0], [1.3, 1], [2.6, 1], [3.2, 0]]) * k
-      return [undefined, undefined]
-    },
-  },
-  // levanta um pouco a lanterna e gira ela pela alça, para um lado e para o outro, olhando
-  girar: {
-    dur: 3.0,
-    fazer: (a, t, k) => {
-      const b = curva(t, [[0, 0], [0.5, 1], [2.5, 1], [3.0, 0]]) * k
-      a.arms[0].fo.rotation.x -= 0.6 * b; a.arms[0].up.rotation.x -= 0.15 * b
-      a.anim.arma.giro += curva(t, [[0.4, 0], [1.0, 1.3], [1.7, -0.7], [2.4, 0.4], [3.0, 0]]) * k
-      a.anim.arma.brilho += 0.12 * b
-      cabeca(a, -0.15 * b, 0.35 * b)
-      return [undefined, undefined]
-    },
-  },
   // tira a escopeta do ombro e traz deitada na frente do peito, de lado, com o vidro da câmara virado para os
   // olhos; a mão esquerda segura embaixo, na bomba; ele confere os cartuchos e devolve
   camara: {
@@ -225,12 +190,11 @@ export function fazerGesto(a: Agente, g: Gesto) {
  */
 export function gestoParado(a: Agente, parado: boolean, dt: number): Maos {
   const p = a.anim.parado
-  if (!parado || (p.gesto && p.arma !== a.arma) || (p.gesto === 'rosto' || p.gesto === 'girar') && a.anim.arma.fora) { // mexeu ou trocou de arma: corta
+  if (!parado || (p.gesto && p.arma !== a.arma)) { // mexeu ou trocou de arma: corta
     p.espera = sorteia()
     if (p.gesto) p.cortado = true
   } else if (!p.gesto && (p.espera -= dt) <= 0) {
-    // a armadilha fora da mão (jogada): os gestos de mão vazia
-    const lista = DO_ESTADO[a.arma === 'armadilha' && a.anim.arma.fora ? 'nenhuma' : a.arma ?? 'nenhuma'], outros = lista.filter((g) => g !== p.ultimo)
+    const lista = DO_ESTADO[a.arma ?? 'nenhuma'], outros = lista.filter((g) => g !== p.ultimo)
     if (lista.length) fazerGesto(a, (outros.length ? outros : lista)[Math.floor(Math.random() * (outros.length || lista.length))])
     else p.espera = sorteia()
   }

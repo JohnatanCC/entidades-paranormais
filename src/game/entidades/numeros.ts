@@ -22,5 +22,10 @@ export const MESTRE = { vira: 5, raio: 0.45, descanso: 1.4, folgaMordida: 0.6, v
 // carga depois do grito e entre uma e outra; corte = s em que a garra pega depois do aviso; encosta = não chega mais perto
 // que isso do agente (m); foge = o agente se afastou isso além da garra, a sequência para (m); perde = s sem ver o agente
 // até ela desistir; raio = o tamanho dela contra as paredes (m); volta = m/s voltando para o lugar dela; o dano
-// (docs/jogo.md: garrada 25, carga 35)
-export const MAE = { anda: 2.1, vira: 4, freia: 1, mira: 0.45, garra: 1.5, aproxima: 3.5, cargaDe: [5, 10], cargaPrimeira: 2, cargaCada: 7, corte: 0.2, encosta: 0.9, foge: 1, perde: 6, raio: 0.4, volta: 0.95, danoGarra: 25, danoCarga: 35 }
+// (docs/jogo.md: garrada 25, carga 35); vida = a vida escondida (o tiro tira: a pistola 5, a escopeta 15 por bago);
+// zerada, ela cai atordoada (6 s: ESTADO.atordoada) e levanta com ela cheia
+export const MAE = { anda: 2.1, vira: 4, freia: 1, mira: 0.45, garra: 1.5, aproxima: 3.5, cargaDe: [5, 10], cargaPrimeira: 2, cargaCada: 7, corte: 0.2, encosta: 0.9, foge: 1, perde: 6, raio: 0.4, volta: 0.95, danoGarra: 25, danoCarga: 35, vida: 300 }
+
+// a luz da lamparina (player/lamparina.ts) nos fantasmas: ergue = a partir de quanto erguida o feixe vale (0..1); corpo =
+// a meia largura do corpo (m: o feixe pega mesmo com só um pedaço dele dentro)
+export const LUZ = { ergue: 0.6, corpo: 0.45 }

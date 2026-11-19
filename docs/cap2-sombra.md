@@ -195,11 +195,22 @@ mais forte e afasta a sombra, abrindo caminho.
 faz). A Sombra começa no **porão**, que agora dá para explorar, junto com parte do andar principal. No capítulo 1 a porta
 do porão está emperrada (`docs/mansao-cap1.md`): no capítulo 2 ela abre. **Os detalhes do mapa vão ser pensados de novo.**
 
-## A lamparina (vale para o jogo todo)
+## A lamparina (vale para o jogo todo; feita em 18/nov, menos a captura)
+
+**Feito (18/nov):** `src/game/player/lamparina.ts` e o modelo `modelos/armas/lamparina.bbmodel` (era a armadilha: a
+mesma lanterna). Na cintura, do lado esquerdo, balançando pela alça; segurando C, a mão esquerda ergue na altura do
+peito, a luz fica mais forte e sai o feixe (um cone macio, como o luar). A luz não é uma luz do three: entra na conta da
+luz assada de cada material (`src/render/assada.ts`, LAMPARINA), a única luz que anda; sem sombra (a face de trás da
+parede fica escura). No feixe (sem parede no meio) o Mestre se cobre e recua (`src/game/entidades`). O jogar a
+armadilha saiu do código. Os números em `src/game/player/numeros.ts` (LAMPARINA). **Falta:** a captura (absorver).
+
 
 A armadilha de captura **é a lamparina** (decidido em 17/nov). Ela já estava "para reformular" desde 12/nov (`docs/jogo.md`,
 "As armas"); a reforma é esta:
-- fica **na cintura** do agente, **acesa, iluminando** em volta;
+- fica **na cintura** do agente, **acesa, iluminando** em volta (decidido em 18/nov: a uma distância média, uma luz
+  **amarelada**);
+- **segurar C** (18/nov: o F continua sendo o kit) ergue a lamparina para a frente e sai um **feixe de luz** (2D, como
+  o luar das janelas) à frente; o feixe **afasta o Mestre** (ele se cobre e recua). Não fica na troca de armas (o Q);
 - **erguer a lamparina** ilumina a frente com mais força: abre a Angústia e afasta a sombra;
 - **capturar:** erguida, ela **absorve** o fantasma (no lugar de jogar a armadilha na poça);
 - **o jogar sai**: o arremesso, grudar e chamar de volta (`src/game/weapons/armadilha.ts`) são tirados quando a lamparina
@@ -215,7 +226,9 @@ A armadilha de captura **é a lamparina** (decidido em 17/nov). Ela já estava "
   e a luz dela é assada no cenário: `docs/iluminacao.md`). Apagar uma no meio do jogo pede decidir como a luz assada
   daquele lugar muda (uma segunda versão assada sem ela, ou só as lâmpadas com sombra podem quebrar), e se o jogador
   pode protegê-las atirando nas Gralhas antes.
-- **Como se vence o Mestre:** o que o enfraquece (a luz? o tiro?). A captura: a lamparina absorve só ele, ou também as Gralhas?
+- **Como se vence o Mestre:** ~~o que o enfraquece (a luz? o tiro?)~~ **O tiro atravessa** (decidido em 18/nov): a bala
+  passa por ele e ele **falha** como uma imagem com defeito (`mestre/glitch.ts`: pula de lado aos trancos, estica, some
+  por um quadro, um chiado), sem parar; ele não tem barra fora da luta. **Quem o afasta é a luz** da lamparina. A captura: a lamparina absorve só ele, ou também as Gralhas?
 - **A luta do chefe:** onde (no porão?).
 - **O peso:** muitas Gralhas voando juntas. Um molde só com cópias que dividem tudo (`copiaDoMolde`), poucas peças por
   ave e um limite de quantas aparecem; as de longe só com os olhos.

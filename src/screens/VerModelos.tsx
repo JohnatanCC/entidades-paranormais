@@ -4,8 +4,7 @@
 // Blockbench atualiza aqui no npm run dev). A câmera gira em volta (botão esquerdo gira, direito move, rodinha aproxima).
 // Para o Matheus o painel troca a animação, a expressão, a pose das mãos, a arma na mão e o ângulo, faz os gestos de
 // parado na hora (sem esperar) e mira e atira com a pistola ou a escopeta (as balas e a recarga da escopeta, o calor da
-// pistola, com o contador; o gatilho pode ficar preso), ou joga a armadilha (para a frente, num chão
-// sem paredes; ela volta sozinha), toma dano e fica machucado; para todos, a luz (estúdio, ou uma
+// pistola, com o contador; o gatilho pode ficar preso), ergue a lamparina (o feixe para a frente), toma dano e fica machucado; para todos, a luz (estúdio, ou uma
 // lâmpada da mansão no escuro, como no jogo).
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { Canvas, useFrame, useThree } from '@react-three/fiber'
@@ -20,9 +19,7 @@ import { fazerGesto, gestosDe, type Gesto } from '../game/player/parado'
 import { tranco } from '../game/player/dano'
 import { gatilho } from '../game/weapons/tiro'
 import { cortarRecarga, gastar, novaMunicao, passoMunicao, recarregar, temTiro, textoDaMunicao } from '../game/weapons/municao'
-import { chamar, descartarArco, desenharArco, gatilhoArmadilha, lancar, novaArmadilha, novoArco, passoArmadilha, pontoDeSoltar, recolher, velocidadeDoArremesso } from '../game/weapons/armadilha'
-import { montarMundo } from '../game/world/colisao'
-import { armadilhaFora } from '../game/player/arma'
+import { descartarLamparina, montarLamparina } from '../game/player/lamparina'
 import { AGENTE, QUEDA } from '../game/player/numeros'
 import type { Expressao } from '../game/player/rosto'
 import { GRUPOS, OBJETOS } from '../maps/objetos'
@@ -126,7 +123,7 @@ const MAOS: [PoseMao | null, string][] = [[null, 'Automática'], ['solta', 'Solt
 const CAMERAS: [Camera, string][] = [['corpo', 'Corpo'], ['rosto', 'Rosto'], ['maos', 'Mãos'], ['pes', 'Pés'], ['costas', 'Costas']]
 const LUZES: [Luz, string][] = [['estudio', 'Estúdio'], ['jogo', 'Jogo (lâmpada no escuro)']]
 
-interface Escolhas { qual: string; anim: Anim; exp: Expressao | null; mao: PoseMao | null; arma: Arma | null; gesto: { g: Gesto; n: number } | null; mirando: boolean; tiros: number; gatilho: boolean; recargas: number; golpes: number; ferido: boolean; ataque: { nome: string; n: number } | null; rostoMae: ExpressaoMae | null; fase4: boolean; caca: boolean; demonio: { acao: AcaoDemonio; n: number } | null; faseDevora: number; camera: Camera; luz: Luz; girar: boolean; grade: boolean }
+interface Escolhas { qual: string; anim: Anim; exp: Expressao | null; mao: PoseMao | null; arma: Arma | null; gesto: { g: Gesto; n: number } | null; mirando: boolean; tiros: number; gatilho: boolean; lamparina: boolean; recargas: number; golpes: number; ferido: boolean; ataque: { nome: string; n: number } | null; rostoMae: ExpressaoMae | null; fase4: boolean; caca: boolean; demonio: { acao: AcaoDemonio; n: number } | null; faseDevora: number; camera: Camera; luz: Luz; girar: boolean; grade: boolean }
 interface Info { linhas: string[] }
 
 function Opcoes<T>({ titulo, lista, valor, onEscolher }: { titulo: string; lista: [T, string][]; valor: T; onEscolher: (v: T) => void }) {
@@ -139,7 +136,7 @@ function Opcoes<T>({ titulo, lista, valor, onEscolher }: { titulo: string; lista
 }
 
 export function VerModelos({ go }: { go: Go }) {
-  const [e, setE] = useState<Escolhas>({ qual: AGENTE_ID, anim: 'parado', exp: null, mao: null, arma: null, gesto: null, mirando: false, tiros: 0, gatilho: false, recargas: 0, golpes: 0, ferido: false, ataque: null, rostoMae: null, fase4: false, caca: false, demonio: null, faseDevora: 1, camera: 'corpo', luz: 'estudio', girar: false, grade: true })
+  const [e, setE] = useState<Escolhas>({ qual: AGENTE_ID, anim: 'parado', exp: null, mao: null, arma: null, gesto: null, mirando: false, tiros: 0, gatilho: false, lamparina: false, recargas: 0, golpes: 0, ferido: false, ataque: null, rostoMae: null, fase4: false, caca: false, demonio: null, faseDevora: 1, camera: 'corpo', luz: 'estudio', girar: false, grade: true })
   const [info, setInfo] = useState<Info | null>(null)
   const [municao, setMunicao] = useState<string | null>(null) // o contador da arma na mão (as balas, o calor)
   const muda = (p: Partial<Escolhas>) => setE((v) => ({ ...v, ...p }))
@@ -241,17 +238,21 @@ export function VerModelos({ go }: { go: Go }) {
             <div className="opcoes">{gestosDe(e.arma).map(([g, nome]) => <button key={g} onClick={() => muda({ anim: 'parado', gesto: { g, n: (e.gesto?.n ?? 0) + 1 } })}>{nome}</button>)}</div>
             <small>{gestosDe(e.arma).length ? 'Parado, ele faz um sozinho a cada 8 a 15 s (os de mão vazia, ou os da arma na mão).' : 'Com esta arma, ainda nenhum.'}</small>
           </section>
+          <section>
+            <b>A lamparina</b>
+            <div className="opcoes"><button aria-pressed={e.lamparina} onClick={() => muda({ lamparina: !e.lamparina })}>Erguida (C)</button></div>
+            <small>Na cintura, acesa; erguida, a mão esquerda leva para a frente e sai o feixe.</small>
+          </section>
           {e.arma && <section>
-            <b>{e.arma === 'armadilha' ? 'Mirar e arremessar' : 'Mirar e atirar'}</b>
+            <b>Mirar e atirar</b>
             <div className="opcoes">
               <button aria-pressed={e.mirando} onClick={() => muda({ mirando: !e.mirando })}>Mirando</button>
-              <button onClick={() => muda({ tiros: e.tiros + 1 })}>{e.arma === 'armadilha' ? 'Arremessar' : 'Atirar'}</button>
-              {e.arma !== 'armadilha' && <button aria-pressed={e.gatilho} onClick={() => muda({ gatilho: !e.gatilho })}>Segurar o gatilho</button>}
+              <button onClick={() => muda({ tiros: e.tiros + 1 })}>Atirar</button>
+              <button aria-pressed={e.gatilho} onClick={() => muda({ gatilho: !e.gatilho })}>Segurar o gatilho</button>
               {e.arma === 'escopeta' && <button onClick={() => muda({ recargas: e.recargas + 1 })}>Recarregar</button>}
             </div>
             {municao && <span className="municao">{municao}</span>}
-            <small>{e.arma === 'armadilha' ? 'Para a frente; mirando, o arco mostra onde ela cai. Presa, ela volta sozinha em 1,5 s.'
-              : e.arma === 'escopeta' ? 'Para a frente. 4 balas; vazia, recarrega sozinha (1 s por bala; cada uma vale ao entrar). Atirar corta a recarga; o gatilho preso, não.'
+            <small>{e.arma === 'escopeta' ? 'Para a frente. 4 balas; vazia, recarrega sozinha (1 s por bala; cada uma vale ao entrar). Atirar corta a recarga; o gatilho preso, não.'
               : 'Para a frente. Esquenta 2,5% por tiro; cheia, trava 5 s. Segurando o gatilho, trava em uns 8 s.'}</small>
           </section>}
           <section>
@@ -343,7 +344,7 @@ function enquadra(c: Camera, a: Agente): { alvo: THREE.Vector3; de: THREE.Vector
 
 function CenaAgente({ modelo, e, onInfo, onMunicao }: { modelo: ModeloAgente; e: Escolhas; onInfo: (i: Info) => void; onMunicao: (t: string | null) => void }) {
   // montarAgente na lista: salvar o .bbmodel recarrega o módulo e o modelo é montado de novo
-  const a = useMemo(() => montarAgente(modelo), [montarAgente, modelo])
+  const a = useMemo(() => { const a = montarAgente(modelo); if (modelo === 'agente') montarLamparina(a); return a }, [montarAgente, modelo])
   const { pronto, voar } = useVoo()
   const esq = useRef(0)
   const tiros = useRef(e.tiros) // os tiros pedidos que já saíram
@@ -351,13 +352,7 @@ function CenaAgente({ modelo, e, onInfo, onMunicao }: { modelo: ModeloAgente; e:
   const municao = useMemo(() => novaMunicao(), []), contador = useRef<string | null | undefined>(undefined)
   const recargas = useRef(e.recargas)
   const alvo = useMemo(() => new THREE.Vector3(0, 1.45, 8), []) // a mira: para a frente, na altura do peito
-  // a armadilha jogada: num mundo só com o chão; o arco e a cópia solta ficam na cena
-  const { scene, camera } = useThree()
-  const jogo = useMemo(() => ({ mundo: montarMundo([], 1), arm: novaArmadilha(), arco: novoArco(), vel: new THREE.Vector3(), mao: new THREE.Vector3() }), [])
-  useEffect(() => {
-    scene.add(jogo.arco.linha, jogo.arco.marca)
-    return () => { descartarArco(jogo.arco); recolher(jogo.arm) }
-  }, [scene, jogo])
+  const camera = useThree((s) => s.camera)
 
   useEffect(() => {
     const c = contas(a.root)
@@ -366,7 +361,8 @@ function CenaAgente({ modelo, e, onInfo, onMunicao }: { modelo: ModeloAgente; e:
     onInfo({ linhas: [`Altura: ${(b.max.y - Math.max(0, b.min.y)).toFixed(2)} m`, `${c.blocos} blocos em ${c.juntas} juntas`, `${c.desenhos} chamadas de desenho`] })
   }, [a, onInfo])
   useEffect(() => { if (pronto) { const { alvo, de } = enquadra(e.camera, a); voar(alvo, de) } }, [e.camera, a, pronto])
-  useEffect(() => { recolher(jogo.arm); pegarArma(a, e.arma); cortarRecarga(municao) }, [a, e.arma, jogo, municao])
+  useEffect(() => { pegarArma(a, e.arma); cortarRecarga(municao) }, [a, e.arma, municao])
+  useEffect(() => () => descartarLamparina(a), [a]) // saindo, a luz dela apaga
   useEffect(() => { if (e.gesto) fazerGesto(a, e.gesto.g) }, [a, e.gesto])
   useEffect(() => { if (e.golpes) tranco(a, Math.random() * Math.PI * 2) }, [a, e.golpes])
 
@@ -379,31 +375,22 @@ function CenaAgente({ modelo, e, onInfo, onMunicao }: { modelo: ModeloAgente; e:
     let queda: number | undefined
     if (e.anim === 'queda') { esq.current = (esq.current + dt) % (QUEDA.tomba[1] + 2.5); queda = esq.current < QUEDA.tomba[1] + 1.5 ? esq.current : undefined }
     const velocidade = e.anim === 'andando' ? AGENTE.andar : e.anim === 'correndo' ? AGENTE.correr : 0
-    const pede = e.tiros !== tiros.current // um tiro (ou arremesso) pedido: levanta a arma e solta quando ela chegar
-    const naMao = a.arma === 'armadilha' && !a.anim.arma.fora
+    const pede = e.tiros !== tiros.current // um tiro pedido: levanta a arma e solta quando ela chegar
     // a munição, como no Testar: o botão Atirar com bala corta a recarga (o gatilho preso, não); vazia, recarrega; a
     // pistola travada não atira (o pedido se perde)
-    const M = municao, atira = (pede || e.gatilho) && a.arma !== 'armadilha'
+    const M = municao, atira = pede || e.gatilho
     if (a.arma === 'escopeta' && (e.recargas !== recargas.current || (atira && M.balas === 0))) recarregar(M)
     else if (a.arma === 'escopeta' && pede && M.balas > 0) cortarRecarga(M)
     recargas.current = e.recargas
     if (pede && a.arma === 'pistola' && M.travada > 0) tiros.current = e.tiros
     passoMunicao(M, a.arma, esquiva < 0 && queda === undefined, dt)
-    const ea = { velocidade, corrida: e.anim === 'correndo' ? 1 : 0, esquiva, expressao: e.exp ?? undefined, mao: e.mao ?? undefined, mira: { quer: (e.mirando || pede || e.gatilho) && (a.arma !== 'armadilha' || naMao), alvo }, queda, ferido: e.ferido, municao: M }
+    const ea = { velocidade, corrida: e.anim === 'correndo' ? 1 : 0, esquiva, expressao: e.exp ?? undefined, mao: e.mao ?? undefined, mira: { quer: e.mirando || pede || e.gatilho, alvo }, queda, ferido: e.ferido, municao: M, lamparina: e.lamparina }
     animarAgente(a, ea, dt)
-    const J = jogo
-    ouvinte(camera); ouvirAgente(a, ea, 'pedra', J.arm.estado, J.arm.pos) // os sons dele e da arma, com a animação
+    ouvinte(camera); ouvirAgente(a, ea, 'pedra') // os sons dele e da arma, com a animação
     if (gatilho(a, atira && temTiro(M, a.arma), dt)) { gastar(M, a.arma); tiros.current = e.tiros }
     const texto = textoDaMunicao(M, a.arma)
     if (texto !== contador.current) { contador.current = texto; onMunicao(texto) }
-    if (gatilhoArmadilha(a, pede && naMao, dt)) {
-      const de = pontoDeSoltar(a); lancar(J.arm, scene, de, velocidadeDoArremesso(de, alvo, J.vel)); armadilhaFora(a, true); tiros.current = e.tiros
-    }
     if (pede && !a.arma) tiros.current = e.tiros
-    if (J.arm.estado === 'presa' && J.arm.t > 1.5) chamar(J.arm) // aqui ela volta sozinha
-    if (passoArmadilha(J.arm, J.mundo, a.arms[0].hd.getWorldPosition(J.mao), dt)) armadilhaFora(a, false)
-    if (naMao && a.anim.arma.mira > 0.5 && a.anim.arma.lanca < 0) { const de = pontoDeSoltar(a); desenharArco(J.arco, J.mundo, de, velocidadeDoArremesso(de, alvo, J.vel)) }
-    else J.arco.linha.visible = J.arco.marca.visible = false
     if (e.girar) a.root.rotation.y += dt * 0.5
   })
   return <primitive object={a.root} />
