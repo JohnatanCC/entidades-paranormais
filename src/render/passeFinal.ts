@@ -35,17 +35,18 @@ void main() {
 // numa textura de 16 bits custavam metade do quadro numa placa embutida (19/nov: o Médio ia de 29 para 58 quadros sem elas).
 // A média é feita com as cores apertadas (aperta/solta): senão um pixel muito claro engole os escuros e a borda volta a serrilhar.
 const FINAL = /* glsl */ `uniform sampler2D tCena, tBloom; uniform float uExp, uBrilho, uContraste, uSat, uVig, uT, uAspecto; uniform vec3 uSombras, uLuzes; uniform vec2 uPx; varying vec2 vUv;
-vec3 cena(vec2 uv) { return max(texture2D(tCena, uv).rgb, 0.0); }
+// (o teto segura um pixel estourado da textura de 16 bits: infinito, ele viraria um risco preto ao entrar na média dos vizinhos)
+vec3 cena(vec2 uv) { return min(max(texture2D(tCena, uv).rgb, 0.0), 64.0); }
 #ifdef BORDAS
 vec3 aperta(vec3 c) { return c / (1.0 + max(c.r, max(c.g, c.b))); }
 vec3 solta(vec3 c) { return c / max(1.0 - max(c.r, max(c.g, c.b)), 0.001); }
 float clareza(vec3 c) { return sqrt(dot(c, vec3(0.299, 0.587, 0.114))); }
 vec3 suave(vec2 uv) {
-  vec3 m = aperta(cena(uv));
+  vec3 cru = cena(uv), m = aperta(cru);
   float lM = clareza(m), lNO = clareza(aperta(cena(uv + uPx * vec2(-1.0, -1.0)))), lNE = clareza(aperta(cena(uv + uPx * vec2(1.0, -1.0))));
   float lSO = clareza(aperta(cena(uv + uPx * vec2(-1.0, 1.0)))), lSE = clareza(aperta(cena(uv + uPx)));
   float lMin = min(lM, min(min(lNO, lNE), min(lSO, lSE))), lMax = max(lM, max(max(lNO, lNE), max(lSO, lSE)));
-  if (lMax - lMin < max(0.03, lMax * 0.125)) return solta(m); // sem borda aqui: o pixel como está
+  if (lMax - lMin < max(0.03, lMax * 0.125)) return cru; // sem borda aqui: o pixel como está
   vec2 dir = vec2(-((lNO + lNE) - (lSO + lSE)), (lNO + lSO) - (lNE + lSE));
   float menor = min(abs(dir.x), abs(dir.y)) + max((lNO + lNE + lSO + lSE) * 0.03125, 0.0078125);
   dir = clamp(dir / menor, -8.0, 8.0) * uPx;

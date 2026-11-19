@@ -78,7 +78,7 @@ const BLOOM: Record<Recursos['bloom'], Bloom | null> = { nao: null, leve: { de: 
 
 export function definicaoDe(r: Recursos): Definicao {
   return {
-    recursos: r, dpr: r.resolucao, passe: r.passe, bordas: r.passe && !!r.bordas /* !!: um ajuste salvo antes de 19/nov guardava 0, 2 ou 4 amostras */, bloom: r.passe ? BLOOM[r.bloom] : null,
+    recursos: r, dpr: r.resolucao, passe: r.passe, bordas: r.passe && r.bordas, bloom: r.passe ? BLOOM[r.bloom] : null,
     lampadas: r.sombraLampadas > 0 ? 'mista' : 'assada',
     sombras: { lampadas: r.sombraLampadas, mapa: r.sombraDetalhe, lua: r.sombraLua, cada: r.sombraRitmo, macia: r.sombraMacia },
   }

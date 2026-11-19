@@ -125,7 +125,7 @@ src/
                            provas.passo() mostra um ciclo do andar em 8 quadros (também de lado e de costas), provas.escorrega() mede o pé de apoio
   audio/espaco.ts          o som 3D: a voz sai da boca do personagem, no mundo; o ouvido é a câmera (ouvinte, a cada quadro)
   render/                  qualidade.ts (os níveis Baixo, Médio, Alto e Ultra, os recursos ajustáveis um a um e o automático), passeFinal.ts (a passada de
-                           tela cheia do Médio e do Alto: bloom, tonemapping, correção de cor, vinheta), contorno.ts (o contorno de luz
+                           tela cheia do Médio e do Alto: as bordas suaves, bloom, tonemapping, correção de cor, vinheta), contorno.ts (o contorno de luz
                            dos personagens e o brilho do golpe), golpe.ts (quem leva um golpe acende vermelho por um instante; o demônio que
                            prepara um ataque acende âmbar), brilho.ts (os blocos "luz_" mais fortes que o branco quando o bloom está ligado),
                            assada.ts (o cenário e os objetos usam a luz assada, e a luz da lamparina, a única que anda: todas as lâmpadas no Baixo; no Médio e no Alto, as que não fazem

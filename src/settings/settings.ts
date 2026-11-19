@@ -26,7 +26,11 @@ function load(): Settings {
       for (const k of ['volume', 'musica', 'efeitos', 'sensibilidade'] as const) if (typeof sv[k] === 'number') s[k] = sv[k] as number
       if (['auto', 'baixo', 'medio', 'alto', 'ultra'].includes(sv.qualidade as string)) s.qualidade = sv.qualidade as Qualidade
       // os ajustes: só números, textos curtos e sim/não (um valor que não existe mais é ignorado por quem lê: qualidade.ts)
-      if (sv.ajustes && typeof sv.ajustes === 'object') s.ajustes = Object.fromEntries(Object.entries(sv.ajustes).filter(([, v]) => ['number', 'string', 'boolean'].includes(typeof v))) as Partial<Recursos>
+      if (sv.ajustes && typeof sv.ajustes === 'object') {
+        const a: Record<string, unknown> = Object.fromEntries(Object.entries(sv.ajustes).filter(([, v]) => ['number', 'string', 'boolean'].includes(typeof v)))
+        if (typeof a.bordas === 'number') a.bordas = a.bordas > 0 // até 19/nov eram 0, 2 ou 4 amostras; agora é sim ou não
+        s.ajustes = a as Partial<Recursos>
+      }
     }
     return s
   } catch {
