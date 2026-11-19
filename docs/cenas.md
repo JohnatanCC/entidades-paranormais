@@ -3,6 +3,11 @@
 Decidido em 18/nov. O capítulo 0 conta a história com **cenas curtas, feitas dentro do próprio jogo**. Aqui fica como
 elas são feitas e o **storyboard** de cada uma (o plano a plano), aprovado antes de construir.
 
+> **Reformulado em 19/nov** (`docs/direcao-cap0.md`, a sequência): **a cena 1 (o escritório) sai do capítulo** e **a cena
+> 2 (o alarme) vira a abertura**, com um plano novo no fim (o Glutão engolindo um cientista, pela sombra). As cenas novas
+> são o elevador, o encontro com a equipe, a equipe e o Victor, a van e o porão. A cena 1 continua aqui até a cena da
+> equipe e o Victor estar pronta (ela reaproveita o Victor, a pasta e os gestos), e então sai, com o escritório do mapa.
+>
 > O documento de design (`docs/design/historia.md`) tinha deixado cenas animadas, narração e vozes de fora, para caber
 > no projeto. As cenas voltam (18/nov), mas do jeito barato: sem vídeo e sem voz gravada.
 

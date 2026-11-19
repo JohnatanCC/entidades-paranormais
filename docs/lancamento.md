@@ -26,10 +26,11 @@ Uma etapa por vez, na ordem em que o jogador vê. Cada uma termina numa versão 
    da instalação, o mapa e as duas cenas nele, com os atores; a próxima etapa são os gestos e as expressões das cenas).
    Jogável: depois das cenas, na instalação, com a introdução e o tutorial inicial; depois a missão no Palacete e a ruptura que suga os três. É o maior pedaço novo
    do lançamento (um mapa novo, `maps/instalacao-cap0`: cada capítulo tem um mapa só, com as partes de cena soltas nele; o tutorial; o caminho até o portal): vai ser dividido em etapas menores quando as
-   decisões abaixo estiverem tomadas. **Decidido em 19/nov** (`docs/direcao-cap0.md`): um tutorial novo, linear e curto,
-   na instalação; os fugitivos são o Glutão e fantasmas pequenos, redesenhados; o Palacete é jogável, sem luta, no mapa
-   `mansao-cap1` com a luz de casa real, guiado por um detector; e o portal suga os três porque o Matheus liga a máquina
-   antes da hora. A ordem é construir tudo em cinza primeiro; a captura sobe para esta etapa.
+   decisões abaixo estiverem tomadas. **Decidido em 19/nov** (`docs/direcao-cap0.md`, a sequência de ~20 minutos):
+   começa pelo alarme (a cena do escritório sai); o tutorial na instalação, primeiro sozinho e depois com a equipe, até o
+   Glutão; o Victor e a van; o Palacete abandonado, sem combate, com o detector, as pistas e a silhueta da Mãe; e o porão,
+   onde o tiro do Matheus joga a Mãe no portal, que engole os três. A ordem é construir tudo em cinza primeiro; a captura
+   sobe para esta etapa.
 2. **A chegada na mansão** (a Intro nova, decidida em 17/nov; `docs/jogo.md`, "Capítulo 1"): o Matheus é arremessado para
    fora de um armário num quarto, fala com a Lara e o Nicolas pelo rádio, e entende o objetivo (destruir os objetos e
    capturar a Mãe). **Decidir antes:** qual quarto, e como as falas aparecem (legendas com som de rádio, sem vozes

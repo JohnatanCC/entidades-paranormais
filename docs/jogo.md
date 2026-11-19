@@ -143,8 +143,9 @@ Lara e no Nicolas esperando por ele no elevador (a ordem mudou em 18/nov). **Dep
 andar, mirar, atirar e capturar. Depois a C.R.O.S. manda o Matheus, a Lara e o Nicolas ao Palacete Monteval, e a ruptura
 suga os três para o submundo. Termina quando eles entram no portal. A instalação já existiu no laboratório (a demo Intro
 abaixo, `docs/design/intro.md`), e o catálogo do criador de mapas já tem as texturas e os móveis dela.
-**A direção do capítulo** (19/nov) está em `docs/direcao-cap0.md`: o tutorial linear na instalação (o Glutão e
-fantasmas pequenos, redesenhados), o Palacete jogável com o detector, e a falha do Matheus no portal.
+**A direção do capítulo** (19/nov, reformulada no mesmo dia) está em `docs/direcao-cap0.md` e vale sobre este resumo:
+começa pelo alarme (sem a cena do escritório), o tutorial com a equipe até o Glutão, o Victor e a van, o Palacete
+abandonado e sem combate, e o porão, onde a Mãe alimenta o portal e o tiro do Matheus a joga nele com os três.
 
 **O menu muda a cada capítulo** (17/nov, como no Poppy Playtime): mostra o capítulo mais adiantado a que o jogador
 chegou, com a música dele (`docs/musicas.md`).
@@ -194,7 +195,7 @@ Os textos longos de design (história, mansão, intro) estão em `docs/design/` 
 | --- | --- |
 | Matheus Moura | O agente (jogador). Traje "Selado": runas que acendem com a sobrecarga, relicário, frascos, cartuchos de sal |
 | Lara | Agente da C.R.O.S., a batedora: vai na frente com a lanterna. Modelo próprio (`modelos/lara.bbmodel`, ver `docs/blockbench.md`), com o esqueleto do agente |
-| Nicolas | Agente da C.R.O.S., o novato: confiante demais, decide sozinho, fala pelo rádio. Modelo próprio (`modelos/nicolas.bbmodel`, ver `docs/blockbench.md`), com o esqueleto do agente |
+| Nicolas | Agente da C.R.O.S., o novato: confiante demais, decide sozinho, fala pelo rádio. É o que entende de fechar portais (19/nov: no porão, é o aviso dele que o Matheus ignora). Modelo próprio (`modelos/nicolas.bbmodel`, ver `docs/blockbench.md`), com o esqueleto do agente |
 | Leonardo | Personagem secundário, para mais tarde: **o ocultista da C.R.O.S.** (17/nov: tomou o lugar do Victor, com a função e a roupa dele), sente e bane fantasmas com magia, sem armas. Cabelo azul-escuro até o pescoço, heterocromia (um olho prateado, o outro preto), pele pálida. Modelo em `modelos/leonardo.bbmodel` |
 | Victor | **O chefe do departamento do Matheus** (18/nov; ficou guardado de 17 a 18/nov). Aparece na cena 1 do capítulo 0 (`docs/cenas.md`): cobra os fracassos do Matheus e dá a ele uma equipe fixa. Veste a roupa de gerente: camisa social branca, gravata azul-marinho, calça social e cinto (18/nov). Modelo em `modelos/victor.bbmodel`. A função de ocultista e o sobretudo ficaram com o Leonardo |
 | A central | Voz no rádio, com chiado |
