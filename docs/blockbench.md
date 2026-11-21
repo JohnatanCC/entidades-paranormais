@@ -68,6 +68,21 @@ fivela, bolso, desgaste) vai para a textura. Cada bloco precisa de um motivo: mu
 ser **fácil de animar** (nada de peça que atravessa a outra quando a junta dobra). A revisão é a etapa 3 de
 `docs/plano-visual.md`.
 
+**O Matheus limpo (20/nov): de 217 para 144 blocos.** O que mudou no arquivo:
+- **Os membros são peças inteiras,** e não fatias empilhadas (a manga parecia uma sanfona): em cada braço, a ombreira, o
+  braço, o antebraço e o punho dourado, cada um com dois blocos cruzados; em cada perna, a coxa em duas peças (afina para
+  o joelho) e a panturrilha. O tronco são duas peças (a cintura e o peito), o quadril uma e o cinto outra, com três blocos
+  cruzados cada.
+- **Pintado, e não mais em bloco:** os suspensórios e a fivela, a abertura da jaqueta, as costuras, a sombra embaixo do
+  peito, a dobra do cotovelo, a boca do bolso da calça, a fivela do cinto. Saíram os blocos do peitoral, das lapelas, das
+  alças, dos glúteos, a tampa da mochila, a bolsa direita e os bolsos da coxa.
+- **A pintura nova não tem grão:** três tons de cima para baixo em cada face (a luz vem de cima). Ela fica numa faixa
+  nova embaixo da textura: o UV cresceu de 128 × 208 para 128 × 256 (a imagem, de 256 × 416 para 256 × 512), e o que já
+  existia não saiu do lugar. O lado direito pinta nos mesmos retângulos do esquerdo.
+- **Ficaram como eram:** a cabeça e o cabelo, o pescoço, as mãos e os dedos, a gola, o trapézio, os frascos, a joelheira
+  e as botas inteiras (as botas novas, lisas, perdiam o cadarço). A mochila ficou mais estreita e ganhou um rolo em cima.
+- Os nomes e a ordem das pastas e os pivôs não mudaram. É pintura feita por script: pede o retoque do desenvolvedor.
+
 - **O trecho chanfrado:** um braço, uma coxa ou a cintura não é um bloco só: são três blocos cruzados na mesma altura
   (um largo e raso, um médio, um estreito e fundo), e o corte fica um octógono. Vários trechos empilhados, cada um um
   pouco mais fino, fazem o membro afinar (bíceps, pulso, coxa, panturrilha).

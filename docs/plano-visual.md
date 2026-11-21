@@ -165,9 +165,11 @@ tem 35 blocos, e a mochila está nele.
   as mãos afinaram, o quadril e as coxas também (as medidas em `docs/blockbench.md`, "As regras"). Só mudaram o tamanho e
   o lugar dos blocos e os pivôs; a textura não foi repintada (as faces dos blocos mudados ficaram com UV próprio). A
   cabeça inteira encolheu 10% (a pedido, depois da foto: com os ombros estreitos ela parecia maior), sem repintar o rosto.
-- **Passo 2, menos blocos:** juntar as fatias vizinhas de cada membro (de 217 para perto de 140 blocos), refazendo a
-  textura por script a partir da atual.
-- **Passo 3, as costas:** a mochila com silhueta, o detalhe da jaqueta na textura, as pontas do cabelo da nuca.
+- **Passo 2, o visual limpo: feito no Matheus (20/nov), à espera da aprovação.** De 217 para 144 blocos: os membros e o
+  tronco em peças inteiras, o detalhe pintado sem grão (o que mudou está em `docs/blockbench.md`, "Os personagens em
+  blocos refinados"). A mira, a recarga e o andar foram conferidos por foto; a lamparina, a maçaneta e a queda, não.
+- **Passo 3, o que falta nele:** o cabelo (a nuca), a mochila com mais desenho, e o retoque da pintura pelo
+  desenvolvedor. Depois, os outros quatro humanos, um por vez.
 
 1. **As fotos de antes, como o jogador vê:** de costas e na câmera do jogo (o Testar, parado, andando, mirando a pistola e
    a escopeta, com a lamparina erguida), mais de lado e de frente no Ver modelos. Meça com `provas.medidas(c)`.
