@@ -4,14 +4,15 @@
 // a escopeta gasta as 4 balas e recarrega, a pistola esquenta e trava (weapons/municao.ts), a bala voa e acerta
 // (weapons/bala.ts); a vida, os kits e a arma vão para o HUD (game/hud: onHud, a cada quadro). Fica dentro do <Canvas>.
 //   clique trava o mouse · WASD anda · Shift corre · Espaço esquiva · E abre e fecha porta · Q troca a arma · R recarrega · mouse olha
-//   botão direito mira · botão esquerdo atira · C (segurando) ergue a lamparina · Esc volta ao editor
+//   botão direito mira · botão esquerdo atira · C (segurando) ergue a lamparina · Esc volta ao editor (numa fase: o menu
+//   de pausa, screens/Jogo)
 //   (a lamparina fica acesa na cintura, sempre: player/lamparina.ts)
 //   para ver o modelo (só no Testar, não é controle do jogo): 1–6 expressões, 7–9 poses da mão, 0 volta ao automático,
 //   K cai (a queda: a tela escurece e ele volta no começo do teste, que por enquanto é o checkpoint), J toma 25 de dano
 //   de uma direção sorteada (30% ou menos, machucado; zerou, cai) · F usa um kit (+60; zerado, nasce um a cada 1:30)
 //   M toca o momento "a Mãe chegando" (a luz muda por alguns segundos e volta)
 //   L põe (ou tira) o boneco da Lara 2,5 m à frente: um segundo jogador parado, para testar o foco das entidades
-import { useEffect, useMemo, useRef } from 'react'
+import { useCallback, useEffect, useMemo, useRef } from 'react'
 import { useFrame, useThree } from '@react-three/fiber'
 import * as THREE from 'three'
 import { LEVEL_H, type AreaAmbiente, type Chunk } from '../maps/types'
@@ -25,6 +26,7 @@ import { DURA_ALCANCE } from './player/alcancar'
 import { Boneco } from './entidades/Boneco'
 import type { Conexao } from './rede/conexao'
 import { r2, v3 } from './rede/mensagens'
+import { RITMO } from './rede/numeros'
 import { Remoto } from './rede/Remoto'
 import { Entidades } from './entidades/Entidades'
 import type { Jogador } from './entidades/foco'
@@ -52,7 +54,7 @@ import { cortarRecarga, gastar, novaMunicao, passoMunicao, recarregar, temTiro }
 import { alcanceCamera, andarDe, chaoEm, montarMundo, temChao, tetoEm, type Mundo } from './world/colisao'
 import { assadorDe, limitarLampadas, novaLuzVertice } from '../maps/luzAssada'
 import { iluminarObjeto } from '../render/assada'
-import { animarPortas, dicaDaPorta, macanetaDe, novasPortas, portaPerto, usarPorta, type PortasVivas } from './world/portas'
+import { animarPortas, dicaDaPorta, macanetaDe, noVao, novasPortas, portaPerto, usarPorta, type PortasVivas } from './world/portas'
 
 interface Props {
   chunks: Record<string, Chunk>
@@ -69,6 +71,8 @@ interface Props {
   onEscuro: (escuro: number) => void // o quanto a tela escurece (0..1): a queda, tudo; engolido, um pouco
   onHud: (e: EstadoHud) => void // a cada quadro: a vida, o fôlego, os kits e a arma (o HUD só muda o que mudou)
   onSair: () => void
+  onPausa?: () => void // numa fase: Esc (ou soltar o mouse) abre o menu de pausa em vez de sair (screens/Jogo)
+  pausado?: boolean // o menu de pausa aberto: o agente não ouve o teclado nem o mouse
   aoMontar?: (c: AgenteNaFase) => void // quem conduz a fase (o roteiro da Demo · Intro) recebe o controle do agente
   rede?: Rede // o teste online: a conexão, quem eu sou e quem é o outro (game/rede)
 }
@@ -108,11 +112,9 @@ export interface AgenteNaFase {
 const VER_EXP: Expressao[] = ['neutra', 'esforco', 'medo', 'dor', 'raiva', 'surpresa']
 const VER_MAO: PoseMao[] = ['punho', 'aberta', 'apontar']
 
-const ENVIO = 20 // poses por segundo para o outro jogador (o teste online)
-
 const amortece = (de: number, para: number, k: number, dt: number) => de + (para - de) * (1 - Math.exp(-k * dt))
 
-export function Testar({ chunks, levels, ambiente, semChao, areas, inicio, yaw, portas, onTravado, onDica, onMira, onEscuro, onHud, onSair, aoMontar, rede }: Props) {
+export function Testar({ chunks, levels, ambiente, semChao, areas, inicio, yaw, portas, onTravado, onDica, onMira, onEscuro, onHud, onSair, aoMontar, rede, onPausa, pausado = false }: Props) {
   const { camera, gl, scene } = useThree()
   const { sensibilidade } = useSettings()
   // o mundo (colisão) e as portas como o mapa diz que começam
@@ -139,6 +141,9 @@ export function Testar({ chunks, levels, ambiente, semChao, areas, inicio, yaw, 
     envio: 0, // s desde a última pose mandada (o teste online)
   })
   const sairRef = useRef(onSair); sairRef.current = onSair
+  // Esc: o menu de pausa (numa fase) ou sair (o Testar do editor); com o menu aberto, quem cuida do Esc é o menu
+  const pausaRef = useRef({ onPausa, pausado }); pausaRef.current = { onPausa, pausado }
+  const esc = useCallback(() => { const P = pausaRef.current; if (P.pausado) return; if (P.onPausa) P.onPausa(); else sairRef.current() }, [])
   const travRef = useRef(onTravado); travRef.current = onTravado
   const dicaRef = useRef(onDica); dicaRef.current = onDica
   const miraRef = useRef(onMira); miraRef.current = onMira
@@ -191,8 +196,11 @@ export function Testar({ chunks, levels, ambiente, semChao, areas, inicio, yaw, 
     if (!rede) return
     const de = new THREE.Vector3()
     const paraPorta = rede.con.ouvir('porta', (m) => {
-      const viva = portas.get(m.id)
-      if (!viva) return
+      const viva = portas.get(m.id), o = mundo.portas.find((p) => p.id === m.id)
+      if (!viva || !o) return
+      // ele fechou comigo parado no vão: aqui ela não fecha, e volta a abrir para ele também (não prende ninguém)
+      const j = est.current.j
+      if (!m.aberta && o.level === andarDe(j.y) && noVao(o, j.x, j.z)) { rede.con.enviar({ t: 'porta', id: m.id, aberta: true, lado: viva.lado }); return }
       viva.aberta = m.aberta; viva.lado = m.lado
       if (m.aberta) mundo.abertas.add(m.id); else mundo.abertas.delete(m.id)
     })
@@ -228,7 +236,16 @@ export function Testar({ chunks, levels, ambiente, semChao, areas, inicio, yaw, 
     return () => { delete ganchos.ir; delete ganchos.cena; delete ganchos.gl; delete ganchos.fase }
   }, [mundo, scene, gl, naFase])
 
-  // o agente na cena, a entrada ligada, o mouse travado com um clique; Esc (ou soltar o mouse) volta ao editor
+  // o menu de pausa aberto: a entrada desliga (no online o mundo continua, e o agente fica parado); fechou, liga de novo
+  // (vem antes do efeito de baixo: saindo com o menu aberto, este religa e o de baixo desliga por último)
+  useEffect(() => {
+    if (!pausado) return
+    acoes.desligar()
+    return () => acoes.ligar(gl.domElement)
+  }, [pausado, acoes, gl])
+
+  // o agente na cena, a entrada ligada, o mouse travado com um clique; Esc (ou soltar o mouse) volta ao editor ou, numa
+  // fase, abre o menu de pausa
   useEffect(() => {
     const el = gl.domElement
     scene.add(agente.root, sombra, balas.grupo, impactos.grupo)
@@ -237,14 +254,14 @@ export function Testar({ chunks, levels, ambiente, semChao, areas, inicio, yaw, 
     const trava = () => {
       const travado = document.pointerLockElement === el
       if (travado) est.current.travou = true
-      else if (est.current.travou) sairRef.current() // soltou o mouse (Esc): fim do teste
+      else if (est.current.travou) esc() // soltou o mouse (Esc): o menu de pausa, ou o fim do teste
       travRef.current(travado)
     }
-    // Esc sai; qualquer outra tecla tira o aviso do meio da tela (mesmo sem o mouse travado)
-    const esc = (e: KeyboardEvent) => { if (e.code === 'Escape') sairRef.current(); else travRef.current(true) }
+    // Esc: o menu ou sair; qualquer outra tecla tira o aviso do meio da tela (mesmo sem o mouse travado)
+    const tecla = (e: KeyboardEvent) => { if (pausaRef.current.pausado) return; if (e.code === 'Escape') esc(); else travRef.current(true) }
     el.addEventListener('click', clique)
     document.addEventListener('pointerlockchange', trava)
-    window.addEventListener('keydown', esc)
+    window.addEventListener('keydown', tecla)
     clique() // tenta travar já (o clique no botão Testar conta como gesto do usuário)
     return () => {
       scene.remove(agente.root, sombra, balas.grupo, impactos.grupo)
@@ -252,12 +269,12 @@ export function Testar({ chunks, levels, ambiente, semChao, areas, inicio, yaw, 
       acoes.desligar()
       el.removeEventListener('click', clique)
       document.removeEventListener('pointerlockchange', trava)
-      window.removeEventListener('keydown', esc)
+      window.removeEventListener('keydown', tecla)
       if (document.pointerLockElement === el) document.exitPointerLock()
       const c = camera as THREE.PerspectiveCamera
       c.fov = 50; c.updateProjectionMatrix() // o campo de visão do editor
     }
-  }, [gl, scene, agente, sombra, acoes, camera, balas, impactos])
+  }, [gl, scene, agente, sombra, acoes, camera, balas, impactos, esc])
 
   const cam = camera as THREE.PerspectiveCamera
   const v = useMemo(() => ({ f: new THREE.Vector3(), r: new THREE.Vector3(), de: new THREE.Vector3(), para: new THREE.Vector3(), alvo: new THREE.Vector3(), vel: new THREE.Vector3(), mao: new THREE.Vector3() }), [])
@@ -336,8 +353,8 @@ export function Testar({ chunks, levels, ambiente, semChao, areas, inicio, yaw, 
     const ea = { mover, velocidade: j.velocidade, corrida: j.corrida, esquiva: j.esquiva >= 0 ? Math.min(1, j.esquiva / 0.5) : -1, expressao: ver.current.exp, mao: ver.current.mao, mira: { quer, alvo: v.alvo }, queda: caido ? j.caido : undefined, ferido: machucado(vida), municao, alcanca: s.abrir.t >= 0 ? s.abrir : undefined, lamparina: !caido && !j.preso && acoes.lamparina() }
     animarAgente(agente, ea, dt)
     // o teste online: a minha pose para o outro, 20 vezes por segundo
-    if (rede && (s.envio += dt) >= 1 / ENVIO) {
-      s.envio = Math.min(s.envio - 1 / ENVIO, 1 / ENVIO) // guarda o resto (a 60 quadros, 20 por segundo certinhos)
+    if (rede && (s.envio += dt) >= 1 / RITMO.pose) {
+      s.envio = Math.min(s.envio - 1 / RITMO.pose, 1 / RITMO.pose) // guarda o resto (a 60 quadros, 20 por segundo certinhos)
       rede.con.enviar({ t: 'pose', p: [r2(j.x), r2(j.y), r2(j.z)], yaw: r2(j.yaw), vel: r2(j.velocidade), cor: r2(j.corrida), esq: r2(ea.esquiva), mov: [r2(mover[0]), r2(mover[1])],
         mira: quer ? 1 : 0, alvo: v3(v.alvo), queda: caido ? r2(j.caido) : -1, fer: ea.ferido ? 1 : 0, arma: agente.arma === 'pistola' || agente.arma === 'escopeta' ? agente.arma : null,
         lamp: ea.lamparina ? 1 : 0, alc: s.abrir.t >= 0 ? [...v3(s.abrir.ponto), r2(s.abrir.t)] : null })

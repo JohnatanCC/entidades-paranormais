@@ -3,6 +3,8 @@
 // aparece aqui sozinho. Ao lado, a prévia ao vivo (PreviaQualidade): uma sala com luz, desenhada com a qualidade
 // escolhida, com os quadros por segundo. E o teste de desempenho (TesteDesempenho): a mansão inteira, nível por nível,
 // com a média e o mínimo de quadros de cada um, para o jogador escolher sabendo quanto custa.
+// Dentro do jogo (o menu de pausa: noJogo) não tem a prévia nem o teste (seriam outra cena desenhando junto): o próprio
+// jogo, atrás, mostra a mudança.
 import { useState } from 'react'
 import type { Go } from '../App'
 import { NIVEIS, OPCOES, useNivel, useNivelAuto, type Nivel, type Qualidade, type Recursos } from '../render/qualidade'
@@ -16,7 +18,8 @@ const TODOS: Nivel[] = ['baixo', 'medio', 'alto', 'ultra']
 /** O que a média de quadros de um nível quer dizer para quem joga. */
 const nota = (r: Resultado) => (r.media >= TESTE.bom ? 'liso' : r.media >= TESTE.jogavel ? 'jogável' : 'pesado')
 
-export function SettingsScreen({ go }: { go: Go }) {
+/** noJogo = aberta pelo menu de pausa; aoVoltar = o que o Voltar faz (sem: o menu principal). */
+export function SettingsScreen({ go, noJogo = false, aoVoltar }: { go: Go; noJogo?: boolean; aoVoltar?: () => void }) {
   const s = useSettings(), auto = useNivelAuto(), nivel = useNivel()
   const base = NIVEIS[nivel], mudados = Object.keys(s.ajustes).length
   // o teste de desempenho: os níveis pedidos, qual está sendo medido, em que parada, e o que já saiu
@@ -38,7 +41,7 @@ export function SettingsScreen({ go }: { go: Go }) {
     setSettings({ ajustes })
   }
   return (
-    <div className="config">
+    <div className={noJogo ? 'config no-jogo' : 'config'}>
       <div className="config-lado">
       <h2>Configurações</h2>
       <div className="form">
@@ -51,7 +54,7 @@ export function SettingsScreen({ go }: { go: Go }) {
             </button>
           ))}
         </div>
-        <label>Teste</label>
+        {!noJogo && <><label>Teste</label>
         <div className="teste-form">
           <div className="opcoes">
             <button disabled={!!teste} onClick={() => comecar(TODOS)} title="Mede os quatro níveis na mansão inteira: cerca de um minuto">Testar todos os níveis</button>
@@ -69,7 +72,7 @@ export function SettingsScreen({ go }: { go: Go }) {
               </tr>
             ))}</tbody>
           </table>}
-        </div>
+        </div></>}
         <label>Ajustes</label>
         <div className="nota-form">
           {mudados
@@ -107,10 +110,10 @@ export function SettingsScreen({ go }: { go: Go }) {
       </div>
       <nav className="menu">
         <button onClick={resetSettings}>Restaurar padrão</button>
-        <button onClick={() => go('menu')}>Voltar</button>
+        <button onClick={() => (aoVoltar ? aoVoltar() : go('menu'))}>Voltar</button>
       </nav>
       </div>
-      {teste
+      {noJogo ? null : teste
         ? <div className="previa">
             <TesteDesempenho niveis={teste.niveis} indice={teste.indice} onNivel={onNivel} onParada={(parada, total) => setTeste((t) => (t ? { ...t, parada, total } : t))} />
             <span className="previa-dica">Teste de desempenho · {NIVEIS[teste.niveis[teste.indice]].nome}</span>

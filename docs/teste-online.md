@@ -15,8 +15,9 @@ servidor. Não muda o plano do lançamento (`docs/lancamento.md`): o capítulo 1
   no alpendre, lado a lado.
 - **As mecânicas são as mesmas** do jogo sozinho: andar, correr, esquivar, as duas armas, a lamparina, os kits, a queda
   e a volta no começo. Sem cenas, sem roteiro de capítulo.
-- Só PC, só dois jogadores, sem reconexão: caiu a conexão, a sessão acaba e a tela diz por quê. Esc sai (o outro recebe
-  "O convidado saiu." ou "O host encerrou a sessão.").
+- Só PC, só dois jogadores, sem reconexão: caiu a conexão, a sessão acaba e a tela diz por quê. Esc abre o menu de
+  pausa, que no online **não para o jogo** (o outro e os fantasmas continuam; o seu agente fica parado); *Sair da
+  sessão* avisa o outro ("O convidado saiu." ou "O host encerrou a sessão.").
 - No canto da tela: quem eu sou, o código e o **ping** (verde até 80 ms, âmbar até 180, vermelho acima).
 
 ## Como funciona a conexão
@@ -25,6 +26,7 @@ servidor. Não muda o plano do lançamento (`docs/lancamento.md`): o capítulo 1
   o teste online abre). Para os dois se acharem, o servidor gratuito do PeerJS apresenta um ao outro: o código vira o
   nome do host lá (só o código passa por ele). Depois as mensagens vão direto de um navegador ao outro. Nas redes que
   não deixam a ligação direta, o PeerJS usa os servidores de retransmissão (TURN) dele.
+- Os números (o ritmo das mensagens, a queda, o deslizar) ficam em `src/game/rede/numeros.ts`.
 - Um canal só, confiável e em ordem (JSON). Medido no teste: **20 poses e 15 retratos por segundo, uns 5 KB/s**, ping de
   1 a 35 ms entre duas abas.
 - O ping vai e volta a cada segundo. **6 s sem mensagem nenhuma: a conexão caiu.** Fechar ou recarregar a página do
@@ -35,13 +37,15 @@ servidor. Não muda o plano do lançamento (`docs/lancamento.md`): o capítulo 1
 - **O convidado copia** (`copiar`): cada entidade desliza até onde o retrato diz e anima ali mesmo com os instantes; o
   corvo do Mestre voa na máquina dele (sai no mesmo ponto do grito), e as Gralhas que o corvo solta vêm pelo retrato.
 - **Cada um manda no próprio corpo:** anda na hora (sem esperar o outro, para o controle não ficar mole) e manda a pose
-  20 vezes por segundo (`mensagens.ts`, `Pose`). O outro aparece deslizando até ela (`rede/Remoto.tsx`), com o corpo
+  20 vezes por segundo (`mensagens.ts`, `Pose`). O outro aparece deslizando até ela (`rede/Remoto.tsx`; mais de 2 m de
+  uma vez, como a volta depois de cair, ou noutro andar, ele aparece direto, sem atravessar as paredes), com o corpo
   animado pela pose: andar, correr, esquivar, mirar, cair, a mão na maçaneta. Os passos e o tiro soam no lugar dele.
 - **O tiro:** quem atira vê a própria bala na hora; a bala aparece também para o outro. A bala do convidado que pega
   numa entidade vira um pedido ao host (`acerto`), e o host aplica o tiro como se fosse dele, com a Lara como quem
   atirou (o foco). **O golpe:** a entidade do host que pega a Lara manda a ferida para ela (`ferido`); lá, a cambalhota
   ainda escapa.
-- **As portas:** quem abre ou fecha avisa o outro.
+- **As portas:** quem abre ou fecha avisa o outro. Se o outro fecha uma porta com você parado no vão, ela não fecha na
+  sua máquina e abre de novo na dele (ninguém fica preso).
 - Cada um tem a sua câmera, o seu HUD e o seu som. A lamparina do outro não acende (a luz da lamparina é uma só no jogo,
   a do jogador local); o feixe dele vale para o Mestre pela pose.
 - Os sorteios que mudam a luta só acontecem no host; os de enfeite (faíscas, penas, fumaça) cada um sorteia o seu.

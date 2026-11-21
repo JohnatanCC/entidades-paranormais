@@ -34,6 +34,9 @@ function maisPerto(o: Opening, x: number, z: number) {
   return { qx, qz, d: Math.hypot(x - qx, z - qz) }
 }
 
+/** (x, z) está no vão da porta (perto demais da linha dela para ela fechar)? */
+export const noVao = (o: Opening, x: number, z: number) => maisPerto(o, x, z).d < PORTA.vaoLivre
+
 /** O lado da parede em que o ponto está ('b' = +z na parede em x, +x na parede em z). */
 const ladoDe = (o: Opening, x: number, z: number): 'a' | 'b' => (o.axis === 'x' ? (z > o.z ? 'b' : 'a') : (x > o.x ? 'b' : 'a'))
 
@@ -77,7 +80,7 @@ export function usarPorta(m: Mundo, v: PortasVivas, o: Opening, x: number, z: nu
     return o.chave ? `${motivo} Abre com: ${o.chave}` : motivo
   }
   if (viva.aberta) {
-    if (maisPerto(o, x, z).d < PORTA.vaoLivre) return null // parado no vão: não fecha em cima dele
+    if (noVao(o, x, z)) return null // parado no vão: não fecha em cima dele
     viva.aberta = false
     m.abertas.delete(o.id)
   } else {

@@ -283,3 +283,10 @@ button { font: inherit; color: inherit; }
 .online-status { position: fixed; left: 12px; top: 12px; z-index: 7; pointer-events: none; padding: 4px 10px; background: rgba(16, 14, 11, .7);
   font-size: 12px; letter-spacing: .08em; color: var(--muted); }
 .online-status .bom { color: #8fbf6a; } .online-status .medio { color: var(--amber); } .online-status .ruim { color: var(--accent); }
+
+/* o menu de pausa (screens/Jogo: Esc) e as configurações dentro dele */
+.jogo .pausa { position: absolute; inset: 0; z-index: 20; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 22px;
+  background: rgba(7, 8, 10, .78); }
+.jogo .pausa h2 { font-family: var(--display); font-weight: 400; font-size: 52px; margin: 0; color: var(--cream); letter-spacing: .08em; }
+.jogo .pausa p { margin: 0; max-width: min(460px, 86vw); text-align: center; color: var(--muted); font-size: 13px; }
+.config.no-jogo { z-index: 21; grid-template-columns: minmax(0, 620px); grid-template-rows: minmax(0, 1fr); justify-content: center; background: rgba(7, 8, 10, .94); }

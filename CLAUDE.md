@@ -107,7 +107,7 @@ src/
   main.tsx, App.tsx        as telas (menu → novo jogo → Demo · Intro | configurações | modo desenvolvedor → criador de mapas, teste online)
   styles.css               a paleta e as telas
   screens/                 MainMenu, NovoJogo (a Demo · Intro), Jogo (uma fase: o mapa da pasta com o agente do Testar, em
-                           tela cheia), SettingsScreen (com PreviaQualidade ao lado: a sala do mapa teste-iluminacao com a
+                           tela cheia; Esc abre o menu de pausa: continuar, configurações, sair), SettingsScreen (com PreviaQualidade ao lado: a sala do mapa teste-iluminacao com a
                            qualidade escolhida, ao vivo, e o fps; e TesteDesempenho: a mansão inteira nível por nível, com a
                            média e o mínimo de quadros), DevMenu, VerModelos (o personagem, o fantasma ou o demônio de perto: animação, expressão, mãos, ações, luz),
                            VerCenas (toca uma cena no cenário dela: tocar, pausar, a linha do tempo, pular para um plano),
@@ -254,7 +254,7 @@ src/game/                  (já existem: Testar.tsx, player/, input/, world/, we
   capture/                 a poça e a captura
   allies/                  Lara e Nicolas
   rede/                    o teste online (docs/teste-online.md): conexao.ts (o PeerJS: criar e entrar com o código, o ping, a
-                           queda), mensagens.ts (o que vai e volta: a pose, o tiro, a porta, o acerto, a ferida, o retrato do
+                           queda), numeros.ts (o ritmo das mensagens, a queda, o deslizar), mensagens.ts (o que vai e volta: a pose, o tiro, a porta, o acerto, a ferida, o retrato do
                            mundo e os instantes das entidades) e Remoto.tsx (o outro jogador, movido pelas poses)
   hud/                     Hud.tsx + hud.css: o HUD conceito C (a vida e o fôlego, os kits, a arma, as barras do chefe); o jogo
                            conta a cada quadro (EstadoHud) e ele só muda o que mudou; as legendas e a roda de armas vêm depois

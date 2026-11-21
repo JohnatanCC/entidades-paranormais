@@ -47,13 +47,24 @@ export function TesteOnline({ go }: { go: Go }) {
     montado.current = true
     con.aoFechar((motivo) => setFase({ f: 'fim', motivo }))
     if (import.meta.env.DEV) ganchos.rede = con // provas.rede()
-    return () => { montado.current = false; setTimeout(() => { if (!montado.current) con.fechar() }, 0) }
+    return () => {
+      montado.current = false
+      setTimeout(() => { if (montado.current) return; con.fechar(); if (ganchos.rede === con) delete ganchos.rede }, 0)
+    }
   }, [con])
 
+  // cada tentativa tem o seu número: a resposta de uma que já foi cancelada não mexe na tela (e a conexão dela fecha)
+  const tentativa = useRef(0)
   function abrir(p: { conexao: Promise<Conexao>; cancelar: () => void }) {
+    const minha = ++tentativa.current
     cancelar.current = p.cancelar
-    p.conexao.then((c) => { cancelar.current = null; setFase({ f: 'jogando', con: c }) })
-      .catch((e: Error) => { cancelar.current = null; setErro(e.message); setFase({ f: 'escolha' }) })
+    p.conexao.then((c) => {
+      if (minha !== tentativa.current) { c.fechar(); return }
+      cancelar.current = null; setFase({ f: 'jogando', con: c })
+    }).catch((e: Error) => {
+      if (minha !== tentativa.current) return
+      cancelar.current = null; setErro(e.message); setFase({ f: 'escolha' })
+    })
   }
   function criar() {
     setErro(null); setFase({ f: 'criando', codigo: null })
@@ -64,7 +75,7 @@ export function TesteOnline({ go }: { go: Go }) {
     setErro(null); setFase({ f: 'entrando', esperando: true })
     abrir(entrarSessao(codigo))
   }
-  function voltar() { cancelar.current?.(); cancelar.current = null; setFase({ f: 'escolha' }) }
+  function voltar() { tentativa.current++; cancelar.current?.(); cancelar.current = null; setFase({ f: 'escolha' }) }
 
   if (fase.f === 'jogando') {
     const host = fase.con.papel === 'host', eu = host ? HOST : CONVIDADO, outro = host ? CONVIDADO : HOST

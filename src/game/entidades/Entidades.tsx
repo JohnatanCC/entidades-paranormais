@@ -54,6 +54,7 @@ import type { Alvejavel } from '../weapons/bala'
 import { alcanceCamera } from '../world/colisao'
 import { LAMPARINA } from '../player/numeros'
 import type { Conexao } from '../rede/conexao'
+import { RITMO, SEGUE } from '../rede/numeros'
 import { r2, type AcaoEntidade, type Msg, type QualEntidade } from '../rede/mensagens'
 import { ameaca, bateu, focar, novoFoco, type Foco, type Jogador } from './foco'
 import { ganchos } from '../../dev/ganchos'
@@ -107,9 +108,6 @@ function ve(j: Jogador, mundo: AgenteNaFase['mundo'], de: THREE.Vector3, alcance
 }
 /** Vê algum jogador? O primeiro que ela vê (ou null). */
 const veAlguem = (fase: AgenteNaFase, de: THREE.Vector3, alcance: number) => fase.jogadores.find((j) => ve(j, fase.mundo, de, alcance)) ?? null
-
-/** O retrato do mundo por segundo (o host manda ao convidado) e o quanto o convidado corre atrás dele (1/s). */
-const RETRATO = 15, SEGUE = 12
 
 export function Entidades({ chunks, fase, rede }: { chunks: Chunk[]; fase: AgenteNaFase; rede?: Conexao }) {
   const scene = useThree((s) => s.scene)
@@ -411,7 +409,7 @@ export function Entidades({ chunks, fase, rede }: { chunks: Chunk[]; fase: Agent
    *  (o golpe, o grito, o estouro) chegam pelo ev. O corvo do Mestre voa aqui mesmo (sai no mesmo ponto do grito); as
    *  Gralhas que ele solta vêm pelo retrato. Devolve quem está caçando (a música). */
   function copiar(dt: number) {
-    const R = retrato.current, k = 1 - Math.exp(-SEGUE * dt), kg = 1 - Math.exp(-SEGUE * 1.5 * dt), eu = fase.agente.root.position
+    const R = retrato.current, k = 1 - Math.exp(-SEGUE.entidades * dt), kg = 1 - Math.exp(-SEGUE.entidades * 1.5 * dt), eu = fase.agente.root.position
     let cacando = false, maeCacando = false
     const seguir = (r: THREE.Object3D, d: readonly [number, number, number, number, ...unknown[]], k: number) => {
       r.position.x += (d[0] - r.position.x) * k; r.position.y += (d[1] - r.position.y) * k; r.position.z += (d[2] - r.position.z) * k
@@ -518,8 +516,8 @@ export function Entidades({ chunks, fase, rede }: { chunks: Chunk[]; fase: Agent
       if (tocando.current !== qual && (!tocando.current || maeCacando)) { musica(qual); tocando.current = qual }
     } else if (tocando.current && (semCaca.current += dt) > MUSICA.segura) { musica(musicaAntes.current); tocando.current = false }
     // o host manda o retrato do mundo (onde cada uma está e o estado dela)
-    if (rede?.papel === 'host' && (envio.current += dt) >= 1 / RETRATO) {
-      envio.current = Math.min(envio.current - 1 / RETRATO, 1 / RETRATO)
+    if (rede?.papel === 'host' && (envio.current += dt) >= 1 / RITMO.retrato) {
+      envio.current = Math.min(envio.current - 1 / RITMO.retrato, 1 / RITMO.retrato)
       const P = (r: THREE.Object3D) => [r2(r.position.x), r2(r.position.y), r2(r.position.z), r2(r.rotation.y)] as const
       rede.enviar({
         t: 'mundo',

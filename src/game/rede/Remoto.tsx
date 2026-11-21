@@ -15,7 +15,6 @@ import type { Jogador } from '../entidades/foco'
 import { animarAgente, type EstadoAnim } from '../player/animacao'
 import { pegarArma } from '../player/arma'
 import { montarAgente, type ModeloAgente } from '../player/modelo'
-import { AGENTE } from '../player/numeros'
 import { ouvirAgente } from '../player/sons'
 import type { AgenteNaFase } from '../Testar'
 import { atirar, novasBalas, passoBalas } from '../weapons/bala'
@@ -26,8 +25,7 @@ import { gatilho } from '../weapons/tiro'
 import { andarDe } from '../world/colisao'
 import type { Conexao } from './conexao'
 import { v3, type Pose } from './mensagens'
-
-const SEGUE = 14 // o quanto ele corre atrás da última pose (1/s): mais = mais preso à rede, menos = mais macio
+import { SEGUE } from './numeros'
 
 const amortece = (de: number, para: number, k: number, dt: number) => de + (para - de) * (1 - Math.exp(-k * dt))
 const angulo = (de: number, para: number, k: number, dt: number) => de + Math.atan2(Math.sin(para - de), Math.cos(para - de)) * (1 - Math.exp(-k * dt))
@@ -37,19 +35,14 @@ export function Remoto({ con, modelo, nome, fase, assa }: { con: Conexao; modelo
   const a = useMemo(() => { const x = montarAgente(modelo); pegarArma(x, 'pistola'); return x }, [modelo])
   const sombra = useMemo(() => novaSombraDeChao(), []), luz = useMemo(() => novaLuzVertice(), [])
   const balas = useMemo(() => novasBalas(), []), impactos = useMemo(() => novosImpactos(), [])
-  const est = useRef({ pose: null as Pose | null, yaw: 0, quadro: 0, ferido: -9, tiro: false })
+  const est = useRef({ pose: null as Pose | null, yaw: 0, quadro: 0, tiro: false })
   const v = useMemo(() => ({ alvo: new THREE.Vector3(), mao: new THREE.Vector3(), de: new THREE.Vector3(), para: new THREE.Vector3() }), [])
   const jogador = useMemo<Jogador>(() => ({
     nome, p: a.root.position, lamparina: { ergue: 0, pos: new THREE.Vector3(), dir: new THREE.Vector3(0, 0, 1) },
     pode: () => { const P = est.current.pose; return !!P && P.queda < 0 },
-    // a ferida vai para ele (lá, a cambalhota ainda escapa); aqui só o tempo invulnerável, para não mandar uma por quadro
-    ferir: (dano, de) => {
-      const agora = performance.now() / 1000
-      if (agora - est.current.ferido < AGENTE.invulneravel) return false
-      est.current.ferido = agora
-      con.enviar({ t: 'ferido', dano, de: v3(de) })
-      return true
-    },
+    // a ferida vai para ele: lá, a vida dele decide (a cambalhota escapa, o tempo invulnerável depois de um golpe). Cada
+    // golpe já pega uma vez só (a garra, a mordida, a bicada): não precisa esperar aqui
+    ferir: (dano, de) => { con.enviar({ t: 'ferido', dano, de: v3(de) }); return true },
   }), [a, con, nome])
 
   useEffect(() => {
@@ -81,8 +74,10 @@ export function Remoto({ con, modelo, nome, fase, assa }: { con: Conexao; modelo
     passoImpactos(impactos, dt)
     if (!P) return
     const r = a.root.position
-    r.x = amortece(r.x, P.p[0], SEGUE, dt); r.y = amortece(r.y, P.p[1], SEGUE, dt); r.z = amortece(r.z, P.p[2], SEGUE, dt)
-    s.yaw = angulo(s.yaw, P.yaw, SEGUE, dt)
+    // longe demais (voltou depois de cair, foi cuspido) ou noutro andar: aparece de uma vez; perto, desliza
+    if (Math.hypot(P.p[0] - r.x, P.p[2] - r.z) > SEGUE.salto || Math.abs(P.p[1] - r.y) > 1.5) { r.set(...P.p); s.yaw = P.yaw }
+    r.x = amortece(r.x, P.p[0], SEGUE.remoto, dt); r.y = amortece(r.y, P.p[1], SEGUE.remoto, dt); r.z = amortece(r.z, P.p[2], SEGUE.remoto, dt)
+    s.yaw = angulo(s.yaw, P.yaw, SEGUE.remoto, dt)
     a.root.rotation.y = s.yaw
     sombra.position.set(r.x, r.y + 0.03, r.z)
     if (P.arma && a.arma !== P.arma) pegarArma(a, P.arma)

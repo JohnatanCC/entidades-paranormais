@@ -2,15 +2,14 @@
 // a sessão e recebe um código curto; o convidado digita o código e entra. Para os dois se acharem, o servidor gratuito
 // do PeerJS apresenta um ao outro (só o código passa por ele); depois as mensagens vão direto de um navegador ao outro.
 // Um canal só, confiável e em ordem (JSON): a 20 mensagens por segundo, pequenas, cabe folgado.
-// O ping: a cada segundo um vai e volta (a média aparece na tela). Sem mensagem nenhuma por SILENCIO s, a conexão caiu.
+// O ping: a cada segundo um vai e volta (a média aparece na tela). Sem mensagem nenhuma por CONEXAO.silencio s, caiu.
 import type Peer from 'peerjs'
 import type { DataConnection } from 'peerjs'
 import type { Msg, TipoMsg } from './mensagens'
+import { CONEXAO } from './numeros'
 
 const PREFIXO = 'agentes-cros-teste-' // o código vira o nome do host no servidor do PeerJS
 const LETRAS = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789' // sem 0/O e 1/I, que se confundem ditados
-const SILENCIO = 6 // s sem mensagem: caiu
-const ESPERA = 15 // s tentando entrar antes de desistir
 
 export type Papel = 'host' | 'convidado'
 type Ouvinte = (m: Msg) => void
@@ -67,9 +66,9 @@ function ligar(peer: Peer, dc: DataConnection, papel: Papel, codigo: string): Co
   dc.on('error', () => encerrar('A conexão caiu.'))
   peer.on('disconnected', () => { if (c.aberta) peer.reconnect() }) // o servidor de apresentação caiu: a conversa direta segue
   const relogio = setInterval(() => {
-    if (performance.now() - ultima > SILENCIO * 1000) { encerrar('A conexão caiu (sem resposta).'); return }
+    if (performance.now() - ultima > CONEXAO.silencio * 1000) { encerrar('A conexão caiu (sem resposta).'); return }
     dc.send({ t: 'ping', h: performance.now() } satisfies Msg)
-  }, 1000)
+  }, CONEXAO.ping * 1000)
   return c
 }
 
@@ -98,9 +97,9 @@ export function criarSessao(pronto: (codigo: string) => void): { conexao: Promis
         if (!cancelado) reject(new Error(explicar(e)))
       })
       peer.on('connection', (dc) => {
-        // um convidado só: os outros são recusados
+        // um convidado só: os outros são recusados (também o que chegou junto e abriu depois do primeiro)
         if (cancelado) { dc.close(); return }
-        dc.on('open', () => { cancelado = true; resolve(ligar(peer!, dc, 'host', codigo)) })
+        dc.on('open', () => { if (cancelado) { dc.close(); return } cancelado = true; resolve(ligar(peer!, dc, 'host', codigo)) })
       })
     }
     tentar(0).catch(() => reject(new Error('Não deu para carregar a conexão.')))
@@ -113,9 +112,9 @@ export function entrarSessao(codigo: string): { conexao: Promise<Conexao>; cance
   const cod = codigo.trim().toUpperCase()
   let aberto: Peer | null = null, feito = false
   const conexao = carregarPeer().then((P) => new Promise<Conexao>((resolve, reject) => {
-    if (feito) { reject(new Error('Cancelado.')); return }
+    if (feito) return // cancelado enquanto o PeerJS carregava: não responde (quem chamou já seguiu)
     const peer = (aberto = new P())
-    const desiste = setTimeout(() => { if (!feito) { feito = true; peer.destroy(); reject(new Error('A sessão não respondeu. Confira o código.')) } }, ESPERA * 1000)
+    const desiste = setTimeout(() => { if (!feito) { feito = true; peer.destroy(); reject(new Error('A sessão não respondeu. Confira o código.')) } }, CONEXAO.espera * 1000)
     peer.on('error', (e) => { if (!feito) { feito = true; clearTimeout(desiste); peer.destroy(); reject(new Error(explicar(e))) } })
     peer.on('open', () => {
       const dc = peer.connect(PREFIXO + cod.toLowerCase(), { reliable: true, serialization: 'json' })
