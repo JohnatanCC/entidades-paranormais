@@ -1,43 +1,57 @@
-# O teste online (para depois do lançamento)
+# O teste online
 
-Ideia de 21/nov. A etapa 1 (o sistema de foco) já está feita, porque também vale para o jogo sozinho; o resto não entra
-antes do capítulo 1 estar no itch.io (`docs/lancamento.md`). É um teste
-de desenvolvedor, não um modo de jogo: serve para saber se dois jogadores na mesma sessão funcionam, antes de pensar
-num servidor.
+Ideia de 21/nov, **feita no mesmo dia** (a pedido: o desenvolvedor quis o teste inteiro agora). É um teste de
+desenvolvedor, não um modo de jogo: serve para saber se dois jogadores na mesma sessão funcionam, antes de pensar num
+servidor. Não muda o plano do lançamento (`docs/lancamento.md`): o capítulo 1 continua sozinho.
 
 ## O que é
 
-- No **Modo desenvolvedor → Teste online**: *Criar sessão* (o host recebe um código curto para mandar) ou *Entrar com
-  código* (o convidado digita e entra).
-- O mapa é a mansão do capítulo 1 (`maps/mansao-cap1`), com os fantasmas espalhados pela aba Entidades (a Mãe, o
-  Mestre, as Gralhas) e o que mais o mapa tiver.
-- **O jogador 1 (o host) é o Matheus; o 2 é a Lara** (`montarAgente('lara')`, o mesmo esqueleto do agente).
+- No **Modo desenvolvedor → Teste online** (`src/screens/TesteOnline.tsx`): *Criar sessão* (o host recebe um código de
+  5 letras para mandar) ou *Entrar com código* (o convidado digita e entra).
+- O mapa é a mansão do capítulo 1 (`maps/mansao-cap1`). Os fantasmas entram só no teste (`FANTASMAS_ONLINE`, na tela:
+  o mapa salvo não muda): a Mãe na sala de jantar, o Mestre na cozinha e 4 Gralhas (no salão nobre, na sala de visitas
+  e no gabinete), todos no térreo.
+- **O host é o Matheus; o convidado é a Lara** (`montarAgente('lara')`, o mesmo esqueleto do agente). Os dois começam
+  no alpendre, lado a lado.
 - **As mecânicas são as mesmas** do jogo sozinho: andar, correr, esquivar, as duas armas, a lamparina, os kits, a queda
-  e a volta no checkpoint. Sem cenas, sem roteiro de capítulo.
-- Só PC, só dois jogadores, sem reconexão: caiu a conexão, a sessão acaba.
+  e a volta no começo. Sem cenas, sem roteiro de capítulo.
+- Só PC, só dois jogadores, sem reconexão: caiu a conexão, a sessão acaba e a tela diz por quê. Esc sai (o outro recebe
+  "O convidado saiu." ou "O host encerrou a sessão.").
+- No canto da tela: quem eu sou, o código e o **ping** (verde até 80 ms, âmbar até 180, vermelho acima).
 
 ## Como funciona a conexão
 
-- **Um jogador ligado direto ao outro** (WebRTC, pelo navegador). Para os dois se acharem precisa de um servidor
-  pequeno de apresentação; o código da sessão é o endereço do host nele. Em algumas redes precisa também de um servidor
-  que retransmite (TURN). **Em aberto:** qual biblioteca (PeerJS ou Trystero) e qual servidor de apresentação; é uma
-  dependência nova no `package.json`, então decidir junto antes.
-- **O host manda no mundo:** só ele roda a inteligência dos fantasmas, decide quem acertou quem, a vida de todos e as
-  portas. Envia o estado ao convidado umas 15 a 20 vezes por segundo, e o convidado suaviza entre um envio e outro.
-- **O convidado manda só nele mesmo:** move a Lara na hora (sem esperar o host, para o controle não ficar mole) e
-  envia a posição, a pose e o que fez (atirou daqui para lá, abriu a porta, usou o kit). Quem decide se o tiro acertou
-  é o host.
-- Cada um tem a sua câmera, o seu HUD e o seu som (o ouvido é a câmera de cada um).
-- Os sorteios que mudam a luta (a inteligência, os golpes) só acontecem no host; os de enfeite (faíscas, penas,
-  fumaça) cada um sorteia o seu.
+- **Um jogador ligado direto ao outro** (WebRTC), pelo **PeerJS 1.5.4** (`src/game/rede/conexao.ts`; só carrega quando
+  o teste online abre). Para os dois se acharem, o servidor gratuito do PeerJS apresenta um ao outro: o código vira o
+  nome do host lá (só o código passa por ele). Depois as mensagens vão direto de um navegador ao outro. Nas redes que
+  não deixam a ligação direta, o PeerJS usa os servidores de retransmissão (TURN) dele.
+- Um canal só, confiável e em ordem (JSON). Medido no teste: **20 poses e 15 retratos por segundo, uns 5 KB/s**, ping de
+  1 a 35 ms entre duas abas.
+- O ping vai e volta a cada segundo. **6 s sem mensagem nenhuma: a conexão caiu.** Fechar ou recarregar a página do
+  outro é notado na hora.
+- **O host manda no mundo:** só ele roda a inteligência dos fantasmas (`entidades/Entidades.tsx`, `pensar`), decide
+  quem acertou quem e quem foi ferido. Manda ao convidado o **retrato** (15/s: onde cada entidade está e o estado dela)
+  e os **instantes** (o golpe da Mãe, o grito e a mordida do Mestre, a Gralha atacando, ferida, estourando).
+- **O convidado copia** (`copiar`): cada entidade desliza até onde o retrato diz e anima ali mesmo com os instantes; o
+  corvo do Mestre voa na máquina dele (sai no mesmo ponto do grito), e as Gralhas que o corvo solta vêm pelo retrato.
+- **Cada um manda no próprio corpo:** anda na hora (sem esperar o outro, para o controle não ficar mole) e manda a pose
+  20 vezes por segundo (`mensagens.ts`, `Pose`). O outro aparece deslizando até ela (`rede/Remoto.tsx`), com o corpo
+  animado pela pose: andar, correr, esquivar, mirar, cair, a mão na maçaneta. Os passos e o tiro soam no lugar dele.
+- **O tiro:** quem atira vê a própria bala na hora; a bala aparece também para o outro. A bala do convidado que pega
+  numa entidade vira um pedido ao host (`acerto`), e o host aplica o tiro como se fosse dele, com a Lara como quem
+  atirou (o foco). **O golpe:** a entidade do host que pega a Lara manda a ferida para ela (`ferido`); lá, a cambalhota
+  ainda escapa.
+- **As portas:** quem abre ou fecha avisa o outro.
+- Cada um tem a sua câmera, o seu HUD e o seu som. A lamparina do outro não acende (a luz da lamparina é uma só no jogo,
+  a do jogador local); o feixe dele vale para o Mestre pela pose.
+- Os sorteios que mudam a luta só acontecem no host; os de enfeite (faíscas, penas, fumaça) cada um sorteia o seu.
 - Quando vier um servidor de verdade, ele toma o lugar do host. Para isso a regra do jogo precisaria rodar sem tela,
   separada do desenho: é o maior trabalho dessa mudança e fica para quando chegar.
 
 ## O sistema de foco (quem o fantasma ataca)
 
-**Feito (21/nov)** para as entidades do mapa (a Mãe, o Mestre, as Gralhas): `src/game/entidades/foco.ts`, com os
-números em `entidades/numeros.ts` (`FOCO`). Cada criatura acorda ao ver qualquer jogador e escolhe o alvo pela
-**ameaça** de cada um:
+Feito para as entidades do mapa (a Mãe, o Mestre, as Gralhas): `src/game/entidades/foco.ts`, com os números em
+`entidades/numeros.ts` (`FOCO`). Cada criatura acorda ao ver qualquer jogador e escolhe o alvo pela **ameaça** de cada um:
 
 - **A distância:** quanto mais perto, mais ameaça, em curva (de perto a diferença pesa mais); zero na vista larga (28 m).
 - **Quem está batendo nela:** cada ponto de dano que ela leva soma ameaça a quem atirou; essa soma esvazia em uns 4 s.
@@ -49,35 +63,46 @@ números em `entidades/numeros.ts` (`FOCO`). Cada criatura acorda ao ver qualque
   muitas: a linha de visão é cara).
 - A bicada da Gralha pega quem estiver perto do bico; a garra da Mãe e a mordida do Mestre, só o alvo. A lamparina
   erguida de qualquer um afasta o Mestre.
-- Quem atirou: no Testar é sempre o agente; na rede (etapa 3), a bala dirá de quem é.
 
 **Com um jogador só nada muda**: o único alvo é sempre o agente. Os Sombrios da Demo · Intro (`enemies/luta.ts`)
 continuam com um alvo só: não estão na mansão.
 
-**Para testar:** no Testar, **L** põe a Lara parada 2,5 m à frente do agente (ou tira); ela leva golpe, cai e levanta.
-`provas.foco()` diz quem cada entidade caça e a ameaça de cada jogador.
+**Sem rede:** no Testar, **L** põe a Lara parada 2,5 m à frente do agente (ou tira); ela leva golpe, cai e levanta.
+
+## Como testar
+
+- **Duas janelas lado a lado** (ou dois computadores): o navegador não desenha a aba escondida, e o mundo do host para
+  junto com ela (o convidado vê os fantasmas parados). Por isso não serve testar com duas abas na mesma janela.
+- `npm run dev` nos dois (ou o mesmo endereço aberto nos dois), Modo desenvolvedor → Teste online.
+- Pelo console: `provas.rede()` dá a conexão (o papel, o código, o ping; `provas.rede().ouvir('pose', fn)` conta as
+  mensagens), `provas.foco()` diz quem cada entidade caça e a ameaça de cada jogador, `provas.fase().jogadores` os dois.
+- **O que já foi conferido** (21/nov, duas abas no mesmo navegador, alternando a da frente): criar e entrar; o código
+  errado ("Nenhuma sessão com esse código."); os dois se veem e andam; a porta que um abre abre no outro; a Lara mata uma
+  Gralha com tiros (o host decide e o estouro chega nela); a Mãe do host caça a Lara, ataca e a vida dela cai; a Lara
+  cai e volta no começo; o Mestre grita e as 3 Gralhas do corvo aparecem no convidado e bicam a Lara; sair pelos dois
+  lados; a página do host recarregada (o convidado vê "A conexão caiu." na hora). **Não deu para conferir no painel:**
+  o tiro de verdade pelo mouse (o painel não trava o cursor); a bala que chega pela rede foi testada mandando a
+  mensagem à mão, sem erro.
 
 ## O que conflita com o que já está decidido
 
-- **Um agente só no código:** a caça da Mãe, o rodeio das Gralhas, o Mestre, a câmera, a queda e o checkpoint, o HUD e
-  o `AgenteNaFase` contam com um agente. O sistema de foco resolve o lado dos fantasmas; o resto precisa aceitar uma
-  lista de jogadores.
-- **A luta do berçário** (o berço, o tornado, as quatro barras) é feita para um. No teste ela roda como está; ajustar
-  para dois só se o teste virar modo de jogo.
+- **A luta do berçário** (o berço, o tornado, as quatro barras) é feita para um. No teste ela não entra; ajustar para
+  dois só se o teste virar modo de jogo.
 - **O terror** vem de estar sozinho. Para um teste não importa; para um modo de verdade, é a primeira coisa a decidir.
-- **O desempenho:** um personagem a mais na cena e o envio do estado. Medir com `/desempenho` quando chegar.
+- **O desempenho:** um personagem a mais na cena e o envio do estado. Medir com `/desempenho` numa sessão de verdade.
+- **O HUD, a câmera e as cenas** continuam de um jogador só (cada um vê o seu).
 
-## As etapas (cada uma termina numa versão para testar)
+## As etapas
 
-1. ~~**O sistema de foco**, sem rede~~ (feito em 21/nov): a lista de jogadores (`AgenteNaFase.jogadores`), a ameaça
-   e a Lara parada no Testar (L) para ver a troca de foco.
-2. **A conexão:** o menu Teste online, o código, os dois andando na mansão, sem fantasmas.
-3. **As portas, os tiros e a vida:** o convidado atira e o host decide; os dois podem cair e voltar.
-4. **As Gralhas e o Mestre** sincronizados, com o foco.
-5. **A Mãe.**
+1. ~~**O sistema de foco**, sem rede~~ (feito em 21/nov).
+2. ~~**A conexão:** o menu Teste online, o código, os dois andando na mansão~~ (feito em 21/nov).
+3. ~~**As portas, os tiros e a vida**~~ (feito em 21/nov).
+4. ~~**As Gralhas e o Mestre** sincronizados, com o foco~~ (feito em 21/nov).
+5. ~~**A Mãe**~~ (feito em 21/nov).
 
 ## Em aberto
 
-- A biblioteca e o servidor de apresentação (e se precisa de TURN pago).
-- O que acontece quando os dois caem: cada um volta no checkpoint sozinho, ou um pode levantar o outro.
+- O que acontece quando os dois caem: hoje cada um volta no começo sozinho; um levantar o outro fica para um modo de
+  verdade.
 - Se o teste der certo: vira modo cooperativo de verdade, e com que história (a Lara como parceira do Matheus).
+- Reconectar quando cai (hoje a sessão acaba) e mais de dois jogadores: só se virar modo de verdade.

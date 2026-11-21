@@ -2,6 +2,8 @@
 // de mapas (a câmera, a colisão, a luz do lugar, as armas, a vida), em tela cheia; Esc volta ao menu.
 // A Demo · Intro (docs/intro.md) é o mapa "intro": o submundo, as três arenas, com o roteiro dela (src/chapters/intro/:
 // as hordas, os tornados, o chefe, a música); a linha do roteiro aparece no alto da tela, e o HUD (game/hud) embaixo.
+// O teste online (screens/TesteOnline) usa esta tela também: com a rede, os pontos extras (os fantasmas espalhados) e o
+// convidado um pouco ao lado do começo.
 import { Suspense, useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { Canvas } from '@react-three/fiber'
 import type { Go } from '../App'
@@ -10,17 +12,19 @@ import { Desempenho } from '../game/Desempenho'
 import { Testar } from '../game/Testar'
 import type { PortasVivas } from '../game/world/portas'
 import { getMap, loadChunk } from '../maps/loader'
-import type { Chunk } from '../maps/types'
+import type { Chunk, ScriptPoint } from '../maps/types'
 import { setModoParedes } from '../render/corte'
 import { canvasDoNivel, useDefinicao } from '../render/qualidade'
 import { Roteiro, type TextoRoteiro } from '../chapters/intro/Roteiro'
-import type { AgenteNaFase } from '../game/Testar'
+import type { AgenteNaFase, Rede } from '../game/Testar'
 import { BarrasDoChefe, Hud, type EstadoHud } from '../game/hud/Hud'
 
 /** Os roteiros das fases, pelo mapa (por enquanto, só a Demo · Intro). */
 const ROTEIROS: Record<string, typeof Roteiro> = { intro: Roteiro }
 
-export function Jogo({ go, mapa }: { go: Go; mapa: string }) {
+/** rede = o teste online; extras = pontos a mais no mapa (as entidades), sem mexer no mapa salvo; deslocar = m para o
+ *  lado no começo (o convidado não nasce dentro do host); sair = para onde o Esc leva (sem: o menu). */
+export function Jogo({ go, mapa, rede, extras, deslocar = 0, sair: aoSair }: { go: Go; mapa: string; rede?: Rede; extras?: ScriptPoint[]; deslocar?: number; sair?: () => void }) {
   const meta = useMemo(() => getMap(mapa), [mapa])
   // todos os blocos do mapa (a Demo é pequena; carregar por perto vem quando a mansão entrar)
   const [chunks, setChunks] = useState<Record<string, Chunk> | null>(null)
@@ -28,10 +32,13 @@ export function Jogo({ go, mapa }: { go: Go; mapa: string }) {
     if (!meta) return
     let vivo = true
     Promise.all(meta.chunks.map(async (k) => [k, await loadChunk(mapa, k)] as const)).then((l) => {
-      if (vivo) setChunks(Object.fromEntries(l.filter((x): x is readonly [string, Chunk] => !!x[1])))
+      const blocos = Object.fromEntries(l.filter((x): x is readonly [string, Chunk] => !!x[1]))
+      const k0 = Object.keys(blocos)[0] // os pontos extras entram no primeiro bloco (uma cópia: o mapa salvo não muda)
+      if (extras?.length && k0) blocos[k0] = { ...blocos[k0], points: [...blocos[k0].points, ...extras] }
+      if (vivo) setChunks(blocos)
     })
     return () => { vivo = false }
-  }, [meta, mapa])
+  }, [meta, mapa, extras])
   useEffect(() => setModoParedes('altas'), []) // o editor pode ter deixado as paredes recortadas
   const definicao = useDefinicao()
   const portas = useMemo<PortasVivas>(() => new Map(), [])
@@ -39,7 +46,7 @@ export function Jogo({ go, mapa }: { go: Go; mapa: string }) {
   const [escuro, setEscuro] = useState(0)
   const desempenho = useRef<HTMLPreElement>(null)
   const onDesempenho = useCallback((t: string) => { if (desempenho.current) desempenho.current.textContent = t }, [])
-  const sair = useCallback(() => go('menu'), [go])
+  const sair = useCallback(() => (aoSair ? aoSair() : go('menu')), [go, aoSair])
   const hud = useRef<((e: EstadoHud) => void) | null>(null), onHud = useCallback((e: EstadoHud) => hud.current?.(e), [])
   // o roteiro recebe o controle do agente (do Testar); a linha dele aparece no alto
   const jogo = useRef<AgenteNaFase | null>(null), [roteiro, setRoteiro] = useState<TextoRoteiro | null>(null)
@@ -48,14 +55,14 @@ export function Jogo({ go, mapa }: { go: Go; mapa: string }) {
 
   if (!meta) return <div className="tela"><h2>O mapa “{mapa}” não está na pasta maps/.</h2><nav className="menu"><button onClick={sair}>Voltar</button></nav></div>
   if (!chunks) return <div className="tela"><h2>Carregando…</h2></div>
-  const [x, y, z] = meta.spawn.pos
+  const [x0, y, z] = meta.spawn.pos, x = x0 + deslocar
   return (
     <div className="jogo">
       <Canvas camera={{ position: [x, y + 2, z - 3], fov: 60 }} {...canvasDoNivel(definicao)}>
         <color attach="background" args={['#000']} />
         <Suspense fallback={null}><MapView chunks={chunks} maxLevel={meta.levels - 1} portas={portas} juntar /></Suspense>
         <Testar chunks={chunks} levels={meta.levels} ambiente={meta.ambiente} semChao={meta.semChao} areas={meta.areas} inicio={[x, y, z]} yaw={(meta.spawn.yaw * Math.PI) / 180}
-          portas={portas} onTravado={setTravado} onDica={setDica} onMira={setMirando} onEscuro={setEscuro} onHud={onHud} onSair={sair} aoMontar={aoMontar} />
+          portas={portas} onTravado={setTravado} onDica={setDica} onMira={setMirando} onEscuro={setEscuro} onHud={onHud} onSair={sair} aoMontar={aoMontar} rede={rede} />
         {RoteiroDaFase && <RoteiroDaFase chunks={chunks} jogo={jogo} aoTexto={setRoteiro} />}
         <Desempenho onTexto={onDesempenho} />
       </Canvas>
@@ -66,7 +73,7 @@ export function Jogo({ go, mapa }: { go: Go; mapa: string }) {
       <pre className="desempenho-teste" ref={desempenho} />
       <Hud painel={hud} />
       {roteiro?.chefe && <BarrasDoChefe chefe={roteiro.chefe} />}
-      {!travado && <div className="teste-b"><b>{meta.nome}</b><span>Clique para jogar · Esc volta ao menu</span></div>}
+      {!travado && <div className="teste-b"><b>{meta.nome}</b><span>Clique para jogar · Esc {aoSair ? 'sai' : 'volta ao menu'}</span></div>}
     </div>
   )
 }

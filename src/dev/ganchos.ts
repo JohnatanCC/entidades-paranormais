@@ -15,6 +15,8 @@ export const ganchos: {
   camera?: import('three').Camera
   /** O controle do agente na fase (o que os inimigos ferem; os alvos das balas). */
   fase?: import('../game/Testar').AgenteNaFase
+  /** A conexão do teste online aberta (game/rede/conexao.ts): o ping, ouvir as mensagens. */
+  rede?: import('../game/rede/conexao').Conexao
   /** O foco das entidades do Testar: quem cada uma caça e a ameaça de cada jogador (entidades/foco.ts). */
   foco?: () => { quem: string; estado: string; alvo: string | null; ameaca: Record<string, number> }[]
 } = {}

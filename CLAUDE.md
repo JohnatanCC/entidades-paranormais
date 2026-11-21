@@ -18,7 +18,7 @@ capítulo 1 e lançá-lo na web, no itch.io (`docs/lancamento.md`).
    `docs/cenas.md` — as cenas (cutscenes) do capítulo 0: como são feitas (no motor, em dados, com legendas) e o storyboard de cada uma.
    `docs/dublagem.md` — as vozes: o roteiro de cada personagem para os testes, como gravar e a voz provisória (a do navegador).
    `docs/cap2-sombra.md` — o capítulo 2 (a Sombra), no papel; e a lamparina, a armadilha reformulada, que vale para o jogo todo.
-   `docs/teste-online.md` — o teste online de desenvolvedor (21/nov): dois jogadores, o host e o código; o sistema de foco dos fantasmas já está feito, o resto fica para depois do lançamento.
+   `docs/teste-online.md` — o teste online de desenvolvedor (feito em 21/nov): dois jogadores na mansão (o host e o código, PeerJS), o host manda nos fantasmas, o sistema de foco.
    `docs/mansao-cap1.md` — a planta da mansão do capítulo 1 (cômodos, escadas, rota, onde ficam os objetos da Mãe).
    `docs/blockbench.md` — como os personagens são feitos (Blockbench, as regras das juntas, a escala, a exportação).
 3. `docs/portando-do-laboratorio.md` — onde está cada coisa no laboratório antigo e o que **não** trazer.
@@ -104,13 +104,14 @@ maps/<id>/                 os mapas (JSON). map.json = cabeçalho; chunks/<cx>_<
                            capítulo 0 (o andar de contenção e, solto, o escritório do Victor: docs/cenas.md; o Palacete
                            real entra solto nele também: docs/direcao-cap0.md)
 src/
-  main.tsx, App.tsx        as telas (menu → novo jogo → Demo · Intro | configurações | modo desenvolvedor → criador de mapas)
+  main.tsx, App.tsx        as telas (menu → novo jogo → Demo · Intro | configurações | modo desenvolvedor → criador de mapas, teste online)
   styles.css               a paleta e as telas
   screens/                 MainMenu, NovoJogo (a Demo · Intro), Jogo (uma fase: o mapa da pasta com o agente do Testar, em
                            tela cheia), SettingsScreen (com PreviaQualidade ao lado: a sala do mapa teste-iluminacao com a
                            qualidade escolhida, ao vivo, e o fps; e TesteDesempenho: a mansão inteira nível por nível, com a
                            média e o mínimo de quadros), DevMenu, VerModelos (o personagem, o fantasma ou o demônio de perto: animação, expressão, mãos, ações, luz),
-                           VerCenas (toca uma cena no cenário dela: tocar, pausar, a linha do tempo, pular para um plano)
+                           VerCenas (toca uma cena no cenário dela: tocar, pausar, a linha do tempo, pular para um plano),
+                           TesteOnline (dois jogadores na mansão: criar a sessão, o código, entrar; docs/teste-online.md)
   settings/settings.ts     configurações no localStorage (useSettings / setSettings): a qualidade da imagem (o nível e os
                            ajustes de cada recurso), os volumes, o mouse
   audio/musica.ts          a trilha: useMusica('menu') toca public/musica/<nome>.mp3 em laço, com o volume das configurações
@@ -121,7 +122,7 @@ src/
                            provas.ir(x, z, yaw) leva o agente a um ponto no Testar (dev/ganchos.ts; o criador de mapas e o Ver cenas
                            entregam a cena, o desenhista e a câmera por dev/GanchosDaTela.tsx: provas.cena(), gl(), camera()),
                            provas.gravar() grava a cena aberta no Ver cenas num vídeo, em gravacoes/<id>.webm (dev/gravar.ts: a imagem, as
-                           faixas, as legendas, o título e os sons; a voz provisória do navegador não entra), provas.foco() diz quem cada entidade caça (L põe a Lara no Testar), provas.qualidade() diz o nível,
+                           faixas, as legendas, o título e os sons; a voz provisória do navegador não entra), provas.foco() diz quem cada entidade caça (L põe a Lara no Testar), provas.rede() a conexão do teste online (o ping, as mensagens), provas.qualidade() diz o nível,
                            provas.sombras() conta as lâmpadas com sombra, provas.cena() dá a cena do Testar para inspecionar, provas.fase() o controle do agente (os alvos das balas),
                            provas.passo() mostra um ciclo do andar em 8 quadros (também de lado e de costas), provas.escorrega() mede o pé de apoio
   audio/espaco.ts          o som 3D: a voz sai da boca do personagem, no mundo; o ouvido é a câmera (ouvinte, a cada quadro)
@@ -252,6 +253,9 @@ src/game/                  (já existem: Testar.tsx, player/, input/, world/, we
   enemies/pastas.ts        achar as pastas de uma cópia de modelo pelo nome (avisa se faltar) e as mecha_ que balançam
   capture/                 a poça e a captura
   allies/                  Lara e Nicolas
+  rede/                    o teste online (docs/teste-online.md): conexao.ts (o PeerJS: criar e entrar com o código, o ping, a
+                           queda), mensagens.ts (o que vai e volta: a pose, o tiro, a porta, o acerto, a ferida, o retrato do
+                           mundo e os instantes das entidades) e Remoto.tsx (o outro jogador, movido pelas poses)
   hud/                     Hud.tsx + hud.css: o HUD conceito C (a vida e o fôlego, os kits, a arma, as barras do chefe); o jogo
                            conta a cada quadro (EstadoHud) e ele só muda o que mudou; as legendas e a roda de armas vêm depois
   input/                   acoes.ts: ações do jogador (teclado e mouse; depois controle e toque): o jogo lê ações, nunca teclas
@@ -270,7 +274,7 @@ O jogo vai para o **celular** depois: por isso a camada `input/` desde o início
 
 ## A stack
 
-Vite 5 · React 18 · TypeScript 5 (strict) · three 0.169 · @react-three/fiber 8 · @react-three/drei 9.
+Vite 5 · React 18 · TypeScript 5 (strict) · three 0.169 · @react-three/fiber 8 · @react-three/drei 9 · peerjs 1.5.4 (só o teste online).
 Versões fixas no `package.json`; não atualize sem pedir.
 
 ## Convenções de código

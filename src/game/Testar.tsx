@@ -23,6 +23,9 @@ import { Iluminacao } from './luz/Iluminacao'
 import { momento } from './luz/luz'
 import { DURA_ALCANCE } from './player/alcancar'
 import { Boneco } from './entidades/Boneco'
+import type { Conexao } from './rede/conexao'
+import { r2, v3 } from './rede/mensagens'
+import { Remoto } from './rede/Remoto'
 import { Entidades } from './entidades/Entidades'
 import type { Jogador } from './entidades/foco'
 import { animarAgente } from './player/animacao'
@@ -30,7 +33,7 @@ import { pegarArma, proximaArma } from './player/arma'
 import { descartarLamparina, montarLamparina } from './player/lamparina'
 import { novoJogador, passoJogador } from './player/controle'
 import type { PoseMao } from './player/maos'
-import { montarAgente, type Agente } from './player/modelo'
+import { montarAgente, type Agente, type ModeloAgente } from './player/modelo'
 import type { Expressao } from './player/rosto'
 import { AGENTE, CAMERA, ENGOLIDO, QUEDA } from './player/numeros'
 import { tranco } from './player/dano'
@@ -67,7 +70,11 @@ interface Props {
   onHud: (e: EstadoHud) => void // a cada quadro: a vida, o fôlego, os kits e a arma (o HUD só muda o que mudou)
   onSair: () => void
   aoMontar?: (c: AgenteNaFase) => void // quem conduz a fase (o roteiro da Demo · Intro) recebe o controle do agente
+  rede?: Rede // o teste online: a conexão, quem eu sou e quem é o outro (game/rede)
 }
+
+/** O teste online (docs/teste-online.md): a conexão aberta, o meu modelo e nome, e os do outro jogador. */
+export interface Rede { con: Conexao; modelo: ModeloAgente; nome: string; outro: { modelo: ModeloAgente; nome: string } }
 
 /** O que quem conduz a fase (o roteiro) pode fazer com o agente: os inimigos ferem por aqui. */
 export interface AgenteNaFase {
@@ -101,9 +108,11 @@ export interface AgenteNaFase {
 const VER_EXP: Expressao[] = ['neutra', 'esforco', 'medo', 'dor', 'raiva', 'surpresa']
 const VER_MAO: PoseMao[] = ['punho', 'aberta', 'apontar']
 
+const ENVIO = 20 // poses por segundo para o outro jogador (o teste online)
+
 const amortece = (de: number, para: number, k: number, dt: number) => de + (para - de) * (1 - Math.exp(-k * dt))
 
-export function Testar({ chunks, levels, ambiente, semChao, areas, inicio, yaw, portas, onTravado, onDica, onMira, onEscuro, onHud, onSair, aoMontar }: Props) {
+export function Testar({ chunks, levels, ambiente, semChao, areas, inicio, yaw, portas, onTravado, onDica, onMira, onEscuro, onHud, onSair, aoMontar, rede }: Props) {
   const { camera, gl, scene } = useThree()
   const { sensibilidade } = useSettings()
   // o mundo (colisão) e as portas como o mapa diz que começam
@@ -113,7 +122,7 @@ export function Testar({ chunks, levels, ambiente, semChao, areas, inicio, yaw, 
     return m
   }, [chunks, levels, portas, semChao])
   // o agente já com a pistola na mão
-  const agente = useMemo(() => { const a = montarAgente(); pegarArma(a, 'pistola'); montarLamparina(a); return a }, []), sombra = useMemo(() => novaSombraDeChao(), [])
+  const agente = useMemo(() => { const a = montarAgente(rede?.modelo); pegarArma(a, 'pistola'); montarLamparina(a); return a }, []), sombra = useMemo(() => novaSombraDeChao(), [])
 
   // a luz assada de onde o agente está (as lâmpadas sem sombra e as janelas), tirada de novo a cada poucos quadros
   const listaDeBlocos = useMemo(() => Object.values(chunks), [chunks])
@@ -127,6 +136,7 @@ export function Testar({ chunks, levels, ambiente, semChao, areas, inicio, yaw, 
     volta: { x: inicio[0], y: inicio[1], z: inicio[2], yaw }, // onde ele volta depois de cair (o roteiro muda: o começo da arena)
     lento: { quanto: 0, t: 0, dura: 1 }, // a gosma: o quanto e quanto falta para sumir
     abrir: { t: -1, ponto: new THREE.Vector3() }, // a mão indo à maçaneta (t < 0: não está)
+    envio: 0, // s desde a última pose mandada (o teste online)
   })
   const sairRef = useRef(onSair); sairRef.current = onSair
   const travRef = useRef(onTravado); travRef.current = onTravado
@@ -171,11 +181,24 @@ export function Testar({ chunks, levels, ambiente, semChao, areas, inicio, yaw, 
       lentidao: (quanto, dura) => { const L = est.current.lento; if (quanto >= L.quanto * (L.t / L.dura)) Object.assign(L, { quanto, t: dura, dura }) },
       pontoDeVolta: (x, z, yaw) => { est.current.volta = { x, y: chaoEm(mundo, x, z, 0.3) ?? 0, z, yaw } },
     }
-    f.jogadores.push({ nome: 'Matheus', p: agente.root.position, pode: f.pode, ferir: (dano, de) => f.ferir(dano, de), lamparina: f.lamparina })
+    f.jogadores.push({ nome: rede?.nome ?? 'Matheus', p: agente.root.position, pode: f.pode, ferir: (dano, de) => f.ferir(dano, de), lamparina: f.lamparina })
     return f
   }, [agente, mundo, sombra, vida])
   const montou = useRef(aoMontar); montou.current = aoMontar
   useEffect(() => { montou.current?.(naFase) }, [naFase])
+  // o teste online: as portas que o outro abriu ou fechou, e o que pegou em mim (o host decide: game/entidades)
+  useEffect(() => {
+    if (!rede) return
+    const de = new THREE.Vector3()
+    const paraPorta = rede.con.ouvir('porta', (m) => {
+      const viva = portas.get(m.id)
+      if (!viva) return
+      viva.aberta = m.aberta; viva.lado = m.lado
+      if (m.aberta) mundo.abertas.add(m.id); else mundo.abertas.delete(m.id)
+    })
+    const paraFerido = rede.con.ouvir('ferido', (m) => { naFase.ferir(m.dano, de.set(...m.de)) })
+    return () => { paraPorta(); paraFerido() }
+  }, [rede, portas, mundo, naFase])
   const ver = useRef<{ exp?: Expressao; mao?: PoseMao }>({})
   useEffect(() => {
     const tecla = (e: KeyboardEvent) => {
@@ -283,7 +306,10 @@ export function Testar({ chunks, levels, ambiente, semChao, areas, inicio, yaw, 
     if (acoes.trocarArma() && !caido) pegarArma(agente, proximaArma(agente.arma))
     // (a mão esquerda vai à maçaneta: também na trancada, ele tenta)
     if (acoes.interagir() && porta && !caido) {
+      const antes = portas.get(porta.id)?.aberta
       const msg = usarPorta(mundo, portas, porta, j.x, j.z); if (msg) { s.msg = msg; s.msgT = 2.5 }
+      const viva = portas.get(porta.id) // abriu ou fechou: o outro jogador vê
+      if (rede && viva && viva.aberta !== antes) rede.con.enviar({ t: 'porta', id: porta.id, aberta: viva.aberta, lado: viva.lado })
       s.abrir.t = 0; s.abrir.ponto.set(...macanetaDe(porta, j.x, j.z))
     }
     if (s.abrir.t >= 0 && (s.abrir.t += dt) > DURA_ALCANCE) s.abrir.t = -1
@@ -309,11 +335,18 @@ export function Testar({ chunks, levels, ambiente, semChao, areas, inicio, yaw, 
     passoMunicao(municao, agente.arma, j.esquiva < 0 && !caido, dt)
     const ea = { mover, velocidade: j.velocidade, corrida: j.corrida, esquiva: j.esquiva >= 0 ? Math.min(1, j.esquiva / 0.5) : -1, expressao: ver.current.exp, mao: ver.current.mao, mira: { quer, alvo: v.alvo }, queda: caido ? j.caido : undefined, ferido: machucado(vida), municao, alcanca: s.abrir.t >= 0 ? s.abrir : undefined, lamparina: !caido && !j.preso && acoes.lamparina() }
     animarAgente(agente, ea, dt)
+    // o teste online: a minha pose para o outro, 20 vezes por segundo
+    if (rede && (s.envio += dt) >= 1 / ENVIO) {
+      s.envio = Math.min(s.envio - 1 / ENVIO, 1 / ENVIO) // guarda o resto (a 60 quadros, 20 por segundo certinhos)
+      rede.con.enviar({ t: 'pose', p: [r2(j.x), r2(j.y), r2(j.z)], yaw: r2(j.yaw), vel: r2(j.velocidade), cor: r2(j.corrida), esq: r2(ea.esquiva), mov: [r2(mover[0]), r2(mover[1])],
+        mira: quer ? 1 : 0, alvo: v3(v.alvo), queda: caido ? r2(j.caido) : -1, fer: ea.ferido ? 1 : 0, arma: agente.arma === 'pistola' || agente.arma === 'escopeta' ? agente.arma : null,
+        lamp: ea.lamparina ? 1 : 0, alc: s.abrir.t >= 0 ? [...v3(s.abrir.ponto), r2(s.abrir.t)] : null })
+    }
     if (gatilho(agente, atira && temTiro(municao, agente.arma), dt)) {
       gastar(municao, agente.arma)
       // a bala sai do cano (onde o clarão está) para o ponto que a câmera mira
       const clarao = grupoDaArma(agente)?.userData.clarao as THREE.Object3D | undefined
-      if (clarao && (agente.arma === 'pistola' || agente.arma === 'escopeta')) { agente.root.updateMatrixWorld(true); atirar(balas, agente.arma, clarao.getWorldPosition(v.de), v.alvo) }
+      if (clarao && (agente.arma === 'pistola' || agente.arma === 'escopeta')) { agente.root.updateMatrixWorld(true); atirar(balas, agente.arma, clarao.getWorldPosition(v.de), v.alvo); rede?.con.enviar({ t: 'tiro', arma: agente.arma, de: v3(v.de), para: v3(v.alvo) }) }
     }
     passoBalas(balas, dt, mundo, naFase.alvos, impactos, (p, arma, alvo) => somDaBala(p, arma, alvo, quadro.current))
     // os sons dele e das armas, no momento da animação (o chão: o submundo é pedra; o resto, por enquanto, madeira)
@@ -360,7 +393,7 @@ export function Testar({ chunks, levels, ambiente, semChao, areas, inicio, yaw, 
   // mapa pôs (a aba Entidades do criador): ganham vida aqui, com o controle do agente
   return <>
     <Iluminacao ambiente={ambiente} areas={areas} em={agente.root.position} />
-    <Entidades chunks={listaDeBlocos} fase={naFase} />
-    <Boneco fase={naFase} assa={assa} />
+    <Entidades chunks={listaDeBlocos} fase={naFase} rede={rede?.con} />
+    {rede ? <Remoto con={rede.con} modelo={rede.outro.modelo} nome={rede.outro.nome} fase={naFase} assa={assa} /> : <Boneco fase={naFase} assa={assa} />}
   </>
 }
