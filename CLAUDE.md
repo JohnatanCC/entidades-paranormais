@@ -18,6 +18,7 @@ capítulo 1 e lançá-lo na web, no itch.io (`docs/lancamento.md`).
    `docs/cenas.md` — as cenas (cutscenes) do capítulo 0: como são feitas (no motor, em dados, com legendas) e o storyboard de cada uma.
    `docs/dublagem.md` — as vozes: o roteiro de cada personagem para os testes, como gravar e a voz provisória (a do navegador).
    `docs/cap2-sombra.md` — o capítulo 2 (a Sombra), no papel; e a lamparina, a armadilha reformulada, que vale para o jogo todo.
+   `docs/teste-online.md` — o teste online de desenvolvedor (21/nov, para depois do lançamento): dois jogadores, o host e o código, o sistema de foco dos fantasmas.
    `docs/mansao-cap1.md` — a planta da mansão do capítulo 1 (cômodos, escadas, rota, onde ficam os objetos da Mãe).
    `docs/blockbench.md` — como os personagens são feitos (Blockbench, as regras das juntas, a escala, a exportação).
 3. `docs/portando-do-laboratorio.md` — onde está cada coisa no laboratório antigo e o que **não** trazer.

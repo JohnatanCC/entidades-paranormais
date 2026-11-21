@@ -109,6 +109,8 @@ escolhe): quantas pessoas jogaram, quantas seguiram a página e quantos vídeos 
     nuvem) é mais madura.
   Decidir quando chegar lá.
 - **O celular:** os controles de toque (a camada `input/` já foi pensada para isso).
+- **O teste online** (dois jogadores, o Matheus e a Lara, um de host): um teste de desenvolvedor, no papel em
+  `docs/teste-online.md`.
 
 ## Em aberto
 
