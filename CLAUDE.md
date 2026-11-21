@@ -18,7 +18,7 @@ capítulo 1 e lançá-lo na web, no itch.io (`docs/lancamento.md`).
    `docs/cenas.md` — as cenas (cutscenes) do capítulo 0: como são feitas (no motor, em dados, com legendas) e o storyboard de cada uma.
    `docs/dublagem.md` — as vozes: o roteiro de cada personagem para os testes, como gravar e a voz provisória (a do navegador).
    `docs/cap2-sombra.md` — o capítulo 2 (a Sombra), no papel; e a lamparina, a armadilha reformulada, que vale para o jogo todo.
-   `docs/teste-online.md` — o teste online de desenvolvedor (21/nov, para depois do lançamento): dois jogadores, o host e o código, o sistema de foco dos fantasmas.
+   `docs/teste-online.md` — o teste online de desenvolvedor (21/nov): dois jogadores, o host e o código; o sistema de foco dos fantasmas já está feito, o resto fica para depois do lançamento.
    `docs/mansao-cap1.md` — a planta da mansão do capítulo 1 (cômodos, escadas, rota, onde ficam os objetos da Mãe).
    `docs/blockbench.md` — como os personagens são feitos (Blockbench, as regras das juntas, a escala, a exportação).
 3. `docs/portando-do-laboratorio.md` — onde está cada coisa no laboratório antigo e o que **não** trazer.
@@ -121,7 +121,7 @@ src/
                            provas.ir(x, z, yaw) leva o agente a um ponto no Testar (dev/ganchos.ts; o criador de mapas e o Ver cenas
                            entregam a cena, o desenhista e a câmera por dev/GanchosDaTela.tsx: provas.cena(), gl(), camera()),
                            provas.gravar() grava a cena aberta no Ver cenas num vídeo, em gravacoes/<id>.webm (dev/gravar.ts: a imagem, as
-                           faixas, as legendas, o título e os sons; a voz provisória do navegador não entra), provas.qualidade() diz o nível,
+                           faixas, as legendas, o título e os sons; a voz provisória do navegador não entra), provas.foco() diz quem cada entidade caça (L põe a Lara no Testar), provas.qualidade() diz o nível,
                            provas.sombras() conta as lâmpadas com sombra, provas.cena() dá a cena do Testar para inspecionar, provas.fase() o controle do agente (os alvos das balas),
                            provas.passo() mostra um ciclo do andar em 8 quadros (também de lado e de costas), provas.escorrega() mede o pé de apoio
   audio/espaco.ts          o som 3D: a voz sai da boca do personagem, no mundo; o ouvido é a câmera (ouvinte, a cada quadro)
@@ -190,7 +190,9 @@ src/game/                  (já existem: Testar.tsx, player/, input/, world/, we
                            (o círculo escuro embaixo dele)
   entidades/               as entidades do mapa ganhando vida no Testar (a aba Entidades): Entidades.tsx (as Gralhas pousadas que
                            veem o agente e caçam; o Mestre: grita, solta o corvo, persegue e morde; a Mãe: grita, caça, a carga e
-                           a sequência de garradas; as músicas das perseguições) e numeros.ts
+                           a sequência de garradas; as músicas das perseguições), foco.ts (com dois jogadores, quem cada uma
+                           ataca: a distância e o dano que levou de cada um; docs/teste-online.md), Boneco.tsx (a Lara parada no
+                           Testar, tecla L, para testar o foco) e numeros.ts
   Testar.tsx               o Testar do editor: o agente andando no mapa aberto (câmera, colisão, luz do jogo), em tela cheia;
                            numa fase, dá ao roteiro o controle do agente (AgenteNaFase: ferir, engolir, cuspir, a gosma, o ponto de volta)
   Desempenho.tsx           o medidor de uma cena de jogo: os quadros por segundo e, com F3, o detalhe (desenhos, triângulos,

@@ -1,6 +1,7 @@
 # O teste online (para depois do lançamento)
 
-Ideia de 21/nov, **só no papel**: não entra antes do capítulo 1 estar no itch.io (`docs/lancamento.md`). É um teste
+Ideia de 21/nov. A etapa 1 (o sistema de foco) já está feita, porque também vale para o jogo sozinho; o resto não entra
+antes do capítulo 1 estar no itch.io (`docs/lancamento.md`). É um teste
 de desenvolvedor, não um modo de jogo: serve para saber se dois jogadores na mesma sessão funcionam, antes de pensar
 num servidor.
 
@@ -34,20 +35,27 @@ num servidor.
 
 ## O sistema de foco (quem o fantasma ataca)
 
-Hoje cada criatura conhece um alvo só (`src/game/enemies/luta.ts`: "o alvo (o agente)"). Com dois, cada uma escolhe
-um alvo pela **ameaça** de cada jogador:
+**Feito (21/nov)** para as entidades do mapa (a Mãe, o Mestre, as Gralhas): `src/game/entidades/foco.ts`, com os
+números em `entidades/numeros.ts` (`FOCO`). Cada criatura acorda ao ver qualquer jogador e escolhe o alvo pela
+**ameaça** de cada um:
 
-- **A distância:** quanto mais perto, mais ameaça.
-- **Quem está batendo nela:** cada dano que ela leva soma ameaça a quem atirou; essa soma esvazia com o tempo. Quem
-  ataca sem parar puxa o foco; quem para de atacar perde aos poucos.
-- **Sem ficar trocando:** ela só troca de alvo quando o outro passa com folga (por exemplo, 30% a mais) e depois de um
-  tempo mínimo no alvo atual. Sem isso ela fica virando de um lado para o outro.
-- Quem caiu não é alvo. Quem ela não vê (atrás de parede) conta menos.
-- Os números (o peso da distância, do dano, o esvaziar, a folga, o tempo mínimo) ficam no `numeros.ts`, um conjunto
-  comum em `enemies/` e, se precisar, um ajuste por criatura.
+- **A distância:** quanto mais perto, mais ameaça, em curva (de perto a diferença pesa mais); zero na vista larga (28 m).
+- **Quem está batendo nela:** cada ponto de dano que ela leva soma ameaça a quem atirou; essa soma esvazia em uns 4 s.
+  Com a Lara a 1,5 m e o Matheus a 4 m, uns 7 tiros seguidos de pistola (1,4 s) puxam a Mãe para o Matheus; parado,
+  ela volta para a Lara uns 8 s depois. O tiro no Mestre não fere, mas puxa o foco dele do mesmo jeito.
+- **Sem ficar trocando:** só troca quando o outro passa com 15% de folga e depois de 2 s no alvo atual. Pesa a cada
+  0,25 s, não a cada quadro.
+- Quem caiu não é alvo. Quem ela não vê (atrás de parede) vale a metade; as Gralhas não olham (voam por cima, e são
+  muitas: a linha de visão é cara).
+- A bicada da Gralha pega quem estiver perto do bico; a garra da Mãe e a mordida do Mestre, só o alvo. A lamparina
+  erguida de qualquer um afasta o Mestre.
+- Quem atirou: no Testar é sempre o agente; na rede (etapa 3), a bala dirá de quem é.
 
-**Com um jogador só nada muda**: o único alvo é sempre o agente. Por isso esse sistema pode ser feito antes da rede e
-testado no jogo de sempre.
+**Com um jogador só nada muda**: o único alvo é sempre o agente. Os Sombrios da Demo · Intro (`enemies/luta.ts`)
+continuam com um alvo só: não estão na mansão.
+
+**Para testar:** no Testar, **L** põe a Lara parada 2,5 m à frente do agente (ou tira); ela leva golpe, cai e levanta.
+`provas.foco()` diz quem cada entidade caça e a ameaça de cada jogador.
 
 ## O que conflita com o que já está decidido
 
@@ -61,8 +69,8 @@ testado no jogo de sempre.
 
 ## As etapas (cada uma termina numa versão para testar)
 
-1. **O sistema de foco**, sem rede: `luta.ts` com uma lista de alvos e a ameaça; um segundo agente parado no Testar
-   (uma tecla de depuração) para ver a troca de foco.
+1. ~~**O sistema de foco**, sem rede~~ (feito em 21/nov): a lista de jogadores (`AgenteNaFase.jogadores`), a ameaça
+   e a Lara parada no Testar (L) para ver a troca de foco.
 2. **A conexão:** o menu Teste online, o código, os dois andando na mansão, sem fantasmas.
 3. **As portas, os tiros e a vida:** o convidado atira e o host decide; os dois podem cair e voltar.
 4. **As Gralhas e o Mestre** sincronizados, com o foco.

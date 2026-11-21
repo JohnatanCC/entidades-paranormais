@@ -16,6 +16,8 @@
 //     barra só aparece na luta do chefe); zerada, ela cai atordoada e, quando levanta, a vida volta cheia e ela continua
 //     (sempre uma ameaça no mapa). Levar tiro parada a acorda. A patrulha, a escuta e o abaixar nas portas vêm com a etapa
 //     da Mãe perseguidora (docs/lancamento.md).
+// Com mais de um jogador (fase.jogadores: o agente e, no Testar, o boneco da Lara, tecla L), cada uma acorda ao ver
+// qualquer um e ataca quem o foco escolhe (foco.ts: o mais perto ou quem bate nela sem parar).
 // Enquanto alguém caça, toca a música da perseguição (a da Mãe na frente da das Gralhas); quando para, a de antes volta.
 import { useEffect, useMemo, useRef } from 'react'
 import { useFrame, useThree } from '@react-three/fiber'
@@ -50,13 +52,16 @@ import type { AgenteNaFase } from '../Testar'
 import type { Alvejavel } from '../weapons/bala'
 import { alcanceCamera } from '../world/colisao'
 import { LAMPARINA } from '../player/numeros'
+import { ameaca, bateu, focar, novoFoco, type Foco, type Jogador } from './foco'
+import { ganchos } from '../../dev/ganchos'
 import { LUZ, MAE, MESTRE, MUSICA, VISTA } from './numeros'
 
-/** Uma Gralha: onde ela pousa (as do corvo não pousam: se desfazem), o modelo, a caçada (null = parada) e a caixa do tiro. */
-interface GralhaViva { casa: THREE.Vector3 | null; vira: number; g: Gralha; caca: Cacadora | null; alvo: Alvejavel; morta: boolean }
+/** Uma Gralha: onde ela pousa (as do corvo não pousam: se desfazem), o modelo, a caçada (null = parada), a caixa do tiro
+ *  e o foco (quem ela caça). */
+interface GralhaViva { casa: THREE.Vector3 | null; vira: number; g: Gralha; caca: Cacadora | null; alvo: Alvejavel; morta: boolean; foco: Foco }
 /** Um Mestre: o lugar dele, o modelo, o corvo e as 3 Gralhas que o corvo solta; o estado da caçada. */
 interface MestreVivo {
-  casa: THREE.Vector3; vira: number; m: Mestre; C: Corvo; filhas: GralhaViva[]
+  casa: THREE.Vector3; vira: number; m: Mestre; C: Corvo; filhas: GralhaViva[]; foco: Foco
   estado: 'espera' | 'grito' | 'caca' | 'volta'; descanso: number // s até poder morder de novo
   alvo: Alvejavel // a caixa do tiro (a bala atravessa: ele só falha)
 }
@@ -68,43 +73,53 @@ interface MaeViva {
   estado: 'espera' | 'grito' | 'caca' | 'volta'; fila: NomeGolpe[]; carga: number; pegou: object | null
   visto: THREE.Vector3; semVer: number // onde viu o agente por último e há quantos s não vê
   vida: number; tonta: boolean; alvo: Alvejavel // a vida (escondida), se está atordoada e a caixa do tiro
+  foco: Foco // quem ela caça
 }
 /** A sequência de perto (docs/jogo.md, a fase 1 sem o Luto: na casa não tem poça). */
 const SEQUENCIA: NomeGolpe[] = ['garra_d', 'garra_e', 'garra_ultima_d', 'exausta']
 
 const _luz = new THREE.Vector3(), _olho = new THREE.Vector3(), _peito = new THREE.Vector3(), _c = new THREE.Vector3(), _d = new THREE.Vector3()
 
-/** O ponto p está no feixe da lamparina erguida? Dentro do cone (com a folga do corpo dele), no alcance e sem parede no meio. */
-function naLuz(fase: AgenteNaFase, mundo: AgenteNaFase['mundo'], p: THREE.Vector3) {
-  const L = fase.lamparina, F = LAMPARINA.feixe
-  if (L.ergue < LUZ.ergue) return false
-  _luz.subVectors(p, L.pos)
-  const d = _luz.length()
-  if (d > F.alcance || d < 0.01) return false
-  const angulo = Math.acos(Math.min(1, _luz.dot(L.dir) / d))
-  return angulo < F.abre + Math.atan(LUZ.corpo / d) && alcanceCamera(mundo, L.pos, p, 0.02) > 0.98
+/** O ponto p está no feixe da lamparina erguida de algum jogador? Dentro do cone (com a folga do corpo dele), no alcance
+ *  e sem parede no meio. */
+function naLuz(jogadores: Jogador[], mundo: AgenteNaFase['mundo'], p: THREE.Vector3) {
+  const F = LAMPARINA.feixe
+  for (const { lamparina: L } of jogadores) {
+    if (!L || L.ergue < LUZ.ergue) continue
+    _luz.subVectors(p, L.pos)
+    const d = _luz.length()
+    if (d > F.alcance || d < 0.01) continue
+    const angulo = Math.acos(Math.min(1, _luz.dot(L.dir) / d))
+    if (angulo < F.abre + Math.atan(LUZ.corpo / d) && alcanceCamera(mundo, L.pos, p, 0.02) > 0.98) return true
+  }
+  return false
 }
 
-/** Vê o agente? Perto e sem parede (nem porta fechada, nem móvel alto) no meio. */
-function ve(fase: AgenteNaFase, de: THREE.Vector3, alcance: number) {
-  const a = fase.agente.root.position
+/** Vê o jogador? Perto e sem parede (nem porta fechada, nem móvel alto) no meio. */
+function ve(j: Jogador, mundo: AgenteNaFase['mundo'], de: THREE.Vector3, alcance: number) {
+  const a = j.p
   if (Math.hypot(a.x - de.x, a.z - de.z) > alcance || Math.abs(a.y - de.y) > 2.5) return false
   _peito.set(a.x, a.y + 1.3, a.z)
-  return alcanceCamera(fase.mundo, de, _peito, 0.02) > 0.98
+  return alcanceCamera(mundo, de, _peito, 0.02) > 0.98
 }
+/** Vê algum jogador? O primeiro que ela vê (ou null). */
+const veAlguem = (fase: AgenteNaFase, de: THREE.Vector3, alcance: number) => fase.jogadores.find((j) => ve(j, fase.mundo, de, alcance)) ?? null
 
 export function Entidades({ chunks, fase }: { chunks: Chunk[]; fase: AgenteNaFase }) {
   const scene = useThree((s) => s.scene)
   const pontos = useMemo(() => chunks.flatMap((c) => c.points.filter((p) => p.kind === KIND_ENTIDADE)), [chunks])
   const E = useMemo(() => novosEfeitosGralha(), []), estouro = useMemo(() => novoEstouro(), [])
+  // quem atirou: no Testar só o agente atira (o boneco da Lara fica parado); no online, a bala dirá de quem é
+  const atirador = () => fase.jogadores[0]
 
   /** Uma Gralha nova (pousada na casa, ou escondida esperando o corvo, se casa = null). */
   function novaGralha(casa: THREE.Vector3 | null, vira: number): GralhaViva {
     const g = montarGralha()
-    const v: GralhaViva = { casa, vira, g, caca: null, morta: !casa, alvo: { c: new THREE.Vector3(), m: new THREE.Vector3(0.3, 0.25, 0.3), acerta: () => {} } }
+    const v: GralhaViva = { casa, vira, g, caca: null, morta: !casa, foco: novoFoco(), alvo: { c: new THREE.Vector3(), m: new THREE.Vector3(0.3, 0.25, 0.3), acerta: () => {} } }
     if (casa) { g.root.position.copy(casa); g.root.rotation.y = vira; pousar(g, true) } else g.root.visible = false
-    v.alvo.acerta = () => {
+    v.alvo.acerta = (dano) => {
       if (v.morta) return
+      bateu(v.foco, atirador(), dano)
       if (ferirGralha(g, E, v.casa?.y ?? 0)) { estourarGralha(g, E, v.casa?.y ?? 0); v.morta = true; calar(g) }
       else if (!v.caca) acordar(v) // atirou nela pousada: ela levanta e caça
     }
@@ -124,19 +139,22 @@ export function Entidades({ chunks, fase }: { chunks: Chunk[]; fase: AgenteNaFas
       m.root.position.copy(casa); m.root.rotation.y = ang(p)
       const filhas = Array.from({ length: CORVO.gralhas }, () => novaGralha(null, 0))
       gralhas.push(...filhas)
-      const M: MestreVivo = { casa, vira: ang(p), m, C: novoCorvo(), filhas, estado: 'espera', descanso: 0, alvo: { c: new THREE.Vector3(), m: new THREE.Vector3(0.45, 1.1, 0.45), atravessa: true, acerta: () => {} } }
-      M.alvo.acerta = () => { glitchar(m); if (M.estado === 'espera') { M.estado = 'grito'; gritar(m) } }
+      const M: MestreVivo = { casa, vira: ang(p), m, C: novoCorvo(), filhas, foco: novoFoco(), estado: 'espera', descanso: 0, alvo: { c: new THREE.Vector3(), m: new THREE.Vector3(0.45, 1.1, 0.45), atravessa: true, acerta: () => {} } }
+      // o tiro não fere, mas irrita: quem atira puxa o foco dele
+      M.alvo.acerta = (dano) => { glitchar(m); bateu(M.foco, atirador(), dano); if (M.estado === 'espera') { M.estado = 'grito'; gritar(m) } }
       return M
     })
     const maes = pontos.filter((p) => p.params?.tipo === 'mae').map((p): MaeViva => {
       const m = montarMae(), casa = new THREE.Vector3(...p.pos)
       m.root.position.copy(casa); m.root.rotation.y = ang(p)
-      const M: MaeViva = { casa, vira: ang(p), m, estado: 'espera', fila: [], carga: 0, pegou: null, visto: new THREE.Vector3(), semVer: 0, vida: MAE.vida, tonta: false, alvo: { c: new THREE.Vector3(), m: new THREE.Vector3(0.45, 1.15, 0.45), acerta: () => {} } }
+      const M: MaeViva = { casa, vira: ang(p), m, estado: 'espera', fila: [], carga: 0, pegou: null, visto: new THREE.Vector3(), semVer: 0, vida: MAE.vida, tonta: false, foco: novoFoco(), alvo: { c: new THREE.Vector3(), m: new THREE.Vector3(0.45, 1.15, 0.45), acerta: () => {} } }
       M.alvo.acerta = (dano) => {
         if (M.tonta) return // caída, o tiro não tira mais nada (ela é imortal: só atordoa)
         piscar(m.root)
-        // levou tiro sem ter visto: acorda, olha para quem atirou e grita
-        if (M.estado === 'espera' || M.estado === 'volta') { M.estado = 'grito'; golpear(m, 'grito'); M.visto.copy(fase.agente.root.position); M.semVer = 0 }
+        const quem = atirador()
+        bateu(M.foco, quem, dano)
+        // levou tiro sem ter visto: acorda, olha para quem atirou e grita (e é ele que ela caça)
+        if (M.estado === 'espera' || M.estado === 'volta') { M.estado = 'grito'; golpear(m, 'grito'); M.visto.copy(quem.p); M.semVer = 0; M.foco.alvo = quem; M.foco.no = 0 }
         if ((M.vida -= dano) <= 0) { M.vida = 0; M.tonta = true; M.fila = []; M.estado = 'caca'; golpear(m, 'atordoada') }
       }
       return M
@@ -144,6 +162,21 @@ export function Entidades({ chunks, fase }: { chunks: Chunk[]; fase: AgenteNaFas
     return { gralhas, mestres, maes }
   }, [pontos, E])
   const musicaAntes = useRef<Faixa | null>(null), semCaca = useRef(0), tocando = useRef<Faixa | false>(false)
+
+  // as provas (só no npm run dev): provas.foco() diz quem cada uma caça e a ameaça de cada jogador
+  useEffect(() => {
+    if (!import.meta.env.DEV) return
+    const de = (quem: string, estado: string, f: Foco, p: THREE.Vector3) => ({
+      quem, estado, alvo: f.alvo?.nome ?? null,
+      ameaca: Object.fromEntries(fase.jogadores.map((j) => [j.nome, Math.round(ameaca(f, j, p, VISTA.larga))])),
+    })
+    ganchos.foco = () => [
+      ...maes.map((M) => de('Mãe', M.estado, M.foco, M.m.root.position)),
+      ...mestres.map((M) => de('Mestre', M.estado, M.foco, M.m.root.position)),
+      ...gralhas.filter((v) => !v.morta).map((v) => de('Gralha', v.caca ? 'caca' : 'pousada', v.foco, v.g.root.position)),
+    ]
+    return () => { delete ganchos.foco }
+  }, [fase, maes, mestres, gralhas])
 
   // tudo entra na cena; saindo do Testar, sai, cala e a música volta
   useEffect(() => {
@@ -165,20 +198,24 @@ export function Entidades({ chunks, fase }: { chunks: Chunk[]; fase: AgenteNaFas
   }, [scene, E, estouro, gralhas, mestres, maes, fase])
 
   useFrame((_, dtBruto) => {
-    const dt = Math.min(dtBruto, 0.05), agente = fase.agente.root.position, mundo = fase.mundo
+    const dt = Math.min(dtBruto, 0.05), mundo = fase.mundo, jogadores = fase.jogadores
     let cacando = false, maeCacando = false
 
     // ---------- as Mães ----------
     for (const M of maes) {
-      const m = M.m, r = m.root, g = m.anim.golpe, longe = Math.hypot(agente.x - r.position.x, agente.z - r.position.z)
+      const m = M.m, r = m.root, g = m.anim.golpe
+      _olho.set(r.position.x, r.position.y + 1.9, r.position.z)
+      // quem ela caça (A): o foco pesa a distância, o dano e se ela vê cada um
+      const A = focar(M.foco, jogadores, r.position, VISTA.larga, dt, (j) => ve(j, mundo, _olho, VISTA.larga)), agente = A.p
+      const longe = Math.hypot(agente.x - r.position.x, agente.z - r.position.z)
       const quer = Math.atan2(agente.x - r.position.x, agente.z - r.position.z)
       const erro = Math.abs(Math.atan2(Math.sin(quer - r.rotation.y), Math.cos(quer - r.rotation.y)))
       M.carga = Math.max(0, M.carga - dt)
-      _olho.set(r.position.x, r.position.y + 1.9, r.position.z)
       // levantou da atordoada: a vida volta cheia
       if (M.tonta && g?.nome !== 'atordoada') { M.tonta = false; M.vida = MAE.vida }
       if (M.estado === 'espera') {
-        if (ve(fase, _olho, VISTA.mae)) { M.estado = 'grito'; golpear(m, 'grito'); M.visto.copy(agente); M.semVer = 0 }
+        const viu = veAlguem(fase, _olho, VISTA.mae)
+        if (viu) { M.estado = 'grito'; golpear(m, 'grito'); M.visto.copy(viu.p); M.semVer = 0; M.foco.alvo = null }
       } else if (M.estado === 'grito') {
         maeCacando = true
         girarPara(r, agente.x, agente.z, MAE.vira, dt)
@@ -187,12 +224,12 @@ export function Entidades({ chunks, fase }: { chunks: Chunk[]; fase: AgenteNaFas
         maeCacando = true
         // vendo o agente, vai atrás dele e ataca; sem ver (dobrou um canto, fechou a porta), vai até onde o viu por último;
         // sem ver por muito tempo, ou longe demais, desiste (achar o caminho pela casa vem com a Mãe perseguidora)
-        const vendo = ve(fase, _olho, VISTA.larga)
+        const vendo = ve(A, mundo, _olho, VISTA.larga)
         if (vendo) { M.visto.copy(agente); M.semVer = 0 } else M.semVer += dt
         // a sequência é de perto: o agente fugiu, ela para de golpear o ar
         if (M.fila.length && (longe > MAE.garra + MAE.foge || !vendo)) M.fila = []
         if (M.tonta) { /* caída: espera levantar */ }
-        else if (longe > VISTA.larga || M.semVer > MAE.perde || !fase.pode()) { M.estado = 'volta'; M.fila = []; m.anim.golpe = null }
+        else if (longe > VISTA.larga || M.semVer > MAE.perde || !A.pode()) { M.estado = 'volta'; M.fila = []; m.anim.golpe = null }
         else if (!g) {
           const ataca = vendo && erro < MAE.mira
           if (M.fila.length) { M.pegou = null; golpear(m, M.fila.shift()!) } // a sequência continua
@@ -214,7 +251,8 @@ export function Entidades({ chunks, fase }: { chunks: Chunk[]; fase: AgenteNaFas
           r.rotation.y += falta * (1 - Math.exp(-3 * dt))
           if (Math.abs(falta) < 0.05) M.estado = 'espera'
         }
-        if (ve(fase, _olho, VISTA.mae)) { M.estado = 'grito'; golpear(m, 'grito') }
+        const viu = veAlguem(fase, _olho, VISTA.mae)
+        if (viu) { M.estado = 'grito'; golpear(m, 'grito'); M.foco.alvo = null }
       }
       const s = animarMae(m, { perto: longe, caca: M.estado !== 'espera' }, dt)
       // o golpe empurra ela para a frente (com as paredes), sem atravessar o agente
@@ -223,26 +261,29 @@ export function Entidades({ chunks, fase }: { chunks: Chunk[]; fase: AgenteNaFas
       M.alvo.c.set(r.position.x, r.position.y + 1.1, r.position.z)
       // o que pega: o corte da garra (logo depois do aviso, perto e na frente dela) e a carga correndo (encostou)
       const h = m.anim.golpe
-      if (h && M.pegou !== h && fase.pode()) {
+      if (h && M.pegou !== h && A.pode()) {
         const corte = h.nome.startsWith('garra') && h.t > GOLPE.garra.preparo && h.t < GOLPE.garra.preparo + MAE.corte
         const corre = h.nome === 'carga' && h.t > GOLPE.carga.prepara && h.t < GOLPE.carga.prepara + GOLPE.carga.corre
         if ((corte && longe < MAE.garra + 0.3 && erro < 1.1) || (corre && longe < MAE.encosta + 0.25)) {
           M.pegou = h
-          fase.ferir(corte ? MAE.danoGarra : MAE.danoCarga, _c.copy(r.position).setY(r.position.y + 1.3))
+          A.ferir(corte ? MAE.danoGarra : MAE.danoCarga, _c.copy(r.position).setY(r.position.y + 1.3))
         }
       }
     }
 
     // ---------- os Mestres ----------
     for (const M of mestres) {
-      const m = M.m, r = m.root, A = m.anim, longe = Math.hypot(agente.x - r.position.x, agente.z - r.position.z)
-      // a luz da lamparina erguida nele: cobre-se e recua (no grito, não: ele termina de gritar)
-      const luz = !A.grito && naLuz(fase, mundo, _peito.set(r.position.x, r.position.y + 1.3, r.position.z))
+      const m = M.m, r = m.root, A = m.anim
+      _olho.set(r.position.x, r.position.y + 1.7, r.position.z)
+      const alvo = focar(M.foco, jogadores, r.position, VISTA.larga, dt, (j) => ve(j, mundo, _olho, VISTA.larga)), agente = alvo.p
+      const longe = Math.hypot(agente.x - r.position.x, agente.z - r.position.z)
+      // a luz de uma lamparina erguida nele: cobre-se e recua (no grito, não: ele termina de gritar)
+      const luz = !A.grito && naLuz(jogadores, mundo, _peito.set(r.position.x, r.position.y + 1.3, r.position.z))
       if (luz !== A.coberto) cobrir(m, luz)
       if (M.estado === 'espera') {
-        _olho.set(r.position.x, r.position.y + 1.7, r.position.z)
+        const viu = luz ? null : veAlguem(fase, _olho, VISTA.mestre)
         if (luz) M.estado = 'caca' // a luz nele parado: acorda já se cobrindo
-        else if (ve(fase, _olho, VISTA.mestre)) { M.estado = 'grito'; gritar(m) }
+        else if (viu) { M.estado = 'grito'; gritar(m); M.foco.alvo = null }
       } else if (M.estado === 'grito') {
         cacando = true
         girarPara(r, agente.x, agente.z, MESTRE.vira, dt) // de frente para o agente enquanto grita
@@ -250,7 +291,7 @@ export function Entidades({ chunks, fase }: { chunks: Chunk[]; fase: AgenteNaFas
       } else if (M.estado === 'caca') {
         cacando = true
         M.descanso = Math.max(0, M.descanso - dt)
-        if (longe > VISTA.larga || !fase.pode()) { M.estado = 'volta'; correr(m, false) }
+        if (longe > VISTA.larga || !alvo.pode()) { M.estado = 'volta'; correr(m, false) }
         else if (A.coberto) { correr(m, false); girarPara(r, agente.x, agente.z, MESTRE.vira, dt) } // coberto: recua de frente para a luz
         else if (!A.mordida) {
           // de lado para o agente, freia e vira no lugar (correndo de lado ele ficaria rodando em volta); de frente, corre
@@ -270,7 +311,8 @@ export function Entidades({ chunks, fase }: { chunks: Chunk[]; fase: AgenteNaFas
         else {
           const falta = Math.atan2(Math.sin(M.vira - r.rotation.y), Math.cos(M.vira - r.rotation.y))
           r.rotation.y += falta * (1 - Math.exp(-3 * dt))
-          if (ve(fase, _olho.set(r.position.x, r.position.y + 1.7, r.position.z), VISTA.mestre)) { M.estado = 'grito'; gritar(m) }
+          const viu = veAlguem(fase, _olho, VISTA.mestre)
+          if (viu) { M.estado = 'grito'; gritar(m); M.foco.alvo = null }
           else if (Math.abs(falta) < 0.05) M.estado = 'espera'
         }
       }
@@ -282,7 +324,7 @@ export function Entidades({ chunks, fase }: { chunks: Chunk[]; fase: AgenteNaFas
       // (o bote para encostado no agente: não atravessa ele)
       const bote = longe > MESTRE.encosta ? s.avanca : 0
       andarNoMundo(r, (bote - s.recua) * dt, mundo, MESTRE.raio)
-      if (s.mordeu && fase.pode() && longe < MORDIDA.alcance + MESTRE.folgaMordida) fase.ferir(MORDIDA.dano, _c.copy(r.position).setY(r.position.y + 1.4))
+      if (s.mordeu && alvo.pode() && longe < MORDIDA.alcance + MESTRE.folgaMordida) alvo.ferir(MORDIDA.dano, _c.copy(r.position).setY(r.position.y + 1.4))
       ouvirMestre(m, dt)
       // o grito solta o corvo para a frente; ele explode em 2 s ou ao bater numa parede, soltando as 3 Gralhas
       if (s.solta) soltarCorvo(M.C, s.solta, _d.set(Math.sin(r.rotation.y), 0, Math.cos(r.rotation.y)))
@@ -306,13 +348,16 @@ export function Entidades({ chunks, fase }: { chunks: Chunk[]; fase: AgenteNaFas
       if (v.morta) continue
       const g = v.g, r = g.root
       if (!v.caca) {
-        // pousada: olha em volta; viu o agente, levanta voo
+        // pousada: olha em volta; viu alguém, levanta voo
         g.corpo.getWorldPosition(_olho)
-        if (ve(fase, _olho, VISTA.gralha)) acordar(v)
+        const viu = veAlguem(fase, _olho, VISTA.gralha)
+        if (viu) { acordar(v); v.foco.alvo = null }
       } else {
         cacando = true
+        // quem ela caça (sem pesar a visão: voa por cima, e são muitas; a linha de visão é cara)
+        const A = focar(v.foco, jogadores, r.position, VISTA.larga, dt), agente = A.p
         perseguir(v.caca, agente, dt)
-        if (Math.hypot(agente.x - r.position.x, agente.z - r.position.z) > VISTA.larga || !fase.pode()) {
+        if (Math.hypot(agente.x - r.position.x, agente.z - r.position.z) > VISTA.larga || !A.pode()) {
           if (!v.casa) { // as do corvo se desfazem em fumaça
             estourar(estouro, r.position, 0.3, 0, { cubos: 10, olhos: 0, pano: 0, mancha: false })
             v.morta = true; v.caca = null; r.visible = false; calar(g); continue
@@ -322,10 +367,10 @@ export function Entidades({ chunks, fase }: { chunks: Chunk[]; fase: AgenteNaFas
           if (r.position.distanceTo(v.casa) < 0.3) { v.caca = null; r.position.copy(v.casa); r.rotation.y = v.vira; pousar(g, true) }
         }
       }
-      // a bicada: pega quem estiver perto do bico (o peito do agente)
-      if (animarGralha(g, dt) && fase.pode()) {
+      // a bicada: pega quem estiver perto do bico (o peito de qualquer um)
+      if (animarGralha(g, dt)) {
         g.bico.getWorldPosition(_c)
-        if (_c.distanceTo(_peito.set(agente.x, agente.y + ATAQUE.altura, agente.z)) < ATAQUE.alcance + 0.5) fase.ferir(ATAQUE.dano, _c)
+        for (const j of jogadores) if (j.pode() && _c.distanceTo(_peito.set(j.p.x, j.p.y + ATAQUE.altura, j.p.z)) < ATAQUE.alcance + 0.5) j.ferir(ATAQUE.dano, _c)
       }
       ouvirGralha(g, dt, !!v.caca)
     }

@@ -22,7 +22,8 @@
 //   provas.sombras()                                         quantas lâmpadas na cena e quantas fazem sombra agora
 //   provas.cena()                                            a cena do Testar aberto (luzes, malhas), para inspecionar
 //   provas.fase()                                            o controle do agente na fase (a vida não; os alvos das balas: .alvos)
-//   provas.qualidade()                                       o nível de qualidade valendo agora (baixo, medio, alto)
+//   provas.foco()                                            no Testar: quem cada entidade caça e a ameaça de cada jogador (L põe a Lara)
+//   provas.qualidade()                                    o nível de qualidade valendo agora (baixo, medio, alto)
 //   provas.passo('agente', 2.4, { corrida, arma, frente, mover })   o andar (ou a corrida) em 8 quadros de um ciclo
 //   provas.escorrega('lara', 2.4)                           o quanto o pé de apoio escorrega, a folga do pé no ar, o sobe e desce
 // Câmeras: 'frente', 'lado', 'tras', '34', 'agente' (o olho dele, a 1,6 m), 'rosto' (de perto, pela frente da cabeça),
@@ -395,4 +396,4 @@ function ir(x: number, z: number, yaw: number, pitch?: number, andar?: number) {
   return 'ok'
 }
 
-export const provas = { mae, agente, sonsDemonios, sonsAgente, assombrado, asaSombria, devora, gralha, mestre, fotos, limpar, medidas, som: som_, ir, passo, escorrega, qualidade: nivelAtual, sombras: contarSombras, cena: () => ganchos.cena, gl: () => ganchos.gl, camera: () => ganchos.camera, relogio: () => ganchos.relogio, gravar: gravarCena, fase: () => ganchos.fase }
+export const provas = { mae, agente, sonsDemonios, sonsAgente, assombrado, asaSombria, devora, gralha, mestre, fotos, limpar, medidas, som: som_, ir, passo, escorrega, qualidade: nivelAtual, sombras: contarSombras, cena: () => ganchos.cena, gl: () => ganchos.gl, camera: () => ganchos.camera, relogio: () => ganchos.relogio, gravar: gravarCena, fase: () => ganchos.fase, foco: () => ganchos.foco?.() }

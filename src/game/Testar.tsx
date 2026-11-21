@@ -10,6 +10,7 @@
 //   K cai (a queda: a tela escurece e ele volta no começo do teste, que por enquanto é o checkpoint), J toma 25 de dano
 //   de uma direção sorteada (30% ou menos, machucado; zerou, cai) · F usa um kit (+60; zerado, nasce um a cada 1:30)
 //   M toca o momento "a Mãe chegando" (a luz muda por alguns segundos e volta)
+//   L põe (ou tira) o boneco da Lara 2,5 m à frente: um segundo jogador parado, para testar o foco das entidades
 import { useEffect, useMemo, useRef } from 'react'
 import { useFrame, useThree } from '@react-three/fiber'
 import * as THREE from 'three'
@@ -21,7 +22,9 @@ import { novaSombraDeChao } from './corpo/sombraDeChao'
 import { Iluminacao } from './luz/Iluminacao'
 import { momento } from './luz/luz'
 import { DURA_ALCANCE } from './player/alcancar'
+import { Boneco } from './entidades/Boneco'
 import { Entidades } from './entidades/Entidades'
+import type { Jogador } from './entidades/foco'
 import { animarAgente } from './player/animacao'
 import { pegarArma, proximaArma } from './player/arma'
 import { descartarLamparina, montarLamparina } from './player/lamparina'
@@ -90,6 +93,8 @@ export interface AgenteNaFase {
   alvos: Alvejavel[]
   /** a lamparina: o quanto está erguida (0..1), de onde sai a luz e para onde vai o feixe (no mundo) */
   lamparina: { ergue: number; pos: THREE.Vector3; dir: THREE.Vector3 }
+  /** quem as entidades podem atacar (entidades/foco.ts): o agente primeiro; no Testar, também o boneco da Lara (L) */
+  jogadores: Jogador[]
 }
 
 // as teclas de ver o modelo: 1–6 forçam uma expressão, 7–9 uma pose das mãos, 0 solta as duas
@@ -135,8 +140,8 @@ export function Testar({ chunks, levels, ambiente, semChao, areas, inicio, yaw, 
   const naFase = useMemo<AgenteNaFase>(() => {
     const escurecer = (k: number) => { const s = est.current; if (s.escuro !== k) { s.escuro = k; escuroRef.current(k) } }
     const preso = (sim: boolean) => { const s = est.current; s.j.preso = sim; agente.root.visible = !sim; sombra.visible = !sim; escurecer(sim ? ENGOLIDO.escuro : 0) }
-    return {
-      agente, mundo, aoVoltar: null, alvos: [], lamparina: { ergue: 0, pos: new THREE.Vector3(), dir: new THREE.Vector3(0, 0, 1) },
+    const f: AgenteNaFase = {
+      agente, mundo, aoVoltar: null, alvos: [], jogadores: [], lamparina: { ergue: 0, pos: new THREE.Vector3(), dir: new THREE.Vector3(0, 0, 1) },
       pode: () => est.current.j.caido < 0 && !est.current.j.preso,
       ferir: (dano, de, sempre = false) => {
         const s = est.current, j = s.j, E = AGENTE.esquiva.invul
@@ -166,6 +171,8 @@ export function Testar({ chunks, levels, ambiente, semChao, areas, inicio, yaw, 
       lentidao: (quanto, dura) => { const L = est.current.lento; if (quanto >= L.quanto * (L.t / L.dura)) Object.assign(L, { quanto, t: dura, dura }) },
       pontoDeVolta: (x, z, yaw) => { est.current.volta = { x, y: chaoEm(mundo, x, z, 0.3) ?? 0, z, yaw } },
     }
+    f.jogadores.push({ nome: 'Matheus', p: agente.root.position, pode: f.pode, ferir: (dano, de) => f.ferir(dano, de), lamparina: f.lamparina })
+    return f
   }, [agente, mundo, sombra, vida])
   const montou = useRef(aoMontar); montou.current = aoMontar
   useEffect(() => { montou.current?.(naFase) }, [naFase])
@@ -354,5 +361,6 @@ export function Testar({ chunks, levels, ambiente, semChao, areas, inicio, yaw, 
   return <>
     <Iluminacao ambiente={ambiente} areas={areas} em={agente.root.position} />
     <Entidades chunks={listaDeBlocos} fase={naFase} />
+    <Boneco fase={naFase} assa={assa} />
   </>
 }

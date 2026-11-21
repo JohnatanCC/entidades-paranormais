@@ -5,6 +5,12 @@
 // larga = a que distância ela desiste e volta para o lugar dela (m)
 export const VISTA = { gralha: 9, mestre: 14, mae: 12, larga: 28 }
 
+// o foco (foco.ts: com dois jogadores, quem o fantasma ataca): perto = a ameaça de quem está colado nele (cai em curva até zero
+// na vista larga); dano = a ameaça de cada ponto de dano levado (a pistola tira 5, a escopeta 15 por bago); esquece = em
+// quantos s o dano esvazia (~63%); folga = o outro precisa passar o atual tanto assim (0,15 = 15%) para ele trocar;
+// minimo = s no alvo antes de poder trocar; cada = de quantos em quantos s ele pesa; escondido = quanto vale quem ele não vê
+export const FOCO = { perto: 100, dano: 1, esquece: 4, folga: 0.15, minimo: 2, cada: 0.25, escondido: 0.5 }
+
 // a música da perseguição: segura `segura` s depois que a última caçadora parou (não corta no meio de um susto)
 export const MUSICA = { segura: 3 }
 
