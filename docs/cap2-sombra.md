@@ -4,10 +4,43 @@ Decidido em 17/nov. **Só no papel por enquanto:** o capítulo 2 é construído 
 (`docs/lancamento.md`). Aqui ficam as ideias, para não se perderem. A exceção é a **lamparina**, que vale para o jogo
 todo e entra já no capítulo 1 (abaixo).
 
+## A reformulação do capítulo (23/nov): o cemitério
+
+**O cenário principal do capítulo 2 é um cemitério**, e não mais a mansão e o porão (o que está escrito mais abaixo sobre
+o porão, o rádio de galena e a gaiola é da ideia de 17/nov e **vale só onde não conflita com esta seção**).
+- **Como se chega:** ao terminar o capítulo 1, o jogador **atravessa uma porta** da mansão que o leva ao cemitério. Os
+  corredores da mansão continuam existindo no capítulo e **as portas funcionam como teletransporte** para outras regiões do
+  cemitério.
+- **O lugar:** aberto, com algumas estruturas, ainda ligado à mansão; **melancólico, com uma névoa densa**, de noite, com
+  a luz azulada da lua e o escuro (o âmbar só da lamparina e de umas poucas velas). Muitos corvos: nas lápides, na cerca,
+  na árvore e no telhado, e um bando rodeando.
+- **O Mestre:** fantasma **imortal**. **Tiro não o afeta** (a bala o atravessa e ele falha: `mestre/glitch.ts`); quem o
+  afeta é a **lamparina**: erguida, a luz o **afasta e o atordoa**. Se ele pode ser absorvido (capturado) continua em
+  aberto.
+- **As Gralhas, o verdadeiro perigo:** a **luz não as afeta**, mas elas **morrem fácil** com as armas (a regra de
+  antes: o menor zerado estoura). A luz resolve o Mestre e o tiro resolve as Gralhas: no apagão o jogador precisa dos dois.
+- **A luta de chefe, a demo das Gralhas e do Mestre:** **4 fases** numa arena circular do cemitério. Nas fases 3 e 4
+  há **o apagão**: tudo fica escuro e é preciso **afastar o Mestre depressa** com a lamparina, antes que ele ataque. As
+  músicas estão em `docs/musicas.md` ("O capítulo 2: o cemitério e a luta").
+- **A arena** (a referência do desenvolvedor, 23/nov, gerada por imagem; o estilo é low poly, mas o mapa continua em blocos
+  de 1 m): uma **clareira circular** de terra e lajes no meio, livre, e as bordas cheias. Em volta: a **capela em
+  ruínas** com o sino e as velas, o **mausoléu** de portas de ferro, a **árvore morta** cheia de corvos, o **portão e a
+  cerca** de ferro (com poleiros), as **lápides** e **estátuas de anjo**, a **cova aberta** com o caixão, e os **postes de
+  luz** apagados. O centro livre e as bordas cheias são o que a luta precisa; o apagão é a luz do cemitério caindo e a
+  lamparina virando a única.
+- **Para construir (depois do capítulo 1):** a **porta que teletransporta** (um corte para o preto e o agente em outro
+  ponto do mapa; as regiões do cemitério ficam **soltas no mesmo mapa**, como o Palacete e o porão da instalação, e a
+  decisão de um mapa por capítulo continua); a arena em blocos (cerca, laje, mausoléu, capela e lápides) e a árvore, as
+  estátuas e os corvos parados como objetos soltos; os corvos de longe só com os olhos; o apagão pelos momentos de luz
+  (`momento(...)`).
+- **O que continua do que estava:** o Mestre e as Gralhas (os modelos, o grito, as ações, os sons), a lamparina e a
+  Angústia.
+
 ## O clima
 
 O capítulo 2 é **mais sombrio e mais focado no terror** do que o da Mãe. Na mansão do capítulo 1 há lâmpadas acesas; no
-do capítulo 2 **quase nenhuma luz está acesa**, e o porão é **escuro de todo**. Quem ilumina é a lamparina do agente.
+do capítulo 2 **quase nenhuma luz está acesa** (no cemitério, só a lamparina e umas poucas velas). Quem ilumina é a
+lamparina do agente.
 **As Gralhas morrem com as armas** (mudado em 17/nov; antes, só se espantavam) e a luz não faz nada com elas: elas
 servem para **quebrar as lâmpadas** dos ambientes, para o Mestre conseguir passar. Quem a luz afeta é o Mestre.
 
@@ -191,9 +224,11 @@ mais forte e afasta a sombra, abrindo caminho.
 
 ## O mapa
 
-**A mansão muda** (cada capítulo é um mapa; o do capítulo 2 nasce de uma cópia do capítulo 1, que o criador de mapas já
-faz). A Sombra começa no **porão**, que agora dá para explorar, junto com parte do andar principal. No capítulo 1 a porta
-do porão está emperrada (`docs/mansao-cap1.md`): no capítulo 2 ela abre. **Os detalhes do mapa vão ser pensados de novo.**
+**Reformulado em 23/nov** (acima): o cenário principal é **o cemitério**, ligado à mansão por portas que teletransportam
+(cada capítulo continua sendo um mapa, com as regiões soltas nele). A ideia anterior, de 17/nov, era a mansão mudada: o
+mapa do capítulo 2 nascendo de uma cópia do do capítulo 1 (o que o criador de mapas já faz), com a Sombra começando no
+**porão**, que a porta emperrada do capítulo 1 (`docs/mansao-cap1.md`) abriria. Os corredores da mansão que ficam servem
+agora de passagem. **Os detalhes do mapa vão ser pensados de novo.**
 
 ## A lamparina (vale para o jogo todo; feita em 18/nov, menos a captura)
 
@@ -228,12 +263,20 @@ A armadilha de captura **é a lamparina** (decidido em 17/nov). Ela já estava "
   pode protegê-las atirando nas Gralhas antes.
 - **Como se vence o Mestre:** ~~o que o enfraquece (a luz? o tiro?)~~ **O tiro atravessa** (decidido em 18/nov): a bala
   passa por ele e ele **falha** como uma imagem com defeito (`mestre/glitch.ts`: pula de lado aos trancos, estica, some
-  por um quadro, um chiado), sem parar; ele não tem barra fora da luta. **Quem o afasta é a luz** da lamparina. A captura: a lamparina absorve só ele, ou também as Gralhas?
-- **A luta do chefe:** onde (no porão?).
+  por um quadro, um chiado), sem parar; ele não tem barra fora da luta. **Quem o afasta é a luz** da lamparina (23/nov:
+  e o atordoa). A captura: a luz não afeta as Gralhas (23/nov), então ela não as absorve; se absorve o Mestre, que é
+  imortal, continua em aberto.
+- **A luta do chefe:** ~~onde (no porão?)~~ **no cemitério** (23/nov), numa arena circular, em 4 fases (acima).
 - **O peso:** muitas Gralhas voando juntas. Um molde só com cópias que dividem tudo (`copiaDoMolde`), poucas peças por
   ave e um limite de quantas aparecem; as de longe só com os olhos.
 - **O porão é um andar abaixo do térreo:** o formato do mapa começa no andar 0 (o térreo). Conferir se o criador de mapas
-  aceita um andar -1; se não, é uma mudança de formato (`FORMATO` e a conversão).
+  aceita um andar -1; se não, é uma mudança de formato (`FORMATO` e a conversão). (23/nov: o cenário principal passou a
+  ser o cemitério, ao ar livre; isto só vale se o porão voltar.)
+- **A porta que teletransporta** (23/nov): hoje a porta só abre e fecha. Uma porta com destino (um ponto do mapa, com
+  corte para o preto) é um tipo novo de abertura ou de objeto, e pode pedir um campo no formato do mapa (`FORMATO` e a
+  conversão). As regiões do cemitério ficam soltas no mesmo mapa.
+- **O cemitério ao ar livre:** a névoa densa é barata (e esconde a distância de desenho); a sombra da lua e os muitos
+  corvos pesam nos níveis altos e no celular (os corvos parados como cópias juntadas; o bando voando limitado).
 - **A Angústia no mapa:** é um elemento novo (uma área, como as de ambientação, ou um objeto). Também pode pedir uma mudança
   de formato.
 - **O desempenho:** a lamparina é uma luz que anda com o agente; não dá para assar. Uma luz a mais é aceitável no

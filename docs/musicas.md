@@ -16,6 +16,8 @@ precisa ter, para compor (ou gerar no Suno) de forma consistente.
 | `capitulo-0.mp3`, `capitulo-1.mp3`, `capitulo-2.mp3` | Os menus de cada capítulo (abaixo) | Feitas pelo desenvolvedor (18/nov), ainda sem tocar: o menu por capítulo vem depois |
 | **O menu do capítulo 2** | O menu, depois que o jogador chega no capítulo 2 (abaixo) | A fazer |
 | **A luta da Sombra** | Capítulo 2: o chefe (abaixo) | A fazer |
+| **O ambiente do cemitério** | Capítulo 2: explorar o cemitério (abaixo) | A fazer (prompt pronto, 23/nov) |
+| **A luta das Gralhas e do Mestre, faixas A e B e o apagão** | A demo da luta, 4 fases (abaixo) | A fazer (prompts prontos, 23/nov) |
 
 Antes de publicar (`docs/lancamento.md`, fase C): conferir a licença de cada música, inclusive as geradas por IA (o plano
 do gerador precisa permitir uso comercial).
@@ -367,3 +369,90 @@ O laço: do começo do primeiro "Boss Theme" ao começo do último.
 ```
 vocals, voice, choir, sad, melancholic, sentimental, happy, major key, music box, drum kit, electronic, synth, guitar, fade out
 ```
+
+## O capítulo 2 reformulado: o cemitério e a luta (23/nov)
+
+O capítulo 2 passou a ser num **cemitério à noite, com névoa densa e muitos corvos** (`docs/cap2-sombra.md`). As músicas
+abaixo valem para ele e **substituem a "luta da Sombra" acima** onde conflitam. **Mi menor**, a assinatura da Sombra (o
+chiado de rádio, as cordas guinchando como grasnado, o pano e as asas) e **sem a caixinha de música** (é da Mãe). O Suno
+não sincroniza com o jogo: o que muda em cada momento são **faixas separadas**, e o jogo toca uma por vez (a troca suave
+é um pouco de código, que vem depois). O vento, o sino e os grasnados de perto são **sons do jogo**, no espaço 3D: na
+música ficam só de longe, para não duplicar.
+
+### O ambiente do cemitério (explorar)
+
+Baixa energia, mas viva: o jogador anda devagar, procurando. Sem melodia (se o ouvido pega um tema, cansa em meia hora).
+Duas camadas, se o plano do Suno separar as partes: **explorando** (o drone, o piano e o vento) e **observando** (entra o
+batimento, o rádio mais alto e uma nota alta de cordas).
+
+**Estilo** (com a opção **Instrumental**):
+
+```
+dark ambient gothic horror soundtrack, E minor, 60 bpm, a graveyard at night under cold moonlight, deep sustained low string drone, slow sparse piano notes in a low register, distant tolling church bell, faint old radio static drifting between stations, soft wind through bare trees, far-away crow caws and wings passing overhead, slow distant heartbeat, subtle cold string harmonics, eerie and watchful, tension without melody, evolving and unhurried, seamless loop, instrumental, video game exploration music
+```
+
+**Excluir:** `vocals, voice, choir, drum kit, electric guitar, rock, metal, electronic, synth lead, beats, melody, music box, happy, major key, sad, melancholic, sentimental, epic, impact hits, risers, circus, fade out`
+
+**Estrutura:** `[Intro: wind and radio static, the low drone starts right away]`, `[Main Theme: low string drone, sparse low
+piano notes, distant tolling bell, faint crow caws]`, `[Variation: the drone deepens, the radio drifts between stations,
+wings pass overhead, cold harmonics]`, `[Stalk: only the drone and a slow distant heartbeat, something watching in the
+dark]`, `[Main Theme]`. Laço do primeiro "Main Theme" ao último.
+
+### A luta das Gralhas e do Mestre: 4 fases
+
+A demo da luta tem **4 fases** numa arena do cemitério. **Duas faixas de batalha e uma do apagão**: a **A** nas fases 1 e
+2, a **B** nas 3 e 4 e a **C** no apagão (quando tudo escurece e é preciso afastar o Mestre com a lamparina). **A e B são
+rock com orquestra** (guitarra distorcida, baixo e bateria com cordas e metais): enérgicas, com um riff reconhecível,
+mas de terror (não é música de circo: o cenário é um cemitério). A B é a mesma banda, mais pesada e dissonante; a C é só
+orquestra, silêncio e urgência. Os grasnados de corvo na música são uma pincelada: o Suno costuma errar corvo de verdade
+(vem voz humana ou coro), e o jogo já toca os grasnados das Gralhas no espaço 3D. Se o Suno não acertar, gerar os
+grasnados à parte (ElevenLabs Sound Effects) e misturar num editor.
+
+**A (fases 1 e 2), estilo:**
+
+```
+orchestral gothic rock, E minor, 140 bpm, driving heavy riff, distorted electric guitar and growling bass, hard rock drum kit, dramatic orchestral strings and French horns, staccato string ostinato, brooding low brass, tolling church bell, string screeches like crow caws, flapping wings percussion, old radio static, graveyard at night, catchy hook, energetic and dark, headbanging, seamless loop, instrumental, video game battle soundtrack
+```
+
+**Excluir:** `vocals, voice, choir, rap, pop, EDM, dubstep, synth lead, electronic beats, circus, carnival, waltz, polka, toy piano, music box, comedy, cartoon, happy, major key, sad, melancholic, slow, ambient, fade out`
+
+**Estrutura:** `[Intro: short, radio static and a tolling bell, the guitar riff and the drums start right away]`, `[Main Riff]`,
+`[Orchestral Hook: strings and French horns play the melody over the riff, bell, wings fluttering]`, `[Breakdown: only the
+bass, the drums and the string ostinato, radio static, tense]`, `[Main Riff]`. Laço do primeiro "Main Riff" ao último.
+
+**B (fases 3 e 4), estilo:**
+
+```
+dark orchestral metal, E minor, 150 bpm, relentless heavy palm-muted guitar riff, down-tuned distorted guitar and low bass, double-kick drums, aggressive dissonant string stabs, hammering low string ostinato, pounding timpani, menacing low brass, string screeches like crow caws, distorted old radio static screaming, flapping wings, sudden short silences then everything crashes back, graveyard at night, terrifying, constant high intensity, seamless loop, instrumental, video game boss battle soundtrack
+```
+
+**Excluir:** `vocals, voice, choir, rap, pop, EDM, dubstep, synth lead, electronic beats, circus, carnival, toy piano, music box, comedy, happy, major key, sad, melancholic, calm, ambient, slow, fade out`
+
+**Estrutura:** `[Intro: short, radio static screams, one massive low hit, the heavy riff starts at full speed]`, `[Battle]`,
+`[Swarm: frantic strings and crow-like screeches over the riff, irregular rhythm]`, `[Battle: full intensity]`, `[Stop: one
+or two beats of silence, then everything crashes back in harder]`, `[Battle]`. Laço do primeiro "Battle" ao último.
+
+**C (o apagão), estilo:**
+
+```
+suspense horror tension underscore, E minor, almost silent, deep sustained low string drone, racing heartbeat that slowly accelerates, ticking clock, faint radio static drifting between stations, distant crow caws, wings circling closer in the dark, sparse prepared piano notes, rising dread, no melody, no drums, no guitar, graveyard at night, seamless loop, instrumental, video game stealth horror tension
+```
+
+**Excluir:** `vocals, voice, choir, drum kit, electric guitar, rock, metal, electronic, synth, melody, happy, major key, sad, melancholic, circus, fade out`
+
+**Estrutura:** `[Intro: everything cuts to silence, only a low drone and a single heartbeat]`, `[Dread: heartbeat accelerating,
+ticking clock, radio static, distant caws, wings circling]`, `[Climb: the heartbeat doubles, strings tremolo rising, the
+static gets louder]`, `[Dread]`. Opcional: o golpe de entrada do apagão, 1 a 2 s, com `[Intro: one massive low orchestral hit,
+then sudden silence]`, cortando só o começo. A C deve ficar bem mais baixa que A e B: a graça do apagão é o silêncio.
+
+**Os nomes:** `cemiterio-ambiente.mp3` (e `cemiterio-observando.mp3`), `luta-gralhas-a.mp3`, `luta-gralhas-b.mp3`,
+`luta-gralhas-apagao.mp3`, em `public/musica/`.
+
+## Os sons em arquivo (a fazer, 23/nov)
+
+Hoje todos os sons do jogo são **sintetizados pelo código** (`src/audio/sintese.ts`); o jogo só toca arquivos de música.
+Para usar sons gerados (Suno ou, melhor, ElevenLabs Sound Effects) preciso de um **carregador de efeitos em arquivo**, que
+ainda não existe. A lista pedida: **abrir e fechar a porta**; **levar dano** (Matheus e Lara, em variações); **a
+respiração** masculina e feminina (calma, cansada e com medo, em laço); e os dos fantasmas: a **Mãe** (a cantiga, a caça, o
+guincho e o grito, o choro), o **Assombrado**, a **Asa sombria**, o **Devora almas**, o **Mestre** e a **Gralha**.
+Seco, sem eco (o jogo põe o som no espaço), com o silêncio cortado e o volume parecido entre os do mesmo personagem.
