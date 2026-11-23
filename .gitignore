@@ -4,3 +4,5 @@ dist
 .DS_Store
 .vite
 gravacoes
+
+docs/referencias/*.png

@@ -21,6 +21,7 @@ capítulo 1 e lançá-lo na web, no itch.io (`docs/lancamento.md`).
    `docs/teste-online.md` — o teste online de desenvolvedor (feito em 21/nov): dois jogadores na mansão (o host e o código, PeerJS), o host manda nos fantasmas, o sistema de foco.
    `docs/mansao-cap1.md` — a planta da mansão do capítulo 1 (cômodos, escadas, rota, onde ficam os objetos da Mãe).
    `docs/blockbench.md` — como os personagens são feitos (Blockbench, as regras das juntas, a escala, a exportação).
+   `docs/referencias/LEIA-ME.md` — as imagens de referência low poly (23/nov) dos personagens, dos fantasmas e do cemitério: o que cada uma serve e onde difere do jogo (os PNGs ficam só no computador dele, fora do git).
 3. `docs/portando-do-laboratorio.md` — onde está cada coisa no laboratório antigo e o que **não** trazer.
 4. `docs/design/` — cópias do documento de design (história, mansão, intro). Referência; os docs acima valem quando discordarem.
 
