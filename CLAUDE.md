@@ -135,7 +135,7 @@ src/
                            sombras.ts (as lâmpadas do mapa são só dados, no jogo e no editor; as poucas luzes de verdade, as das sombras, vão para as mais perto), materiais.ts (nome da textura -> material),
                            relevo.ts (o relevo das texturas do cenário, gerado da imagem: na luz e o de verdade, do Ultra),
                            corte.ts (paredes altas / recortadas / baixas no editor), miniaturas.ts (fotos do catálogo de objetos),
-                           bbmodel.ts (lê um modelo do Blockbench: pastas = juntas, blocos = malhas; "luz_" brilha; os
+                           bbmodel.ts (lê um modelo do Blockbench: pastas = juntas, blocos e malhas livres = malhas; "luz_" brilha; os
                            personagens viram uma malha só com ossos: vestir; os que se repetem, os demônios, são cópias
                            de um molde que dividem tudo: copiaDoMolde),
                            objetos3d.ts (cada tipo de objeto, porta, janela e arma montado uma vez; o mapa usa cópias que dividem tudo),

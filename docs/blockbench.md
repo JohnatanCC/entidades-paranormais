@@ -54,6 +54,11 @@ encolheu 10% em volta do pivô dela, sem repintar: 20 × 22,5 (era 22 × 25), e 
 - Peça nova (um coldre, óculos, o cabelo com mais volume): ponha dentro da pasta que deve levá-la junto (óculos na
   `cabeca`, coldre na `coxa_d`). A bota fica na pasta do pé (`pe_e`): é por ela que o jogo acha a sola e põe os pés no chão.
 - Uma textura só por modelo (a primeira da lista é a que vale).
+- **Malha livre (o modo "Mesh" do Blockbench) funciona desde 23/nov:** faces de 3 ou 4 vértices, com giro, dentro das
+  mesmas pastas; cada face sai lisa (a luz plana, o jeito low poly). A frente da face é o lado de onde os vértices aparecem
+  no sentido anti-horário: se uma face sumir no jogo, ela está do avesso (no Blockbench, "Inverter normais"). Nenhum
+  modelo usa ainda: o teste gerado por script foi descartado (`docs/plano-visual.md`, etapa 3); fica para o que for
+  modelado à mão.
 
 ## Os personagens em blocos refinados (decidido em 11/nov)
 

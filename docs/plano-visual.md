@@ -168,6 +168,13 @@ tem 35 blocos, e a mochila está nele.
 - **Passo 2, o visual limpo: feito no Matheus (20/nov), à espera da aprovação.** De 217 para 144 blocos: os membros e o
   tronco em peças inteiras, o detalhe pintado sem grão (o que mudou está em `docs/blockbench.md`, "Os personagens em
   blocos refinados"). A mira, a recarga e o andar foram conferidos por foto; a lamparina, a maçaneta e a queda, não.
+- **O teste do low poly (23/nov): descartado.** Um Matheus em malha livre gerado por script (o corpo e a cabeça
+  facetados, sem a mochila, com uma faixa de balas de Demantino) ficou ruim: o tronco virou caixa, a faixa flutuava, o
+  rosto pintado esticou na forma nova, o cabelo virou capacete. A forma orgânica pede modelagem à mão, não código. O
+  modelo e o código dele saíram; **ficou o leitor de malha livre** (`render/bbmodel.ts`), para o que o desenvolvedor
+  modelar no Blockbench. **Ficou decidido para o modelo novo, quando existir:** sem a mochila, com a faixa de balas de
+  Demantino (sem brilho) do ombro esquerdo ao quadril direito, a recarga tirando o cartucho dela, e os três frascos
+  turquesa atrás do cinto. O Matheus do jogo continua o limpo, em blocos.
 - **Passo 3, o que falta nele:** o cabelo (a nuca), a mochila com mais desenho, e o retoque da pintura pelo
   desenvolvedor. Depois, os outros quatro humanos, um por vez.
 

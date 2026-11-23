@@ -6,7 +6,8 @@
 // Escala: 32 unidades do Blockbench = 1 m. Frente = +z. Os arquivos: modelos/<nome>.bbmodel (personagens) e
 // modelos/objetos/<tipo>.bbmodel (o catálogo de objetos), pedidos pelo caminho sem a extensão ("objetos/cadeira").
 // Bloco com nome começando em "luz_" (a chama, a lâmpada, a tela) brilha sozinho: vai numa malha "#luz" à parte.
-// Só o que os modelos usam: blocos (com giro e inflar), pastas (com giro) e a primeira textura.
+// Só o que os modelos usam: blocos (com giro e inflar), malhas livres (o modo "Mesh" do Blockbench: vértices e faces de
+// 3 ou 4 lados, com giro; a face sai lisa, com a luz plana, o jeito low poly), pastas (com giro) e a primeira textura.
 import * as THREE from 'three'
 import { mergeGeometries } from 'three/examples/jsm/utils/BufferGeometryUtils.js'
 import { clone } from 'three/examples/jsm/utils/SkeletonUtils.js'
@@ -20,11 +21,17 @@ export const UNIDADE = 1 / 32 // metros por unidade do Blockbench
 type V3 = [number, number, number]
 interface Face { uv: [number, number, number, number]; texture?: number | null }
 interface Bloco { uuid: string; name: string; type?: string; from: V3; to: V3; origin?: V3; rotation?: V3; inflate?: number; faces: Record<string, Face>; visibility?: boolean }
+/** A face de uma malha livre: os vértices (pelo nome) e o UV de cada um, em unidades da textura. */
+interface FaceMalha { vertices: string[]; uv: Record<string, [number, number]>; texture?: number | null }
+/** Uma malha livre: os vértices ficam no espaço dela, em volta da origem (que é também o ponto do giro). */
+interface Malha { uuid: string; name: string; type: 'mesh'; origin: V3; rotation?: V3; vertices: Record<string, V3>; faces: Record<string, FaceMalha>; visibility?: boolean }
+type Elemento = Bloco | Malha
+const ehMalha = (e: Elemento): e is Malha => e.type === 'mesh'
 interface Pasta { uuid: string; name: string; origin: V3; rotation?: V3; children: (string | Pasta)[]; visibility?: boolean }
 export interface BBModel {
   meta: { model_format: string }
   resolution: { width: number; height: number }
-  elements: Bloco[]
+  elements: Elemento[]
   outliner: (string | Pasta)[]
   textures: { source: string; uv_width?: number; uv_height?: number; width?: number; height?: number }[]
 }
@@ -117,6 +124,49 @@ export function montarBB(bb: BBModel, opc: { inflar?: number; corte?: boolean; p
     return geo.applyMatrix4(_r.multiply(_m)).applyMatrix4(_m.makeTranslation(org.sub(vec(pai))))
   }
 
+  const _a = new THREE.Vector3(), _b = new THREE.Vector3(), _c = new THREE.Vector3(), _d = new THREE.Vector3(), _n = new THREE.Vector3(), _t = new THREE.Vector3()
+  /** A geometria de uma malha livre no espaço da pasta. Cada face tem os vértices dela (a luz sai plana em cada face: o
+   *  jeito low poly). A quadrada vira dois triângulos; se os 4 vértices não vierem em volta (o Blockbench às vezes guarda
+   *  cruzado), troca os dois últimos. A frente da face é o lado de onde os vértices aparecem no sentido anti-horário. */
+  function geoMalha(e: Malha, pai: V3): THREE.BufferGeometry {
+    const pos: number[] = [], nor: number[] = [], uvs: number[] = [], idx: number[] = []
+    const v = (k: string, out: THREE.Vector3) => out.fromArray(e.vertices[k])
+    for (const f of Object.values(e.faces)) {
+      if (f.texture === null || f.vertices.length < 3) continue
+      let ks = f.vertices
+      if (ks.length === 4) {
+        v(ks[0], _a); v(ks[1], _b); v(ks[2], _c); v(ks[3], _d)
+        _n.subVectors(_b, _a).cross(_t.subVectors(_c, _a))
+        const volta = (p: THREE.Vector3, q: THREE.Vector3, r: THREE.Vector3) => _t.subVectors(q, p).cross(_c.clone().subVectors(r, q)).dot(_n) > 0
+        if (!volta(_b, _c, _d) || !volta(_c, _d, _a)) ks = [ks[0], ks[1], ks[3], ks[2]]
+      }
+      // a normal da face: a soma das normais dos triângulos (a quadrada um pouco torta sai na média)
+      _n.set(0, 0, 0)
+      for (let i = 1; i + 1 < ks.length; i++) { v(ks[0], _a); v(ks[i], _b); v(ks[i + 1], _c); _n.add(_b.sub(_a).cross(_c.sub(_a))) }
+      _n.normalize()
+      const base = pos.length / 3
+      for (const k of ks) {
+        pos.push(...e.vertices[k]); nor.push(_n.x, _n.y, _n.z)
+        const [u, w] = f.uv[k] ?? [0, 0]; uvs.push(u / W, 1 - w / H)
+      }
+      for (let i = 1; i + 1 < ks.length; i++) idx.push(base, base + i, base + i + 1)
+    }
+    const geo = new THREE.BufferGeometry()
+    geo.setAttribute('position', new THREE.Float32BufferAttribute(pos.map((x) => x * UNIDADE), 3))
+    geo.setAttribute('normal', new THREE.Float32BufferAttribute(nor, 3))
+    geo.setAttribute('uv', new THREE.Float32BufferAttribute(uvs, 2))
+    geo.setIndex(idx)
+    // o giro em volta da origem da malha, e daí para o espaço da pasta
+    if (e.rotation && e.rotation.some((r) => r !== 0)) geo.applyMatrix4(_r.makeRotationFromEuler(new THREE.Euler(rad(e.rotation[0]), rad(e.rotation[1]), rad(e.rotation[2]), 'ZYX')))
+    return geo.applyMatrix4(_m.makeTranslation(vec(e.origin).sub(vec(pai))))
+  }
+  /** O meio de um elemento, no espaço do arquivo (para o marcador com o nome dele). */
+  function meio(e: Elemento): V3 {
+    if (!ehMalha(e)) return [(e.from[0] + e.to[0]) / 2, (e.from[1] + e.to[1]) / 2, (e.from[2] + e.to[2]) / 2]
+    const vs = Object.values(e.vertices), s = vs.reduce((a, p) => [a[0] + p[0], a[1] + p[1], a[2] + p[2]], [0, 0, 0])
+    return [e.origin[0] + s[0] / vs.length, e.origin[1] + s[1] / vs.length, e.origin[2] + s[2] / vs.length]
+  }
+
   // os blocos de cada pasta viram UMA malha (uma chamada de desenho por junta, não por bloco); cada bloco deixa um
   // marcador vazio no centro dele, para o código achar a peça pelo nome (a mochila, por exemplo)
   function pasta(p: Pasta, pai: V3): THREE.Group {
@@ -129,10 +179,11 @@ export function montarBB(bb: BBModel, opc: { inflar?: number; corte?: boolean; p
       const filho = typeof c === 'string' ? porId.get(c) : c
       if (!filho || filho.visibility === false) continue
       if (typeof c === 'string') {
-        const e = filho as Bloco
-        ;(e.name.startsWith('luz_') && !opc.inflar ? geosLuz : geos).push(geoBloco(e, p.origin))
+        const e = filho as Elemento
+        ;(e.name.startsWith('luz_') && !opc.inflar ? geosLuz : geos).push(ehMalha(e) ? geoMalha(e, p.origin) : geoBloco(e, p.origin))
         const marca = new THREE.Object3D(); marca.name = e.name
-        marca.position.copy(vec([(e.from[0] + e.to[0]) / 2 - p.origin[0], (e.from[1] + e.to[1]) / 2 - p.origin[1], (e.from[2] + e.to[2]) / 2 - p.origin[2]]))
+        const c = meio(e)
+        marca.position.copy(vec([c[0] - p.origin[0], c[1] - p.origin[1], c[2] - p.origin[2]]))
         g.add(marca); if (!blocos.has(e.name)) blocos.set(e.name, marca)
       } else { const o = pasta(filho as Pasta, p.origin); if (!pastas.has(o.name)) pastas.set(o.name, o); g.add(o) }
     }
