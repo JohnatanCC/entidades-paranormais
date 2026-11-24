@@ -1,7 +1,8 @@
 # A dublagem
 
 Decidido em 18/nov: as cenas vão ter **vozes de verdade**. O desenvolvedor dirige a dublagem e já tem candidatos para
-testar. Aqui ficam o roteiro de cada personagem (para os testes), o jeito de gravar e a voz provisória (o Piper).
+testar. Aqui ficam o roteiro de cada personagem (para os testes), o jeito de gravar, a voz provisória e o teste de
+vozes no ElevenLabs (24/nov).
 
 > O documento de design (`docs/design/historia.md`) tinha deixado vozes de fora; elas voltam com as cenas
 > (`docs/cenas.md`). A legenda continua sempre na tela.
@@ -74,6 +75,28 @@ agudo e seco, a central com voz de mulher, mais rápida). O Ver cenas mostra qua
 **Tentado e recusado (18/nov): o Piper**, um programa de voz que roda no computador. A única voz brasileira que rodou
 (a edresson) soou sem emoção e com um sotaque estranho, e todas as vozes brasileiras dele são de homens da mesma idade (o
 Victor precisa de uma voz mais velha e grossa que a do Matheus). O programa e as vozes baixadas foram apagados.
+
+## O teste de vozes no ElevenLabs (24/nov): aprovado
+
+Um teste no **ElevenLabs** (texto para fala, conta gratuita, 10.000 créditos; cada fala curta gasta uns 40). O
+desenvolvedor ouviu e aprovou as duas vozes da biblioteca, sem assinar nada:
+
+| Personagem | A voz | A fala do teste |
+| --- | --- | --- |
+| **Matheus** | **Matheus - Young Brazilian Male** (jovem, suave e envolvente) | "Oi, Lara, que bom ver você aqui." |
+| **Lara** | **Alice - Brazilian Creator** (enérgica e acessível, com um calor jovem) | "Oi, Matheus, é bom estar com você novamente." |
+
+- **O pedido era** um homem de uns 30 anos (Matheus) e uma mulher negra de 24 anos (Lara). O ElevenLabs filtra a voz por
+  idioma, sotaque, gênero e idade, **não por etnia**: escolhi pela descrição.
+- **A voz do Matheus é descrita como jovem:** se nas falas de mais emoção ela parecer nova demais para 30 anos, as
+  alternativas são a "Paulo Rovéglia" (jovem do Rio, timbre médio) e a "Fabio Oliveira" (grave); para a Lara, a "Fabi -
+  Portuguese (BR)" (natural e emotiva) e a "Vitoria" (clara e calorosa). A "Leo - Brazilian Portuguese (Neutral)", a mais
+  próxima dos 30 anos, **é paga** (plano Starter ou acima).
+- **Os áudios do teste não foram baixados**: ficam no histórico da conta (duas versões de cada fala).
+- **Antes de usar no jogo publicado:** o uso comercial das vozes depende do **plano** do ElevenLabs (o gratuito costuma
+  pedir atribuição e não permitir uso comercial): conferir, como as músicas geradas por IA (`docs/musicas.md`, fase C do
+  `docs/lancamento.md`).
+- O Victor, a central e o resto do elenco ainda não têm voz escolhida.
 
 ## A fazer
 
