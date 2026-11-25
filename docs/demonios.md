@@ -11,6 +11,26 @@ Substituem o Espectral, que saiu do projeto.
 | Asa sombria | comum, voa e atira de longe, às vezes desvia | A · morcego de capuz |
 | Devora almas | mini-chefe: nada por baixo do chão e engole | B · tubarão-lula |
 
+## Os espectrais (o jogo novo, 25/nov)
+
+O jogo vai virar um jogo de missões (no estilo arcade, num projeto novo que reaproveita este). Nele, os Sombrios voltam
+repintados como **os espectrais**, a partir das imagens de referência do desenvolvedor (25/nov): o corpo em **matéria
+azul espectral**, o **pano branco**, os **olhos vermelhos** (a única cor quente) e o que brilha do Devora em azul-gelo.
+Os modelos antigos ficam como estão; os novos são cópias repintadas, em `modelos/espectrais/`, com o mesmo esqueleto:
+- **A Sombra espectral** (`sombra-espectral.bbmodel`, o Assombrado) e **a Asa espectral** (`asa-espectral.bbmodel`, a Asa
+  sombria): monstros, só morrem (dão orbes). Usam o código do Assombrado e da Asa sombria (`montarAssombrado(arquivo)`,
+  `montarAsaSombria(arquivo)`), com todas as ações no Ver modelos.
+- **O Devora espectros** (`devora-espectros.bbmodel`, o Devora almas): o **fantasma capturável**; flutua, dá o bote, morde
+  e cospe espectrais. Do tamanho do modelo (~3,3 m, um terço do Devora almas), em `src/game/enemies/devora-espectros/`
+  (`numeros.ts`: ESCALA, PAIRAR, ONDA, BOCA). Por enquanto só flutua (os tentáculos ondulam, a boca respira, o pano
+  balança); o bote, a mordida e o cuspe vêm com a inteligência dele.
+- **A matéria azul é translúcida** (25/nov, a pedido): o alfa da textura (~55%) só no corpo azul, e o material desses
+  modelos é transparente (`copiaDoMolde(nome, { translucido: true })`); o pano, o rosto e as garras ficam opacos. O que
+  brilha é desenhado antes e aparece através do corpo: **a Sombra espectral tem um núcleo** (`luz_nucleo`, um cristal
+  branco-azulado no meio da barriga) e as unhas dela ficaram mais juntas dos dedos. O preço: transparência pesa mais
+  no celular (medir com `/desempenho` quando houver vários juntos).
+- **Em aberto:** como o jogador distingue o fantasma capturável dos monstros (o desenho ou um sinal na tela).
+
 ## A família (o que os três têm em comum)
 
 - **O corpo de matéria escura:** preto, quase sem textura; as bordas de cada bloco um pouco mais claras (um cinza-arroxeado

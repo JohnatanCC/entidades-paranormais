@@ -39,8 +39,9 @@ export interface Assombrado {
   }
 }
 
-export function montarAssombrado(): Assombrado {
-  const root = copiaDoMolde('demonios/assombrado'), osso = ossoDe(root, 'demonios/assombrado')
+/** arquivo: o mesmo esqueleto com outra pele (a Sombra espectral: espectrais/sombra-espectral, translúcida). */
+export function montarAssombrado(arquivo = 'demonios/assombrado'): Assombrado {
+  const root = copiaDoMolde(arquivo, { translucido: arquivo.startsWith('espectrais/') }), osso = ossoDe(root, arquivo)
   const quadril = osso('quadril'), corpo = osso('corpo'), coxa = osso('coxa'), canela = osso('canela'), pe = osso('pe')
   const bracos = ([1, -1] as const).map((s): BracoAssombrado => {
     const l = s > 0 ? 'e' : 'd', braco = osso(`braco_${l}`)

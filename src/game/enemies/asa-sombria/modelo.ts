@@ -39,8 +39,9 @@ export interface AsaSombria {
 
 const ARQUIVO = 'demonios/asa-sombria'
 
-export function montarAsaSombria(): AsaSombria {
-  const root = copiaDoMolde(ARQUIVO), osso = ossoDe(root, ARQUIVO)
+/** arquivo: o mesmo esqueleto com outra pele (a Asa espectral: espectrais/asa-espectral, translúcida). */
+export function montarAsaSombria(arquivo = ARQUIVO): AsaSombria {
+  const root = copiaDoMolde(arquivo, { translucido: arquivo.startsWith('espectrais/') }), osso = ossoDe(root, arquivo)
   const corpo = osso('corpo')
   const asas = ([1, -1] as const).map((s): AsaDela => {
     const l = s > 0 ? 'e' : 'd', asa = osso(`asa_${l}`), ponta = osso(`asa_ponta_${l}`)

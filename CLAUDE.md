@@ -161,7 +161,8 @@ texturas/                  as texturas do cenário: <nome>.png, 32 × 32 px por 
 modelos/                   os modelos do Blockbench (.bbmodel), lidos direto pelo jogo: agente.bbmodel, lara.bbmodel,
                            nicolas.bbmodel, victor.bbmodel e leonardo.bbmodel (o mesmo esqueleto do agente), objetos/<tipo>.bbmodel,
                            aberturas/<tipo>.bbmodel (as portas e janelas; a porta da instalação, a de contenção, a do elevador e a janela da instalação, do capítulo 0), armas/<nome>.bbmodel (pistola, escopeta, lamparina; e o cartucho da recarga),
-                           fantasmas/<nome>.bbmodel (a Mãe; a Gralha e o Mestre, do capítulo 2, ainda fora do jogo), demonios/<nome>.bbmodel (os Sombrios: o Assombrado, a Asa sombria, o Devora almas)
+                           fantasmas/<nome>.bbmodel (a Mãe; a Gralha e o Mestre, do capítulo 2, ainda fora do jogo), demonios/<nome>.bbmodel (os Sombrios: o Assombrado, a Asa sombria, o Devora almas),
+                           espectrais/<nome>.bbmodel (o jogo novo: os Sombrios repintados, a Sombra espectral, a Asa espectral e o Devora espectros; docs/demonios.md)
 public/musica/             as músicas do jogo (menu.mp3: o menu e o criador de mapas; batalha.mp3: as hordas e devorador.mp3:
                            o chefe, na Demo · Intro; perseguicao-gralhas.mp3 e perseguicao-mae.mp3: as perseguições; tensao.mp3 e
                            capitulo-0 a 2.mp3: o ambiente e os menus dos capítulos, ainda sem tocar)
@@ -232,6 +233,8 @@ src/game/                  (já existem: Testar.tsx, player/, input/, world/, we
                            (no chão: a mancha, os espinhos, a gosma, a marca de mordida, o aviso e o rasgo da investida, os
                            círculos e os tentáculos da chuva e das poças), tremor.ts (o que faz a tela tremer) e numeros.ts
                            (ESCALA: ele é 3 vezes o modelo)
+  enemies/devora-espectros/ o Devora espectros (o jogo novo, docs/demonios.md), só no Ver modelos: modelo.ts, animacao.ts (flutuar)
+                           e numeros.ts
   enemies/mestre/          o Mestre, do capítulo 2 (docs/cap2-sombra.md), só no Ver modelos por enquanto: modelo.ts (o manto e as
                            partes soltas nas molas), animacao.ts (levita: as pernas pendem, deita com a velocidade; a cabeça vira
                            de uma vez; a brisa e o arrasto no manto; o grito: o manto abre e a tela treme; a corrida, a mordida com o bico, cobrir-se

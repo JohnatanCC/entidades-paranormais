@@ -56,6 +56,8 @@ import { montarAsaSombria, type AsaSombria } from '../game/enemies/asa-sombria/m
 import { animarAsaSombria, cuspir, desviar, estourarAsa, ferir as ferirAsa, refazerAsa } from '../game/enemies/asa-sombria/animacao'
 import { disparar, novosProjeteis, passoProjeteis } from '../game/enemies/asa-sombria/projetil'
 import { montarDevoraAlmas } from '../game/enemies/devora-almas/modelo'
+import { montarDevoraEspectros } from '../game/enemies/devora-espectros/modelo'
+import { animarDevoraEspectros } from '../game/enemies/devora-espectros/animacao'
 import { animarDevora, arrancar, atordoar, chover, emergir, estourarDevora, fase, ferir as ferirDevora, investir, marcar, mergulhar, ninhada, rastejar, refazerDevora } from '../game/enemies/devora-almas/animacao'
 import { chuvaDeTentaculos, novosEfeitosDevora, passoEfeitosDevora } from '../game/enemies/devora-almas/efeitos'
 import { nadarPara as nadarParaDevora, virarPara as virarParaDevora } from '../game/enemies/devora-almas/nado'
@@ -101,6 +103,17 @@ const DEMONIOS: Record<string, { nome: string; arquivo: string; anims: [Anim, st
     ajuda: 'Num chão de verdade (ele nada por baixo), contra o Matheus parado na marca. Cospe dois Assombrados e uma Asa sombria. Na terceira barra: duas investidas seguidas, 5 círculos na chuva e Assombrados também do chão. Atordoado, cai de lado tonto e depois rasteja (a janela para atirar). Os tentáculos arrancados voltam quando ele estoura e volta (2,5 s).',
   },
 }
+// os espectrais (o jogo novo): os Sombrios repintados (modelos/espectrais/). A Sombra e a Asa usam o esqueleto e as
+// animações do Assombrado e da Asa sombria; o Devora espectros, por enquanto, só flutua (a inteligência vem depois)
+const SOMBRA_ESP = 'espectral:sombra-espectral', ASA_ESP = 'espectral:asa-espectral', DEVORA_ESP = 'espectral:devora-espectros'
+const ESPECTRAIS: typeof DEMONIOS = {
+  [SOMBRA_ESP]: { ...DEMONIOS[ASSOMBRADO], nome: 'A Sombra espectral', arquivo: 'espectrais/sombra-espectral' },
+  [ASA_ESP]: { ...DEMONIOS[ASA], nome: 'A Asa espectral', arquivo: 'espectrais/asa-espectral' },
+  [DEVORA_ESP]: {
+    nome: 'O Devora espectros', arquivo: 'espectrais/devora-espectros', anims: [['parado', 'Flutuando no lugar'], ['andando', 'Flutuando (em roda)']], acoes: [],
+    ajuda: 'O fantasma capturável: flutua, os tentáculos ondulam, a boca respira e o pano balança. O bote, a mordida e cuspir espectrais vêm com a inteligência dele.',
+  },
+}
 // os ataques no Ver modelos: cada botão é uma sequência de golpes (contra um alvo marcado no chão)
 const ATAQUES: [string, string, NomeGolpe[]][] = [
   ['garra', 'Garra', ['garra_d']], ['garras', 'Duas garradas', ['garra_d', 'garra_ultima_e']], ['aproximar', 'Aproximar aos trancos', ['aproximar']],
@@ -141,7 +154,7 @@ export function VerModelos({ go }: { go: Go }) {
   const [municao, setMunicao] = useState<string | null>(null) // o contador da arma na mão (as balas, o calor)
   const muda = (p: Partial<Escolhas>) => setE((v) => ({ ...v, ...p }))
   const humano = HUMANOS.find(([id]) => id === e.qual), agente = !!humano, arma = e.qual.startsWith(ARMA) ? e.qual.slice(ARMA.length) : null, mae = e.qual === MAE
-  const demonio = DEMONIOS[e.qual]
+  const demonio = DEMONIOS[e.qual] ?? ESPECTRAIS[e.qual]
   return (
     <div className="vermodelo">
       <header className="topo">
@@ -154,7 +167,7 @@ export function VerModelos({ go }: { go: Go }) {
         <Canvas camera={{ position: [1.4, 1.4, 3.6], fov: 35, near: 0.02, far: 100 }}>
           <Luzes luz={e.luz} />
           <Golpes />
-          {agente ? <CenaAgente key={e.qual} modelo={e.qual as ModeloAgente} e={e} onInfo={setInfo} onMunicao={setMunicao} /> : mae ? <CenaMae e={e} onInfo={setInfo} /> : e.qual === ASSOMBRADO ? <CenaAssombrado e={e} onInfo={setInfo} /> : e.qual === ASA ? <CenaAsaSombria e={e} onInfo={setInfo} /> : e.qual === DEVORA ? <CenaDevora e={e} onInfo={setInfo} /> : e.qual === MESTRE ? <CenaMestre e={e} onInfo={setInfo} /> : e.qual === GRALHA ? <CenaGralha e={e} onInfo={setInfo} /> : <CenaObjeto key={e.qual} qual={e.qual} girar={e.girar} onInfo={setInfo} />}
+          {agente ? <CenaAgente key={e.qual} modelo={e.qual as ModeloAgente} e={e} onInfo={setInfo} onMunicao={setMunicao} /> : mae ? <CenaMae e={e} onInfo={setInfo} /> : e.qual === ASSOMBRADO || e.qual === SOMBRA_ESP ? <CenaAssombrado key={e.qual} arquivo={demonio.arquivo} e={e} onInfo={setInfo} /> : e.qual === ASA || e.qual === ASA_ESP ? <CenaAsaSombria key={e.qual} arquivo={demonio.arquivo} e={e} onInfo={setInfo} /> : e.qual === DEVORA ? <CenaDevora e={e} onInfo={setInfo} /> : e.qual === DEVORA_ESP ? <CenaDevoraEspectros e={e} onInfo={setInfo} /> : e.qual === MESTRE ? <CenaMestre e={e} onInfo={setInfo} /> : e.qual === GRALHA ? <CenaGralha e={e} onInfo={setInfo} /> : <CenaObjeto key={e.qual} qual={e.qual} girar={e.girar} onInfo={setInfo} />}
           {e.grade && <Grid args={[8, 8]} cellSize={0.5} cellThickness={0.6} cellColor="#6a5a40" sectionSize={1} sectionThickness={1.2} sectionColor="#c89b4a" fadeDistance={14} infiniteGrid />}
           <OrbitControls makeDefault target={[0, 0.95, 0]} minDistance={0.2} maxDistance={e.qual === DEVORA ? 12 * ESCALA_DEVORA : 9} />
         </Canvas>
@@ -168,6 +181,7 @@ export function VerModelos({ go }: { go: Go }) {
             <optgroup label="Personagens">{HUMANOS.slice(1).map(([id, nome]) => <option key={id} value={id}>{nome}</option>)}</optgroup>
             <optgroup label="Fantasmas"><option value={MAE}>A Mãe</option><option value={GRALHA}>A Gralha (capítulo 2)</option><option value={MESTRE}>O Mestre (capítulo 2)</option></optgroup>
             <optgroup label="Demônios">{Object.entries(DEMONIOS).map(([id, d]) => <option key={id} value={id}>{d.nome}</option>)}</optgroup>
+            <optgroup label="Espectrais (o jogo novo)">{Object.entries(ESPECTRAIS).map(([id, d]) => <option key={id} value={id}>{d.nome}</option>)}</optgroup>
             <optgroup label="Armas">{ARMAS.map(([k, nome]) => <option key={k} value={ARMA + k}>{nome}</option>)}</optgroup>
             {GRUPOS.map(([g, nome]) => (
               <optgroup key={g} label={`Objetos · ${nome}`}>
@@ -225,7 +239,7 @@ export function VerModelos({ go }: { go: Go }) {
         {demonio && <section>
           <b>Ações</b>
           <div className="opcoes">{demonio.acoes.map(([acao, nome]) => <button key={acao} onClick={() => muda({ ...(acao === 'atacar' || acao === 'cuspir' ? { anim: 'parado', girar: false } : {}), demonio: { acao, n: (e.demonio?.n ?? 0) + 1 } })}>{nome}</button>)}</div>
-          <small>{demonio.ajuda} Os sons tocam com a animação (o ouvido é a câmera: perto, mais alto); sem som, clique uma vez na página antes.</small>
+          <small>{demonio.ajuda}{demonio.acoes.length > 0 && ' Os sons tocam com a animação (o ouvido é a câmera: perto, mais alto); sem som, clique uma vez na página antes.'}</small>
         </section>}
 
         {agente && <>
@@ -465,9 +479,9 @@ function CenaMae({ e, onInfo }: { e: Escolhas; onInfo: (i: Info) => void }) {
   </>
 }
 
-function CenaAssombrado({ e, onInfo }: { e: Escolhas; onInfo: (i: Info) => void }) {
+function CenaAssombrado({ arquivo, e, onInfo }: { arquivo: string; e: Escolhas; onInfo: (i: Info) => void }) {
   // montarAssombrado na lista: salvar o .bbmodel recarrega o módulo e ele é montado de novo
-  const a = useMemo(() => montarAssombrado(), [montarAssombrado])
+  const a = useMemo(() => montarAssombrado(arquivo), [montarAssombrado, arquivo])
   const E = useMemo(() => novoEstouro(), [])
   const { pronto, voar } = useVoo()
   // em roda: o ângulo; o ataque: sai de trás contra o alvo e volta ao lugar; estourado: quanto falta para ele voltar
@@ -517,9 +531,9 @@ function CenaAssombrado({ e, onInfo }: { e: Escolhas; onInfo: (i: Info) => void 
   </>
 }
 
-function CenaAsaSombria({ e, onInfo }: { e: Escolhas; onInfo: (i: Info) => void }) {
+function CenaAsaSombria({ arquivo, e, onInfo }: { arquivo: string; e: Escolhas; onInfo: (i: Info) => void }) {
   // montarAsaSombria na lista: salvar o .bbmodel recarrega o módulo e ela é montada de novo
-  const a = useMemo(() => montarAsaSombria(), [montarAsaSombria])
+  const a = useMemo(() => montarAsaSombria(arquivo), [montarAsaSombria, arquivo])
   const E = useMemo(() => novoEstouro(), []), P = useMemo(() => novosProjeteis(), [])
   const { pronto, voar } = useVoo()
   const ALTURA = 2.0, R = 2.2, VEL = 3 // o voo: a altura (m); em roda: o raio (m) e a velocidade (m/s)
@@ -578,6 +592,30 @@ function CenaAsaSombria({ e, onInfo }: { e: Escolhas; onInfo: (i: Info) => void 
     <primitive object={P.grupo} />
     {e.demonio?.acao === 'cuspir' && <primitive object={anel} />}
   </>
+}
+
+function CenaDevoraEspectros({ e, onInfo }: { e: Escolhas; onInfo: (i: Info) => void }) {
+  // montarDevoraEspectros na lista: salvar o .bbmodel recarrega o módulo e ele é montado de novo
+  const d = useMemo(() => montarDevoraEspectros(), [montarDevoraEspectros])
+  const { pronto, voar } = useVoo()
+  const ida = useRef({ ang: 0 })
+  const R = 3, VEL = 1.6 // em roda: o raio (m) e a velocidade (m/s)
+  useEffect(() => {
+    const c = contas(d.root)
+    d.root.updateMatrixWorld(true)
+    const b = new THREE.Box3().setFromObject(d.root)
+    onInfo({ linhas: [`Comprimento: ${(b.max.z - b.min.z).toFixed(2)} m`, `Altura: ${(b.max.y - b.min.y).toFixed(2)} m`, `${c.blocos} blocos em ${c.juntas} juntas`, `${c.desenhos} chamadas de desenho`] })
+  }, [d, onInfo])
+  useEffect(() => {
+    if (pronto) voar(new THREE.Vector3(0, 1.1, 0), e.anim === 'andando' ? new THREE.Vector3(6.5, 4.5, 7.5) : new THREE.Vector3(3.6, 2.0, 4.4))
+  }, [pronto, e.anim])
+  useFrame((_, dtBruto) => {
+    const dt = Math.min(dtBruto, 0.05), I = ida.current, r = d.root, roda = e.anim === 'andando'
+    const y = animarDevoraEspectros(d, roda ? 1 : 0, dt)
+    if (roda) { I.ang += (VEL * dt) / R; r.position.set(Math.cos(I.ang) * R, y, Math.sin(I.ang) * R); r.rotation.y = -I.ang }
+    else { r.position.set(0, y, 0); if (e.girar) r.rotation.y += dt * 0.5 }
+  })
+  return <primitive object={d.root} />
 }
 
 function CenaDevora({ e, onInfo }: { e: Escolhas; onInfo: (i: Info) => void }) {

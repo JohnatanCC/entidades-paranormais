@@ -88,7 +88,7 @@ function textura(src: string) {
  * corte: o material obedece o corte das paredes do editor (as portas e janelas, que ficam na parede).
  */
 export interface MontadoBB { raiz: THREE.Group; pastas: Map<string, THREE.Group>; blocos: Map<string, THREE.Object3D>; material: THREE.Material; luz: THREE.Material }
-export function montarBB(bb: BBModel, opc: { inflar?: number; corte?: boolean; pele?: boolean } = {}): MontadoBB {
+export function montarBB(bb: BBModel, opc: { inflar?: number; corte?: boolean; pele?: boolean; translucido?: boolean } = {}): MontadoBB {
   const tex = bb.textures[0], mapa = tex && !opc.inflar ? textura(tex.source) : undefined
   const W = tex?.uv_width ?? bb.resolution.width, H = tex?.uv_height ?? bb.resolution.height
   // todo modelo usa a luz assada do lugar onde está (render/assada.ts); a casca do contorno do editor não tem luz
@@ -96,7 +96,10 @@ export function montarBB(bb: BBModel, opc: { inflar?: number; corte?: boolean; p
   const base = opc.inflar ? cru : aplicarLuzObjeto(cru)
   // os personagens (pele) ganham o contorno de luz do jogo; as portas e janelas, o corte das paredes do editor
   const material = opc.corte ? aplicarCorte(base) : opc.pele ? aplicarContorno(base) : base
-  const luz = aplicarBrilho(new THREE.MeshBasicMaterial({ color: '#ffffff', ...(mapa ? { map: mapa } : {}) }))
+  // translúcido (os espectrais): a transparência vem do alfa da textura (o corpo azul deixa ver o núcleo; o pano não).
+  // O que brilha (#luz) continua opaco e é desenhado antes, então aparece através do corpo.
+  if (opc.translucido) material.transparent = true
+  const luz =aplicarBrilho(new THREE.MeshBasicMaterial({ color: '#ffffff', ...(mapa ? { map: mapa } : {}) }))
   const porId = new Map(bb.elements.map((e) => [e.uuid, e]))
   const pastas = new Map<string, THREE.Group>(), blocos = new Map<string, THREE.Object3D>()
 
@@ -251,10 +254,10 @@ const moldes = new Map<string, THREE.Group>()
  * parado na pose do arquivo), e cada chamada devolve uma cópia dele, com os ossos próprios, que divide a geometria, o
  * material e a textura com as outras. nome = o caminho em modelos/ sem a extensão ("demonios/assombrado").
  */
-export function copiaDoMolde(nome: string): THREE.Group {
+export function copiaDoMolde(nome: string, opc: { translucido?: boolean } = {}): THREE.Group {
   let molde = moldes.get(nome)
   if (!molde) {
-    const m = montarBB(arquivoModelo(nome), { pele: true })
+    const m = montarBB(arquivoModelo(nome), { pele: true, ...opc })
     molde = new THREE.Group(); molde.name = nome.split('/').pop()!
     molde.add(m.raiz)
     vestir(molde, m)
