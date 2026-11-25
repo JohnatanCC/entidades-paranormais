@@ -19,4 +19,6 @@ export const ganchos: {
   rede?: import('../game/rede/conexao').Conexao
   /** O foco das entidades do Testar: quem cada uma caça e a ameaça de cada jogador (entidades/foco.ts). */
   foco?: () => { quem: string; estado: string; alvo: string | null; ameaca: Record<string, number> }[]
+  /** As caixas de espectrais do Testar (entidades/Caixas.tsx): o que cada uma já invocou e o estado de cada espectral. */
+  caixas?: () => { caixa: string; usadas: number; vivos: number; recarga: number[]; espectrais: { tipo: string; estado: string; vida: number; dist: number }[] }[]
 } = {}

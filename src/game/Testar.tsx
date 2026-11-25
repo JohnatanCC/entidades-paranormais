@@ -29,6 +29,7 @@ import { r2, v3 } from './rede/mensagens'
 import { RITMO } from './rede/numeros'
 import { Remoto } from './rede/Remoto'
 import { Entidades } from './entidades/Entidades'
+import { Caixas } from './entidades/Caixas'
 import type { Jogador } from './entidades/foco'
 import { animarAgente } from './player/animacao'
 import { pegarArma, proximaArma } from './player/arma'
@@ -411,6 +412,7 @@ export function Testar({ chunks, levels, ambiente, semChao, areas, inicio, yaw, 
   return <>
     <Iluminacao ambiente={ambiente} areas={areas} em={agente.root.position} />
     <Entidades chunks={listaDeBlocos} fase={naFase} rede={rede?.con} />
+    {!rede && <Caixas chunks={listaDeBlocos} fase={naFase} />}
     {rede ? <Remoto con={rede.con} modelo={rede.outro.modelo} nome={rede.outro.nome} fase={naFase} assa={assa} /> : <Boneco fase={naFase} assa={assa} />}
   </>
 }

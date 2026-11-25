@@ -5,7 +5,7 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
 import type { ThreeEvent } from '@react-three/fiber'
 import * as THREE from 'three'
-import { ENTIDADES } from '../maps/entidades'
+import { ENTIDADES, caixaDe } from '../maps/entidades'
 import { LEVEL_H, type ScriptPoint, type Vec3 } from '../maps/types'
 import { entidades, type MapDoc } from './doc'
 
@@ -13,9 +13,11 @@ const GRADE = 0.25, PEGA = 0.5 // m: o encaixe; a distância do clique até a ma
 const encaixa = (v: number) => Math.round(v / GRADE) * GRADE
 const tipoDe = (p: ScriptPoint) => String(p.params?.tipo ?? '')
 const viraDe = (p: ScriptPoint) => Number(p.params?.vira ?? 0)
+const raioDe = (p: ScriptPoint) => (tipoDe(p) === 'caixa' ? caixaDe(p.params).raio : undefined) // a caixa: o raio que a ativa
 
-/** A marca de uma entidade: o cilindro da cor dela (a altura dela), o anel no chão e a seta para onde olha. */
-function Marca({ tipo, pos, vira, cor, opaca = 0.75 }: { tipo: string; pos: Vec3; vira: number; cor?: string; opaca?: number }) {
+/** A marca de uma entidade: o cilindro da cor dela (a altura dela), o anel no chão e a seta para onde olha; a caixa de
+ *  espectrais mostra também o raio que a ativa. */
+function Marca({ tipo, pos, vira, cor, opaca = 0.75, raio }: { tipo: string; pos: Vec3; vira: number; cor?: string; opaca?: number; raio?: number }) {
   const d = ENTIDADES[tipo]
   const c = cor ?? d?.cor ?? '#c2453a', h = d?.altura ?? 1, y0 = d?.voa ? 1.6 : 0
   return (
@@ -28,6 +30,10 @@ function Marca({ tipo, pos, vira, cor, opaca = 0.75 }: { tipo: string; pos: Vec3
         <ringGeometry args={[0.32, 0.42, 20]} />
         <meshBasicMaterial color={c} transparent opacity={Math.min(1, opaca + 0.3)} depthWrite={false} />
       </mesh>
+      {raio !== undefined && <mesh position={[0, 0.03, 0]} rotation-x={-Math.PI / 2} renderOrder={5}>
+        <ringGeometry args={[raio - 0.06, raio, 64]} />
+        <meshBasicMaterial color={c} transparent opacity={opaca * 0.6} depthWrite={false} />
+      </mesh>}
       <mesh position={[0, y0 + h * 0.8, 0.45]} rotation-x={Math.PI / 2} renderOrder={5}>
         <coneGeometry args={[0.14, 0.32, 8]} />
         <meshBasicMaterial color={c} transparent opacity={Math.min(1, opaca + 0.3)} depthWrite={false} />
@@ -39,7 +45,7 @@ function Marca({ tipo, pos, vira, cor, opaca = 0.75 }: { tipo: string; pos: Vec3
 /** As entidades do andar, como marcas (o editor, fora do Testar). */
 export function MarcasDeEntidades({ doc, andar, ocultar }: { doc: MapDoc; andar: number; ocultar?: string | null }) {
   const lista = useMemo(() => entidades(doc).filter((p) => p.level === andar && p.id !== ocultar), [doc, andar, ocultar])
-  return <group>{lista.map((p) => <Marca key={p.id} tipo={tipoDe(p)} pos={p.pos} vira={viraDe(p)} />)}</group>
+  return <group>{lista.map((p) => <Marca key={p.id} tipo={tipoDe(p)} pos={p.pos} vira={viraDe(p)} raio={raioDe(p)} />)}</group>
 }
 
 interface Props {
@@ -123,7 +129,7 @@ export function FerramentaEntidades({ doc, andar, tipo, vira, selecionada, onPor
         <meshBasicMaterial transparent opacity={0} depthWrite={false} />
       </mesh>
       {sel && !arrasto?.mexeu && <Marca tipo={tipoDe(sel)} pos={sel.pos} vira={viraDe(sel)} cor={realce} opaca={0.35} />}
-      {arrasto?.mexeu && arrastado && <Marca tipo={tipoDe(arrastado)} pos={arrasto.pos} vira={viraDe(arrastado)} />}
+      {arrasto?.mexeu && arrastado && <Marca tipo={tipoDe(arrastado)} pos={arrasto.pos} vira={viraDe(arrastado)} raio={raioDe(arrastado)} />}
       {tipo && mira && !mira.sobre && !arrasto && <Marca tipo={tipo} pos={[mira.x, y, mira.z]} vira={vira} opaca={0.3} />}
     </group>
   )

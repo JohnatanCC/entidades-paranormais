@@ -57,7 +57,8 @@ import { animarAsaSombria, cuspir, desviar, estourarAsa, ferir as ferirAsa, refa
 import { disparar, novosProjeteis, passoProjeteis } from '../game/enemies/asa-sombria/projetil'
 import { montarDevoraAlmas } from '../game/enemies/devora-almas/modelo'
 import { montarDevoraEspectros } from '../game/enemies/devora-espectros/modelo'
-import { animarDevoraEspectros } from '../game/enemies/devora-espectros/animacao'
+import { animarDevoraEspectros, ferir as ferirEspectros, golpe as golpeEspectros } from '../game/enemies/devora-espectros/animacao'
+import { BOTE as BOTE_ESP, CUSPE as CUSPE_ESP, MORDIDA as MORDIDA_ESP } from '../game/enemies/devora-espectros/numeros'
 import { animarDevora, arrancar, atordoar, chover, emergir, estourarDevora, fase, ferir as ferirDevora, investir, marcar, mergulhar, ninhada, rastejar, refazerDevora } from '../game/enemies/devora-almas/animacao'
 import { chuvaDeTentaculos, novosEfeitosDevora, passoEfeitosDevora } from '../game/enemies/devora-almas/efeitos'
 import { nadarPara as nadarParaDevora, virarPara as virarParaDevora } from '../game/enemies/devora-almas/nado'
@@ -85,8 +86,8 @@ const ANIMS_GRALHA: [Anim, string][] = [['parado', 'Voando no lugar'], ['andando
 const ANIMS_MAE: [Anim, string][] = [['parado', 'Parada'], ['andando', 'Andando (em roda)'], ['porta', 'Passando pela porta']]
 // os demônios (docs/demonios.md): o id é o nome do arquivo em modelos/demonios/
 const ASSOMBRADO = 'demonio:assombrado', ASA = 'demonio:asa-sombria', DEVORA = 'demonio:devora-almas'
-type AcaoDemonio = 'atacar' | 'engolir' | 'investida' | 'chuva' | 'ninhada' | 'arrancar' | 'atordoar' | 'rastejar' | 'surgir' | 'cuspir' | 'desviar' | 'dano' | 'estourar'
-const DEMONIOS: Record<string, { nome: string; arquivo: string; anims: [Anim, string][]; acoes: [AcaoDemonio, string][]; ajuda: string }> = {
+type AcaoDemonio = 'atacar' | 'engolir' | 'investida' | 'chuva' | 'ninhada' | 'arrancar' | 'atordoar' | 'rastejar' | 'surgir' | 'cuspir' | 'desviar' | 'dano' | 'estourar' | 'bote' | 'morder' | 'cuspirAsa'
+const DEMONIOS: Record<string, { nome: string; arquivo: string; anims: [Anim, string][]; acoes: [AcaoDemonio, string][]; ajuda: string; semSom?: boolean }> = {
   [ASSOMBRADO]: {
     nome: 'O Assombrado', arquivo: 'demonios/assombrado', anims: [['parado', 'Parado'], ['andando', 'Andando (em roda)']],
     acoes: [['atacar', 'Atacar'], ['surgir', 'Surgir do chão'], ['dano', 'Tomar dano'], ['estourar', 'Estourar']],
@@ -110,8 +111,10 @@ const ESPECTRAIS: typeof DEMONIOS = {
   [SOMBRA_ESP]: { ...DEMONIOS[ASSOMBRADO], nome: 'A Sombra espectral', arquivo: 'espectrais/sombra-espectral' },
   [ASA_ESP]: { ...DEMONIOS[ASA], nome: 'A Asa espectral', arquivo: 'espectrais/asa-espectral' },
   [DEVORA_ESP]: {
-    nome: 'O Devora espectros', arquivo: 'espectrais/devora-espectros', anims: [['parado', 'Flutuando no lugar'], ['andando', 'Flutuando (em roda)']], acoes: [],
-    ajuda: 'O fantasma capturável: flutua, os tentáculos ondulam, a boca respira e o pano balança. O bote, a mordida e cuspir espectrais vêm com a inteligência dele.',
+    nome: 'O Devora espectros', arquivo: 'espectrais/devora-espectros', anims: [['parado', 'Flutuando no lugar'], ['andando', 'Flutuando (em roda)']],
+    acoes: [['bote', 'Bote (de longe)'], ['morder', 'Morder (de perto)'], ['cuspir', 'Cuspir uma Sombra'], ['cuspirAsa', 'Cuspir uma Asa'], ['dano', 'Tomar dano']],
+    semSom: true,
+    ajuda: 'O fantasma capturável (ainda sem sons): flutua, os tentáculos ondulam, a boca respira e o pano balança. Bote: recua, acende e avança 3 m de boca aberta até o Matheus na marca. Morder: de perto, a cabeça vai à frente. Cuspir: infla e cospe uma Sombra (cai no chão) ou uma Asa espectral (sai voando); elas estouram em 6 s.',
   },
 }
 // os ataques no Ver modelos: cada botão é uma sequência de golpes (contra um alvo marcado no chão)
@@ -239,7 +242,7 @@ export function VerModelos({ go }: { go: Go }) {
         {demonio && <section>
           <b>Ações</b>
           <div className="opcoes">{demonio.acoes.map(([acao, nome]) => <button key={acao} onClick={() => muda({ ...(acao === 'atacar' || acao === 'cuspir' ? { anim: 'parado', girar: false } : {}), demonio: { acao, n: (e.demonio?.n ?? 0) + 1 } })}>{nome}</button>)}</div>
-          <small>{demonio.ajuda}{demonio.acoes.length > 0 && ' Os sons tocam com a animação (o ouvido é a câmera: perto, mais alto); sem som, clique uma vez na página antes.'}</small>
+          <small>{demonio.ajuda}{!demonio.semSom && ' Os sons tocam com a animação (o ouvido é a câmera: perto, mais alto); sem som, clique uma vez na página antes.'}</small>
         </section>}
 
         {agente && <>
@@ -597,9 +600,20 @@ function CenaAsaSombria({ arquivo, e, onInfo }: { arquivo: string; e: Escolhas; 
 function CenaDevoraEspectros({ e, onInfo }: { e: Escolhas; onInfo: (i: Info) => void }) {
   // montarDevoraEspectros na lista: salvar o .bbmodel recarrega o módulo e ele é montado de novo
   const d = useMemo(() => montarDevoraEspectros(), [montarDevoraEspectros])
+  const E = useMemo(() => novoEstouro(), [])
+  // o agente (o alvo dos golpes), parado na marca, de frente para ele
+  const ag = useMemo(() => { const a = montarAgente('agente'); a.root.visible = false; a.root.rotation.y = Math.PI; return a }, [montarAgente])
+  // as crias cuspidas: a Sombra cai no chão e anda um pouco; a Asa sai voando e fica no ar; estouram em 6 s
+  type Cria = { t: number } & ({ a: Assombrado } | { asa: AsaSombria; de: THREE.Vector3; para: THREE.Vector3 })
+  const crias = useRef<Cria[]>([]), grupoCrias = useMemo(() => new THREE.Group(), [])
   const { pronto, voar } = useVoo()
-  const ida = useRef({ ang: 0 })
+  // em roda: o ângulo; golpe: o golpe saiu do lugar (no fim, ele volta para o meio)
+  const ida = useRef({ ang: 0, golpe: false })
   const R = 3, VEL = 1.6 // em roda: o raio (m) e a velocidade (m/s)
+  // onde fica o agente em cada golpe (à frente dele, +z): o bote vem de longe, a mordida de perto
+  const MARCA = { bote: BOTE_ESP.distancia + 1.2, morder: MORDIDA_ESP.alcance }
+  const camera = useThree((st) => st.camera)
+  useEffect(() => () => crias.current.forEach((c) => calar('a' in c ? c.a : c.asa)), [d])
   useEffect(() => {
     const c = contas(d.root)
     d.root.updateMatrixWorld(true)
@@ -607,15 +621,73 @@ function CenaDevoraEspectros({ e, onInfo }: { e: Escolhas; onInfo: (i: Info) => 
     onInfo({ linhas: [`Comprimento: ${(b.max.z - b.min.z).toFixed(2)} m`, `Altura: ${(b.max.y - b.min.y).toFixed(2)} m`, `${c.blocos} blocos em ${c.juntas} juntas`, `${c.desenhos} chamadas de desenho`] })
   }, [d, onInfo])
   useEffect(() => {
-    if (pronto) voar(new THREE.Vector3(0, 1.1, 0), e.anim === 'andando' ? new THREE.Vector3(6.5, 4.5, 7.5) : new THREE.Vector3(3.6, 2.0, 4.4))
+    if (pronto) voar(new THREE.Vector3(0, 1.0, 3), e.anim === 'andando' ? new THREE.Vector3(6.5, 4.5, 7.5) : new THREE.Vector3(11.5, 3.8, 2.5))
   }, [pronto, e.anim])
+  useEffect(() => {
+    const p = e.demonio, I = ida.current
+    if (!p) return
+    if (p.acao === 'dano') { ferirEspectros(d, Math.random() * Math.PI * 2); return }
+    // os golpes: no meio, de frente para +z (o agente na marca)
+    d.root.position.set(0, d.root.position.y, 0); d.root.rotation.y = 0; d.molas.pos = null; I.golpe = true
+    ag.root.visible = p.acao === 'bote' || p.acao === 'morder'
+    ag.root.position.set(0, 0, p.acao === 'bote' ? MARCA.bote : MARCA.morder)
+    if (p.acao === 'bote' || p.acao === 'morder') golpeEspectros(d, p.acao)
+    else golpeEspectros(d, 'cuspir', p.acao === 'cuspirAsa' ? 'asa' : 'sombra')
+  }, [e.demonio])
   useFrame((_, dtBruto) => {
-    const dt = Math.min(dtBruto, 0.05), I = ida.current, r = d.root, roda = e.anim === 'andando'
-    const y = animarDevoraEspectros(d, roda ? 1 : 0, dt)
-    if (roda) { I.ang += (VEL * dt) / R; r.position.set(Math.cos(I.ang) * R, y, Math.sin(I.ang) * R); r.rotation.y = -I.ang }
-    else { r.position.set(0, y, 0); if (e.girar) r.rotation.y += dt * 0.5 }
+    const dt = Math.min(dtBruto, 0.05), I = ida.current, r = d.root, roda = e.anim === 'andando' && !I.golpe
+    const s = animarDevoraEspectros(d, roda ? 1 : 0, dt)
+    if (roda) { I.ang += (VEL * dt) / R; r.position.set(Math.cos(I.ang) * R, s.y, Math.sin(I.ang) * R); r.rotation.y = -I.ang }
+    else {
+      r.position.y = s.y
+      r.position.x += Math.sin(r.rotation.y) * s.avanca * dt; r.position.z += Math.cos(r.rotation.y) * s.avanca * dt
+      if (I.golpe && d.anim.modo === 'pairar') { // acabou o golpe: volta devagar para o meio
+        const k = 1 - Math.exp(-2.5 * dt)
+        r.position.x += -r.position.x * k; r.position.z += -r.position.z * k
+        if (Math.hypot(r.position.x, r.position.z) < 0.02) I.golpe = false
+      } else if (!I.golpe && e.girar) r.rotation.y += dt * 0.5
+    }
+    if (s.fechou) tranco(ag, 0) // a boca fechou: o agente na marca leva o golpe (aqui, só o tranco)
+    if (s.cria) {
+      const dist = CUSPE_ESP.alcance[0] + Math.random() * (CUSPE_ESP.alcance[1] - CUSPE_ESP.alcance[0])
+      const para = new THREE.Vector3(s.cria.de.x + s.cria.frente.x * dist + (Math.random() - 0.5) * 2, 0, s.cria.de.z + s.cria.frente.z * dist + (Math.random() - 0.5) * 2)
+      if (s.cria.tipo === 'asa') {
+        const asa = montarAsaSombria('espectrais/asa-espectral')
+        asa.root.position.copy(s.cria.de); asa.root.rotation.y = r.rotation.y; grupoCrias.add(asa.root)
+        crias.current.push({ asa, de: s.cria.de.clone(), para: para.setY(2.0), t: 0 })
+      } else {
+        const a = montarAssombrado('espectrais/sombra-espectral')
+        grupoCrias.add(a.root); arremessar(a, s.cria.de, para)
+        crias.current.push({ a, t: 0 })
+      }
+    }
+    crias.current = crias.current.filter((c) => {
+      c.t += dt
+      const raiz = 'a' in c ? c.a.root : c.asa.root
+      if ('a' in c) {
+        animarAssombrado(c.a, {}, dt)
+        if (c.t > 6 && !c.a.anim.estourado) estourarAssombrado(c.a, E, 0)
+        ouvirAssombrado(c.a, dt)
+      } else {
+        const u = Math.min(1, c.t / 0.9), sai = 1 - (1 - u) * (1 - u) // sai da boca rápido e freia lá na frente, subindo
+        c.asa.root.position.lerpVectors(c.de, c.para, sai); c.asa.root.position.y += 0.8 * Math.sin(Math.PI * u)
+        animarAsaSombria(c.asa, {}, dt)
+        if (c.t > 6 && !c.asa.anim.estourado) estourarAsa(c.asa, E, 0)
+        ouvirAsaSombria(c.asa, dt)
+      }
+      if (c.t > 8) { grupoCrias.remove(raiz); calar('a' in c ? c.a : c.asa); return false }
+      return true
+    })
+    ouvinte(camera)
+    if (ag.root.visible) animarAgente(ag, { velocidade: 0, corrida: 0, esquiva: -1 }, dt)
+    passoEstouro(E, dt)
   })
-  return <primitive object={d.root} />
+  return <>
+    <primitive object={d.root} />
+    <primitive object={ag.root} />
+    <primitive object={grupoCrias} />
+    <primitive object={E.grupo} />
+  </>
 }
 
 function CenaDevora({ e, onInfo }: { e: Escolhas; onInfo: (i: Info) => void }) {

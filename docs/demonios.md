@@ -22,13 +22,25 @@ Os modelos antigos ficam como estão; os novos são cópias repintadas, em `mode
   `montarAsaSombria(arquivo)`), com todas as ações no Ver modelos.
 - **O Devora espectros** (`devora-espectros.bbmodel`, o Devora almas): o **fantasma capturável**; flutua, dá o bote, morde
   e cospe espectrais. Do tamanho do modelo (~3,3 m, um terço do Devora almas), em `src/game/enemies/devora-espectros/`
-  (`numeros.ts`: ESCALA, PAIRAR, ONDA, BOCA). Por enquanto só flutua (os tentáculos ondulam, a boca respira, o pano
-  balança); o bote, a mordida e o cuspe vêm com a inteligência dele.
+  (`numeros.ts`: ESCALA, PAIRAR, ONDA, BOCA). Flutua (os tentáculos ondulam, a boca respira, o pano balança) e tem os golpes
+  (25/nov, `animacao.ts`; os números em BOTE, MORDIDA, CUSPE e DANO): o **bote** de longe (recua, acende âmbar, avança
+  3,2 m de boca aberta e fecha: o instante do dano), a **mordida** de perto, o **cuspe** (infla, estufa e cospe uma Sombra,
+  que cai no chão a 3–5 m, ou uma Asa espectral, que sai voando) e o tranco do tiro. Tudo no Ver modelos, contra o
+  Matheus na marca. Falta: a inteligência (quando ele faz cada golpe), os sons e a captura.
 - **A matéria azul é translúcida** (25/nov, a pedido): o alfa da textura (~55%) só no corpo azul, e o material desses
   modelos é transparente (`copiaDoMolde(nome, { translucido: true })`); o pano, o rosto e as garras ficam opacos. O que
   brilha é desenhado antes e aparece através do corpo: **a Sombra espectral tem um núcleo** (`luz_nucleo`, um cristal
   branco-azulado no meio da barriga) e as unhas dela ficaram mais juntas dos dedos. O preço: transparência pesa mais
   no celular (medir com `/desempenho` quando houver vários juntos).
+- **As caixas de espectrais** (25/nov; `src/game/entidades/Caixas.tsx`): uma entidade do mapa (a aba Entidades, "Caixa
+  de espectrais"), invisível no jogo. O painel dela (`editor/PainelCaixa.tsx`) escolhe o que invoca (a Sombra ou a
+  Asa), o raio que a ativa (o anel no editor), as **cargas** (quantos ao mesmo tempo), a **recarga** (depois que um
+  morre, a carga volta nesse tempo) e o **máximo** (quantos no total; depois, ela para). Os números no params do ponto
+  (`maps/entidades.ts`, `caixaDe`): o formato do mapa não muda.
+  Os espectrais caçam com a luta dos Sombrios; o agente longe (15 m) por 3 s, eles **perdem o foco e patrulham em
+  volta da caixa** (6 m), de ponto em ponto, desviando das paredes; vendo o agente de novo (10 m, sem nada no meio) ou
+  levando tiro, voltam a caçar (`entidades/numeros.ts`, ESPECTRAIS). Só fora do teste online, por enquanto. Falta: as
+  orbes que eles soltam e a patrulha pelo mapa todo (a do fantasma principal).
 - **Em aberto:** como o jogador distingue o fantasma capturável dos monstros (o desenho ou um sinal na tela).
 
 ## A família (o que os três têm em comum)

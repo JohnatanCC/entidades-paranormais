@@ -23,6 +23,7 @@ import type { PortasVivas } from '../game/world/portas'
 import { ICONES } from './Icones'
 import { GavetaAberturas, GavetaEntidades, GavetaObjetos, GavetaPincel, GavetaPiso } from './Gaveta'
 import { FerramentaEntidades, MarcasDeEntidades } from './FerramentaEntidades'
+import { PainelCaixa } from './PainelCaixa'
 import { FerramentaContaGotas, descreverPego, type Pego } from './FerramentaContaGotas'
 import { FerramentaObjetos } from './FerramentaObjetos'
 import { PainelObjeto } from './PainelObjeto'
@@ -493,6 +494,9 @@ export function MapEditor({ go }: { go: Go }) {
         </Inspetor>}
         {!testando && areaEscolhida && <Inspetor titulo={`Área · ${nomeAmbiente(areaEscolhida.ambiente)}`} onFechar={() => setSelecionada(null)}>
           <PainelArea a={areaEscolhida} onMudar={(patch) => hist.mudar((d) => d && mudarArea(d, areaEscolhida.id, patch))} onApagar={() => onApagarArea(areaEscolhida.id)} />
+        </Inspetor>}
+        {!testando && entidadeEscolhida?.params?.tipo === 'caixa' && <Inspetor titulo="Caixa de espectrais" onFechar={() => setSelecionada(null)}>
+          <PainelCaixa p={entidadeEscolhida} onMudar={(params) => hist.mudar((d) => d && mudarEntidade(d, entidadeEscolhida.id, { params }))} onApagar={() => onApagarEntidade(entidadeEscolhida.id)} />
         </Inspetor>}
         {!testando && escadaEscolhida && <Inspetor titulo="Escada" onFechar={() => setSelecionada(null)}>
           <PainelEscada s={escadaEscolhida} onMudar={onMudarEscada} onApagar={() => onApagarEscada(escadaEscolhida.id)} />

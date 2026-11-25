@@ -100,7 +100,7 @@ vite.config.ts             o Vite + o plugin que salva mapas (tools/mapsDevApi.t
 tools/mapsDevApi.ts        a API dos mapas (só no npm run dev): listar, ler, salvar, apagar em maps/; e salvar o vídeo de uma
                            cena em gravacoes/ (a pasta fica fora do git)
 maps/<id>/                 os mapas (JSON). map.json = cabeçalho; chunks/<cx>_<cz>.json = um bloco de 16 × 16 m;
-                           maps/intro = a Demo · Intro (o submundo, sem chão: docs/intro.md); teste-gralhas, teste-mestre e teste-mae = os
+                           maps/intro = a Demo · Intro (o submundo, sem chão: docs/intro.md); teste-gralhas, teste-mestre, teste-mae e teste-espectrais (as caixas) = os
                            mapas de teste das entidades (docs/criador-de-mapas.md); maps/instalacao-cap0 = o
                            capítulo 0 (o andar de contenção e, solto, o escritório do Victor: docs/cenas.md; o Palacete
                            real entra solto nele também: docs/direcao-cap0.md)
@@ -123,7 +123,7 @@ src/
                            provas.ir(x, z, yaw) leva o agente a um ponto no Testar (dev/ganchos.ts; o criador de mapas e o Ver cenas
                            entregam a cena, o desenhista e a câmera por dev/GanchosDaTela.tsx: provas.cena(), gl(), camera()),
                            provas.gravar() grava a cena aberta no Ver cenas num vídeo, em gravacoes/<id>.webm (dev/gravar.ts: a imagem, as
-                           faixas, as legendas, o título e os sons; a voz provisória do navegador não entra), provas.foco() diz quem cada entidade caça (L põe a Lara no Testar), provas.rede() a conexão do teste online (o ping, as mensagens), provas.qualidade() diz o nível,
+                           faixas, as legendas, o título e os sons; a voz provisória do navegador não entra), provas.foco() diz quem cada entidade caça (L põe a Lara no Testar), provas.caixas() o que cada caixa de espectrais fez, provas.rede() a conexão do teste online (o ping, as mensagens), provas.qualidade() diz o nível,
                            provas.sombras() conta as lâmpadas com sombra, provas.cena() dá a cena do Testar para inspecionar, provas.fase() o controle do agente (os alvos das balas),
                            provas.passo() mostra um ciclo do andar em 8 quadros (também de lado e de costas), provas.escorrega() mede o pé de apoio
   audio/espaco.ts          o som 3D: a voz sai da boca do personagem, no mundo; o ouvido é a câmera (ouvinte, a cada quadro)
@@ -146,14 +146,14 @@ src/
                            e de cada janela num ponto, com as paredes bloqueando; o objeto que acende não estoura com a própria luz), loader.ts (o jogo lê a pasta), storage.ts (o editor lê, grava,
                            exporta e importa; o pacote MapBundle), textures.ts (o catálogo: cada nome, o uso e a cor; a imagem é texturas/<nome>.png),
                            objetos.ts (o catálogo de móveis e lâmpadas, em dados: nome, tamanho, apoio; a forma vem do modelo),
-                           entidades.ts (o catálogo das entidades que a aba Entidades põe no mapa: a Mãe, o Mestre, a Gralha),
+                           entidades.ts (o catálogo das entidades que a aba Entidades põe no mapa: a Mãe, o Mestre, a Gralha, a caixa de espectrais e os números dela: caixaDe),
                            corrimao.ts (o corrimão automático das escadas, calculado do mapa; o editor desenha em editor/corrimaoMesh.ts)
   editor/                  MapEditor (a tela, conceito B), Gaveta (o catálogo embaixo), Icones, Inspetor (a janela flutuante),
                            Medida (a etiqueta ao construir), FerramentaContaGotas, MapManager (o gerenciador de mapas), MapView + wallMesh (desenha;
                            paredes juntadas por textura, cantos fechados, a sombra de canto e a luz assada em cada vértice), EditorCamera, FerramentaParedes,
                            FerramentaPiso, FerramentaPincel, FerramentaAberturas + PainelAbertura, FerramentaEscadas + PainelEscada,
                            FerramentaObjetos + PainelObjeto, FerramentaAmbiente + PainelArea (as áreas de ambientação),
-                           FerramentaEntidades (a aba Entidades: pôr, mover, girar e apagar; as marcas no mapa),
+                           FerramentaEntidades (a aba Entidades: pôr, mover, girar e apagar; as marcas no mapa; o raio da caixa) + PainelCaixa (as cargas, a recarga, o máximo),
                            Objetos (monta o catálogo; a lâmpada acende pela luz assada),
                            Aberturas (portas, janelas) + Luar (feixe macio, brilho, poeira), Paleta, doc.ts (o documento e as operações),
                            historico.ts (desfazer e refazer)
@@ -195,7 +195,8 @@ src/game/                  (já existem: Testar.tsx, player/, input/, world/, we
                            veem o agente e caçam; o Mestre: grita, solta o corvo, persegue e morde; a Mãe: grita, caça, a carga e
                            a sequência de garradas; as músicas das perseguições), foco.ts (com dois jogadores, quem cada uma
                            ataca: a distância e o dano que levou de cada um; docs/teste-online.md), Boneco.tsx (a Lara parada no
-                           Testar, tecla L, para testar o foco) e numeros.ts
+                           Testar, tecla L, para testar o foco), Caixas.tsx (as caixas de espectrais: invocam, caçam, perdem o foco e
+                           patrulham em volta da caixa) e numeros.ts
   Testar.tsx               o Testar do editor: o agente andando no mapa aberto (câmera, colisão, luz do jogo), em tela cheia;
                            numa fase, dá ao roteiro o controle do agente (AgenteNaFase: ferir, engolir, cuspir, a gosma, o ponto de volta)
   Desempenho.tsx           o medidor de uma cena de jogo: os quadros por segundo e, com F3, o detalhe (desenhos, triângulos,
@@ -233,8 +234,8 @@ src/game/                  (já existem: Testar.tsx, player/, input/, world/, we
                            (no chão: a mancha, os espinhos, a gosma, a marca de mordida, o aviso e o rasgo da investida, os
                            círculos e os tentáculos da chuva e das poças), tremor.ts (o que faz a tela tremer) e numeros.ts
                            (ESCALA: ele é 3 vezes o modelo)
-  enemies/devora-espectros/ o Devora espectros (o jogo novo, docs/demonios.md), só no Ver modelos: modelo.ts, animacao.ts (flutuar)
-                           e numeros.ts
+  enemies/devora-espectros/ o Devora espectros (o jogo novo, docs/demonios.md), só no Ver modelos: modelo.ts, animacao.ts (flutuar, o
+                           bote, a mordida, cuspir uma Sombra ou uma Asa espectral, o tranco do tiro) e numeros.ts
   enemies/mestre/          o Mestre, do capítulo 2 (docs/cap2-sombra.md), só no Ver modelos por enquanto: modelo.ts (o manto e as
                            partes soltas nas molas), animacao.ts (levita: as pernas pendem, deita com a velocidade; a cabeça vira
                            de uma vez; a brisa e o arrasto no manto; o grito: o manto abre e a tela treme; a corrida, a mordida com o bico, cobrir-se

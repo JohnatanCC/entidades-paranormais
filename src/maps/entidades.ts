@@ -13,6 +13,18 @@ export const ENTIDADES: Record<string, DefEntidade> = {
   mae: { nome: 'A Mãe', cor: '#c2453a', altura: 2.1, voa: false, sobre: 'Parada até ver o agente; grita e persegue, com a sequência de golpes' },
   mestre: { nome: 'O Mestre', cor: '#8a6ac8', altura: 2.4, voa: false, sobre: 'Levita; ao ver o agente grita e solta o corvo (3 Gralhas), persegue e morde' },
   gralha: { nome: 'Gralha', cor: '#6a6a7a', altura: 0.5, voa: true, sobre: 'Pousada até ver o agente; voa em volta dele e mergulha; morre com tiros' },
+  caixa: { nome: 'Caixa de espectrais', cor: '#4cc3ff', altura: 0.4, voa: false, sobre: 'Invisível no jogo: o agente chegando perto, invoca um espectral (a Sombra ou a Asa). As cargas, a recarga e o máximo no painel' },
+}
+
+/** A caixa de espectrais (o jogo novo, docs/demonios.md): o que ela invoca, o raio que a ativa (m), quantos ao mesmo
+ *  tempo (as cargas), em quanto tempo uma carga volta depois que o espectral morre (s) e quantos ela invoca no total.
+ *  Guardado no params do ponto; o que faltar vem daqui. */
+export type MonstroCaixa = 'sombra' | 'asa'
+export interface Caixa { monstro: MonstroCaixa; raio: number; cargas: number; recarga: number; maximo: number }
+export const CAIXA: Caixa = { monstro: 'sombra', raio: 8, cargas: 1, recarga: 40, maximo: 5 }
+export function caixaDe(params: Record<string, unknown> | undefined): Caixa {
+  const n = (k: keyof Caixa) => (typeof params?.[k] === 'number' ? (params[k] as number) : (CAIXA[k] as number))
+  return { monstro: params?.monstro === 'asa' ? 'asa' : 'sombra', raio: n('raio'), cargas: n('cargas'), recarga: n('recarga'), maximo: n('maximo') }
 }
 
 /** O kind dos pontos de entidade no mapa. */

@@ -1,0 +1,36 @@
+{
+ "formato": 3,
+ "id": "teste-espectrais",
+ "nome": "Teste · as caixas de espectrais",
+ "levels": 2,
+ "levelH": 3.5,
+ "chunkSize": 16,
+ "spawn": {
+  "pos": [
+   5,
+   0,
+   4
+  ],
+  "yaw": 0,
+  "level": 0
+ },
+ "ambiente": "exterior",
+ "semChao": false,
+ "areas": [
+  {
+   "id": "area-galpao",
+   "level": 0,
+   "x": 19,
+   "z": 14,
+   "w": 8,
+   "d": 9,
+   "ambiente": "mansao"
+  }
+ ],
+ "chunks": [
+  "0_0",
+  "0_1",
+  "1_0",
+  "1_1"
+ ]
+}

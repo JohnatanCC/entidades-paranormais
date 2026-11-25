@@ -7,6 +7,7 @@ import * as THREE from 'three'
 import { copiaDoMolde } from '../../../render/bbmodel'
 import { prepararMolas, type Molas } from '../../corpo/molas'
 import { ossoDe, pastasCom } from '../pastas'
+import type { CriaEspectros, ModoEspectros } from './animacao'
 import { ESCALA, MANTO } from './numeros'
 
 /** Um tentáculo: os três ossos, a pose do arquivo de cada um, os dois eixos em que ele dobra (a: para fora; b: de lado)
@@ -20,7 +21,8 @@ export interface DevoraEspectros {
   base: { corpo: THREE.Quaternion; mandibula: THREE.Quaternion }
   tentaculos: TentaculoEspectro[] // os seis de trás e os três das costas
   molas: Molas
-  anim: { t: number; deita: number }
+  /** o que a animação lembra (animacao.ts): o modo e há quanto tempo, se o instante do golpe já passou, o que cospe e o tranco do tiro */
+  anim: { t: number; deita: number; modo: ModoEspectros; tm: number; feito: boolean; cria: CriaEspectros; dano: { t: number; lado: number } | null }
 }
 
 const ARQUIVO = 'espectrais/devora-espectros'
@@ -43,6 +45,6 @@ export function montarDevoraEspectros(): DevoraEspectros {
     root, corpo, mandibula, tentaculos,
     base: { corpo: corpo.quaternion.clone(), mandibula: mandibula.quaternion.clone() },
     molas: prepararMolas(pastasCom(root, 'mecha_'), corpo, corpo, MANTO),
-    anim: { t: Math.random() * 10, deita: 0 },
+    anim: { t: Math.random() * 10, deita: 0, modo: 'pairar', tm: 0, feito: false, cria: 'sombra', dano: null },
   }
 }
