@@ -1742,5 +1742,25 @@
   }
  ],
  "decals": [],
- "points": []
+ "points": [
+  {
+   "id": "entidade-3",
+   "kind": "entidade",
+   "level": 0,
+   "pos": [
+    23,
+    0,
+    19
+   ],
+   "params": {
+    "tipo": "caixa",
+    "vira": 0,
+    "monstro": "sombra",
+    "raio": 8,
+    "cargas": 1,
+    "recarga": 15,
+    "maximo": 3
+   }
+  }
+ ]
 }

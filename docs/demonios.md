@@ -39,7 +39,10 @@ Os modelos antigos ficam como estão; os novos são cópias repintadas, em `mode
   (`maps/entidades.ts`, `caixaDe`): o formato do mapa não muda.
   Os espectrais caçam com a luta dos Sombrios; o agente longe (15 m) por 3 s, eles **perdem o foco e patrulham em
   volta da caixa** (6 m), de ponto em ponto, desviando das paredes; vendo o agente de novo (10 m, sem nada no meio) ou
-  levando tiro, voltam a caçar (`entidades/numeros.ts`, ESPECTRAIS). Só fora do teste online, por enquanto. Falta: as
+  levando tiro, voltam a caçar (`entidades/numeros.ts`, ESPECTRAIS). **Sem atravessar parede nem andar** (26/nov, a pedido):
+  a caixa só ativa se vê o agente (nada no meio, o andar dela); quem caça desiste depois de 5 s sem ver o agente (atrás
+  de uma parede, de uma porta fechada, em outro andar); ninguém ataca nem cospe em quem está em outro andar (no meio da
+  escada já conta). Eles ainda **não sobem escadas**: esperam embaixo até desistir (subir vem com o mapa de caminhos). Só fora do teste online, por enquanto. Falta: as
   orbes que eles soltam e a patrulha pelo mapa todo (a do fantasma principal).
 - **Em aberto:** como o jogador distingue o fantasma capturável dos monstros (o desenho ou um sinal na tela).
 

@@ -4,7 +4,9 @@
 // recarga; invocou o máximo, ela para de vez.
 // Os espectrais caçam o agente com a luta dos Sombrios (assombrado/ia.ts e asa-sombria/ia.ts). Se o agente ficar longe
 // (ESPECTRAIS.perde) por um tempo, eles perdem o foco e patrulham em volta da caixa deles, de ponto em ponto, desviando
-// das paredes; vendo o agente de novo (ou levando tiro), voltam a caçar. Só fora do teste online (a rede ainda não conta
+// das paredes; também desistem se ficarem um tempo sem ver o agente (atrás da parede, em outro andar). Vendo o agente
+// de novo (ou levando tiro), voltam a caçar. A caixa só ativa vendo o agente (nada no meio, o andar dela); ninguém ataca
+// quem está em outro andar (subir escada atrás dele vem com o mapa de caminhos). Só fora do teste online (a rede ainda não conta
 // as caixas). Os números em numeros.ts (ESPECTRAIS) e os da caixa no params do ponto (maps/entidades.ts, caixaDe).
 import { useEffect, useMemo, useRef } from 'react'
 import { useFrame, useThree } from '@react-three/fiber'
@@ -38,6 +40,7 @@ const CAIXA_TIRO = { sombra: [0.6, 0.7, 0.6], asa: [0.8, 0.55, 0.8] } as const
 type Espectral = ({ tipo: 'sombra'; a: Assombrado } | { tipo: 'asa'; a: AsaSombria }) & {
   dono: CaixaViva; vida: number; alvo: Alvejavel
   estado: 'caca' | 'patrulha'; longe: number // há quanto tempo o agente está longe (s)
+  escondido: number; olhar: number; visto: boolean // há quanto tempo não o vê (s), quando confere de novo (s) e se viu na última vez
   ponto: THREE.Vector3 | null; pausa: number // a patrulha: para onde vai e quanto ainda espera parado
   morto: number // −1 vivo; s desde que estourou
 }
@@ -84,7 +87,7 @@ export function Caixas({ chunks, fase }: { chunks: Chunk[]; fase: AgenteNaFase }
     const p = new THREE.Vector3(cx.p.x + Math.cos(ang) * r, cx.p.y, cx.p.z + Math.sin(ang) * r)
     if (!temChao(fase.mundo, p.x, p.z, p.y)) p.copy(cx.p)
     const yaw = Math.atan2(ag.x - p.x, ag.z - p.z)
-    const base = { dono: cx, estado: 'caca' as const, longe: 0, ponto: null, pausa: 0, morto: -1 }
+    const base = { dono: cx, estado: 'caca' as const, longe: 0, escondido: 0, olhar: 0, visto: true, ponto: null, pausa: 0, morto: -1 }
     let v: Espectral
     if (cx.c.monstro === 'asa') {
       const a = montarAsaSombria('espectrais/asa-espectral'); a.root.position.copy(p).setY(p.y + 0.3); a.root.rotation.y = yaw
@@ -114,12 +117,14 @@ export function Caixas({ chunks, fase }: { chunks: Chunk[]; fase: AgenteNaFase }
     v.dono.vivos--; v.dono.recarga.push(v.dono.c.recarga)
   }
 
-  /** Vê o agente: perto, no andar dele e sem nada tapando (as paredes, as portas fechadas). */
-  function ve(v: Espectral) {
-    const ag = alvo.p, r = v.a.root.position
-    if (Math.hypot(ag.x - r.x, ag.z - r.z) > ESPECTRAIS.ve || Math.abs(ag.y - v.dono.p.y) > ESPECTRAIS.andar) return false
-    return alcanceCamera(fase.mundo, _olho.set(r.x, v.dono.p.y + 1.2, r.z), _peito.set(ag.x, ag.y + 1.2, ag.z), 0.02) > 0.98
+  /** De (x, z), no chão `chao`, dá para ver o agente: no mesmo andar e sem nada tapando (as paredes, as portas fechadas). */
+  function enxerga(x: number, chao: number, z: number) {
+    const ag = alvo.p
+    if (Math.abs(ag.y - chao) > ESPECTRAIS.andar) return false
+    return alcanceCamera(fase.mundo, _olho.set(x, chao + 1.2, z), _peito.set(ag.x, ag.y + 1.2, ag.z), 0.02) > 0.98
   }
+  /** O agente está no andar dele (quem está em outro andar não leva golpe nem cuspe dele). */
+  const mesmoAndar = (v: Espectral) => Math.abs(alvo.p.y - v.dono.p.y) < ESPECTRAIS.andar
 
   /** Patrulha: vai de ponto em ponto em volta da caixa (com chão), parando um pouco em cada. A Sombra: devolve a
    *  vontade de andar (0..1 da caçada) e vira o corpo para o caminho livre. A Asa voa sozinha aqui (devolve 0). */
@@ -160,26 +165,31 @@ export function Caixas({ chunks, fase }: { chunks: Chunk[]; fase: AgenteNaFase }
     for (const cx of caixas) {
       for (let i = cx.recarga.length - 1; i >= 0; i--) if ((cx.recarga[i] -= dt) <= 0) cx.recarga.splice(i, 1)
       cx.nasce -= dt
-      const perto = Math.hypot(ag.x - cx.p.x, ag.z - cx.p.z) < cx.c.raio && Math.abs(ag.y - cx.p.y) < ESPECTRAIS.andar
       const livres = cx.c.cargas - cx.vivos - cx.recarga.length
-      if (perto && fase.pode() && livres > 0 && cx.usadas < cx.c.maximo && cx.nasce <= 0) { invocar(cx); cx.nasce = ESPECTRAIS.nasce }
+      if (livres <= 0 || cx.usadas >= cx.c.maximo || cx.nasce > 0 || !fase.pode()) continue
+      // perto, no andar dela e sem parede no meio (a caixa não ativa através da parede nem de outro andar)
+      if (Math.hypot(ag.x - cx.p.x, ag.z - cx.p.z) < cx.c.raio && enxerga(cx.p.x, cx.p.y, cx.p.z)) { invocar(cx); cx.nasce = ESPECTRAIS.nasce }
     }
     // ---------- os espectrais: caçam ou patrulham, animam e andam ----------
     const sombras: THREE.Object3D[] = []
     for (const v of vivos.current) {
       if (v.morto >= 0) { v.morto += dt; continue }
       const r = v.a.root, dist = Math.hypot(ag.x - r.position.x, ag.z - r.position.z)
-      // perder o foco e achar de novo
+      // vê o agente? (confere de tempos em tempos: são vários)
+      if ((v.olhar -= dt) <= 0) { v.olhar = ESPECTRAIS.olhar; v.visto = enxerga(r.position.x, v.dono.p.y, r.position.z) }
+      // perder o foco (longe, ou sem ver: atrás da parede, em outro andar) e achar de novo (perto e vendo)
       if (v.estado === 'caca') {
-        v.longe = dist > ESPECTRAIS.perde || Math.abs(ag.y - v.dono.p.y) > ESPECTRAIS.andar ? v.longe + dt : 0
-        if (v.longe > ESPECTRAIS.semVer) { v.estado = 'patrulha'; v.ponto = null; v.pausa = 0.5; if (bando.atacando === v.a) bando.atacando = null }
-      } else if (fase.pode() && ve(v)) { v.estado = 'caca'; v.longe = 0 }
-      const caca = v.estado === 'caca'
+        v.longe = dist > ESPECTRAIS.perde ? v.longe + dt : 0
+        v.escondido = v.visto ? 0 : v.escondido + dt
+        if (v.longe > ESPECTRAIS.semVer || v.escondido > ESPECTRAIS.escondido) { v.estado = 'patrulha'; v.ponto = null; v.pausa = 0.5; if (bando.atacando === v.a) bando.atacando = null }
+      } else if (fase.pode() && v.visto && dist < ESPECTRAIS.ve) { v.estado = 'caca'; v.longe = 0; v.escondido = 0 }
+      // caçando, só vai atrás de quem está no andar dele (sem subir escada, ele espera embaixo até desistir)
+      const caca = v.estado === 'caca' && mesmoAndar(v)
       if (v.tipo === 'sombra') {
         const a = v.a
         const andar = caca ? pensarAssombrado(a, alvo, bando, fase.mundo, dt, mira.de) : a.anim.surgir || a.anim.golpe ? 0 : patrulhar(v, dt)
         const s = animarAssombrado(a, { andar }, dt)
-        andarNoMundo(r, s.avanca * dt, fase.mundo, LUTA_SOMBRA.raio)
+        andarNoMundo(r, s.avanca * dt, fase.mundo, LUTA_SOMBRA.raio, v.dono.p.y)
         if (!a.anim.surgir) sombras.push(r)
         ouvirAssombrado(a, dt)
       } else {

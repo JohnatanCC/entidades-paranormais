@@ -31,13 +31,14 @@ export function girarPara(raiz: THREE.Object3D, x: number, z: number, vel: numbe
 }
 
 const _p = { x: 0, z: 0 }
-/** Anda `dist` m para a frente da raiz no chão: bate nas paredes e nos objetos (raio r) e para na beirada. */
-export function andarNoMundo(raiz: THREE.Object3D, dist: number, mundo: Mundo, r: number) {
+/** Anda `dist` m para a frente da raiz no chão: bate nas paredes e nos objetos (raio r) e para na beirada. y = a altura
+ *  do chão do andar dele (as paredes e o chão que contam são os desse andar). */
+export function andarNoMundo(raiz: THREE.Object3D, dist: number, mundo: Mundo, r: number, y = 0) {
   if (Math.abs(dist) < 1e-5) return
   const P = raiz.position, ox = P.x, oz = P.z
   _p.x = ox + Math.sin(raiz.rotation.y) * dist; _p.z = oz + Math.cos(raiz.rotation.y) * dist
-  empurrar(mundo, _p, 0, r)
-  if (!temChao(mundo, _p.x, _p.z, 0)) { if (temChao(mundo, _p.x, oz, 0)) _p.z = oz; else if (temChao(mundo, ox, _p.z, 0)) _p.x = ox; else { _p.x = ox; _p.z = oz } }
+  empurrar(mundo, _p, y, r)
+  if (!temChao(mundo, _p.x, _p.z, y)) { if (temChao(mundo, _p.x, oz, y)) _p.z = oz; else if (temChao(mundo, ox, _p.z, y)) _p.x = ox; else { _p.x = ox; _p.z = oz } }
   P.x = _p.x; P.z = _p.z
 }
 

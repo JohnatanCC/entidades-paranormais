@@ -37,9 +37,12 @@ export const MAE = { anda: 2.1, vira: 4, freia: 1, mira: 0.45, garra: 1.5, aprox
 export const LUZ = { ergue: 0.6, corpo: 0.45 }
 
 // os espectrais das caixas (Caixas.tsx; a caixa em maps/entidades.ts): ve = a que distância (m) quem patrulha nota o
-// agente (sem nada no meio); perde = longe assim (m) por `semVer` s, ele desiste e volta a patrulhar; patrulha = o raio
+// agente (sem nada no meio); perde = longe assim (m) por `semVer` s, ele desiste e volta a patrulhar; escondido = s sem
+// ver o agente (uma parede, uma porta fechada, outro andar) até desistir também; olhar = de quantos em quantos s cada um
+// confere se vê (não a cada quadro: são vários); patrulha = o raio
 // (m) em volta da caixa onde ele anda; pausa = s parado em cada ponto da patrulha; andarSombra = a vontade de andar da
 // Sombra patrulhando (0..1 da caçada); andarAsa = m/s da Asa patrulhando; voo = a altura da Asa patrulhando (m acima da
 // caixa); nasce = s entre um e outro quando a caixa solta mais de um; some = s até o estourado sair de cena; andar = o
-// agente mais alto ou mais baixo que isso (m) está em outro andar (a caixa não ativa, ninguém vê)
-export const ESPECTRAIS = { ve: 10, perde: 15, semVer: 3, patrulha: 6, pausa: [1.5, 3.5] as const, andarSombra: 0.6, andarAsa: 1.4, voo: 2, nasce: 0.6, some: 2, andar: 2 }
+// agente mais alto ou mais baixo que isso (m) está em outro andar (a caixa não ativa, ninguém vê nem ataca; um andar
+// tem 3,5 m: no meio da escada ele já está fora)
+export const ESPECTRAIS = { ve: 10, perde: 15, semVer: 3, escondido: 5, olhar: 0.25, patrulha: 6, pausa: [1.5, 3.5] as const, andarSombra: 0.6, andarAsa: 1.4, voo: 2, nasce: 0.6, some: 2, andar: 1.5 }
