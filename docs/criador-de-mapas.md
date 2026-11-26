@@ -268,7 +268,8 @@ comuns: dá para mudar à vontade no editor.
   porta, e se afaste: elas voltam e pousam.
 - **`teste-espectrais`, o pátio das Gralhas com duas caixas de espectrais** (o jogo novo, `docs/demonios.md`): a da Sombra
   no meio do pátio (raio 6 m, 2 cargas, recarga de 15 s, máximo 5) e a da Asa perto do muro do fundo (raio 7 m, 1
-  carga, máximo 3) e uma terceira dentro do galpão (só ativa quem entra: de fora, a parede tapa). Ande até o anel azul: elas nascem e caçam. Corra para longe (mais de 15 m) e elas desistem e
+  carga, máximo 3) e uma terceira dentro do galpão (só ativa quem entra: de fora, a parede tapa). O Devora espectros flutua no canto
+  esquerdo do pátio, perto do começo. Ande até o anel azul: elas nascem e caçam. Corra para longe (mais de 15 m) e elas desistem e
   patrulham em volta da caixa; volte e elas veem você de novo. `provas.caixas()` diz o estado de cada uma.
 - **`teste-mestre`, o salão com quatro pilares** e uma biblioteca ao lado. O Mestre fica depois dos pilares do fundo,
   olhando a entrada: vê quem entra no salão (14 m), grita e solta o corvo. Fique atrás de um pilar e o corvo explode nele;

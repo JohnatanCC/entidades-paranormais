@@ -59,6 +59,7 @@ import { montarDevoraAlmas } from '../game/enemies/devora-almas/modelo'
 import { montarDevoraEspectros } from '../game/enemies/devora-espectros/modelo'
 import { animarDevoraEspectros, ferir as ferirEspectros, golpe as golpeEspectros } from '../game/enemies/devora-espectros/animacao'
 import { BOTE as BOTE_ESP, CUSPE as CUSPE_ESP, MORDIDA as MORDIDA_ESP } from '../game/enemies/devora-espectros/numeros'
+import { ouvirDevoraEspectros } from '../game/enemies/devora-espectros/sons'
 import { animarDevora, arrancar, atordoar, chover, emergir, estourarDevora, fase, ferir as ferirDevora, investir, marcar, mergulhar, ninhada, rastejar, refazerDevora } from '../game/enemies/devora-almas/animacao'
 import { chuvaDeTentaculos, novosEfeitosDevora, passoEfeitosDevora } from '../game/enemies/devora-almas/efeitos'
 import { nadarPara as nadarParaDevora, virarPara as virarParaDevora } from '../game/enemies/devora-almas/nado'
@@ -87,7 +88,7 @@ const ANIMS_MAE: [Anim, string][] = [['parado', 'Parada'], ['andando', 'Andando 
 // os demônios (docs/demonios.md): o id é o nome do arquivo em modelos/demonios/
 const ASSOMBRADO = 'demonio:assombrado', ASA = 'demonio:asa-sombria', DEVORA = 'demonio:devora-almas'
 type AcaoDemonio = 'atacar' | 'engolir' | 'investida' | 'chuva' | 'ninhada' | 'arrancar' | 'atordoar' | 'rastejar' | 'surgir' | 'cuspir' | 'desviar' | 'dano' | 'estourar' | 'bote' | 'morder' | 'cuspirAsa'
-const DEMONIOS: Record<string, { nome: string; arquivo: string; anims: [Anim, string][]; acoes: [AcaoDemonio, string][]; ajuda: string; semSom?: boolean }> = {
+const DEMONIOS: Record<string, { nome: string; arquivo: string; anims: [Anim, string][]; acoes: [AcaoDemonio, string][]; ajuda: string }> = {
   [ASSOMBRADO]: {
     nome: 'O Assombrado', arquivo: 'demonios/assombrado', anims: [['parado', 'Parado'], ['andando', 'Andando (em roda)']],
     acoes: [['atacar', 'Atacar'], ['surgir', 'Surgir do chão'], ['dano', 'Tomar dano'], ['estourar', 'Estourar']],
@@ -113,8 +114,7 @@ const ESPECTRAIS: typeof DEMONIOS = {
   [DEVORA_ESP]: {
     nome: 'O Devora espectros', arquivo: 'espectrais/devora-espectros', anims: [['parado', 'Flutuando no lugar'], ['andando', 'Flutuando (em roda)']],
     acoes: [['bote', 'Bote (de longe)'], ['morder', 'Morder (de perto)'], ['cuspir', 'Cuspir uma Sombra'], ['cuspirAsa', 'Cuspir uma Asa'], ['dano', 'Tomar dano']],
-    semSom: true,
-    ajuda: 'O fantasma capturável (ainda sem sons): flutua, os tentáculos ondulam, a boca respira e o pano balança. Bote: recua, acende e avança 3 m de boca aberta até o Matheus na marca. Morder: de perto, a cabeça vai à frente. Cuspir: infla e cospe uma Sombra (cai no chão) ou uma Asa espectral (sai voando); elas estouram em 6 s.',
+    ajuda: 'O fantasma capturável: flutua, os tentáculos ondulam, a boca respira e o pano balança. Bote: recua, acende e avança 3 m de boca aberta até o Matheus na marca. Morder: de perto, a cabeça vai à frente. Cuspir: infla e cospe uma Sombra (cai no chão) ou uma Asa espectral (sai voando); elas estouram em 6 s.',
   },
 }
 // os ataques no Ver modelos: cada botão é uma sequência de golpes (contra um alvo marcado no chão)
@@ -242,7 +242,7 @@ export function VerModelos({ go }: { go: Go }) {
         {demonio && <section>
           <b>Ações</b>
           <div className="opcoes">{demonio.acoes.map(([acao, nome]) => <button key={acao} onClick={() => muda({ ...(acao === 'atacar' || acao === 'cuspir' ? { anim: 'parado', girar: false } : {}), demonio: { acao, n: (e.demonio?.n ?? 0) + 1 } })}>{nome}</button>)}</div>
-          <small>{demonio.ajuda}{!demonio.semSom && ' Os sons tocam com a animação (o ouvido é a câmera: perto, mais alto); sem som, clique uma vez na página antes.'}</small>
+          <small>{demonio.ajuda} Os sons tocam com a animação (o ouvido é a câmera: perto, mais alto); sem som, clique uma vez na página antes.</small>
         </section>}
 
         {agente && <>
@@ -613,7 +613,7 @@ function CenaDevoraEspectros({ e, onInfo }: { e: Escolhas; onInfo: (i: Info) => 
   // onde fica o agente em cada golpe (à frente dele, +z): o bote vem de longe, a mordida de perto
   const MARCA = { bote: BOTE_ESP.distancia + 1.2, morder: MORDIDA_ESP.alcance }
   const camera = useThree((st) => st.camera)
-  useEffect(() => () => crias.current.forEach((c) => calar('a' in c ? c.a : c.asa)), [d])
+  useEffect(() => () => { calar(d); crias.current.forEach((c) => calar('a' in c ? c.a : c.asa)) }, [d])
   useEffect(() => {
     const c = contas(d.root)
     d.root.updateMatrixWorld(true)
@@ -678,7 +678,7 @@ function CenaDevoraEspectros({ e, onInfo }: { e: Escolhas; onInfo: (i: Info) => 
       if (c.t > 8) { grupoCrias.remove(raiz); calar('a' in c ? c.a : c.asa); return false }
       return true
     })
-    ouvinte(camera)
+    ouvinte(camera); ouvirDevoraEspectros(d, s, dt)
     if (ag.root.visible) animarAgente(ag, { velocidade: 0, corrida: 0, esquiva: -1 }, dt)
     passoEstouro(E, dt)
   })

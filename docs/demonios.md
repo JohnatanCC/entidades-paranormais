@@ -26,13 +26,21 @@ Os modelos antigos ficam como estão; os novos são cópias repintadas, em `mode
   (25/nov, `animacao.ts`; os números em BOTE, MORDIDA, CUSPE e DANO): o **bote** de longe (recua, acende âmbar, avança
   3,2 m de boca aberta e fecha: o instante do dano), a **mordida** de perto, o **cuspe** (infla, estufa e cospe uma Sombra,
   que cai no chão a 3–5 m, ou uma Asa espectral, que sai voando) e o tranco do tiro. Tudo no Ver modelos, contra o
-  Matheus na marca. Falta: a inteligência (quando ele faz cada golpe), os sons e a captura.
+  Matheus na marca. **No mapa** (26/nov): a entidade "Devora espectros" da aba Entidades. Flutua no lugar até ver o
+  agente (sem parede no meio); caça desviando das paredes sem encostar (`ia.ts`, LUTA): de 3,5 a 6 m dá o bote (25), colado
+  morde (20), e a cada 7–11 s cospe uma cria, alternando a Sombra e a Asa (no máximo 3 vivas; elas patrulham em volta do
+  lugar dele). O instante do golpe conta pelo tempo do golpe, não pelo quadro. Com a vida zerada (300) fica **fraco** 8 s
+  (afunda, o nariz cai, amolece: a janela da captura) e volta com a vida cheia. Longe ou sem ver o agente, volta para o
+  lugar dele. **Os sons** (`sons.ts`, 26/nov): um fantasma, mais etéreo que o Abismo: gemidos com tremor e ar, às vezes
+  um sussurro, o brilho de vidro; o chiado que sobe no aviso, o sopro da investida, o estalo dos dentes de gelo, a
+  garganta borbulhando e o cuspe, o guincho do tiro (volume na faixa do Assombrado: `provas.sonsDemonios()`). Falta: a
+  captura e o desenvolvedor ouvir os sons.
 - **A matéria azul é translúcida** (25/nov, a pedido): o alfa da textura (~55%) só no corpo azul, e o material desses
   modelos é transparente (`copiaDoMolde(nome, { translucido: true })`); o pano, o rosto e as garras ficam opacos. O que
   brilha é desenhado antes e aparece através do corpo: **a Sombra espectral tem um núcleo** (`luz_nucleo`, um cristal
   branco-azulado no meio da barriga) e as unhas dela ficaram mais juntas dos dedos. O preço: transparência pesa mais
   no celular (medir com `/desempenho` quando houver vários juntos).
-- **As caixas de espectrais** (25/nov; `src/game/entidades/Caixas.tsx`): uma entidade do mapa (a aba Entidades, "Caixa
+- **As caixas de espectrais** (25/nov; `src/game/entidades/Espectrais.tsx`): uma entidade do mapa (a aba Entidades, "Caixa
   de espectrais"), invisível no jogo. O painel dela (`editor/PainelCaixa.tsx`) escolhe o que invoca (a Sombra ou a
   Asa), o raio que a ativa (o anel no editor), as **cargas** (quantos ao mesmo tempo), a **recarga** (depois que um
   morre, a carga volta nesse tempo) e o **máximo** (quantos no total; depois, ela para). Os números no params do ponto

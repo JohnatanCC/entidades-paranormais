@@ -21,8 +21,8 @@ export interface DevoraEspectros {
   base: { corpo: THREE.Quaternion; mandibula: THREE.Quaternion }
   tentaculos: TentaculoEspectro[] // os seis de trás e os três das costas
   molas: Molas
-  /** o que a animação lembra (animacao.ts): o modo e há quanto tempo, se o instante do golpe já passou, o que cospe e o tranco do tiro */
-  anim: { t: number; deita: number; modo: ModoEspectros; tm: number; feito: boolean; cria: CriaEspectros; dano: { t: number; lado: number } | null }
+  /** o que a animação lembra (animacao.ts): o modo e há quanto tempo, o quanto está fraco, se o instante do golpe já passou, o que cospe e o tranco do tiro */
+  anim: { t: number; deita: number; fraco: number; modo: ModoEspectros; tm: number; feito: boolean; cria: CriaEspectros; dano: { t: number; lado: number } | null }
 }
 
 const ARQUIVO = 'espectrais/devora-espectros'
@@ -45,6 +45,6 @@ export function montarDevoraEspectros(): DevoraEspectros {
     root, corpo, mandibula, tentaculos,
     base: { corpo: corpo.quaternion.clone(), mandibula: mandibula.quaternion.clone() },
     molas: prepararMolas(pastasCom(root, 'mecha_'), corpo, corpo, MANTO),
-    anim: { t: Math.random() * 10, deita: 0, modo: 'pairar', tm: 0, feito: false, cria: 'sombra', dano: null },
+    anim: { t: Math.random() * 10, deita: 0, fraco: 0, modo: 'pairar', tm: 0, feito: false, cria: 'sombra', dano: null },
   }
 }

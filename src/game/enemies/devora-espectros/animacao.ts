@@ -12,7 +12,7 @@ import * as THREE from 'three'
 import { avisar, piscar } from '../../../render/golpe'
 import { animarMolas } from '../../corpo/molas'
 import type { DevoraEspectros } from './modelo'
-import { BOCA, BOTE, CUSPE, DANO, ESCALA, MORDIDA, ONDA, PAIRAR } from './numeros'
+import { BOCA, BOTE, CUSPE, DANO, ESCALA, FRACO, MORDIDA, ONDA, PAIRAR } from './numeros'
 
 export type ModoEspectros = 'pairar' | 'bote' | 'morder' | 'cuspir'
 export type CriaEspectros = 'sombra' | 'asa'
@@ -41,23 +41,29 @@ function fase(tm: number, fases: [string, number][]): [string, number] {
   return ['fim', 1]
 }
 
-export function animarDevoraEspectros(d: DevoraEspectros, andar: number, dt: number): SaidaEspectros {
+/** fraco (0..1): a vida zerada, ele afunda e amolece (FRACO, numeros.ts). */
+export function animarDevoraEspectros(d: DevoraEspectros, andar: number, dt: number, fraco = 0): SaidaEspectros {
   const A = d.anim, out: SaidaEspectros = { y: 0, avanca: 0, fechou: false, cria: null }
   A.t += dt; A.tm += dt
   A.deita += (andar - A.deita) * (1 - Math.exp(-2 * dt))
+  A.fraco += (fraco - A.fraco) * (1 - Math.exp(-2.5 * dt))
   // o que cada golpe faz agora: pitch (rad, + o nariz desce), boca (rad), tenso (os tentáculos: 1 soltos, 0 esticados
   // para trás), estufa (o corpo cresce), aviso (o brilho âmbar, 0..1)
+  // o instante do golpe (a boca fecha) pelo tempo do golpe, não pelo quadro: com poucos quadros por segundo a fase curta
+  // da abocanhada passaria sem ninguém ver
+  const fecha = A.modo === 'bote' ? BOTE.aviso + BOTE.investe * 0.85 : A.modo === 'morder' ? MORDIDA.aviso + MORDIDA.abocanha * 0.8 : -1
+  if (fecha >= 0 && !A.feito && A.tm >= fecha) { A.feito = true; out.fechou = true }
   let pitch = 0, boca = BOCA.aberta + BOCA.respira * volta(A.t, BOCA.volta), tenso = 1, estufa = 0, aviso = 0
   if (A.modo === 'bote') {
     const [f, k] = fase(A.tm, [['aviso', BOTE.aviso], ['investe', BOTE.investe], ['volta', BOTE.volta]])
     if (f === 'aviso') { pitch = -BOTE.recua * suave(k); boca = BOTE.boca * suave(k); tenso = 1 - 0.6 * k; aviso = k; out.avanca = -0.6 }
-    else if (f === 'investe') { pitch = -BOTE.recua * (1 - k) + 0.15 * k; boca = BOTE.boca * (1 - suave((k - 0.7) / 0.3)); tenso = 0.2; out.avanca = BOTE.distancia / BOTE.investe; if (k > 0.85 && !A.feito) { A.feito = true; out.fechou = true } }
+    else if (f === 'investe') { pitch = -BOTE.recua * (1 - k) + 0.15 * k; boca = BOTE.boca * (1 - suave((k - 0.7) / 0.3)); tenso = 0.2; out.avanca = BOTE.distancia / BOTE.investe; }
     else if (f === 'volta') { pitch = 0.15 * (1 - suave(k)); boca = BOCA.aberta * suave(k); tenso = 0.2 + 0.8 * k; out.avanca = -BOTE.distancia / BOTE.volta * 0.35 * (1 - k) }
     else A.modo = 'pairar'
   } else if (A.modo === 'morder') {
     const [f, k] = fase(A.tm, [['aviso', MORDIDA.aviso], ['abocanha', MORDIDA.abocanha], ['volta', MORDIDA.volta]])
     if (f === 'aviso') { pitch = -0.2 * suave(k); boca = MORDIDA.boca * suave(k); aviso = k; out.avanca = -0.8 }
-    else if (f === 'abocanha') { pitch = -0.2 + 0.35 * k; boca = MORDIDA.boca * (1 - suave(k)); out.avanca = MORDIDA.avanco / MORDIDA.abocanha; if (k > 0.8 && !A.feito) { A.feito = true; out.fechou = true } }
+    else if (f === 'abocanha') { pitch = -0.2 + 0.35 * k; boca = MORDIDA.boca * (1 - suave(k)); out.avanca = MORDIDA.avanco / MORDIDA.abocanha; }
     else if (f === 'volta') { pitch = 0.15 * (1 - suave(k)); boca = BOCA.aberta * suave(k); out.avanca = -MORDIDA.avanco / MORDIDA.volta * 0.6 }
     else A.modo = 'pairar'
   } else if (A.modo === 'cuspir') {
@@ -74,6 +80,8 @@ export function animarDevoraEspectros(d: DevoraEspectros, andar: number, dt: num
     } else if (f === 'volta') { pitch = 0.15 * (1 - suave(k)); boca = CUSPE.boca + (BOCA.aberta - CUSPE.boca) * suave(k); tenso = 0.4 + 0.6 * k }
     else A.modo = 'pairar'
   }
+  // fraco: o nariz cai, a boca fica solta, os tentáculos amolecem
+  pitch += FRACO.nariz * A.fraco; boca = Math.max(boca, 0.35 * A.fraco); tenso *= 1 - 0.8 * A.fraco
   // o tiro: o tranco para trás e de lado, por cima de tudo
   let tranco = 0, lado = 0
   if (A.dano) {
@@ -94,6 +102,6 @@ export function animarDevoraEspectros(d: DevoraEspectros, andar: number, dt: num
   d.corpo.scale.setScalar(1 + estufa)
   avisar(d.root, aviso) // o aviso do golpe acende (render/golpe.ts)
   animarMolas(d.molas, d.root, dt)
-  out.y = PAIRAR.altura + PAIRAR.sobe * volta(A.t, PAIRAR.volta)
+  out.y = PAIRAR.altura + (FRACO.altura - PAIRAR.altura) * A.fraco + PAIRAR.sobe * (1 - 0.6 * A.fraco) * volta(A.t, PAIRAR.volta)
   return out
 }

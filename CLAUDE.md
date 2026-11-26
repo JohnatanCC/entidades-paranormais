@@ -195,8 +195,8 @@ src/game/                  (já existem: Testar.tsx, player/, input/, world/, we
                            veem o agente e caçam; o Mestre: grita, solta o corvo, persegue e morde; a Mãe: grita, caça, a carga e
                            a sequência de garradas; as músicas das perseguições), foco.ts (com dois jogadores, quem cada uma
                            ataca: a distância e o dano que levou de cada um; docs/teste-online.md), Boneco.tsx (a Lara parada no
-                           Testar, tecla L, para testar o foco), Caixas.tsx (as caixas de espectrais: invocam, caçam, perdem o foco e
-                           patrulham em volta da caixa) e numeros.ts
+                           Testar, tecla L, para testar o foco), Espectrais.tsx (as caixas de espectrais: invocam, caçam, perdem o
+                           foco e patrulham em volta da caixa; o Devora espectros: caça, cospe crias, fica fraco) e numeros.ts
   Testar.tsx               o Testar do editor: o agente andando no mapa aberto (câmera, colisão, luz do jogo), em tela cheia;
                            numa fase, dá ao roteiro o controle do agente (AgenteNaFase: ferir, engolir, cuspir, a gosma, o ponto de volta)
   Desempenho.tsx           o medidor de uma cena de jogo: os quadros por segundo e, com F3, o detalhe (desenhos, triângulos,
@@ -234,8 +234,9 @@ src/game/                  (já existem: Testar.tsx, player/, input/, world/, we
                            (no chão: a mancha, os espinhos, a gosma, a marca de mordida, o aviso e o rasgo da investida, os
                            círculos e os tentáculos da chuva e das poças), tremor.ts (o que faz a tela tremer) e numeros.ts
                            (ESCALA: ele é 3 vezes o modelo)
-  enemies/devora-espectros/ o Devora espectros (o jogo novo, docs/demonios.md), só no Ver modelos: modelo.ts, animacao.ts (flutuar, o
-                           bote, a mordida, cuspir uma Sombra ou uma Asa espectral, o tranco do tiro) e numeros.ts
+  enemies/devora-espectros/ o Devora espectros (o jogo novo, docs/demonios.md): modelo.ts, animacao.ts (flutuar, o bote, a
+                           mordida, cuspir uma Sombra ou uma Asa espectral, o tranco do tiro, fraco), ia.ts (caçar e escolher o golpe),
+                           sons.ts (o fantasma: gemidos com ar, o brilho de vidro, o chiado, o estalo) e numeros.ts
   enemies/mestre/          o Mestre, do capítulo 2 (docs/cap2-sombra.md), só no Ver modelos por enquanto: modelo.ts (o manto e as
                            partes soltas nas molas), animacao.ts (levita: as pernas pendem, deita com a velocidade; a cabeça vira
                            de uma vez; a brisa e o arrasto no manto; o grito: o manto abre e a tela treme; a corrida, a mordida com o bico, cobrir-se

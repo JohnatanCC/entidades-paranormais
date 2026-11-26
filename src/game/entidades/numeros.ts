@@ -36,7 +36,7 @@ export const MAE = { anda: 2.1, vira: 4, freia: 1, mira: 0.45, garra: 1.5, aprox
 // a meia largura do corpo (m: o feixe pega mesmo com só um pedaço dele dentro)
 export const LUZ = { ergue: 0.6, corpo: 0.45 }
 
-// os espectrais das caixas (Caixas.tsx; a caixa em maps/entidades.ts): ve = a que distância (m) quem patrulha nota o
+// os espectrais das caixas e as crias do Devora espectros (Espectrais.tsx; a caixa em maps/entidades.ts): ve = a que distância (m) quem patrulha nota o
 // agente (sem nada no meio); perde = longe assim (m) por `semVer` s, ele desiste e volta a patrulhar; escondido = s sem
 // ver o agente (uma parede, uma porta fechada, outro andar) até desistir também; olhar = de quantos em quantos s cada um
 // confere se vê (não a cada quadro: são vários); patrulha = o raio

@@ -1797,6 +1797,20 @@
     "recarga": 15,
     "maximo": 5
    }
+  },
+  {
+   "id": "entidade-4",
+   "kind": "entidade",
+   "level": 0,
+   "pos": [
+    4,
+    0,
+    14
+   ],
+   "params": {
+    "tipo": "devora-espectros",
+    "vira": 180
+   }
   }
  ]
 }

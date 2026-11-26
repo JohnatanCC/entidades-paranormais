@@ -13,6 +13,7 @@ export const ENTIDADES: Record<string, DefEntidade> = {
   mae: { nome: 'A Mãe', cor: '#c2453a', altura: 2.1, voa: false, sobre: 'Parada até ver o agente; grita e persegue, com a sequência de golpes' },
   mestre: { nome: 'O Mestre', cor: '#8a6ac8', altura: 2.4, voa: false, sobre: 'Levita; ao ver o agente grita e solta o corvo (3 Gralhas), persegue e morde' },
   gralha: { nome: 'Gralha', cor: '#6a6a7a', altura: 0.5, voa: true, sobre: 'Pousada até ver o agente; voa em volta dele e mergulha; morre com tiros' },
+  'devora-espectros': { nome: 'Devora espectros', cor: '#7fd8ff', altura: 1.5, voa: false, sobre: 'O fantasma capturável: flutua parado até ver o agente; caça com o bote, a mordida e cospe espectrais. Zerado, fica fraco e volta' },
   caixa: { nome: 'Caixa de espectrais', cor: '#4cc3ff', altura: 0.4, voa: false, sobre: 'Invisível no jogo: o agente chegando perto, invoca um espectral (a Sombra ou a Asa). As cargas, a recarga e o máximo no painel' },
 }
 

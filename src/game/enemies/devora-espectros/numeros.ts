@@ -25,8 +25,8 @@ export const MANTO: ConfigMolas = { mola: 24, amortece: 3.4, tranco: 0.6, tranco
 export const BOTE = { aviso: 0.5, investe: 0.3, volta: 0.6, distancia: 3.2, recua: 0.35, boca: 0.95 }
 
 /** A mordida (de perto): o aviso (s), a abocanhada (s: a cabeça vai à frente `avanco` m e a boca fecha: o instante do
- *  dano) e a volta (s). */
-export const MORDIDA = { aviso: 0.3, abocanha: 0.13, volta: 0.45, avanco: 0.7, boca: 0.85, alcance: 1.6 }
+ *  dano) e a volta (s). alcance = do meio do corpo dele até o agente (m: a boca fica ~1 m à frente do meio). */
+export const MORDIDA = { aviso: 0.3, abocanha: 0.13, volta: 0.45, avanco: 0.7, boca: 0.85, alcance: 2.1 }
 
 /** O cuspe (uma Sombra ou uma Asa espectral): infla (s: recua, a boca abre devagar, o corpo estufa), cospe (s: o tranco
  *  para trás, a boca escancarada; a cria sai no começo) e a volta (s). recua: m/s para trás ao cuspir. */
@@ -34,3 +34,19 @@ export const CUSPE = { infla: 0.8, cospe: 0.3, volta: 0.6, boca: 1.15, estufa: 0
 
 /** O tiro nele: o tranco (rad) e quanto dura (s). */
 export const DANO = { tranco: 0.22, dura: 0.35 }
+
+/** Fraco (a vida zerada: a janela da captura, que ainda vai existir): afunda até `altura` m, cai o nariz (rad), os
+ *  tentáculos amolecem; dura `dura` s e ele volta com a vida cheia. */
+export const FRACO = { altura: 0.45, nariz: 0.3, dura: 8 }
+
+/** A luta (ia.ts): vida; vel = m/s caçando; vira = rad/s; raio = o tamanho contra as paredes (m); encosta = não chega
+ *  mais perto que isso (m, do meio do corpo: a boca fica ~1 m à frente); minimo = nem nos golpes ele entra mais que isso
+ *  no agente (m); frente = de frente até isso (rad) para atacar; o bote entre `de` e `ate` m, com o dano e a
+ *  espera entre um e outro (s); a mordida (o alcance é o de MORDIDA) e a espera; o cuspe: a espera (s) e quantas crias
+ *  vivas dele no máximo; folga = o golpe pega até um tico além do alcance (m). */
+export const LUTA = {
+  vida: 300, vel: 2.2, vira: 3, raio: 0.7, encosta: 1.9, minimo: 1.3, frente: 0.45, folga: 0.5,
+  bote: { de: 3.5, ate: 6, dano: 25, espera: [2.5, 4] as const },
+  mordida: { dano: 20, espera: [1.2, 2] as const },
+  cuspe: { espera: [7, 11] as const, crias: 3 },
+}
