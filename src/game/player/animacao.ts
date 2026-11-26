@@ -179,7 +179,7 @@ export function animarAgente(a: Agente, e: EstadoAnim, dt: number): void {
   // ---------- os braços: soltos, balançam opostos às pernas; correndo, o cotovelo dobra ----------
   // com pistola ou escopeta, o direito fica na guarda: o cotovelo dobrado e a arma apontada para o chão na frente (a
   // escopeta ainda vai para as duas mãos, posturaDaEscopeta; mirar e o coice vêm na etapa das armas)
-  const guarda = a.arma === 'pistola' || a.arma === 'escopeta'
+  const guarda = !!a.arma
   for (const b of a.arms) {
     // o braço vai à frente quando a perna do mesmo lado vai para trás, um pouco atrasado; o cotovelo dobra mais na
     // frente, atrasado mais um pouco (o antebraço vem solto). Andando, soltos; correndo, bombeando com o cotovelo dobrado

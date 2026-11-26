@@ -17,9 +17,11 @@ export const PARADO = { respira: 0.025, volta: 3.2, bracos: 0.06, balanco: 2.6, 
  *  braços longos vão contra as pernas (rad). */
 export const ANDAR = { passo: 0.55, coxa: 0.45, joelho: 0.6, sobe: 0.04, deita: 0.08, bracos: 0.3 }
 
-/** A luta (a inteligência e os ataques vêm na próxima etapa): a vida (26/nov: 450; a pistola tira 3 por tiro, a escopeta
- *  10 por bago). */
-export const LUTA = { vida: 450 }
+/** A luta (ia.ts): a vida (26/nov: 450; a pistola tira 3 por tiro, a escopeta 10 por bago), quanto dela volta se ele
+ *  romper a captura, a velocidade andando (m/s), o quanto vira (rad/s), o raio do corpo (m), até onde chega perto do agente
+ *  (m: encosta para de andar, minimo nunca passa), o cone da frente (rad), a folga do alcance (m) e a espera entre os
+ *  golpes (s); o giro: a cada quanto (s), só com GIRO.vida da vida. */
+export const LUTA = { vida: 450, rompe: 0.3, vel: 1.9, vira: 3.2, raio: 0.6, encosta: 1.5, minimo: 1.1, frente: 0.5, folga: 0.4, espera: [0.9, 1.7] as const, giroCada: [8, 11] as const }
 
 /** Agarrar (perto): o aviso (s: inclina para trás e abre os braços longos, acende âmbar), o bote (s: avança `avanco` m/s
  *  e fecha os braços), segura (s: o agente preso), solta (s). alcance = do meio dele até o agente (m). */
@@ -36,9 +38,10 @@ export const GIRO = { aviso: 0.6, dura: 3, vel: 13, anda: 1, raio: 2.3, dano: 20
 /** Atordoado (depois do giro): quanto dura (s), o quanto o corpo cai (m) e deita (rad), a cabeça balançando (rad). */
 export const ATORDOADO = { dura: 2, cai: 0.18, deita: 0.35, cabeca: 0.25 }
 
-/** O tiro: o tranco (rad) e quanto dura (s). Fraco (a vida zerada: a captura): o quanto agacha (m) e deita (rad). */
+/** O tiro: o tranco (rad) e quanto dura (s). Fraco (a vida zerada: a captura): o quanto agacha (m) e deita (rad) e quanto dura (s:
+ *  sem captura, volta com a vida cheia). */
 export const DANO = { tranco: 0.2, dura: 0.35 }
-export const FRACO = { cai: 0.35, deita: 0.45 }
+export const FRACO = { cai: 0.35, deita: 0.45, dura: 8 }
 
 /** O pano: a brisa de sempre e o ar que fica para trás de quem anda (m/s², por m/s); no giro, o quanto cada parte do
  *  manto abre para fora (rad). */

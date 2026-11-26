@@ -1,0 +1,26 @@
+{
+ "formato": 3,
+ "id": "demo-inimigos",
+ "nome": "Demo · Inimigos",
+ "levels": 3,
+ "levelH": 3.5,
+ "chunkSize": 16,
+ "spawn": {
+  "pos": [
+   16,
+   0,
+   9
+  ],
+  "yaw": 0,
+  "level": 0
+ },
+ "ambiente": "mansao",
+ "semChao": false,
+ "areas": [],
+ "chunks": [
+  "0_0",
+  "0_1",
+  "1_0",
+  "1_1"
+ ]
+}

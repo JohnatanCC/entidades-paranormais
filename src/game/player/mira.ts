@@ -2,10 +2,11 @@
 // na escopeta, a mão esquerda puxando a bomba depois do tiro. Quem decide o tiro (a cadência) é weapons/tiro.ts.
 //   pistola: as duas mãos, os braços quase esticados (a esquerda por baixo, envolvendo a direita);
 //   escopeta: a coronha no ombro direito, o peito de lado e a esquerda na bomba (a arma é pesada; o coice empurra o ombro);
+//   besta: como a escopeta (a coronha no ombro, a esquerda no apoio), sem puxar a bomba depois do tiro;
 // O peito e a cabeça acompanham a altura do alvo. Os números em numeros.ts (MIRA) e em weapons/numeros.ts (TIRO).
 import * as THREE from 'three'
 import { TIRO } from '../weapons/numeros'
-import { armaEm, giroPeloCano, maoEm, POLO_D } from './arma'
+import { armaEm, duasMaos, giroPeloCano, maoEm, POLO_D } from './arma'
 import type { Agente } from './modelo'
 import { MIRA } from './numeros'
 
@@ -36,15 +37,16 @@ export function posturaDaMira(a: Agente, quer: boolean, alvo: THREE.Vector3 | nu
   a.root.updateWorldMatrix(true, false)
   a.root.worldToLocal(_t.copy(alvo))
   const alto = Math.atan2(_t.y - 1.45, Math.max(0.3, Math.hypot(_t.x, _t.z)))
-  const lado = cl(Math.atan2(_t.x, _t.z), -0.6, 0.6) * 0.5 + (arma === 'escopeta' ? MIRA.escopeta.lado : 0)
-  const empurra = arma === 'escopeta' ? 0.09 * A.coice : 0.03 * A.coice // o coice joga o ombro para trás
+  const longa = duasMaos(arma)
+  const lado = cl(Math.atan2(_t.x, _t.z), -0.6, 0.6) * 0.5 + (longa ? MIRA.escopeta.lado : 0)
+  const empurra = longa ? 0.09 * A.coice : 0.03 * A.coice // o coice joga o ombro para trás
   a.spine.rotation.x -= alto * 0.25 * k; a.chest.rotation.x -= (alto * 0.25 + empurra) * k
   // de lado: o quadril (e com ele as pernas, os pés girando no lugar) leva a maior parte do giro; a cintura e o peito, o
   // resto. Só da cintura para cima ficava torcido (o cinto e as pernas para a frente, o peito de lado)
   a.pelvis.rotation.y += lado * 0.6 * k; a.spine.rotation.y += lado * 0.15 * k; a.chest.rotation.y += lado * 0.25 * k
   a.neck.rotation.x -= alto * 0.2 * k; a.head.rotation.x -= alto * 0.3 * k
   a.neck.rotation.y -= lado * 0.4 * k; a.head.rotation.y -= lado * 0.6 * k
-  if (arma === 'escopeta') a.head.rotation.z -= 0.12 * k // o rosto encosta na coronha
+  if (longa) a.head.rotation.z -= 0.12 * k // o rosto encosta na coronha
 
   // a arma, no espaço do peito: de onde ela sai (o meio dos ombros, ou a coronha no ombro) e para onde aponta
   a.root.updateMatrixWorld(true)
@@ -78,7 +80,7 @@ export function posturaDaMira(a: Agente, quer: boolean, alvo: THREE.Vector3 | nu
   } else {
     // a escopeta: a esquerda na bomba (maoNaBomba) e, depois do tiro, puxa a bomba e devolve
     A.esquerda = Math.max(A.esquerda, k)
-    const B = TIRO.escopeta.bomba, u = (A.tiroT - B.apos) / B.dura
+    const B = TIRO.escopeta.bomba, u = arma === 'escopeta' ? (A.tiroT - B.apos) / B.dura : -1 // (a besta não tem bomba para puxar)
     if (u > 0 && u < 1) A.bomba = Math.max(A.bomba, sm(u < 0.45 ? u / 0.45 : (1 - u) / 0.55))
   }
 }

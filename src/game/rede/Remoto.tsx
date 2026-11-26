@@ -40,6 +40,7 @@ export function Remoto({ con, modelo, nome, fase, assa }: { con: Conexao; modelo
   const jogador = useMemo<Jogador>(() => ({
     nome, p: a.root.position, lamparina: { ergue: 0, pos: new THREE.Vector3(), dir: new THREE.Vector3(0, 0, 1) },
     pode: () => { const P = est.current.pose; return !!P && P.queda < 0 },
+    caido: () => { const P = est.current.pose; return !!P && P.queda >= 0 },
     // a ferida vai para ele: lá, a vida dele decide (a cambalhota escapa, o tempo invulnerável depois de um golpe). Cada
     // golpe já pega uma vez só (a garra, a mordida, a bicada): não precisa esperar aqui
     ferir: (dano, de) => { con.enviar({ t: 'ferido', dano, de: v3(de) }); return true },

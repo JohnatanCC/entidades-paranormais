@@ -19,6 +19,7 @@ const DO_ESTADO: Record<Arma | 'nenhuma', Gesto[]> = {
   nenhuma: ['olhar', 'alca', 'bolsa', 'mao'],
   pistola: ['olhar', 'frasco', 'pulso'],
   escopeta: ['olhar', 'camara', 'bomba'],
+  besta: ['olhar'],
 }
 /** Os gestos (e os nomes) de quem está com esta arma na mão (null = mão vazia). */
 export const gestosDe = (arma: Arma | null): [Gesto, string][] => DO_ESTADO[arma ?? 'nenhuma'].map((g) => [g, NOMES[g]])

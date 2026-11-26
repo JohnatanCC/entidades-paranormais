@@ -95,8 +95,14 @@ Os modelos antigos ficam como estão; os novos são cópias repintadas, em `mode
   2 s (cai, deita, a cabeça tonta). Também o tranco do tiro e **fraco** (agacha e amolece: a captura). O instante de
   cada golpe conta pelo tempo do golpe. **Os sons** (`sons.ts`): o gemido com ar e o vidro (a família dos espectrais), o
   pano farfalhando, as garras dos pés, o chiado do aviso, o golpe de pano e o estalo do agarrão, o aperto, o assobio e o
-  impacto de cada soco, a lufada a cada volta do giro, o gemido tonto e o guincho do tiro. Falta: a inteligência, o mapa
-  e a captura. **A vida: 450** (26/nov; numeros.ts,
+  impacto de cada soco, a lufada a cada volta do giro, o gemido tonto e o guincho do tiro. **A inteligência** (26/nov, `ia.ts`; os números em LUTA): caçando, anda atrás do
+  agente desviando das paredes e para perto dele; colado e de frente, **agarra** (o que pega segura o agente quase parado
+  por 2 s; o que erra solta na hora); de meia distância, **o combo de socos** (o primeiro que pega prende o combo: os
+  outros pegam mesmo na janela depois do golpe); com **30% da vida ou menos**, a cada 8 a 11 s, **o golpe giratório**
+  (gira indo para o agente e cai atordoado: a hora de bater nele). Entre os golpes, 0,9 a 1,7 s. Zerado, fica **fraco** 8 s
+  e é **capturado com a lamparina** como o Devora (o fraco, a captura e a absorção são os mesmos: `entidades/Espectrais.tsx`).
+  Por enquanto só entra pelas hordas (a Demo · Inimigos, `docs/demo-inimigos.md`): ainda não está na aba Entidades do
+  criador de mapas. **A vida: 450** (26/nov; numeros.ts,
   LUTA: 150 tiros de pistola ou 9 de escopeta cheios, mais a captura).
 - **O Asa do terror** (26/nov; `modelos/espectrais/asa-terror.bbmodel`, `src/game/enemies/asa-terror/`): o terceiro
   fantasma capturável, a variante maior da Asa espectral, a partir das imagens do desenvolvedor. Refeito no mesmo dia pela
@@ -122,8 +128,14 @@ Os modelos antigos ficam como estão; os novos são cópias repintadas, em `mode
     grudando, o bipe de cada piscada e a explosão, no lugar dela.
   Os efeitos são duas malhas (os cubos e os anéis), em estoque fixo. Os números (`numeros.ts`: TIRO, BOMBA, TELE) são
   pontos de partida meus: a carga, o raio, a pausa de 1 s depois do tiro e o aviso do teletransporte ainda esperam a
-  palavra do desenvolvedor. **Falta:** a inteligência (ficar longe do agente, um tiro a cada 6 s, teletransportar
-  durante os ataques), a entidade no mapa, o dano de verdade e a captura.
+  palavra do desenvolvedor. **A inteligência** (26/nov, `ia.ts`; os números em LUTA): voa a 2,6 m do chão, **sempre
+  entre 7 e 12 m do agente**, andando de lado e de frente para ele; **a cada 6 s, a bomba** (com 30% da vida ou menos, **3
+  em sequência**), que cai no chão em volta do agente (ou na parede no caminho) e, explodindo, tira 30 de quem estiver a
+  2,2 m; depois do tiro, fica parado ~1 s. **Teletransporte:** quando o agente chega a menos de 5 m (com 4 a 7 s entre um
+  e outro) e, em 40% das vezes, depois de um tiro; o destino fica a 8 a 12 m do agente, com chão e à vista dele, e o anel
+  no chão de lá abre desde que ele começa a sumir. Zerado, fica **fraco** 8 s (desce, as asas caem) e é **capturado com a
+  lamparina** como os outros fantasmas (`entidades/Espectrais.tsx`). Por enquanto só entra pelas hordas (a Demo ·
+  Inimigos): ainda não está na aba Entidades do criador de mapas.
 - **Em aberto:** como o jogador distingue o fantasma capturável dos monstros (o desenho ou um sinal na tela).
 
 ## A família (o que os três têm em comum)

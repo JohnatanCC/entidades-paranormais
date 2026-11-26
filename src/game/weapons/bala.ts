@@ -17,7 +17,7 @@ import { BALA, TIRO } from './numeros'
 export interface Alvejavel { c: THREE.Vector3; m: THREE.Vector3; acerta: (dano: number, ponto: THREE.Vector3, dir: THREE.Vector3) => void; atravessa?: boolean }
 /** p está dentro da caixa do alvo? */
 export const dentro = (a: Alvejavel, p: THREE.Vector3) => Math.abs(p.x - a.c.x) < a.m.x && Math.abs(p.y - a.c.y) < a.m.y && Math.abs(p.z - a.c.z) < a.m.z
-type ArmaDeTiro = 'pistola' | 'escopeta'
+type ArmaDeTiro = 'pistola' | 'escopeta' | 'besta'
 
 const MAX = 48
 interface Bala { viva: boolean; p: THREE.Vector3; v: THREE.Vector3; dist: number; arma: ArmaDeTiro; passou: Alvejavel | null /* o que ela atravessou (avisa uma vez) */ }
@@ -131,7 +131,7 @@ export function passoBalas(B: Balas, dt: number, m: Mundo, alvos: Alvejavel[], I
     }
     // o risco: atrás da bala, na direção do voo
     const tam = BALA[b.arma].tam
-    B.malha.setMatrixAt(i, b.viva ? _m.compose(_p.copy(b.p).addScaledVector(_dir, -tam / 2), _q.setFromUnitVectors(_z, _dir), _s.set(0.03, 0.03, tam)) : ZERO)
+    B.malha.setMatrixAt(i, b.viva ? _m.compose(_p.copy(b.p).addScaledVector(_dir, -tam / 2), _q.setFromUnitVectors(_z, _dir), _s.set(b.arma === 'besta' ? 0.06 : 0.03, b.arma === 'besta' ? 0.06 : 0.03, tam)) : ZERO)
     algo = true
   })
   B.malha.visible = algo

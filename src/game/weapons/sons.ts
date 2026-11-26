@@ -112,19 +112,40 @@ export const troca: Tocar = (s, t, d) => {
   return 0.3
 }
 
+// ---------- a besta espectral: a corda de luz ----------
+/** O disparo: o estalo seco da trava, a corda de luz zunindo e o virote saindo (o vidro agudo). */
+export const tiroBesta: Tocar = (s, t, d) => {
+  pancada(s, t, 150, 0.2, d)
+  tom(s, { t, f: 1700, f2: 420, dur: 0.22, a: 0.004, r: 0.14, gain: 0.07, tipo: 'triangle', dest: d })
+  tom(s, { t, f: 3200, f2: 2400, dur: 0.3, a: 0.004, r: 0.2, gain: 0.025, dest: d })
+  ruido(s, { t, dur: 0.14, a: 0.004, r: 0.1, tipo: 'highpass', f: 2600, gain: 0.09, dest: d })
+  return 0.35
+}
+/** Armou de novo: a travessa chega na trava (um clique e um brilho curto). */
+export const armaBesta: Tocar = (s, t, d) => {
+  estalos(s, { t, n: 2, i0: 0.02, i1: 0.03, f: 2400, q: 5, gain: 0.5, dest: d })
+  tom(s, { t: t + 0.03, f: 1500, f2: 2100, dur: 0.12, a: 0.01, r: 0.08, gain: 0.09, dest: d })
+  return 0.2
+}
+
+/** Uma orbe de energia absorvida: um pingo de vidro, curto e agudo. */
+export const absorveOrbe: Tocar = (s, t, d) => { tom(s, { t, f: 1900 + R() * 500, f2: 2900, dur: 0.1, a: 0.004, r: 0.07, gain: 0.05, dest: d }); return 0.12 }
+
 // ---------- onde a bala bate ----------
 /** Na parede, no chão: a brasa chiando (pistola) ou o ferro ricocheteando (escopeta). */
 const bateBrasa: Tocar = (s, t, d) => { d = ganho(s, d, 2.5); racha(s, t, 0.12, d); ruido(s, { t, dur: 0.16, a: 0.003, r: 0.12, tipo: 'highpass', f: 3800, gain: 0.07, dest: d }); return 0.3 }
 const bateFerro: Tocar = (s, t, d) => { d = ganho(s, d, 3); racha(s, t, 0.1, d); ferroToca(s, t, d, 0.6, 2 + R()); return 0.6 }
+/** O virote de luz: um estalo e o vidro tinindo. */
+const bateLuz: Tocar = (s, t, d) => { d = ganho(s, d, 2.5); racha(s, t, 0.1, d); tom(s, { t, f: 2600, f2: 1700, dur: 0.25, a: 0.004, r: 0.18, gain: 0.05, dest: d }); return 0.35 }
 /** Num demônio: o baque molhado da matéria escura. */
 const acerta: Tocar = (s, t, d) => { pancada(s, t, 90, 0.3, d); respingo(s, t, d, 0.5); return 0.4 }
 
 /** Uma bala bateu em p (alvo = num demônio). Os bagos da escopeta chegam juntos: um quadro toca no máximo dois. */
 let nesteQuadro = 0, quadro = -1
-export function somDaBala(p: THREE.Vector3, arma: 'pistola' | 'escopeta', alvo: boolean, agora: number) {
+export function somDaBala(p: THREE.Vector3, arma: 'pistola' | 'escopeta' | 'besta', alvo: boolean, agora: number) {
   if (agora !== quadro) { quadro = agora; nesteQuadro = 0 }
   if (++nesteQuadro > 2) return
-  somEm(p, alvo ? acerta : arma === 'pistola' ? bateBrasa : bateFerro, 3, 1)
+  somEm(p, alvo ? acerta : arma === 'pistola' ? bateBrasa : arma === 'besta' ? bateLuz : bateFerro, 3, 1)
 }
 
 /** As partes, para as provas medirem (provas.sonsArmas). */
@@ -132,5 +153,7 @@ export const PARTES_ARMAS: Parte[] = [
   ['Pistola: tiro', tiroPistola], ['Pistola: superaquece', superaquece], ['Pistola: esfriou', esfriou],
   ['Escopeta: tiro', tiroEscopeta], ['Escopeta: bomba', bomba], ['Escopeta: bolsa', bolsa], ['Escopeta: bala entra', balaEntra],
   ['Lamparina: ergue', ergueLamparina], ['Lamparina: baixa', baixaLamparina], ['Troca', troca],
-  ['Bala: brasa', bateBrasa], ['Bala: ferro', bateFerro], ['Bala: no demônio', acerta],
+  ['Besta: tiro', tiroBesta], ['Besta: armou', armaBesta],
+  ['Orbe: absorvida', absorveOrbe],
+  ['Bala: brasa', bateBrasa], ['Bala: ferro', bateFerro], ['Bala: luz', bateLuz], ['Bala: no demônio', acerta],
 ]

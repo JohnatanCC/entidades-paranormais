@@ -13,6 +13,8 @@ export interface Jogador {
   pode: () => boolean
   ferir: (dano: number, de: THREE.Vector3) => boolean
   lamparina: { ergue: number; pos: THREE.Vector3; dir: THREE.Vector3 } | null
+  /** está caído (a dois, esperando ser levantado) */
+  caido?: () => boolean
 }
 
 /** O foco de um fantasma: o alvo, o dano que levou de cada um, há quanto tempo está no alvo e quando pesa de novo. */

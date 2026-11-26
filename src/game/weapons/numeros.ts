@@ -8,6 +8,8 @@ export const TIRO = {
   pistola: { cadencia: 0.2, coice: 0.22, recua: 0.03, volta: 10, clarao: 0.05, tamanho: 0.16, cor: '#ffb050' }, // o plasma (a cor ainda é a da brasa antiga: decide na etapa das armas)
   escopeta: { cadencia: 1.0, coice: 0.45, recua: 0.06, volta: 4.5, clarao: 0.07, tamanho: 0.26, cor: '#f4ead6', // as fagulhas do Demantino
     bomba: { apos: 0.3, dura: 0.4 } }, // a mão esquerda puxa a bomba depois do tiro: começa em `apos` s e dura `dura` s
+  // a Besta espectral (26/nov): a cadência é o tempo de armar de novo (não tem recarga); o clarão azul da luz espectral
+  besta: { cadencia: 0.8, coice: 0.3, recua: 0.05, volta: 6, clarao: 0.06, tamanho: 0.22, cor: '#8fe0ff' },
 }
 
 // A munição (weapons/municao.ts), decidida em 12/nov (docs/jogo.md): a escopeta conta as balas; a pistola nunca acaba,
@@ -20,6 +22,9 @@ export const MUNICAO = {
   //   tiro = quanto esquenta por tiro (0..1); pausa = s sem atirar até começar a esfriar (atirando sem parar, não esfria);
   //   esfria = por s, e esfriaRapido depois de `espera` s sem atirar; cheia, trava `trava` s e volta em `volta`
   pistola: { tiro: 0.025, pausa: 0.35, esfria: 0.08, esfriaRapido: 0.25, espera: 2, trava: 5, volta: 0.3 },
+  // a besta gasta munição espectral (26/nov): porTiro de cada virote; inicio = com quanto começa e max = quanto cabe
+  // (ela volta com as orbes: ORBE, embaixo; e cheia ao voltar da queda)
+  besta: { porTiro: 5, inicio: 100, max: 100 },
 }
 
 // A bala (weapons/bala.ts; a etapa 4b): os números da tabela do docs/jogo.md. vel = m/s; dano por bala; n = quantas
@@ -28,8 +33,15 @@ export const MUNICAO = {
 export const BALA = {
   pistola: { vel: 40, dano: 3, n: 1, leque: 0, tam: 0.45 }, // dano: por tiro (26/nov: era 5)
   escopeta: { vel: 46, dano: 10, n: 5, leque: 0.065, tam: 0.3 }, // dano: por bago (26/nov: era 15)
+  besta: { vel: 80, dano: 30, n: 1, leque: 0, tam: 0.9 }, // o virote de luz: rápido e reto (26/nov)
   alcance: 60, passo: 0.2,
 }
+// As orbes de energia espectral (weapons/orbes.ts; 26/nov): cada bala que acerta um inimigo solta uma. vale = quanta
+// munição espectral ela dá; vida = s até sumir; ima = de quão perto o agente a puxa (m) e pega = onde ela é absorvida (m);
+// espera = s até poder ser puxada (para dar tempo de ver saltar); vel = m/s voando até ele; salto e peso = o pulo ao
+// nascer (m/s, m/s²); altura = onde fica boiando acima do chão (m); tam = o tamanho (m); max = quantas cabem na cena
+export const ORBE = { vale: 0.5, vida: 15, ima: 2.4, pega: 0.5, espera: 0.35, vel: 6, salto: 1.6, peso: 6, altura: 0.35, tam: 0.09, max: 80, cor: '#8fe6ff' }
+
 // O que a bala deixa onde bate (weapons/impacto.ts): as faíscas (quantas, quanto vivem, a velocidade) e a marca
 // queimada na parede ou no chão (quanto fica, o tamanho, m)
 export const IMPACTO = { faiscas: 6, vida: 0.3, vel: 3.5, marca: { fica: 8, tam: 0.16 } }

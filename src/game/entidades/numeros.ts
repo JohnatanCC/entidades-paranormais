@@ -55,3 +55,7 @@ export const ESPECTRAIS = {
 // quantas vezes a vida; dano = quantas vezes o dano; ritmo = quantas vezes mais rápido (andar, voar, atacar: o relógio
 // dele anda mais depressa); tamanho = o corpo maior, para o jogador ver que é outro
 export const APRIMORADO = { chance: 0.05, vida: 2, dano: 1.25, ritmo: 1.25, tamanho: 1.18 }
+
+/** A dois (as demos com um amigo; docs/teste-online.md): a vida dos espectrais vezes quanto, quantos retratos por segundo
+ *  o host manda e a cada quanto (s) cada espectral da horda escolhe de novo quem caça (o jogador mais perto). */
+export const DOIS = { vida: 1.5, retrato: 15, troca: 0.5 }

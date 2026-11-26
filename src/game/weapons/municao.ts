@@ -4,11 +4,13 @@
 //     sozinha quando a última sai (e com R antes); esquivar, cair, trocar de arma ou um clique novo no gatilho corta a
 //     recarga (ficam as balas que já entraram; dá para recomeçar)
 //   pistola: nunca acaba, mas esquenta 2,5% por tiro e não esfria enquanto atira; cheia, trava 5 s (esfriando até 30%)
+//   besta espectral (26/nov): não recarrega (arma de novo sozinha em 0,8 s: a cadência, weapons/tiro.ts); cada virote
+//     gasta 5 de munição espectral; sem munição, não atira
 // Os números em numeros.ts (MUNICAO). A munição da escopeta é infinita por enquanto (a fabricação vem depois).
 import type { Arma } from '../player/arma'
 import { MUNICAO } from './numeros'
 
-const E = MUNICAO.escopeta, P = MUNICAO.pistola
+const E = MUNICAO.escopeta, P = MUNICAO.pistola, B = MUNICAO.besta
 
 export interface Municao {
   balas: number // escopeta: as balas no cano
@@ -19,8 +21,9 @@ export interface Municao {
   calor: number // pistola: 0..1
   travada: number // s que a pistola ainda fica travada (0 = livre)
   semAtirar: number // s desde o último tiro da pistola
+  espectral: number // a munição espectral (a besta gasta)
 }
-export const novaMunicao = (): Municao => ({ balas: E.balas, recarga: -1, faltavam: 0, entraram: 0, ultimo: 9, calor: 0, travada: 0, semAtirar: 9 })
+export const novaMunicao = (): Municao => ({ balas: E.balas, recarga: -1, faltavam: 0, entraram: 0, ultimo: 9, calor: 0, travada: 0, semAtirar: 9, espectral: B.inicio })
 
 /** Quanto dura a recarga de n balas (s). */
 export const duracaoDaRecarga = (n: number) => E.porBala * n
@@ -30,11 +33,15 @@ export const entradaDaBala = (i: number, n: number) => E.inicio + ((i + 1) * (du
 
 /** Pode sair um tiro desta arma agora? (a escopeta recarregando não atira: o clique novo corta a recarga antes) */
 export function temTiro(m: Municao, arma: Arma | null): boolean {
-  return arma === 'pistola' ? m.travada <= 0 : arma === 'escopeta' ? m.balas > 0 && m.recarga < 0 : false
+  return arma === 'pistola' ? m.travada <= 0 : arma === 'escopeta' ? m.balas > 0 && m.recarga < 0 : arma === 'besta' ? m.espectral >= B.porTiro : false
 }
 
-/** Saiu um tiro: a escopeta gasta uma bala; a pistola esquenta e, cheia, trava. */
+/** Ganhou munição espectral (as orbes que os acertos soltam: weapons/orbes.ts), até o máximo. */
+export const ganharEspectral = (m: Municao, n: number) => { m.espectral = Math.min(B.max, m.espectral + n) }
+
+/** Saiu um tiro: a escopeta gasta uma bala; a pistola esquenta e, cheia, trava; a besta gasta a munição espectral. */
 export function gastar(m: Municao, arma: Arma | null) {
+  if (arma === 'besta') { m.espectral = Math.max(0, m.espectral - B.porTiro); return }
   if (arma === 'escopeta') { m.balas = Math.max(0, m.balas - 1); m.ultimo = 0 }
   else if (arma === 'pistola') {
     m.calor = Math.min(1, m.calor + P.tiro); m.semAtirar = 0
@@ -73,5 +80,6 @@ export function passoMunicao(m: Municao, arma: Arma | null, pode: boolean, dt: n
 export function textoDaMunicao(m: Municao, arma: Arma | null): string | null {
   if (arma === 'escopeta') return `Escopeta ${m.balas}/${E.balas}${m.recarga >= 0 ? ' · recarregando' : ''}`
   if (arma === 'pistola') return m.travada > 0 ? `Pistola · travada ${Math.ceil(m.travada)} s` : `Pistola · calor ${Math.round(m.calor * 100)}%`
+  if (arma === 'besta') return `Besta · munição espectral ${Math.floor(m.espectral)}/${B.max} (${Math.floor(m.espectral / B.porTiro)} virotes)`
   return null
 }

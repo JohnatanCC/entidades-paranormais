@@ -10,7 +10,7 @@ import { TIRO } from './numeros'
 export function gatilho(a: Agente, apertado: boolean, dt: number): boolean {
   const A = a.anim.arma
   A.cd = Math.max(0, A.cd - dt)
-  if (!apertado || A.cd > 0 || A.mira < TIRO.pronto || (a.arma !== 'pistola' && a.arma !== 'escopeta')) return false
+  if (!apertado || A.cd > 0 || A.mira < TIRO.pronto || !a.arma) return false
   const N = TIRO[a.arma]
   A.cd = N.cadencia; A.coice = 1; A.tiroT = 0; A.clarao = N.clarao
   return true

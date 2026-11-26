@@ -63,6 +63,8 @@ export class Acoes {
   /** Esquivar: true uma vez por aperto do Espaço. */
   esquivar() { const v = this.apertou.has('Space'); this.apertou.delete('Space'); return v }
   /** Interagir (abrir e fechar porta; depois, pegar e usar): true uma vez por aperto do E. */
+  /** E segurado (levantar o outro jogador caído, a dois). */
+  segurarInteragir() { return this.tem('KeyE') }
   interagir() { const v = this.apertou.has('KeyE'); this.apertou.delete('KeyE'); return v }
   /** Trocar de arma (a próxima da lista): true uma vez por aperto do Q. */
   trocarArma() { const v = this.apertou.has('KeyQ'); this.apertou.delete('KeyQ'); return v }

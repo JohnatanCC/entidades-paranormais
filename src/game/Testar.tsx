@@ -29,7 +29,8 @@ import { r2, v3 } from './rede/mensagens'
 import { RITMO } from './rede/numeros'
 import { Remoto } from './rede/Remoto'
 import { Entidades } from './entidades/Entidades'
-import { Espectrais } from './entidades/Espectrais'
+import { Espectrais, type ControleEspectrais } from './entidades/Espectrais'
+import { EspectraisCopia } from './entidades/EspectraisCopia'
 import type { Jogador } from './entidades/foco'
 import { animarAgente } from './player/animacao'
 import { pegarArma, proximaArma } from './player/arma'
@@ -38,20 +39,23 @@ import { novoJogador, passoJogador } from './player/controle'
 import type { PoseMao } from './player/maos'
 import { montarAgente, type Agente, type ModeloAgente } from './player/modelo'
 import type { Expressao } from './player/rosto'
-import { AGENTE, CAMERA, ENGOLIDO, QUEDA } from './player/numeros'
+import { AGENTE, CAMERA, ENGOLIDO, LEVANTAR, QUEDA } from './player/numeros'
 import { tranco } from './player/dano'
 import { curar, ganharKit, machucado, novaVida, passoVida, tomarDano, usarKit, voltarVida } from './player/vida'
 import { novoEstadoHud, type EstadoHud } from './hud/Hud'
 import { ouvirAgente, somDoKit } from './player/sons'
 import { ouvinte } from '../audio/espaco'
 import { aplicarTremor } from './player/tremor'
-import { somDaBala } from './weapons/sons'
+import { absorveOrbe, somDaBala } from './weapons/sons'
+import { som } from '../audio/sintese'
+import { TIRO } from './weapons/numeros'
 import { passoGolpes } from '../render/golpe'
 import { gatilho } from './weapons/tiro'
 import { atirar, novasBalas, passoBalas, pontoMirado, type Alvejavel } from './weapons/bala'
 import { novosImpactos, passoImpactos } from './weapons/impacto'
 import { grupoDaArma } from './player/arma'
-import { cortarRecarga, gastar, novaMunicao, passoMunicao, recarregar, temTiro } from './weapons/municao'
+import { cortarRecarga, ganharEspectral, gastar, novaMunicao, passoMunicao, recarregar, temTiro } from './weapons/municao'
+import { novasOrbes, passoOrbes, soltarOrbe } from './weapons/orbes'
 import { alcanceCamera, andarDe, chaoEm, montarMundo, temChao, tetoEm, type Mundo } from './world/colisao'
 import { assadorDe, limitarLampadas, novaLuzVertice } from '../maps/luzAssada'
 import { iluminarObjeto } from '../render/assada'
@@ -109,6 +113,8 @@ export interface AgenteNaFase {
   lamparina: { ergue: number; pos: THREE.Vector3; dir: THREE.Vector3 }
   /** quem as entidades podem atacar (entidades/foco.ts): o agente primeiro; no Testar, também o boneco da Lara (L) */
   jogadores: Jogador[]
+  /** os espectrais (entidades/Espectrais.tsx): um roteiro invoca por aqui, sem caixa no mapa (as hordas); null no online */
+  espectrais: ControleEspectrais | null
 }
 
 // as teclas de ver o modelo: 1–6 forçam uma expressão, 7–9 uma pose das mãos, 0 solta as duas
@@ -134,10 +140,11 @@ export function Testar({ chunks, levels, ambiente, semChao, areas, inicio, yaw, 
   const assa = useMemo(() => assadorDe(listaDeBlocos), [listaDeBlocos]), luzAgente = useMemo(() => novaLuzVertice(), []), quadro = useRef(0)
   const acoes = useMemo(() => new Acoes(), [])
   const balas = useMemo(() => novasBalas(), []), impactos = useMemo(() => novosImpactos(), []) // a bala e o que ela deixa onde bate
+  const orbes = useMemo(() => novasOrbes(), []) // a energia espectral que cada acerto solta (a munição da besta)
   const est = useRef({
     j: novoJogador(inicio[0], chaoEm(mundo, inicio[0], inicio[2], inicio[1] + 0.3) ?? inicio[1], inicio[2], yaw),
     camYaw: yaw, pitch: -0.12, k: 1, pivX: inicio[0], pivZ: inicio[2], pivY: inicio[1], altura: CAMERA.altura, travou: false,
-    msg: '', msgT: 0, dica: null as string | null, mira: 0, mirando: false, escuro: 0, cair: false, golpe: false,
+    msg: '', msgT: 0, dica: null as string | null, levanta: 0, levantado: false, voltarJa: false, juntos: 0, dicaDois: null as string | null, mira: 0, mirando: false, escuro: 0, cair: false, golpe: false,
     volta: { x: inicio[0], y: inicio[1], z: inicio[2], yaw }, // onde ele volta depois de cair (o roteiro muda: o começo da arena)
     lento: { quanto: 0, t: 0, dura: 1 }, // a gosma: o quanto e quanto falta para sumir
     abrir: { t: -1, ponto: new THREE.Vector3() }, // a mão indo à maçaneta (t < 0: não está)
@@ -159,7 +166,7 @@ export function Testar({ chunks, levels, ambiente, semChao, areas, inicio, yaw, 
     const escurecer = (k: number) => { const s = est.current; if (s.escuro !== k) { s.escuro = k; escuroRef.current(k) } }
     const preso = (sim: boolean) => { const s = est.current; s.j.preso = sim; agente.root.visible = !sim; sombra.visible = !sim; escurecer(sim ? ENGOLIDO.escuro : 0) }
     const f: AgenteNaFase = {
-      agente, mundo, aoVoltar: null, alvos: [], jogadores: [], lamparina: { ergue: 0, pos: new THREE.Vector3(), dir: new THREE.Vector3(0, 0, 1) },
+      agente, mundo, aoVoltar: null, alvos: [], jogadores: [], espectrais: null, lamparina: { ergue: 0, pos: new THREE.Vector3(), dir: new THREE.Vector3(0, 0, 1) },
       pode: () => est.current.j.caido < 0 && !est.current.j.preso,
       ferir: (dano, de, sempre = false) => {
         const s = est.current, j = s.j, E = AGENTE.esquiva.invul
@@ -209,7 +216,11 @@ export function Testar({ chunks, levels, ambiente, semChao, areas, inicio, yaw, 
       if (m.aberta) mundo.abertas.add(m.id); else mundo.abertas.delete(m.id)
     })
     const paraFerido = rede.con.ouvir('ferido', (m) => { naFase.ferir(m.dano, de.set(...m.de)) })
-    return () => { paraPorta(); paraFerido() }
+    // a dois: o agarrão do Manto te segura; o outro te levantou; os dois caíram (o host manda voltar)
+    const paraLento = rede.con.ouvir('lento', (m) => naFase.lentidao(m.q, m.dura))
+    const paraLevanta = rede.con.ouvir('levanta', () => { if (est.current.j.caido >= 0) est.current.levantado = true })
+    const paraVoltar = rede.con.ouvir('voltar', () => { if (est.current.j.caido >= 0) est.current.voltarJa = true }) // (chegou tarde, já em pé: ignora)
+    return () => { paraPorta(); paraFerido(); paraLento(); paraLevanta(); paraVoltar() }
   }, [rede, portas, mundo, naFase])
   const ver = useRef<{ exp?: Expressao; mao?: PoseMao }>({})
   useEffect(() => {
@@ -252,7 +263,7 @@ export function Testar({ chunks, levels, ambiente, semChao, areas, inicio, yaw, 
   // fase, abre o menu de pausa
   useEffect(() => {
     const el = gl.domElement
-    scene.add(agente.root, sombra, balas.grupo, impactos.grupo)
+    scene.add(agente.root, sombra, balas.grupo, impactos.grupo, orbes.grupo)
     acoes.ligar(el)
     const clique = () => { if (document.pointerLockElement !== el) { try { const r = el.requestPointerLock() as unknown as Promise<void> | undefined; r?.catch?.(() => {}) } catch { /* sem trava: segue sem olhar com o mouse */ } } }
     const trava = () => {
@@ -268,7 +279,7 @@ export function Testar({ chunks, levels, ambiente, semChao, areas, inicio, yaw, 
     window.addEventListener('keydown', tecla)
     clique() // tenta travar já (o clique no botão Testar conta como gesto do usuário)
     return () => {
-      scene.remove(agente.root, sombra, balas.grupo, impactos.grupo)
+      scene.remove(agente.root, sombra, balas.grupo, impactos.grupo, orbes.grupo)
       descartarLamparina(agente) // a luz dela apaga no editor
       acoes.desligar()
       el.removeEventListener('click', clique)
@@ -302,10 +313,26 @@ export function Testar({ chunks, levels, ambiente, semChao, areas, inicio, yaw, 
     const L = s.lento
     L.t = Math.max(0, L.t - dt); j.lento = L.quanto * (L.t / L.dura)
     const caido = j.caido >= 0
+    // a dois: o outro jogador (caído, e quanto falta para levantá-lo)
+    const outro = rede ? naFase.jogadores.find((x) => x.p !== agente.root.position) : undefined
+    s.dicaDois = null
     if (caido) {
       j.caido += dt
-      if (j.caido >= QUEDA.escurece && s.escuro < 1) { s.escuro = 1; escuroRef.current(1) }
-      if (j.caido >= QUEDA.volta) {
+      if (rede) { // a dois: fica no chão até o outro levantar; os dois caídos, o host manda os dois voltarem
+        if (j.caido >= QUEDA.escurece && s.escuro !== LEVANTAR.escuro) { s.escuro = LEVANTAR.escuro; escuroRef.current(LEVANTAR.escuro) }
+        s.dicaDois = `Caído · ${rede.outro.nome} pode te levantar (segurando E perto de você)`
+        if (s.levantado) { // levantou: em pé no lugar, com parte da vida
+          s.levantado = false; j.caido = -1; s.escuro = 0; escuroRef.current(0)
+          voltarVida(vida); vida.atual = Math.round(AGENTE.vida * LEVANTAR.vida); vida.invul = LEVANTAR.invul
+          return
+        }
+        const juntos = !!outro?.caido?.()
+        s.juntos = juntos ? s.juntos + dt : 0
+        if (rede.con.papel === 'host' && s.juntos >= LEVANTAR.juntos) { rede.con.enviar({ t: 'voltar' }); s.voltarJa = true }
+      }
+      if ((!rede && j.caido >= QUEDA.escurece) && s.escuro < 1) { s.escuro = 1; escuroRef.current(1) }
+      if ((!rede && j.caido >= QUEDA.volta) || s.voltarJa) {
+        s.voltarJa = false; s.juntos = 0
         const V = s.volta // o ponto de volta (o começo do teste; numa fase, o começo da arena)
         s.j = novoJogador(V.x, chaoEm(mundo, V.x, V.z, V.y + 0.3) ?? V.y, V.z, V.yaw)
         s.camYaw = V.yaw; s.pitch = -0.12; s.pivX = V.x; s.pivZ = V.z; s.pivY = s.j.y
@@ -315,6 +342,14 @@ export function Testar({ chunks, levels, ambiente, semChao, areas, inicio, yaw, 
         return // o próximo quadro começa em pé, no lugar novo
       }
     }
+    // a dois: perto do outro caído, segurar E o levanta
+    if (rede && !caido && outro?.caido?.() && Math.hypot(outro.p.x - j.x, outro.p.z - j.z) < LEVANTAR.perto && Math.abs(outro.p.y - j.y) < 1) {
+      if (acoes.segurarInteragir()) {
+        s.levanta += dt
+        s.dicaDois = `Levantando ${rede.outro.nome}… ${Math.min(100, Math.round((s.levanta / LEVANTAR.tempo) * 100))}%`
+        if (s.levanta >= LEVANTAR.tempo) { rede.con.enviar({ t: 'levanta' }); s.levanta = 0 }
+      } else { s.levanta = 0; s.dicaDois = `Segure E · levantar ${rede.outro.nome}` }
+    } else s.levanta = 0
     const quer = !caido && !j.preso && (acoes.mirar() || acoes.atirar()) && !!agente.arma
     const clicou = acoes.clicou(), recarrega = acoes.recarregar()
     j.mira = quer
@@ -336,7 +371,7 @@ export function Testar({ chunks, levels, ambiente, semChao, areas, inicio, yaw, 
     if (s.abrir.t >= 0 && (s.abrir.t += dt) > DURA_ALCANCE) s.abrir.t = -1
     acoes.fimDoQuadro()
     s.msgT -= dt
-    const dica = s.msgT > 0 ? s.msg : porta ? dicaDaPorta(porta, portas) : null
+    const dica = s.msgT > 0 ? s.msg : s.dicaDois ?? (porta ? dicaDaPorta(porta, portas) : null)
     if (dica !== s.dica) { s.dica = dica; dicaRef.current(dica) }
     agente.root.position.set(j.x, j.y, j.z)
     sombra.position.set(j.x, j.y + 0.03, j.z) // o círculo escuro nos pés
@@ -360,16 +395,23 @@ export function Testar({ chunks, levels, ambiente, semChao, areas, inicio, yaw, 
     if (rede && (s.envio += dt) >= 1 / RITMO.pose) {
       s.envio = Math.min(s.envio - 1 / RITMO.pose, 1 / RITMO.pose) // guarda o resto (a 60 quadros, 20 por segundo certinhos)
       rede.con.enviar({ t: 'pose', p: [r2(j.x), r2(j.y), r2(j.z)], yaw: r2(j.yaw), vel: r2(j.velocidade), cor: r2(j.corrida), esq: r2(ea.esquiva), mov: [r2(mover[0]), r2(mover[1])],
-        mira: quer ? 1 : 0, alvo: v3(v.alvo), queda: caido ? r2(j.caido) : -1, fer: ea.ferido ? 1 : 0, arma: agente.arma === 'pistola' || agente.arma === 'escopeta' ? agente.arma : null,
+        mira: quer ? 1 : 0, alvo: v3(v.alvo), queda: caido ? r2(j.caido) : -1, fer: ea.ferido ? 1 : 0, arma: agente.arma,
         lamp: ea.lamparina ? 1 : 0, alc: s.abrir.t >= 0 ? [...v3(s.abrir.ponto), r2(s.abrir.t)] : null })
     }
+    if (agente.arma === 'besta' && atira && clicou && !temTiro(municao, 'besta')) { s.msg = 'Sem munição espectral.'; s.msgT = 1.8 }
     if (gatilho(agente, atira && temTiro(municao, agente.arma), dt)) {
       gastar(municao, agente.arma)
       // a bala sai do cano (onde o clarão está) para o ponto que a câmera mira
       const clarao = grupoDaArma(agente)?.userData.clarao as THREE.Object3D | undefined
-      if (clarao && (agente.arma === 'pistola' || agente.arma === 'escopeta')) { agente.root.updateMatrixWorld(true); atirar(balas, agente.arma, clarao.getWorldPosition(v.de), v.alvo); rede?.con.enviar({ t: 'tiro', arma: agente.arma, de: v3(v.de), para: v3(v.alvo) }) }
+      if (clarao && agente.arma) { agente.root.updateMatrixWorld(true); atirar(balas, agente.arma, clarao.getWorldPosition(v.de), v.alvo); rede?.con.enviar({ t: 'tiro', arma: agente.arma, de: v3(v.de), para: v3(v.alvo) }) }
     }
-    passoBalas(balas, dt, mundo, naFase.alvos, impactos, (p, arma, alvo) => somDaBala(p, arma, alvo, quadro.current))
+    passoBalas(balas, dt, mundo, naFase.alvos, impactos, (p, arma, alvo) => {
+      somDaBala(p, arma, alvo, quadro.current)
+      if (alvo) soltarOrbe(orbes, p, chaoEm(mundo, p.x, p.z, p.y + 0.3) ?? j.y) // cada acerto num inimigo solta uma orbe de energia
+    })
+    // as orbes: perto dele, voam até o peito e viram munição espectral (caído, não pega)
+    const absorveu = passoOrbes(orbes, dt, caido ? null : v.de.set(j.x, j.y + 1.1, j.z))
+    if (absorveu > 0) { ganharEspectral(municao, absorveu); const S = som(); if (S) absorveOrbe(S, S.ctx.currentTime + 0.01, S.saida) }
     // os sons dele e das armas, no momento da animação (o chão: o submundo é pedra; o resto, por enquanto, madeira)
     ouvirAgente(agente, ea, semChao ? 'pedra' : 'madeira')
     passoImpactos(impactos, dt)
@@ -383,6 +425,7 @@ export function Testar({ chunks, levels, ambiente, semChao, areas, inicio, yaw, 
     hud.vida = vida.atual / AGENTE.vida; hud.folego = s.j.folego / AGENTE.folego; hud.folegoTravado = s.j.folegoTravado
     hud.kits = vida.kits; hud.novoKit = vida.novoKit; hud.arma = agente.arma
     hud.calor = municao.calor; hud.travada = municao.travada; hud.balas = municao.balas; hud.recarregando = municao.recarga >= 0
+    hud.espectral = municao.espectral; hud.carga = 1 - Math.min(1, agente.anim.arma.cd / TIRO.besta.cadencia)
     hudRef.current(hud)
 
     // a câmera por cima do ombro direito: o braço encolhe na hora ao bater e estica devagar
@@ -415,7 +458,7 @@ export function Testar({ chunks, levels, ambiente, semChao, areas, inicio, yaw, 
   return <>
     <Iluminacao ambiente={ambiente} areas={areas} em={agente.root.position} />
     <Entidades chunks={listaDeBlocos} fase={naFase} rede={rede?.con} />
-    {!rede && <Espectrais chunks={listaDeBlocos} fase={naFase} />}
+    {!rede || rede.con.papel === 'host' ? <Espectrais chunks={listaDeBlocos} fase={naFase} rede={rede} /> : <EspectraisCopia fase={naFase} rede={rede} />}
     {rede ? <Remoto con={rede.con} modelo={rede.outro.modelo} nome={rede.outro.nome} fase={naFase} assa={assa} /> : <Boneco fase={naFase} assa={assa} />}
   </>
 }

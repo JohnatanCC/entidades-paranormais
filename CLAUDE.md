@@ -12,13 +12,14 @@ capítulo 1 e lançá-lo na web, no itch.io (`docs/lancamento.md`).
    `docs/jogo.md` — o que já foi decidido e jogado (a história do portal, agente, armas, captura, fantasmas, HUD, a demo Intro).
    `docs/demonios.md` — os Sombrios (Assombrado, Asa sombria, Devora almas): o desenho, os modelos, como lutam e as etapas.
    `docs/intro.md` — a Demo · Intro do submundo (as três arenas, as hordas, o chefe): desde 17/nov não é a Intro do jogo, fica para mais tarde.
+   `docs/demo-inimigos.md` — a Demo · Inimigos (26/nov): a arena da mansão e as hordas de espectrais; as etapas (qual é a próxima).
    `docs/musicas.md` — as músicas: onde cada uma toca e o que precisa ter (a perseguição da Mãe, para o Suno).
    `docs/plano-visual.md` — o plano da primeira impressão visual (19/nov): medir, a luz, o cenário calmo, o Matheus de costas e o desenho dos personagens, a folha de estilo.
    `docs/direcao-cap0.md` — **a direção do capítulo 0** (19/nov): o que ele é, a sequência, o clima e a ordem de construir (em cinza primeiro).
    `docs/cenas.md` — as cenas (cutscenes) do capítulo 0: como são feitas (no motor, em dados, com legendas) e o storyboard de cada uma.
    `docs/dublagem.md` — as vozes: o roteiro de cada personagem para os testes, como gravar e a voz provisória (a do navegador).
    `docs/cap2-sombra.md` — o capítulo 2 (a Sombra; reformulado em 23/nov para **o cemitério**, com portas que teletransportam e a luta de 4 fases), no papel; e a lamparina, a armadilha reformulada, que vale para o jogo todo.
-   `docs/teste-online.md` — o teste online de desenvolvedor (feito em 21/nov): dois jogadores na mansão (o host e o código, PeerJS), o host manda nos fantasmas, o sistema de foco.
+   `docs/teste-online.md` — o teste online de desenvolvedor (feito em 21/nov) e as demos a dois (o lobby, 26/nov; as etapas): dois jogadores na mansão (o host e o código, PeerJS), o host manda nos fantasmas, o sistema de foco.
    `docs/mansao-cap1.md` — a planta da mansão do capítulo 1 (cômodos, escadas, rota, onde ficam os objetos da Mãe).
    `docs/blockbench.md` — como os personagens são feitos (Blockbench, as regras das juntas, a escala, a exportação).
    `docs/referencias/LEIA-ME.md` — as imagens de referência low poly (23/nov) dos personagens, dos fantasmas e do cemitério: o que cada uma serve e onde difere do jogo (os PNGs ficam só no computador dele, fora do git).
@@ -100,14 +101,15 @@ vite.config.ts             o Vite + o plugin que salva mapas (tools/mapsDevApi.t
 tools/mapsDevApi.ts        a API dos mapas (só no npm run dev): listar, ler, salvar, apagar em maps/; e salvar o vídeo de uma
                            cena em gravacoes/ (a pasta fica fora do git)
 maps/<id>/                 os mapas (JSON). map.json = cabeçalho; chunks/<cx>_<cz>.json = um bloco de 16 × 16 m;
-                           maps/intro = a Demo · Intro (o submundo, sem chão: docs/intro.md); teste-gralhas, teste-mestre, teste-mae e teste-espectrais (as caixas) = os
+                           maps/intro = a Demo · Intro (o submundo, sem chão: docs/intro.md); maps/demo-inimigos = a Demo · Inimigos (o salão alto da mansão, as hordas: docs/demo-inimigos.md); teste-gralhas, teste-mestre, teste-mae e teste-espectrais (as caixas) = os
                            mapas de teste das entidades (docs/criador-de-mapas.md); maps/instalacao-cap0 = o
                            capítulo 0 (o andar de contenção e, solto, o escritório do Victor: docs/cenas.md; o Palacete
                            real entra solto nele também: docs/direcao-cap0.md)
 src/
-  main.tsx, App.tsx        as telas (menu → novo jogo → Demo · Intro | configurações | modo desenvolvedor → criador de mapas, teste online)
+  main.tsx, App.tsx        as telas (menu → novo jogo → Demo · Intro, Demo · Inimigos | configurações | modo desenvolvedor → criador de mapas, teste online)
   styles.css               a paleta e as telas
-  screens/                 MainMenu, NovoJogo (a Demo · Intro), Jogo (uma fase: o mapa da pasta com o agente do Testar, em
+  screens/                 MainMenu, NovoJogo (as demos: Intro e Inimigos), Lobby (o lobby de cada demo: começar sozinho, convidar um
+                           amigo com o código ou entrar com o código; a dois, o host começa), Jogo (uma fase: o mapa da pasta com o agente do Testar, em
                            tela cheia; Esc abre o menu de pausa: continuar, configurações, sair), SettingsScreen (com PreviaQualidade ao lado: a sala do mapa teste-iluminacao com a
                            qualidade escolhida, ao vivo, e o fps; e TesteDesempenho: a mansão inteira nível por nível, com a
                            média e o mínimo de quadros), DevMenu, VerModelos (o personagem, o fantasma ou o demônio de perto: animação, expressão, mãos, ações, luz),
@@ -160,7 +162,7 @@ src/
 texturas/                  as texturas do cenário: <nome>.png, 32 × 32 px por bloco de 1 m, pintadas em pixel e sem costura
 modelos/                   os modelos do Blockbench (.bbmodel), lidos direto pelo jogo: agente.bbmodel, lara.bbmodel,
                            nicolas.bbmodel, victor.bbmodel e leonardo.bbmodel (o mesmo esqueleto do agente), objetos/<tipo>.bbmodel,
-                           aberturas/<tipo>.bbmodel (as portas e janelas; a porta da instalação, a de contenção, a do elevador e a janela da instalação, do capítulo 0), armas/<nome>.bbmodel (pistola, escopeta, lamparina; e o cartucho da recarga),
+                           aberturas/<tipo>.bbmodel (as portas e janelas; a porta da instalação, a de contenção, a do elevador e a janela da instalação, do capítulo 0), armas/<nome>.bbmodel (pistola, escopeta, besta, lamparina; e o cartucho da recarga),
                            fantasmas/<nome>.bbmodel (a Mãe; a Gralha e o Mestre, do capítulo 2, ainda fora do jogo), demonios/<nome>.bbmodel (os Sombrios: o Assombrado, a Asa sombria, o Devora almas),
                            espectrais/<nome>.bbmodel (o jogo novo: os Sombrios repintados, a Sombra espectral, a Asa espectral e o Devora espectros; o Manto espectral e o Asa do terror; docs/demonios.md)
 public/musica/             as músicas do jogo (menu.mp3: o menu e o criador de mapas; batalha.mp3: as hordas e devorador.mp3:
@@ -195,7 +197,7 @@ src/game/                  (já existem: Testar.tsx, player/, input/, world/, we
                            veem o agente e caçam; o Mestre: grita, solta o corvo, persegue e morde; a Mãe: grita, caça, a carga e
                            a sequência de garradas; as músicas das perseguições), foco.ts (com dois jogadores, quem cada uma
                            ataca: a distância e o dano que levou de cada um; docs/teste-online.md), Boneco.tsx (a Lara parada no
-                           Testar, tecla L, para testar o foco), Espectrais.tsx (as caixas de espectrais: invocam, caçam, perdem o
+                           Testar, tecla L, para testar o foco), Espectrais.tsx (as caixas de espectrais e as hordas de um roteiro, pelo fase.espectrais; a dois, só no host, que manda o retrato e os instantes; EspectraisCopia.tsx, as cópias no convidado; os fantasmas, o Devora espectros, o Manto espectral e o Asa do terror, dividem o fraco e a captura: invocam, caçam, perdem o
                            foco e patrulham em volta da caixa; o Devora espectros: caça, cospe crias, fica fraco e é capturado), luz.ts
                            (quem está no feixe da lamparina: o Mestre recua, a captura começa) e numeros.ts
   Testar.tsx               o Testar do editor: o agente andando no mapa aberto (câmera, colisão, luz do jogo), em tela cheia;
@@ -203,7 +205,7 @@ src/game/                  (já existem: Testar.tsx, player/, input/, world/, we
   Desempenho.tsx           o medidor de uma cena de jogo: os quadros por segundo e, com F3, o detalhe (desenhos, triângulos,
                            memória da placa, nível, lâmpadas)
   player/                  o agente: modelo.ts (liga modelos/agente.bbmodel no esqueleto), animacao.ts, maos.ts (os dedos),
-                           arma.ts (a arma na mão; a escopeta com as duas mãos ou no ombro; o frasco
+                           arma.ts (a arma na mão; a escopeta com as duas mãos ou no ombro; a besta com as duas mãos, a travessa de luz armando no trilho; o frasco
                            da pistola com o calor; Q troca no Testar), lamparina.ts (na cintura, acesa; o C ergue e baixa: a mão esquerda, o feixe), mira.ts (mirar: a pose, o coice, a bomba depois do tiro),
                            recarga.ts (a recarga da escopeta: a bolsa, o cartucho, as balas puxadas pela arma), queda.ts (cair sem violência), dano.ts (o tranco de um golpe,
                            machucado), vida.ts (a vida, a invulnerabilidade, os kits, curar ao capturar), parado.ts (a respiração, o
@@ -214,9 +216,9 @@ src/game/                  (já existem: Testar.tsx, player/, input/, world/, we
                            o Testar aplica na câmera), sons.ts (ouvirAgente: os passos, a cambalhota, o golpe,
                            a queda, o kit e os sons das armas no momento da animação), numeros.ts
   weapons/                 tiro.ts (o gatilho e a cadência), clarao.ts (o clarão no cano), municao.ts (as 4 balas e a
-                           recarga da escopeta, a sobrecarga da pistola, o contador simples), bala.ts (a bala: a mira de verdade, o voo, bater e
-                           acertar os alvos; o que a bala atravessa: o Mestre), impacto.ts (as faíscas e a marca), sons.ts (o Sino da pistola, o Ferro que
-                           canta da escopeta, a recarga, a lamparina, onde a bala bate), numeros.ts
+                           recarga da escopeta, a sobrecarga da pistola, a munição espectral da besta, o contador simples), bala.ts (a bala: a mira de verdade, o voo, bater e
+                           acertar os alvos; o que a bala atravessa: o Mestre), impacto.ts (as faíscas e a marca), orbes.ts (as orbes de energia espectral que cada acerto solta e o agente absorve), sons.ts (o Sino da pistola, o Ferro que
+                           canta da escopeta, a corda de luz da besta, a recarga, a lamparina, onde a bala bate), numeros.ts
   enemies/<nome>/          um inimigo por pasta (mae/, glutao/, assombrado/, asa-sombria/, devora-almas/): IA, ataques, modelo, números; a Mãe já tem
                            modelo.ts (monta o modelo, a saia e o cabelo com molas), pose.ts (as molas da pose, do
                            laboratório), animacao.ts (parada, andar, passar pela porta), rosto.ts (as expressões, os
@@ -238,14 +240,15 @@ src/game/                  (já existem: Testar.tsx, player/, input/, world/, we
   enemies/devora-espectros/ o Devora espectros (o jogo novo, docs/demonios.md): modelo.ts, animacao.ts (flutuar, o bote, a
                            mordida, cuspir uma Sombra ou uma Asa espectral, o tranco do tiro, fraco), ia.ts (caçar e escolher o golpe),
                            sons.ts (o fantasma: gemidos com ar, o brilho de vidro, o chiado, o estalo) e numeros.ts
-  enemies/manto-espectral/ o Manto espectral (o jogo novo, docs/demonios.md: o chapéu em espiral, a capa, o manto em tiras, o corpo em gota, os braços longos de garra), só no Ver
-                           modelos: modelo.ts, animacao.ts (parado, andar, agarrar, o combo de socos, o golpe giratório, atordoado,
-                           o tiro, fraco), tornado.ts (os anéis de luz do
+  enemies/manto-espectral/ o Manto espectral (o jogo novo, docs/demonios.md: o chapéu em espiral, a capa, o manto em tiras, o corpo em gota, os braços longos de garra), no Ver
+                           modelos e nas hordas: modelo.ts, animacao.ts (parado, andar, agarrar, o combo de socos, o golpe giratório, atordoado,
+                           o tiro, fraco), ia.ts (caçar, escolher o golpe pela distância e pela vida, o acerto), tornado.ts (os anéis de luz do
                            golpe giratório, como o giro do Crash; uma malha só), sons.ts e numeros.ts
   enemies/asa-terror/      o Asa do terror (o jogo novo, docs/demonios.md: a Asa espectral maior: o capuz facetado com o pano em tiras, o corpo em bola, o bico e as
-                           mandíbulas poligonais, dois pares de asas e três tentáculos), só no Ver modelos: modelo.ts, animacao.ts (voar, o tiro carregado,
+                           mandíbulas poligonais, dois pares de asas e três tentáculos), no Ver modelos e nas hordas: modelo.ts, animacao.ts (voar, o tiro carregado,
                            a rajada, o teletransporte, o tiro que leva, fraco), efeitos.ts (a bola de luz da carga, a bomba que gruda,
-                           pisca e explode, os cubos e os anéis do teletransporte; duas malhas), sons.ts e numeros.ts
+                           pisca e explode, os cubos e os anéis do teletransporte; duas malhas), ia.ts (longe do agente, a bomba, o teletransporte),
+                           sons.ts e numeros.ts
   enemies/mestre/          o Mestre, do capítulo 2 (docs/cap2-sombra.md), só no Ver modelos por enquanto: modelo.ts (o manto e as
                            partes soltas nas molas), animacao.ts (levita: as pernas pendem, deita com a velocidade; a cabeça vira
                            de uma vez; a brisa e o arrasto no manto; o grito: o manto abre e a tela treme; a corrida, a mordida com o bico, cobrir-se
@@ -270,7 +273,7 @@ src/game/                  (já existem: Testar.tsx, player/, input/, world/, we
   capture/                 (já existe) a captura pela lamparina (o jogo novo, docs/demonios.md): captura.ts (a força, o tiro, soltar,
                            romper; os números em CAPTURA) e sinal.ts (o ícone da lamparina e a barra de força em cima do fantasma)
   allies/                  Lara e Nicolas
-  rede/                    o teste online (docs/teste-online.md): conexao.ts (o PeerJS: criar e entrar com o código, o ping, a
+  rede/                    o teste online e as demos a dois (docs/teste-online.md): conexao.ts (o PeerJS: criar e entrar com o código, o ping, a
                            queda), numeros.ts (o ritmo das mensagens, a queda, o deslizar), mensagens.ts (o que vai e volta: a pose, o tiro, a porta, o acerto, a ferida, o retrato do
                            mundo e os instantes das entidades) e Remoto.tsx (o outro jogador, movido pelas poses)
   hud/                     Hud.tsx + hud.css: o HUD conceito C (a vida e o fôlego, os kits, a arma, as barras do chefe); o jogo
@@ -282,6 +285,8 @@ src/chapters/cap0/         (já existe) o capítulo 0: cenas/ (escritorio.ts, a 
                            tempo das falas), sons.ts (os sons da instalação e das cenas) ectoplasma.tsx (a poça que escorre debaixo da porta de contenção) e pasta.tsx (a
                            pasta do Matheus na mesa do Victor: a capa e as folhas seguem os gestos dele)
 src/chapters/cap1/         o roteiro do capítulo: qual mapa, gatilhos, cenas, chefe
+src/chapters/demo-inimigos/ (já existe) o roteiro da Demo · Inimigos: Roteiro.tsx (as hordas fixas pelo fase.espectrais, o kit, recomeçar
+                           ao cair, a tecla H de teste) e numeros.ts (as hordas, os tempos, onde surgem)
 src/chapters/intro/        (já existe) o roteiro da Demo · Intro: Roteiro.tsx (as arenas, as ondas, o chefe, a tecla H de teste),
                            tornado.ts (fecha a arena), sons.ts (o ambiente do submundo, o vento do tornado), numeros.ts
 ```

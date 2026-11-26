@@ -29,9 +29,17 @@ export const BOMBA = { vel: 9, pisca: [0.5, 0.07] as const, explode: 2.5, raio: 
 export const TELE = { some: 0.5, surge: 0.4 }
 
 /** O tiro que ele leva: o tranco (s, rad). Fraco (a vida zerada, a hora da captura): o quanto desce (m), as asas caem
- *  (rad) e a batida fica lenta (vezes). */
+ *  (rad), a batida fica lenta (vezes) e quanto dura (s: sem captura, volta com a vida cheia). */
 export const DANO = { dura: 0.35, tranco: 0.35 }
-export const FRACO = { cai: 0.9, asas: 0.45, batida: 1.9 }
+export const FRACO = { cai: 0.9, asas: 0.45, batida: 1.9, dura: 8 }
 
-/** A luta (a inteligência vem na próxima etapa): a vida (26/nov: 400). */
-export const LUTA = { vida: 400 }
+/** A luta (ia.ts): a vida (26/nov: 400) e quanto dela volta se romper a captura; a faixa de distância que ele quer do
+ *  agente (m), a velocidade (m/s), o quanto vira (rad/s), a altura do voo (m, do chão ao meio do corpo), o raio do corpo
+ *  (m) e o mínimo até o agente (m, a captura o puxa até aí). O teletransporte: perto demais (m), a espera entre um e outro
+ *  (s), a chance depois de cada tiro e até onde o destino pode ficar do agente (m). O andar de lado (m/s; troca de lado a
+ *  cada tanto, s). A bomba cai em volta do agente (m). */
+export const LUTA = {
+  vida: 400, rompe: 0.3, longe: [7, 12] as const, vel: 2.6, vira: 3, altura: 2.6, raio: 0.8, minimo: 2.5,
+  perto: 5, teleCada: [4, 7] as const, teleTiro: 0.4, destino: [8, 12] as const,
+  lado: 1.2, trocaLado: [2, 4] as const, espalha: 0.8,
+}

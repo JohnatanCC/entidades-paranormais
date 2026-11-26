@@ -2,6 +2,8 @@
 // lamparina, que era a armadilha, não é arma: fica na cintura (lamparina.ts). O modelo é modelos/armas/<nome>.bbmodel; a pasta "empunhadura" dele é o ponto que vai na mão.
 // O espaço da mão direita (o do modelo do agente): os dedos para −y, a palma para +z, o polegar para −x.
 // A escopeta, pesada, vai com as duas mãos (a esquerda na bomba); parado um tempo, ele apoia no ombro (posturaDaEscopeta).
+// A Besta espectral (26/nov) também vai com as duas mãos (a esquerda no apoio, a pasta "bomba" dela), sem ir ao ombro; a
+// travessa de luz corre no trilho enquanto ela arma de novo e o virote de luz cresce (animarArma).
 // Os números em numeros.ts (ESCOPETA, PISTOLA).
 import * as THREE from 'three'
 import { aplicarBrilho } from '../../render/brilho'
@@ -9,18 +11,20 @@ import { arma3d } from '../../render/objetos3d'
 import { alcancar } from './alcancar'
 import type { PoseMao } from './maos'
 import type { Agente, Braco } from './modelo'
-import { ESCOPETA, PISTOLA } from './numeros'
+import { BESTA, ESCOPETA, PISTOLA } from './numeros'
 import { novoClarao } from '../weapons/clarao'
 import { MUNICAO, TIRO } from '../weapons/numeros'
 
-export type Arma = 'pistola' | 'escopeta'
-export const ARMAS: [Arma, string][] = [['pistola', 'Pistola de plasma'], ['escopeta', 'Escopeta de Demantino']]
-/** As que o Q troca: as duas de tiro. */
-export const TROCA: Arma[] = ['pistola', 'escopeta']
+export type Arma = 'pistola' | 'escopeta' | 'besta'
+export const ARMAS: [Arma, string][] = [['pistola', 'Pistola de plasma'], ['escopeta', 'Escopeta de Demantino'], ['besta', 'Besta espectral']]
+/** As que o Q troca, em roda. */
+export const TROCA: Arma[] = ['pistola', 'escopeta', 'besta']
+/** As que vão com as duas mãos (a esquerda na frente da arma). */
+export const duasMaos = (a: Arma | null) => a === 'escopeta' || a === 'besta'
 /** A próxima do Q: da mão vazia, a primeira; depois, uma e outra. */
 export const proximaArma = (a: Arma | null): Arma => TROCA[(TROCA.indexOf(a as Arma) + 1) % TROCA.length]
 /** A pose da mão que segura cada uma: pistola e escopeta com o indicador fora do gatilho. */
-export const POSE_DA_ARMA: Record<Arma, PoseMao> = { pistola: 'guarda', escopeta: 'guarda' }
+export const POSE_DA_ARMA: Record<Arma, PoseMao> = { pistola: 'guarda', escopeta: 'guarda', besta: 'guarda' }
 
 const V = (x: number, y: number, z: number) => new THREE.Vector3(x, y, z)
 // como cada uma fica na mão: onde a empunhadura cai (no espaço da mão) e o giro da arma
@@ -29,6 +33,7 @@ const DE_ARMA = new THREE.Quaternion().setFromRotationMatrix(new THREE.Matrix4()
 const PEGA: Record<Arma, { ponto: THREE.Vector3; giro: THREE.Quaternion }> = {
   pistola: { ponto: V(0.004, -0.06, 0.042), giro: DE_ARMA },
   escopeta: { ponto: V(0.004, -0.06, 0.042), giro: DE_ARMA },
+  besta: { ponto: V(0.004, -0.06, 0.042), giro: DE_ARMA },
 }
 const NOME = '#arma'
 const _inv = new THREE.Quaternion()
@@ -56,6 +61,9 @@ export function pegarArma(a: Agente, nome: Arma | null) {
   // a bomba da escopeta corre para trás no gesto (e, depois, no tiro): guarda a peça e onde ela fica parada
   const bomba = obj.getObjectByName('bomba')
   if (bomba) { g.userData.bomba = bomba; g.userData.bombaZ = bomba.position.z }
+  // a besta: a travessa de luz (a corda) e o virote, e onde ficam com ela armada
+  const corda = obj.getObjectByName('corda'), virote = obj.getObjectByName('virote')
+  if (corda && virote) { g.userData.corda = corda; g.userData.cordaZ = corda.position.z; g.userData.virote = virote }
   // a câmara da escopeta: para onde as balas vão na recarga (o marcador no meio do bloco)
   const camara = obj.getObjectByName('camara_sal')
   if (camara) g.userData.camara = camara
@@ -127,10 +135,10 @@ const _dedos = new THREE.Vector3(), _xh = new THREE.Vector3(), _yh = new THREE.V
 export function posturaDaEscopeta(a: Agente, e: { parado: boolean; amp: number; run: number; ph: number; solto: number }, dt: number) {
   const A = a.anim.arma
   A.esquerda = 0; A.bomba = 0
-  if (a.arma !== 'escopeta') { A.ombro = 0; A.parado = 0; return }
+  if (!duasMaos(a.arma)) { A.ombro = 0; A.parado = 0; return }
   const E = ESCOPETA, G = E.guarda, O = E.ombro
   A.parado = e.parado ? A.parado + dt : 0
-  const quer = A.parado > O.espera ? 1 : 0
+  const quer = a.arma === 'escopeta' && A.parado > O.espera ? 1 : 0 // só a escopeta vai ao ombro
   A.ombro += (quer - A.ombro) * (1 - Math.exp(-(quer ? O.vai : O.volta) * dt))
   // a guarda
   _pos.fromArray(G.pega); _pos.y += G.sobe * e.run + G.passo * Math.sin(2 * e.ph) * e.amp
@@ -178,6 +186,13 @@ export function animarArma(a: Agente, dt: number) {
     clarao.visible = L.clarao > 0
   }
   L.clarao = Math.max(0, L.clarao - dt)
+  // a besta: depois do tiro a travessa de luz está na frente e volta pelo trilho até a trava; o virote cresce com ela
+  const corda = g?.userData.corda as THREE.Object3D | undefined, virote = g?.userData.virote as THREE.Object3D | undefined
+  if (corda && virote) {
+    const k = 1 - Math.min(1, L.cd / TIRO.besta.cadencia), e = k * k * (3 - 2 * k) // 0 = acabou de atirar; 1 = armada
+    corda.position.z = (g!.userData.cordaZ as number) + BESTA.curso * (1 - e)
+    virote.visible = e > 0.15; virote.scale.set(1, 1, Math.max(0.05, e))
+  }
   // o frasco da pistola: acende mais com o calor (e treme perto do limite); travado, apaga e volta a acender devagar
   // enquanto esfria (o tempo que falta para destravar)
   const frasco = a.arma === 'pistola' ? (g?.userData.luz as THREE.MeshBasicMaterial | undefined) : undefined

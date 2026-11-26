@@ -9,7 +9,7 @@
 // O kit não tem animação: quem usa chama somDoKit.
 import { pancada, rangido, ruido, som, tom, voz, type Som } from '../../audio/sintese'
 import type { Parte, Tocar } from '../enemies/sons'
-import { baixaLamparina, balaEntra, bolsa, bomba, comEco, ganho, esfriou, ergueLamparina, superaquece, tiroEscopeta, tiroPistola, troca } from '../weapons/sons'
+import { armaBesta, baixaLamparina, balaEntra, bolsa, bomba, comEco, ganho, esfriou, ergueLamparina, superaquece, tiroBesta, tiroEscopeta, tiroPistola, troca } from '../weapons/sons'
 import { TIRO } from '../weapons/numeros'
 import type { EstadoAnim } from './animacao'
 import type { Arma } from './arma'
@@ -99,6 +99,7 @@ export function ouvirAgente(a: Agente, e: EstadoAnim, chao: Chao) {
   else if (A.tiroT < v.tiroT) {
     if (a.arma === 'pistola') tiroPistola(s, t, d)
     else if (a.arma === 'escopeta') { tiroEscopeta(s, t, d); bomba(s, t + TIRO.escopeta.bomba.apos, d) }
+    else if (a.arma === 'besta') { tiroBesta(s, t, d); armaBesta(s, t + TIRO.besta.cadencia, d) } // e o clique de quando ela arma de novo
   }
   if (M) {
     if (v.recarga < 0 && M.recarga >= 0) bolsa(s, t, d)

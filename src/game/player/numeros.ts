@@ -133,6 +133,9 @@ export const ESCOPETA = {
   bomba: { curso: 0.07 }, // quanto a bomba corre para trás (m)
 }
 
+/** A Besta espectral na mão (player/arma.ts): quanto a travessa de luz corre no trilho, da frente até a trava (m). */
+export const BESTA = { curso: 0.34 }
+
 // A recarga da escopeta (player/recarga.ts). Quanto ela dura e quando cada bala entra é da munição (weapons/numeros.ts,
 // MUNICAO: 1 s por bala); aqui, os tempos da pose em s. Pontos e direções no espaço do peito (x = esquerda do agente,
 // y = cima, z = frente)
@@ -176,6 +179,11 @@ export const QUEDA = {
   escurece: 1.5, // s: a tela começa a escurecer (o Testar)
   volta: 2.9, // s: volta no checkpoint (com a tela escura)
 }
+
+/** A dois (as demos com um amigo): quem cai fica no chão até o outro chegar perto (m) e segurar E (s); levanta com
+ *  parte da vida (0..1) e um instante invulnerável (s). Os dois caídos: depois de `juntos` s, os dois voltam ao começo
+ *  (e a horda recomeça). escuro = o quanto a tela escurece enquanto espera. */
+export const LEVANTAR = { perto: 1.6, tempo: 2, vida: 0.5, invul: 1.5, juntos: 2.5, escuro: 0.35 }
 
 // Tomar dano e ficar machucado (player/dano.ts): só a animação (decidido em 10/nov: machucado não muda a velocidade)
 export const DANO = {

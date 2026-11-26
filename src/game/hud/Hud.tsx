@@ -1,7 +1,8 @@
 // O HUD (o conceito C, docs/jogo.md; do laboratório: reference/lab/06-hud.js, dh-vg, dh-kb, dh-wg):
 //   embaixo à esquerda, o anel da vida (em %, a linha do ECG e o estado: bem, cuidado, perigo) com o fôlego por dentro,
 //   e o selo dos kits (zerado, o anel do tempo até o próximo); embaixo à direita, o mostrador da arma (a silhueta, o
-//   anel do calor da pistola ou as 4 balas da escopeta, a outra arma em cima: a do Q) e o nome;
+//   anel do calor da pistola, as 4 balas da escopeta ou a besta armando, com os virotes que a munição espectral dá; a
+//   próxima arma em cima: a do Q) e o nome;
 //   em cima, as barras de vida do chefe (quando tem).
 // Leve: o desenho é feito uma vez; a cada quadro o jogo chama atualizar() e só muda no documento o que mudou.
 // Fica para depois: as legendas (quando houver falas), a roda de armas (Tab) e os avisos de controle.
@@ -9,6 +10,8 @@ import { useEffect, useRef, type MutableRefObject } from 'react'
 import { ARMAS, proximaArma, type Arma } from '../player/arma'
 import { KITS } from '../player/numeros'
 import { MUNICAO } from '../weapons/numeros'
+
+const VIROTE = MUNICAO.besta.porTiro
 import './hud.css'
 
 /** O que o jogo conta ao HUD a cada quadro (um objeto só, reaproveitado). */
@@ -19,8 +22,9 @@ export interface EstadoHud {
   arma: Arma | null
   calor: number; travada: number // a pistola: 0..1 e s que ainda fica travada
   balas: number; recarregando: boolean // a escopeta
+  espectral: number; carga: number // a besta: a munição espectral e o quanto já armou de novo (0..1)
 }
-export const novoEstadoHud = (): EstadoHud => ({ vida: 1, folego: 1, folegoTravado: false, kits: 0, novoKit: 0, arma: null, calor: 0, travada: 0, balas: 0, recarregando: false })
+export const novoEstadoHud = (): EstadoHud => ({ vida: 1, folego: 1, folegoTravado: false, kits: 0, novoKit: 0, arma: null, calor: 0, travada: 0, balas: 0, recarregando: false, espectral: 0, carga: 1 })
 
 /** O chefe em cima: o nome e cada barra de vida (0..1, da esquerda; a da direita esvazia primeiro). */
 export interface ChefeHud { nome: string; barras: number[] }
@@ -29,6 +33,7 @@ export interface ChefeHud { nome: string; barras: number[] }
 const SILHUETA: Record<Arma | 'kit', string> = {
   pistola: '<path d="M6 21 H47 L52 24 V30 H6 Z"/><path d="M10 30 H30 L28 35 H23 L20 52 H9 L12 35 Z"/><path d="M23 35 Q23 41 29 41 L31 35" fill="none" stroke-width="2.6"/><circle cx="56.5" cy="27" r="5" fill="none" stroke-width="2.6"/><path d="M14 25 H38 M14 27.5 H30" style="stroke:var(--cut)" stroke-width="1.2"/>',
   escopeta: '<path d="M2 37 L15 30 H21 V40 H14 L5 47 Z"/><path d="M20 28 H31 V40 H20 Z"/><rect x="31" y="27" width="31" height="4"/><rect x="31" y="32" width="31" height="4"/><path d="M35 36 H50 V40 H35 Z"/><path d="M24 40 Q24 45 29 45" fill="none" stroke-width="2.4"/><path d="M22 31 H29 M22 34 H27" style="stroke:var(--cut)" stroke-width="1.2"/>',
+  besta: '<path d="M4 30 H18 V36 H10 L4 40 Z"/><rect x="18" y="30" width="40" height="5"/><path d="M48 32 Q40 18 28 14" fill="none" stroke-width="3"/><path d="M48 33 Q40 47 28 51" fill="none" stroke-width="3"/><path d="M28 14 L24 32.5 L28 51" fill="none" stroke-width="1.6"/><path d="M20 36 L18 46 H24 L25 36 Z"/><path d="M26 32.5 H60" style="stroke:var(--cut)" stroke-width="1.2"/>',
   kit: '<rect x="12" y="19" width="40" height="31" rx="4"/><path d="M25 19 V13 H39 V19" fill="none" stroke-width="2.6"/><path d="M32 26 V43 M23.5 34.5 H40.5" style="stroke:var(--cut)" stroke-width="5"/>',
 }
 const svg = (k: Arma | 'kit') => `<svg viewBox="0 0 64 64" fill="currentColor" stroke="currentColor" stroke-linejoin="round" stroke-linecap="round" aria-hidden="true">${SILHUETA[k]}</svg>`
@@ -85,7 +90,7 @@ export function Hud({ painel }: { painel: MutableRefObject<((e: EstadoHud) => vo
       muda('ak', e.arma, (a) => {
         el.aic.innerHTML = a ? svg(a) : ''
         el.sats[0].innerHTML = svg(proximaArma(a)) // a do Q (só a outra arma de tiro)
-        el.atr.style.strokeDasharray = a === 'escopeta' ? pedacos(BALAS) : a === 'pistola' ? arco(C_ARMA, 1) : `0 ${C_ARMA}`
+        el.atr.style.strokeDasharray = a === 'escopeta' ? pedacos(BALAS) : a ? arco(C_ARMA, 1) : `0 ${C_ARMA}`
       })
       let anel = '', linha = '', sub = '', quente = false, morno = false
       if (e.arma === 'pistola') {
@@ -94,6 +99,10 @@ export function Hud({ painel }: { painel: MutableRefObject<((e: EstadoHud) => vo
       } else if (e.arma === 'escopeta') {
         anel = pedacos(e.balas); linha = e.recarregando ? 'recarregando' : `${e.balas} / ${BALAS}`
         sub = e.recarregando ? 'clique: atirar já' : e.balas < BALAS ? 'R · recarregar' : 'balas'; morno = e.recarregando
+      } else if (e.arma === 'besta') { // o anel enche enquanto ela arma; a linha, os virotes que a munição ainda dá
+        const virotes = Math.floor(e.espectral / VIROTE)
+        anel = arco(C_ARMA, virotes > 0 ? e.carga : 0); linha = `${virotes} virote${virotes === 1 ? '' : 's'}`
+        sub = virotes <= 0 ? 'sem munição espectral' : e.carga < 0.999 ? 'armando' : `munição espectral ${Math.floor(e.espectral)}`; morno = virotes > 0 && e.carga < 0.999; quente = virotes <= 0
       } else anel = `0 ${C_ARMA}` // sem arma de tiro na mão (o jogo sempre tem uma)
       muda('ar', anel, (v) => (el.afl.style.strokeDasharray = v))
       el.arma.classList.toggle('quente', quente && Math.sin(performance.now() / 70) > -0.3) // pisca travada

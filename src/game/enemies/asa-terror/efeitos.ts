@@ -161,3 +161,12 @@ export function passoEfeitos(E: EfeitosAsaTerror, dt: number, chao = 0) {
 export function descartarEfeitos(E: EfeitosAsaTerror) {
   for (const m of [E.cubos, E.aneis]) { m.geometry.dispose(); (m.material as THREE.Material).dispose() }
 }
+
+/** Tira tudo o que está no ar e no chão (a bola, as bombas, os cubos, os anéis): a horda recomeçou. */
+export function limparEfeitos(E: EfeitosAsaTerror) {
+  E.orbe.k = 0
+  for (const b of E.bombas) b.estado = 'livre'
+  for (const x of E.partes) x.t = x.vida
+  for (const a of E.soltos) a.t = a.dur
+  for (const m of [E.cubos, E.aneis]) { for (let i = 0; i < m.count; i++) m.setMatrixAt(i, ZERO); m.instanceMatrix.needsUpdate = true }
+}

@@ -110,3 +110,46 @@ continuam com um alvo só: não estão na mansão.
   verdade.
 - Se o teste der certo: vira modo cooperativo de verdade, e com que história (a Lara como parceira do Matheus).
 - Reconectar quando cai (hoje a sessão acaba) e mais de dois jogadores: só se virar modo de verdade.
+
+## As demos a dois (26/nov)
+
+Pedido em 26/nov: as duas demos (a Intro e a Inimigos) passam a ter **um lobby** e podem ser jogadas com um amigo, com a
+conexão deste teste.
+
+- **O lobby** (`src/screens/Lobby.tsx`): Novo jogo → a demo → o lobby dela: **Começar** (sozinho), **Convidar amigo**
+  (abre a sessão e mostra o código) ou **Entrar com código** (o amigo digita no lobby da demo). Juntos no lobby, o host
+  (o Matheus) aperta Começar e os dois entram; o convidado (a Lara) espera. Caiu a conexão, cada um volta ao lobby com o
+  motivo. Sozinho, a demo é a mesma de antes.
+- **Decidido para a luta a dois:**
+  - **Quem cai precisa ser levantado:** fica no chão até o outro chegar perto e segurar uma tecla; se os dois caírem, a
+    horda (ou a onda da arena) recomeça.
+  - **Os inimigos ganham mais vida** com dois jogadores (o quanto: a decidir jogando; ponto de partida, 50% a mais).
+  - O host manda nos inimigos (como os fantasmas da mansão): a inteligência, os golpes, as hordas; o convidado copia.
+
+### As etapas
+
+1. ~~**O lobby nas duas demos**~~ (feito em 26/nov). A dois, os dois entram no mapa, se veem, atiram e abrem portas, mas
+   ainda sem os inimigos (a linha no alto avisa).
+2. ~~**A Demo · Inimigos a dois**~~ (feita em 26/nov):
+   - **O host roda tudo** (o roteiro das hordas e os espectrais: `entidades/Espectrais.tsx`) e manda ao convidado **o
+     retrato** (15/s: o tipo, onde, o giro, o tamanho, fraco, a força da captura) e **os instantes** (`espEv`: nasceu e como,
+     o golpe que começou, levou tiro, estourou, saiu ou foi capturado, a bola da Asa, a bomba e o teletransporte do Asa do
+     terror, a horda limpa); e **a linha da horda** (`roteiro`).
+   - **O convidado copia** (`entidades/EspectraisCopia.tsx`): cada espectral nasce do jeito certo, desliza até o retrato e
+     anima ali com a velocidade que andou e os golpes que chegam; os sons e os efeitos tocam nele; as bolas e as bombas
+     voam nele só como imagem (o dano é o host que manda). Quem perdeu o aviso de que um nasceu (entrou atrasado, a aba
+     estava escondida) monta a cópia pelo retrato.
+   - **O tiro do convidado** que pega numa cópia vira um pedido (`acertoE`); o host aplica como se fosse dele.
+   - **Cada espectral da horda vai atrás do jogador mais perto** (escolhe de novo a cada 0,5 s; quem caiu não conta). O golpe
+     no convidado vai pela rede (`ferido`; o agarrão do Manto também segura: `lento`). As bolas e as bombas pegam os dois.
+   - **A vida dos espectrais é 1,5 vez** a dois (`entidades/numeros.ts`, `DOIS`).
+   - **Levantar:** a dois, quem cai fica no chão (a tela escurece um pouco) até o outro chegar a 1,6 m e **segurar E por 2 s**;
+     levanta no lugar com metade da vida e 1,5 s invulnerável (`player/numeros.ts`, `LEVANTAR`; mensagem `levanta`). Os dois
+     caídos por 2,5 s: o host manda os dois voltarem ao começo (`voltar`) e a horda recomeça. Vale também para o teste
+     online da mansão. Ainda sem a animação de levantar: ele fica de pé de uma vez.
+   - **Conferido** (26/nov, duas abas no painel, que estava escondido e quase não desenhava): a linha da horda chega ao
+     convidado; o host invoca a Sombra, o Manto e o Asa do terror e as três cópias nascem no convidado, com a vida a dois
+     (Manto 675, Asa do terror 600); o tiro do convidado tira 100 do Manto no host e mata a Sombra, que estoura e sai do
+     convidado; a horda limpa some no convidado. **Não deu para conferir aqui:** o retrato andando, os golpes nas cópias, o
+     dano chegando no convidado e o levantar (dependem dos quadros das duas abas desenhando juntas: duas janelas lado a lado).
+3. **A Demo · Intro a dois:** o mesmo para os Sombrios, os tornados e o Devora almas. ← a próxima

@@ -240,8 +240,26 @@ luta não é para ser lenta; os ataques dos inimigos são legíveis para o jogad
 | --- | --- | --- | --- | --- |
 | Pistola de plasma | Q | a cada 0,2 s, bala a 40 m/s | 3 (26/nov; era 5) | **sobrecarga**: +2,5% por tiro; cheia, trava por 5 s. Munição infinita |
 | Escopeta de Demantino (o ferro extraído dos objetos amaldiçoados) | Q | a cada 1 s, 5 bagos em leque 0,065, 46 m/s | 5 × 10 (26/nov; era 15) | **balas**: 4 no cano; **a recarga leva 1 s por bala que falta** (4 = 4 s), e cada bala vale ao entrar. Sem sobrecarga |
+| Besta espectral (26/nov; a primeira arma do jogo novo) | Q | **não recarrega: arma de novo sozinha em 0,8 s**; um virote de luz a 80 m/s, reto | 30 | **munição espectral**: 5 por virote; começa com 100 (20 virotes) e volta com **as orbes de energia** (0,5 cada: embaixo); cheia ao voltar da queda |
 | A lamparina (a armadilha reformulada) | C (liga e desliga, 26/nov) | **feita em 18/nov:** na cintura, sempre acesa (a luz amarelada em volta); com o C, erguida para a frente, com o feixe que afasta o Mestre; a captura absorvendo feita em 26/nov (`docs/demonios.md`, "A captura"). Não fica no Q | — | — |
 | Kit médico | F | — | cura 60 | — |
+
+**A Besta espectral (26/nov, a pedido):** entra no Q depois da escopeta (pistola → escopeta → besta). Vai com as duas
+mãos, como a escopeta (a esquerda no apoio; mirando, a coronha no ombro), mas não vai ao ombro parada. No lugar da corda,
+uma **travessa de luz** que, depois do tiro, volta pelo trilho até a trava em 0,8 s, com o **virote de luz** crescendo junto:
+é assim que se vê que ela armou. No HUD, o anel enche enquanto arma e a linha diz quantos virotes a munição ainda dá; sem
+munição, "Sem munição espectral.". O modelo é `modelos/armas/besta.bbmodel` (de um gerador; dá para retocar no
+Blockbench). Os sons: o estalo da trava com a corda de luz zunindo, o clique de quando arma e o virote tinindo onde bate.
+Os números em `weapons/numeros.ts` (TIRO, MUNICAO e BALA `.besta`). A dois, o tiro dela aparece para o outro como os das
+outras armas.
+
+**As orbes de energia espectral (26/nov, a pedido; `weapons/orbes.ts`, os números em ORBE):** cada bala que acerta um
+inimigo solta uma bolinha de luz que vale **0,5 de munição espectral** (mudou o desenho antigo, em que o monstro soltava 2 a 5
+orbes de 5 ao morrer). Por tiro e não por dano: a pistola de plasma, que atira rápido e nunca acaba, é quem carrega melhor
+(5 tiros por segundo = 2,5 de munição por segundo acertando tudo; um virote custa 5). A escopeta solta uma por bago que
+acerta (até 5); a besta, uma por virote. A orbe salta, desce e fica boiando a 35 cm do chão; a 2,4 m do agente voa até ele e
+é absorvida (um pingo de vidro); sem ninguém pegar, some em 15 s, piscando no fim. A munição não passa de 100. A dois, cada
+jogador vê e pega as suas (as que as balas dele soltaram): não vão pela rede. Uma malha só, até 80 na cena.
 
 **A recarga da escopeta (decidida e feita em 12/nov; mudada no mesmo dia):** leva **1 s por bala que falta** (1 bala
 = 1 s, 4 balas = 4 s; 13/nov: era 1,5 s por bala, e antes 2,5 s fixos) e **cada bala vale assim que entra** na câmara. Para o ritmo continuar

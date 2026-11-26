@@ -121,8 +121,8 @@ export function TesteOnline({ go }: { go: Go }) {
   )
 }
 
-/** No canto da tela, jogando: o código, quem eu sou e o ping (a cada segundo). */
-function StatusRede({ con }: { con: Conexao }) {
+/** No canto da tela, jogando: o código, quem eu sou e o ping (a cada segundo). Também nas demos a dois (Lobby). */
+export function StatusRede({ con }: { con: Conexao }) {
   const [ping, setPing] = useState(0)
   useEffect(() => { const t = setInterval(() => setPing(Math.round(con.ping)), 1000); return () => clearInterval(t) }, [con])
   const cor = ping < 80 ? 'bom' : ping < 180 ? 'medio' : 'ruim'

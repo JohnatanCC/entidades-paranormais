@@ -18,12 +18,15 @@ import type { Chunk, ScriptPoint } from '../maps/types'
 import { setModoParedes } from '../render/corte'
 import { canvasDoNivel, useDefinicao } from '../render/qualidade'
 import { Roteiro, type TextoRoteiro } from '../chapters/intro/Roteiro'
+import { Roteiro as RoteiroInimigos } from '../chapters/demo-inimigos/Roteiro'
 import type { AgenteNaFase, Rede } from '../game/Testar'
 import { BarrasDoChefe, Hud, type EstadoHud } from '../game/hud/Hud'
 import { SettingsScreen } from './SettingsScreen'
 
-/** Os roteiros das fases, pelo mapa (por enquanto, só a Demo · Intro). */
-const ROTEIROS: Record<string, typeof Roteiro> = { intro: Roteiro }
+/** Os roteiros das fases, pelo mapa: as duas demos. A dois só a Demo · Inimigos por enquanto (a Intro a dois é a próxima
+ *  etapa: docs/teste-online.md). */
+const ROTEIROS: Record<string, typeof Roteiro> = { intro: Roteiro, 'demo-inimigos': RoteiroInimigos }
+const A_DOIS = new Set(['demo-inimigos'])
 
 /** rede = o teste online; extras = pontos a mais no mapa (as entidades), sem mexer no mapa salvo; deslocar = m para o
  *  lado no começo (o convidado não nasce dentro do host); sair = para onde o Esc leva (sem: o menu). */
@@ -70,6 +73,10 @@ export function Jogo({ go, mapa, rede, extras, deslocar = 0, sair: aoSair }: { g
   const jogo = useRef<AgenteNaFase | null>(null), [roteiro, setRoteiro] = useState<TextoRoteiro | null>(null)
   const aoMontar = useCallback((c: AgenteNaFase) => { jogo.current = c }, [])
   const RoteiroDaFase = ROTEIROS[mapa]
+  // a dois: o roteiro roda no host, que manda a linha ao convidado; o convidado só mostra
+  const host = !rede || rede.con.papel === 'host', aDois = A_DOIS.has(mapa)
+  const aoTexto = useCallback((t: TextoRoteiro | null) => { setRoteiro(t); if (rede && t) rede.con.enviar({ t: 'roteiro', titulo: t.titulo, dica: t.dica }) }, [rede])
+  useEffect(() => { if (rede && !host) return rede.con.ouvir('roteiro', (m) => setRoteiro({ titulo: m.titulo, dica: m.dica })) }, [rede, host])
 
   if (!meta) return <div className="tela"><h2>O mapa “{mapa}” não está na pasta maps/.</h2><nav className="menu"><button onClick={sair}>Voltar</button></nav></div>
   if (!chunks) return <div className="tela"><h2>Carregando…</h2></div>
@@ -81,10 +88,12 @@ export function Jogo({ go, mapa, rede, extras, deslocar = 0, sair: aoSair }: { g
         <Suspense fallback={null}><MapView chunks={chunks} maxLevel={meta.levels - 1} portas={portas} juntar /></Suspense>
         <Testar chunks={chunks} levels={meta.levels} ambiente={meta.ambiente} semChao={meta.semChao} areas={meta.areas} inicio={[x, y, z]} yaw={(meta.spawn.yaw * Math.PI) / 180}
           portas={portas} onTravado={setTravado} onDica={setDica} onMira={setMirando} onEscuro={setEscuro} onHud={onHud} onSair={sair} aoMontar={aoMontar} rede={rede} onPausa={pausar} pausado={pausado} />
-        {RoteiroDaFase && <RoteiroDaFase chunks={chunks} jogo={jogo} aoTexto={setRoteiro} />}
+        {RoteiroDaFase && host && (!rede || aDois) && <RoteiroDaFase chunks={chunks} jogo={jogo} aoTexto={aoTexto} />}
         <Desempenho onTexto={onDesempenho} />
       </Canvas>
       {roteiro && <div className="roteiro-jogo"><b>{roteiro.titulo}</b>{roteiro.dica && <span>{roteiro.dica}</span>}</div>}
+      {/* a dois, a Intro ainda não tem os inimigos (a próxima etapa: docs/teste-online.md) */}
+      {mapa in ROTEIROS && rede && !aDois && <div className="roteiro-jogo"><b>A dois</b><span>Os inimigos a dois chegam na próxima etapa</span></div>}
       {dica && <div className="dica-teste">{dica}</div>}
       {mirando && <div className="mira-ponto" />}
       <div className={escuro >= 1 ? 'escuro-teste ligado' : 'escuro-teste'} style={{ opacity: escuro }} />
