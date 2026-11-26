@@ -1930,7 +1930,8 @@
     "raio": 7,
     "cargas": 1,
     "recarga": 15,
-    "maximo": 3
+    "maximo": 3,
+    "aprimorado": "sempre"
    }
   }
  ]

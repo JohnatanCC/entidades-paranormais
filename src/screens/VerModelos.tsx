@@ -67,7 +67,9 @@ import { ESCALA as ESCALA_DEVORA, NINHADA, RESPINGO } from '../game/enemies/devo
 import { estourar } from '../game/enemies/estouro'
 import { calar, somEm } from '../game/enemies/sons'
 import { ouvirAgente } from '../game/player/sons'
-import { passoGolpes } from '../render/golpe'
+import { enfurecer, passoGolpes, soltarGolpe } from '../render/golpe'
+import { novaAura, pulsarAuras } from '../game/enemies/aura'
+import { APRIMORADO } from '../game/entidades/numeros'
 import { ouvirAssombrado } from '../game/enemies/assombrado/sons'
 import { bolaBatendo, ouvirAsaSombria } from '../game/enemies/asa-sombria/sons'
 import { avisoChuva, ouvirDevora, tentaculo } from '../game/enemies/devora-almas/sons'
@@ -139,7 +141,7 @@ const MAOS: [PoseMao | null, string][] = [[null, 'Automática'], ['solta', 'Solt
 const CAMERAS: [Camera, string][] = [['corpo', 'Corpo'], ['rosto', 'Rosto'], ['maos', 'Mãos'], ['pes', 'Pés'], ['costas', 'Costas']]
 const LUZES: [Luz, string][] = [['estudio', 'Estúdio'], ['jogo', 'Jogo (lâmpada no escuro)']]
 
-interface Escolhas { qual: string; anim: Anim; exp: Expressao | null; mao: PoseMao | null; arma: Arma | null; gesto: { g: Gesto; n: number } | null; mirando: boolean; tiros: number; gatilho: boolean; lamparina: boolean; recargas: number; golpes: number; ferido: boolean; ataque: { nome: string; n: number } | null; rostoMae: ExpressaoMae | null; fase4: boolean; caca: boolean; demonio: { acao: AcaoDemonio; n: number } | null; faseDevora: number; camera: Camera; luz: Luz; girar: boolean; grade: boolean }
+interface Escolhas { qual: string; anim: Anim; exp: Expressao | null; mao: PoseMao | null; arma: Arma | null; gesto: { g: Gesto; n: number } | null; mirando: boolean; tiros: number; gatilho: boolean; lamparina: boolean; recargas: number; golpes: number; ferido: boolean; ataque: { nome: string; n: number } | null; rostoMae: ExpressaoMae | null; fase4: boolean; caca: boolean; demonio: { acao: AcaoDemonio; n: number } | null; faseDevora: number; aprimorado: boolean; camera: Camera; luz: Luz; girar: boolean; grade: boolean }
 interface Info { linhas: string[] }
 
 function Opcoes<T>({ titulo, lista, valor, onEscolher }: { titulo: string; lista: [T, string][]; valor: T; onEscolher: (v: T) => void }) {
@@ -152,7 +154,7 @@ function Opcoes<T>({ titulo, lista, valor, onEscolher }: { titulo: string; lista
 }
 
 export function VerModelos({ go }: { go: Go }) {
-  const [e, setE] = useState<Escolhas>({ qual: AGENTE_ID, anim: 'parado', exp: null, mao: null, arma: null, gesto: null, mirando: false, tiros: 0, gatilho: false, lamparina: false, recargas: 0, golpes: 0, ferido: false, ataque: null, rostoMae: null, fase4: false, caca: false, demonio: null, faseDevora: 1, camera: 'corpo', luz: 'estudio', girar: false, grade: true })
+  const [e, setE] = useState<Escolhas>({ qual: AGENTE_ID, anim: 'parado', exp: null, mao: null, arma: null, gesto: null, mirando: false, tiros: 0, gatilho: false, lamparina: false, recargas: 0, golpes: 0, ferido: false, ataque: null, rostoMae: null, fase4: false, caca: false, demonio: null, faseDevora: 1, aprimorado: false, camera: 'corpo', luz: 'estudio', girar: false, grade: true })
   const [info, setInfo] = useState<Info | null>(null)
   const [municao, setMunicao] = useState<string | null>(null) // o contador da arma na mão (as balas, o calor)
   const muda = (p: Partial<Escolhas>) => setE((v) => ({ ...v, ...p }))
@@ -238,6 +240,7 @@ export function VerModelos({ go }: { go: Go }) {
           <small>No lugar. Atordoada e enfraquecida: de joelhos, o Luto escorrendo dos olhos.</small>
         </section>}
         {demonio && <Opcoes titulo="Animação" lista={demonio.anims} valor={e.anim} onEscolher={(anim) => muda({ anim })} />}
+        {(e.qual === SOMBRA_ESP || e.qual === ASA_ESP) && <Opcoes titulo="Aprimorado (o dobro da vida, mais dano e rapidez)" lista={[[false, 'Normal'], [true, 'Aprimorado: avermelhado, com a aura']] as [boolean, string][]} valor={e.aprimorado} onEscolher={(aprimorado) => muda({ aprimorado })} />}
         {e.qual === DEVORA && <Opcoes titulo="Barra de vida (a fase: as rachaduras e o brilho)" lista={[[1, 'Primeira'], [2, 'Segunda'], [3, 'Terceira']] as [number, string][]} valor={e.faseDevora} onEscolher={(faseDevora) => muda({ faseDevora })} />}
         {demonio && <section>
           <b>Ações</b>
@@ -482,9 +485,22 @@ function CenaMae({ e, onInfo }: { e: Escolhas; onInfo: (i: Info) => void }) {
   </>
 }
 
+/** O espectral aprimorado (o jogo novo): a fúria no material, a aura atrás do corpo (altura = acima do osso do corpo) e o tamanho, como
+ *  no jogo (game/entidades/Espectrais.tsx); desligando, tudo volta. A aura pulsa a cada quadro. */
+function useAprimorado(raiz: THREE.Object3D, corpo: THREE.Object3D, ligado: boolean, altura: number) {
+  useEffect(() => {
+    if (!ligado) return
+    const aura = novaAura(2.2, altura)
+    corpo.add(aura); raiz.scale.setScalar(APRIMORADO.tamanho); enfurecer(raiz, 1)
+    return () => { corpo.remove(aura); raiz.scale.setScalar(1); soltarGolpe(raiz) }
+  }, [raiz, corpo, ligado, altura])
+  useFrame(() => { if (ligado) pulsarAuras(performance.now() / 1000) })
+}
+
 function CenaAssombrado({ arquivo, e, onInfo }: { arquivo: string; e: Escolhas; onInfo: (i: Info) => void }) {
   // montarAssombrado na lista: salvar o .bbmodel recarrega o módulo e ele é montado de novo
   const a = useMemo(() => montarAssombrado(arquivo), [montarAssombrado, arquivo])
+  useAprimorado(a.root, a.corpo, e.aprimorado, 0.3)
   const E = useMemo(() => novoEstouro(), [])
   const { pronto, voar } = useVoo()
   // em roda: o ângulo; o ataque: sai de trás contra o alvo e volta ao lugar; estourado: quanto falta para ele voltar
@@ -537,6 +553,7 @@ function CenaAssombrado({ arquivo, e, onInfo }: { arquivo: string; e: Escolhas; 
 function CenaAsaSombria({ arquivo, e, onInfo }: { arquivo: string; e: Escolhas; onInfo: (i: Info) => void }) {
   // montarAsaSombria na lista: salvar o .bbmodel recarrega o módulo e ela é montada de novo
   const a = useMemo(() => montarAsaSombria(arquivo), [montarAsaSombria, arquivo])
+  useAprimorado(a.root, a.corpo, e.aprimorado, 0)
   const E = useMemo(() => novoEstouro(), []), P = useMemo(() => novosProjeteis(), [])
   const { pronto, voar } = useVoo()
   const ALTURA = 2.0, R = 2.2, VEL = 3 // o voo: a altura (m); em roda: o raio (m) e a velocidade (m/s)

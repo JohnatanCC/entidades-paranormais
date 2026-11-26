@@ -130,7 +130,7 @@ src/
   render/                  qualidade.ts (os níveis Baixo, Médio, Alto e Ultra, os recursos ajustáveis um a um e o automático), passeFinal.ts (a passada de
                            tela cheia do Médio e do Alto: as bordas suaves, bloom, tonemapping, correção de cor, vinheta), contorno.ts (o contorno de luz
                            dos personagens e o brilho do golpe), golpe.ts (quem leva um golpe acende vermelho por um instante; o demônio que
-                           prepara um ataque acende âmbar), brilho.ts (os blocos "luz_" mais fortes que o branco quando o bloom está ligado),
+                           prepara um ataque acende âmbar; o aprimorado fica avermelhado com a borda acesa: enfurecer), brilho.ts (os blocos "luz_" mais fortes que o branco quando o bloom está ligado),
                            assada.ts (o cenário e os objetos usam a luz assada, e a luz da lamparina, a única que anda: todas as lâmpadas no Baixo; no Médio e no Alto, as que não fazem
                            sombra), remendos.ts (anota as mudanças de shader de cada material, para a cópia levar junto),
                            sombras.ts (as lâmpadas do mapa são só dados, no jogo e no editor; as poucas luzes de verdade, as das sombras, vão para as mais perto), materiais.ts (nome da textura -> material),
@@ -153,7 +153,7 @@ src/
                            paredes juntadas por textura, cantos fechados, a sombra de canto e a luz assada em cada vértice), EditorCamera, FerramentaParedes,
                            FerramentaPiso, FerramentaPincel, FerramentaAberturas + PainelAbertura, FerramentaEscadas + PainelEscada,
                            FerramentaObjetos + PainelObjeto, FerramentaAmbiente + PainelArea (as áreas de ambientação),
-                           FerramentaEntidades (a aba Entidades: pôr, mover, girar e apagar; as marcas no mapa; o raio da caixa) + PainelCaixa (as cargas, a recarga, o máximo),
+                           FerramentaEntidades (a aba Entidades: pôr, mover, girar e apagar; as marcas no mapa; o raio da caixa) + PainelCaixa (as cargas, a recarga, o máximo, o aprimorado),
                            Objetos (monta o catálogo; a lâmpada acende pela luz assada),
                            Aberturas (portas, janelas) + Luar (feixe macio, brilho, poeira), Paleta, doc.ts (o documento e as operações),
                            historico.ts (desfazer e refazer)
@@ -249,6 +249,7 @@ src/game/                  (já existem: Testar.tsx, player/, input/, world/, we
                            ataque: mergulho e bicada; o tiro e estourar), efeitos.ts (as penas que caem e o estouro em fumaça), ia.ts (perseguir: rodear o agente e mergulhar nele), sons.ts (as asas, o grasnado) e numeros.ts
   enemies/nuvens.ts        as nuvens de fumaça de pixel (uma malha só, viradas para a câmera no shader): a fumaça do Mestre e o
                            estouro da Gralha
+  enemies/aura.ts          a aura vermelha do inimigo aprimorado (um sprite atrás do corpo, todos com o mesmo material)
   enemies/estouro.ts       o estouro dos Sombrios (os cubos de matéria e a mancha que seca), um estoque só para todos
   enemies/luta.ts          o que a inteligência dos Sombrios divide: o alvo (o agente), andar no mundo, virar, desviar dos
                            obstáculos (rumoLivre), separar o bando;

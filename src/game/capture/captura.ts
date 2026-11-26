@@ -6,12 +6,12 @@
 // Quem tem o fantasma chama passoCaptura a cada quadro e tiroNaCaptura a cada tiro; os números aqui (CAPTURA).
 
 /** comeca = a força quando a captura começa (%); fim = com ela nisso ou menos, capturou; porDano = quanto cada ponto de
- *  dano do tiro tira da força (a pistola tira 5 por tiro; a escopeta abaixa a lamparina); recupera = %/s que ela volta
+ *  dano do tiro tira da força (a pistola tira 3 por tiro, ~5% da força: ~16 tiros; a escopeta abaixa a lamparina); recupera = %/s que ela volta
  *  sem tiro; solta = s fora do feixe até a captura soltar; rompe = s com a força cheia até ele se soltar sozinho (conta
  *  desde o começo: o jogador tem esse tempo para começar a atirar);
  *  absorve = s até sumir na lamparina; cura = a vida que o agente ganha (o agente tem 200); puxa = m/s que ele vem para
  *  a lamparina enquanto é capturado. */
-export const CAPTURA = { comeca: 100, fim: 20, porDano: 1, recupera: 8, solta: 0.6, rompe: 4, absorve: 1.2, cura: 50, puxa: 0.35 }
+export const CAPTURA = { comeca: 100, fim: 20, porDano: 5 / 3, recupera: 8, solta: 0.6, rompe: 4, absorve: 1.2, cura: 50, puxa: 0.35 }
 
 export interface Captura { forca: number; fora: number; cheia: number }
 export const novaCaptura = (): Captura => ({ forca: CAPTURA.comeca, fora: 0, cheia: 0 })

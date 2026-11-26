@@ -1,4 +1,4 @@
-// As propriedades da caixa de espectrais escolhida (a aba Entidades): o que ela invoca, o raio que a ativa, as cargas
+// As propriedades da caixa de espectrais escolhida (a aba Entidades): o que ela invoca, se aprimorado, o raio que a ativa, as cargas
 // (quantos ao mesmo tempo), a recarga (depois que um morre) e o máximo (quantos no total). Os números ficam no params.
 import { caixaDe, type Caixa } from '../maps/entidades'
 import type { ScriptPoint } from '../maps/types'
@@ -12,6 +12,12 @@ export function PainelCaixa({ p, onMudar, onApagar }: { p: ScriptPoint; onMudar:
       <div className="opcoes">
         <button aria-pressed={c.monstro === 'sombra'} onClick={() => onMudar({ monstro: 'sombra' })}>Sombra espectral</button>
         <button aria-pressed={c.monstro === 'asa'} onClick={() => onMudar({ monstro: 'asa' })}>Asa espectral</button>
+      </div>
+      <span className="rotulo">Aprimorado (o dobro da vida, +25% de dano e de rapidez)</span>
+      <div className="opcoes">
+        <button aria-pressed={c.aprimorado === 'sorte'} onClick={() => onMudar({ aprimorado: 'sorte' })}>Sorte (5%)</button>
+        <button aria-pressed={c.aprimorado === 'sempre'} onClick={() => onMudar({ aprimorado: 'sempre' })}>Sempre</button>
+        <button aria-pressed={c.aprimorado === 'nunca'} onClick={() => onMudar({ aprimorado: 'nunca' })}>Nunca</button>
       </div>
       <Deslizar rotulo="Raio que ativa" min={2} max={20} passo={0.5} valor={c.raio} fmt={(v) => `${v} m`} onMudar={(raio) => onMudar({ raio })} />
       <Deslizar rotulo="Cargas (ao mesmo tempo)" min={1} max={6} passo={1} valor={c.cargas} fmt={String} onMudar={(cargas) => onMudar({ cargas })} />

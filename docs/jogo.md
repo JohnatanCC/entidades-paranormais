@@ -238,8 +238,8 @@ luta não é para ser lenta; os ataques dos inimigos são legíveis para o jogad
 
 | Arma | Atalho | Tiro | Dano | Limite |
 | --- | --- | --- | --- | --- |
-| Pistola de plasma | Q | a cada 0,2 s, bala a 40 m/s | 5 | **sobrecarga**: +2,5% por tiro; cheia, trava por 5 s. Munição infinita |
-| Escopeta de Demantino (o ferro extraído dos objetos amaldiçoados) | Q | a cada 1 s, 5 bagos em leque 0,065, 46 m/s | 5 × 15 | **balas**: 4 no cano; **a recarga leva 1 s por bala que falta** (4 = 4 s), e cada bala vale ao entrar. Sem sobrecarga |
+| Pistola de plasma | Q | a cada 0,2 s, bala a 40 m/s | 3 (26/nov; era 5) | **sobrecarga**: +2,5% por tiro; cheia, trava por 5 s. Munição infinita |
+| Escopeta de Demantino (o ferro extraído dos objetos amaldiçoados) | Q | a cada 1 s, 5 bagos em leque 0,065, 46 m/s | 5 × 10 (26/nov; era 15) | **balas**: 4 no cano; **a recarga leva 1 s por bala que falta** (4 = 4 s), e cada bala vale ao entrar. Sem sobrecarga |
 | A lamparina (a armadilha reformulada) | C (liga e desliga, 26/nov) | **feita em 18/nov:** na cintura, sempre acesa (a luz amarelada em volta); com o C, erguida para a frente, com o feixe que afasta o Mestre; a captura absorvendo feita em 26/nov (`docs/demonios.md`, "A captura"). Não fica no Q | — | — |
 | Kit médico | F | — | cura 60 | — |
 
@@ -309,7 +309,7 @@ Fora da mão, um clique a chama de volta: ela voa até a mão. Trocar de arma co
 - **A mira de verdade:** a linha da câmera procura o que está embaixo dela (o demônio, a parede, o chão, até 25 m) e a
   arma e a bala vão para lá. Com a mira em cima de um demônio, o tiro vai no meio dele (senão os bagos da escopeta
   passavam pela borda). A conta da bala começa no peito (0,8 m antes do cano): quem está colado também leva o tiro.
-- **O voo:** a pistola, uma bala a 40 m/s (5 de dano); a escopeta, 5 bagos em leque a 46 m/s (15 cada). Um risco que
+- **O voo:** a pistola, uma bala a 40 m/s (3 de dano, 26/nov); a escopeta, 5 bagos em leque a 46 m/s (10 cada, 26/nov). Um risco que
   brilha, da cor do tiro. Vai até 60 m.
 - **Onde bate:** a parede, a porta fechada, os objetos (o guarda-corpo vazado deixa passar), o chão (no mapa sem chão,
   o vazio não para a bala) e o teto: as faíscas e a marca queimada (some em 8 s).

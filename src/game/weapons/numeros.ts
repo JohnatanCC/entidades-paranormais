@@ -26,8 +26,8 @@ export const MUNICAO = {
 // saem de uma vez (a escopeta: os bagos) e o leque (rad: o quanto cada uma desvia do centro); tam = o comprimento do
 // risco que ela deixa no ar (m). alcance = até onde ela vai (m); passo = de quanto em quanto a conta procura a parede (m)
 export const BALA = {
-  pistola: { vel: 40, dano: 5, n: 1, leque: 0, tam: 0.45 }, // dano: por tiro (12/nov: era 3)
-  escopeta: { vel: 46, dano: 15, n: 5, leque: 0.065, tam: 0.3 }, // dano: por bago (12/nov: era 10)
+  pistola: { vel: 40, dano: 3, n: 1, leque: 0, tam: 0.45 }, // dano: por tiro (26/nov: era 5)
+  escopeta: { vel: 46, dano: 10, n: 5, leque: 0.065, tam: 0.3 }, // dano: por bago (26/nov: era 15)
   alcance: 60, passo: 0.2,
 }
 // O que a bala deixa onde bate (weapons/impacto.ts): as faíscas (quantas, quanto vivem, a velocidade) e a marca

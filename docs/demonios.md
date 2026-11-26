@@ -38,7 +38,7 @@ Os modelos antigos ficam como estão; os novos são cópias repintadas, em `mode
 - **A captura** (26/nov; `src/game/capture/`: `captura.ts` com os números em CAPTURA, `sinal.ts` com o ícone e a barra):
   o fantasma fraco (a vida zerada) mostra **o ícone da lamparina** em cima dele. Erguer a lamparina (C) com ele no feixe
   começa a captura: aparece **a barra de força** dele (com a marca dos 20%) e ele vem devagar para a lamparina. **Cada
-  tiro baixa a força** (1% por ponto de dano: a pistola tira 5 por tiro, ~16 tiros); sem tiro, ela volta a subir (8%/s).
+  tiro baixa a força** (~1,7% por ponto de dano: a pistola tira 3 por tiro, ~5%, ~16 tiros); sem tiro, ela volta a subir (8%/s).
   Com a força em **20% ou menos**, ele é **absorvido**: voa girando e encolhendo para dentro da lamparina (1,2 s, com o
   som do gemido sumindo num fio de vidro) e o agente **ganha 50 de vida** (de 200). Baixar a lamparina (ou tirar ele do
   feixe) por 0,6 s solta a captura (o tempo de fraco volta a correr); com a força cheia por 4 s (sem tiro desde o começo,
@@ -62,6 +62,17 @@ Os modelos antigos ficam como estão; os novos são cópias repintadas, em `mode
   de uma parede, de uma porta fechada, em outro andar); ninguém ataca nem cospe em quem está em outro andar (no meio da
   escada já conta). Eles ainda **não sobem escadas**: esperam embaixo até desistir (subir vem com o mapa de caminhos). Só fora do teste online, por enquanto. Falta: as
   orbes que eles soltam e a patrulha pelo mapa todo (a do fantasma principal).
+- **O dano e a vida** (26/nov, a pedido): a pistola tira **3** por tiro e a escopeta **10** por bago (eram 5 e 15; valem
+  para o jogo todo); a Sombra espectral tem 60 de vida e a **Asa espectral 50** (`entidades/numeros.ts`, ESPECTRAIS.vida; a
+  Asa sombria da Demo · Intro continua com 40).
+- **Os inimigos aprimorados** (26/nov; `entidades/numeros.ts`, APRIMORADO): só os que não são capturáveis (a Sombra e a Asa
+  espectral, das caixas e as crias do Devora). **5% de chance** de nascer aprimorado: **o dobro da vida**, **25% mais dano**
+  (a garrada e a bola da Asa) e **25% mais rápido** (andar, voar e atacar: o relógio dele anda mais depressa), e se vê de
+  longe (26/nov, sem mudar o modelo): o corpo 18% maior, **a cor puxada para o vermelho** e **a borda acesa em vermelho**
+  (a fúria, um brilho no material do contorno: `render/golpe.ts`, enfurecer) e **uma aura vermelha** atrás do corpo,
+  pulsando devagar (`enemies/aura.ts`: um sprite por aprimorado, todos com o mesmo material). Na caixa (o painel do
+  editor), "Aprimorado": **sorte** (os 5%), **sempre** ou **nunca**. No Ver modelos, a Sombra e a Asa espectral têm a
+  opção "Aprimorado".
 - **Em aberto:** como o jogador distingue o fantasma capturável dos monstros (o desenho ou um sinal na tela).
 
 ## A família (o que os três têm em comum)

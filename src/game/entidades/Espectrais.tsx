@@ -18,7 +18,8 @@ import { useFrame, useThree } from '@react-three/fiber'
 import * as THREE from 'three'
 import { CAIXA, KIND_ENTIDADE, caixaDe, type Caixa } from '../../maps/entidades'
 import type { Chunk } from '../../maps/types'
-import { soltarGolpe } from '../../render/golpe'
+import { enfurecer, soltarGolpe } from '../../render/golpe'
+import { novaAura, pulsarAuras } from '../enemies/aura'
 import { animarAsaSombria, estourarAsa, ferir as ferirAsa } from '../enemies/asa-sombria/animacao'
 import { pensarAsa, type Mira } from '../enemies/asa-sombria/ia'
 import { montarAsaSombria, type AsaSombria } from '../enemies/asa-sombria/modelo'
@@ -45,7 +46,7 @@ import { ganchos } from '../../dev/ganchos'
 import { CAPTURA, novaCaptura, passoCaptura, tiroNaCaptura, type Captura } from '../capture/captura'
 import { descartarSinal, mostrarSinal, novoSinal, type Sinal } from '../capture/sinal'
 import { naLuz } from './luz'
-import { ESPECTRAIS } from './numeros'
+import { APRIMORADO, ESPECTRAIS } from './numeros'
 
 // as caixas onde a bala acerta (meias medidas, m: as da Sombra e da Asa são as dos Sombrios na Demo · Intro; o Devora,
 // a boca, o corpo e a cauda)
@@ -53,6 +54,9 @@ const CAIXA_TIRO = { sombra: [0.6, 0.7, 0.6], asa: [0.8, 0.55, 0.8], boca: [0.45
 
 type Espectral = ({ tipo: 'sombra'; a: Assombrado } | { tipo: 'asa'; a: AsaSombria }) & {
   dono: CaixaViva; vida: number; alvo: Alvejavel
+  /** aprimorado (APRIMORADO: o dobro da vida, mais dano, o relógio mais rápido, maior) e o agente para ele (o dano dele
+   *  já com o aumento) */
+  forte: boolean; contra: Alvo
   estado: 'caca' | 'patrulha'; longe: number // há quanto tempo o agente está longe (s)
   escondido: number; olhar: number; visto: boolean // há quanto tempo não o vê (s), quando confere de novo (s) e se viu na última vez
   ponto: THREE.Vector3 | null; pausa: number // a patrulha: para onde vai e quanto ainda espera parado
@@ -98,7 +102,8 @@ export function Espectrais({ chunks, fase }: { chunks: Chunk[]; fase: AgenteNaFa
     for (const a of D.alvos) a.acerta = (dano, _p, dir) => tiroNoDevora(D, dano, dir)
     return D
   }), [pontos, alvo, fase])
-  const E = useMemo(() => novoEstouro(), []), P = useMemo(() => novosProjeteis(), []), grupo = useMemo(() => new THREE.Group(), [])
+  // as bolas da Asa: as comuns e as do aprimorado (fere mais), cada uma no seu estoque
+  const E = useMemo(() => novoEstouro(), []), P = useMemo(() => novosProjeteis(), []), PF = useMemo(() => novosProjeteis(), []), grupo = useMemo(() => new THREE.Group(), [])
   const bando = useMemo(() => novoBando(), [])
   const vivos = useRef<Espectral[]>([])
   const mira = useMemo<Mira>(() => ({ de: new THREE.Vector3(), dir: new THREE.Vector3(), ativa: false }), [])
@@ -108,9 +113,9 @@ export function Espectrais({ chunks, fase }: { chunks: Chunk[]; fase: AgenteNaFa
     const i = fase.alvos.indexOf(v.alvo); if (i >= 0) fase.alvos.splice(i, 1)
   }
   useEffect(() => {
-    scene.add(grupo, E.grupo, P.grupo)
-    return () => { for (const v of vivos.current) tirar(v); vivos.current = []; scene.remove(grupo, E.grupo, P.grupo) }
-  }, [scene, grupo, E, P])
+    scene.add(grupo, E.grupo, P.grupo, PF.grupo)
+    return () => { for (const v of vivos.current) tirar(v); vivos.current = []; scene.remove(grupo, E.grupo, P.grupo, PF.grupo) }
+  }, [scene, grupo, E, P, PF])
   // o mapa mudou (outro Testar): as caixas recomeçam, e os espectrais de antes saem
   useEffect(() => () => { for (const v of vivos.current) tirar(v); vivos.current = [] }, [caixas])
   // os Devoras: entram na cena e na lista do tiro; saindo, calam
@@ -126,7 +131,7 @@ export function Espectrais({ chunks, fase }: { chunks: Chunk[]; fase: AgenteNaFa
   // as provas (só no npm run dev): provas.caixas() diz o que cada caixa (e cada Devora) já fez e o estado de cada espectral
   useEffect(() => {
     if (!import.meta.env.DEV) return
-    const dele = (cx: CaixaViva) => vivos.current.filter((v) => v.dono === cx && v.morto < 0).map((v) => ({ tipo: v.tipo, estado: v.estado, vida: v.vida, dist: Math.round(Math.hypot(v.a.root.position.x - cx.p.x, v.a.root.position.z - cx.p.z) * 10) / 10 }))
+    const dele = (cx: CaixaViva) => vivos.current.filter((v) => v.dono === cx && v.morto < 0).map((v) => ({ tipo: v.forte ? `${v.tipo} aprimorada` : v.tipo, estado: v.estado, vida: v.vida, dist: Math.round(Math.hypot(v.a.root.position.x - cx.p.x, v.a.root.position.z - cx.p.z) * 10) / 10 }))
     ganchos.caixas = () => [
       ...caixas.map((cx) => ({ caixa: `${cx.c.monstro} em ${cx.p.x}, ${cx.p.z}`, usadas: cx.usadas, vivos: cx.vivos, recarga: cx.recarga.map((t) => Math.round(t)), espectrais: dele(cx) })),
       ...devoras.map((D) => ({ caixa: `Devora em ${D.casa.x}, ${D.casa.z}: ${D.capturado ? 'capturado' : D.absorve >= 0 ? 'absorvendo' : D.captura ? `capturando, força ${Math.round(D.captura.forca)}%` : D.fraco > 0 ? 'fraco' : D.estado}, vida ${D.vida}, ${D.d.anim.modo}`, usadas: 0, vivos: D.ninho.vivos, recarga: [], espectrais: dele(D.ninho) })),
@@ -136,26 +141,38 @@ export function Espectrais({ chunks, fase }: { chunks: Chunk[]; fase: AgenteNaFa
 
   /** Um espectral novo entra (o da caixa, ou a cria do Devora). */
   function entra(v: Espectral) {
+    if (v.forte) { // o aprimorado: maior, avermelhado, com a borda acesa e a aura vermelha atrás (o modelo é o mesmo)
+      v.a.root.scale.setScalar(APRIMORADO.tamanho)
+      enfurecer(v.a.root, 1)
+      v.a.corpo.add(novaAura(2.2, v.tipo === 'asa' ? 0 : 0.3)) // presa no corpo: fica no meio dele (a origem do modelo não fica)
+    }
     v.alvo.acerta = (dano, _p, dir) => tiro(v, dano, dir)
     grupo.add(v.a.root); fase.alvos.push(v.alvo); vivos.current.push(v)
     v.dono.vivos++
   }
-  const novo = (dono: CaixaViva) => ({ dono, estado: 'caca' as const, longe: 0, escondido: 0, olhar: 0, visto: true, ponto: null, pausa: 0, morto: -1 })
+  /** O que todo espectral novo tem: aprimorado (forte) ou não, e o agente para ele (o dano dele aumentado se forte). */
+  const novo = (dono: CaixaViva, forte: boolean) => ({
+    dono, estado: 'caca' as const, longe: 0, escondido: 0, olhar: 0, visto: true, ponto: null, pausa: 0, morto: -1, forte,
+    contra: forte ? { ...alvo, ferir: (dano: number, de: THREE.Vector3, sempre?: boolean) => alvo.ferir(Math.round(dano * APRIMORADO.dano), de, sempre) } : alvo,
+  })
+  /** Nasce aprimorado? (a caixa pode mandar sempre ou nunca; senão, a chance) */
+  const sorteForte = (c: Caixa) => (c.aprimorado === 'sempre' ? true : c.aprimorado === 'nunca' ? false : Math.random() < APRIMORADO.chance)
+  const vidaDe = (tipo: 'sombra' | 'asa', forte: boolean) => ESPECTRAIS.vida[tipo] * (forte ? APRIMORADO.vida : 1)
 
   /** A caixa invoca um espectral perto dela, virado para o agente. */
   function invocar(cx: CaixaViva) {
     const ag = alvo.p, ang = Math.random() * Math.PI * 2, r = Math.random() * 1.2
     const p = new THREE.Vector3(cx.p.x + Math.cos(ang) * r, cx.p.y, cx.p.z + Math.sin(ang) * r)
     if (!temChao(fase.mundo, p.x, p.z, p.y)) p.copy(cx.p)
-    const yaw = Math.atan2(ag.x - p.x, ag.z - p.z)
+    const yaw = Math.atan2(ag.x - p.x, ag.z - p.z), forte = sorteForte(cx.c)
     if (cx.c.monstro === 'asa') {
       const a = montarAsaSombria('espectrais/asa-espectral'); a.root.position.copy(p).setY(p.y + 0.3); a.root.rotation.y = yaw
       estourar(E, _v.copy(p).setY(p.y + 0.1), 0.35, p.y, { cubos: 8, olhos: 0 }) // rompe o chão
-      entra({ ...novo(cx), tipo: 'asa', a, vida: LUTA_ASA.vida, alvo: caixaDeTiro(CAIXA_TIRO.asa) })
+      entra({ ...novo(cx, forte), tipo: 'asa', a, vida: vidaDe('asa', forte), alvo: caixaDeTiro(CAIXA_TIRO.asa) })
     } else {
       const a = montarAssombrado('espectrais/sombra-espectral'); a.root.position.copy(p); a.root.rotation.y = yaw
       surgirAssombrado(a, E, p.y)
-      entra({ ...novo(cx), tipo: 'sombra', a, vida: LUTA_SOMBRA.vida, alvo: caixaDeTiro(CAIXA_TIRO.sombra) })
+      entra({ ...novo(cx, forte), tipo: 'sombra', a, vida: vidaDe('sombra', forte), alvo: caixaDeTiro(CAIXA_TIRO.sombra) })
     }
     cx.usadas++
   }
@@ -165,12 +182,13 @@ export function Espectrais({ chunks, fase }: { chunks: Chunk[]; fase: AgenteNaFa
     const chao = D.casa.y, dist = CUSPE.alcance[0] + Math.random() * (CUSPE.alcance[1] - CUSPE.alcance[0])
     const para = new THREE.Vector3(de.x + frente.x * dist + (Math.random() - 0.5) * 2, chao, de.z + frente.z * dist + (Math.random() - 0.5) * 2)
     if (!temChao(fase.mundo, para.x, para.z, chao)) para.set(de.x, chao, de.z) // sem chão lá na frente: cai embaixo dele
+    const forte = Math.random() < APRIMORADO.chance
     if (tipo === 'asa') {
       const a = montarAsaSombria('espectrais/asa-espectral'); a.root.position.copy(de); a.root.rotation.y = D.d.root.rotation.y
-      entra({ ...novo(D.ninho), tipo: 'asa', a, vida: LUTA_ASA.vida, alvo: caixaDeTiro(CAIXA_TIRO.asa) })
+      entra({ ...novo(D.ninho, forte), tipo: 'asa', a, vida: vidaDe('asa', forte), alvo: caixaDeTiro(CAIXA_TIRO.asa) })
     } else {
       const a = montarAssombrado('espectrais/sombra-espectral'); arremessar(a, de, para)
-      entra({ ...novo(D.ninho), tipo: 'sombra', a, vida: LUTA_SOMBRA.vida, alvo: caixaDeTiro(CAIXA_TIRO.sombra) })
+      entra({ ...novo(D.ninho, forte), tipo: 'sombra', a, vida: vidaDe('sombra', forte), alvo: caixaDeTiro(CAIXA_TIRO.sombra) })
     }
   }
 
@@ -317,6 +335,7 @@ export function Espectrais({ chunks, fase }: { chunks: Chunk[]; fase: AgenteNaFa
   useFrame((_, dtBruto) => {
     const dt = Math.min(dtBruto, 0.05), ag = alvo.p
     camera.getWorldPosition(mira.de); camera.getWorldDirection(mira.dir); mira.ativa = fase.agente.anim.arma.mira > 0.5
+    pulsarAuras(performance.now() / 1000)
     // ---------- as caixas: a recarga e invocar quem cabe ----------
     for (const cx of caixas) {
       for (let i = cx.recarga.length - 1; i >= 0; i--) if ((cx.recarga[i] -= dt) <= 0) cx.recarga.splice(i, 1)
@@ -332,6 +351,7 @@ export function Espectrais({ chunks, fase }: { chunks: Chunk[]; fase: AgenteNaFa
     const sombras: THREE.Object3D[] = []
     for (const v of vivos.current) {
       if (v.morto >= 0) { v.morto += dt; continue }
+      const dtv = v.forte ? dt * APRIMORADO.ritmo : dt // o aprimorado vive mais depressa: anda, voa e ataca 25% mais rápido
       const r = v.a.root, dist = Math.hypot(ag.x - r.position.x, ag.z - r.position.z)
       // vê o agente? (confere de tempos em tempos: são vários)
       if ((v.olhar -= dt) <= 0) { v.olhar = ESPECTRAIS.olhar; v.visto = enxerga(r.position.x, v.dono.p.y, r.position.z) }
@@ -345,18 +365,18 @@ export function Espectrais({ chunks, fase }: { chunks: Chunk[]; fase: AgenteNaFa
       const caca = v.estado === 'caca' && mesmoAndar(v)
       if (v.tipo === 'sombra') {
         const a = v.a
-        const andar = caca ? pensarAssombrado(a, alvo, bando, fase.mundo, dt, mira.de) : a.anim.surgir || a.anim.golpe || a.anim.voo ? 0 : patrulhar(v, dt)
-        const s = animarAssombrado(a, { andar }, dt)
-        if (!a.anim.voo) andarNoMundo(r, s.avanca * dt, fase.mundo, LUTA_SOMBRA.raio, v.dono.p.y)
+        const andar = caca ? pensarAssombrado(a, v.contra, bando, fase.mundo, dtv, mira.de) : a.anim.surgir || a.anim.golpe || a.anim.voo ? 0 : patrulhar(v, dtv)
+        const s = animarAssombrado(a, { andar }, dtv)
+        if (!a.anim.voo) andarNoMundo(r, s.avanca * dtv, fase.mundo, LUTA_SOMBRA.raio, v.dono.p.y)
         if (!a.anim.surgir && !a.anim.voo) sombras.push(r)
         ouvirAssombrado(a, dt)
       } else {
         const a = v.a
-        const quer = caca ? pensarAsa(a, alvo, mira, null, fase.mundo, dt, _peito) : (patrulhar(v, dt), undefined)
-        const s = animarAsaSombria(a, { alvo: quer }, dt)
-        r.position.addScaledVector(_v.set(Math.cos(r.rotation.y), 0, -Math.sin(r.rotation.y)), s.lado * dt) // o desvio
-        r.position.addScaledVector(_v.set(Math.sin(r.rotation.y), 0, Math.cos(r.rotation.y)), -s.recua * dt) // o recuo do cuspe
-        if (s.cospe && quer) disparar(P, s.cospe, quer)
+        const quer = caca ? pensarAsa(a, v.contra, mira, null, fase.mundo, dtv, _peito) : (patrulhar(v, dtv), undefined)
+        const s = animarAsaSombria(a, { alvo: quer }, dtv)
+        r.position.addScaledVector(_v.set(Math.cos(r.rotation.y), 0, -Math.sin(r.rotation.y)), s.lado * dtv) // o desvio
+        r.position.addScaledVector(_v.set(Math.sin(r.rotation.y), 0, Math.cos(r.rotation.y)), -s.recua * dtv) // o recuo do cuspe
+        if (s.cospe && quer) disparar(v.forte ? PF : P, s.cospe, quer) // a bola do aprimorado fere mais: vai no estoque dela
         ouvirAsaSombria(a, dt)
       }
       v.a.corpo.getWorldPosition(v.alvo.c) // a caixa do tiro anda com o corpo
@@ -365,9 +385,11 @@ export function Espectrais({ chunks, fase }: { chunks: Chunk[]; fase: AgenteNaFa
     // os estourados saem depois de um tempo (o som e a mancha ficam)
     vivos.current = vivos.current.filter((v) => { if (v.morto < ESPECTRAIS.some) return true; tirar(v); return false })
     // as bolas da Asa: andam, batem, ou acertam o agente
-    passoProjeteis(P, dt, E, 0)
-    if (fase.pode()) { const onde = acertar(P, _peito.copy(ag).setY(ag.y + 1.2), LUTA_ASA.acerto, E, 0); if (onde) fase.ferir(LUTA_ASA.dano, onde) }
-    for (const p of P.bateu) somEm(p, bolaBatendo)
+    for (const [Q, dano] of [[P, LUTA_ASA.dano], [PF, Math.round(LUTA_ASA.dano * APRIMORADO.dano)]] as const) {
+      passoProjeteis(Q, dt, E, 0)
+      if (fase.pode()) { const onde = acertar(Q, _peito.copy(ag).setY(ag.y + 1.2), LUTA_ASA.acerto, E, 0); if (onde) fase.ferir(dano, onde) }
+      for (const p of Q.bateu) somEm(p, bolaBatendo)
+    }
     passoEstouro(E, dt)
   })
   return null
