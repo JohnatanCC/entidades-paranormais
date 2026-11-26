@@ -62,6 +62,7 @@ export interface Opening {
   door?: DoorKind
   window?: WindowKind
   light2d?: boolean // janela: o feixe e a mancha de luz 2D
+  luarAndares?: number // janela: até quantos andares o feixe desce (2 = até o chão do andar de baixo: o salão alto sem piso no meio). Padrão: 1
   // campos novos da etapa 4 (opcionais: mapa antigo sem eles continua valendo, com os padrões abaixo)
   lado?: 'a' | 'b' // porta: para que lado da parede a folha abre; janela: o lado de dentro (onde o luar cai). Padrão: 'b'
   estado?: DoorState // porta: como começa. Padrão: 'fechada'

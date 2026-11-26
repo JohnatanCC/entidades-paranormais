@@ -5,6 +5,7 @@
 import { useEffect, useMemo, useRef } from 'react'
 import { useFrame } from '@react-three/fiber'
 import * as THREE from 'three'
+import { LEVEL_H } from '../maps/types'
 
 const LUA = new THREE.Vector3(0.12, -0.72, 1).normalize() // o luar desce entrando (+z = para dentro)
 const POEIRA_POR_VIDRO = 22
@@ -57,9 +58,10 @@ export function forcaDoLuar(k: number) {
 type V3 = [number, number, number]
 interface Caixa { a: V3[]; f: V3[] } // os cantos de um vidro e onde o luar deles toca o chão
 
-/** O feixe (as laterais de cada vidro projetadas até o chão), a mancha e as caixas da poeira. */
-function montar(W: number, h0: number, h1: number, zIn: number, verticais: number[]) {
-  const d = new THREE.Vector3(LUA.x, LUA.y, LUA.z * zIn), chao = 0.012
+/** O feixe (as laterais de cada vidro projetadas até o chão), a mancha e as caixas da poeira. andares = até quantos
+ *  andares ele desce (2: o chão do andar de baixo, no salão alto sem piso no meio). */
+function montar(W: number, h0: number, h1: number, zIn: number, verticais: number[], andares: number) {
+  const d = new THREE.Vector3(LUA.x, LUA.y, LUA.z * zIn), chao = 0.012 - (andares - 1) * LEVEL_H
   const proj = (u: number, y: number): V3 => { const t = (y - chao) / -d.y; return [u + d.x * t, chao, d.z * t] }
   // os vidros: entre os caixilhos, de baixo e de cima da guilhotina
   const cortes = [0, ...verticais, W], vm = (h0 + h1) / 2, g = 0.04
@@ -91,8 +93,8 @@ function montar(W: number, h0: number, h1: number, zIn: number, verticais: numbe
   return { feixe, mancha, poeira, caixas, sementes, n }
 }
 
-export function Luar({ W, h0, h1, zIn, verticais }: { W: number; h0: number; h1: number; zIn: number; verticais: number[] }) {
-  const l = useMemo(() => montar(W, h0, h1, zIn, verticais), [W, h0, h1, zIn, verticais])
+export function Luar({ W, h0, h1, zIn, verticais, andares = 1 }: { W: number; h0: number; h1: number; zIn: number; verticais: number[]; andares?: number }) {
+  const l = useMemo(() => montar(W, h0, h1, zIn, verticais, andares), [W, h0, h1, zIn, verticais, andares])
   useEffect(() => () => { l.feixe.dispose(); l.mancha.dispose(); l.poeira.dispose() }, [l])
   const pontos = useRef<THREE.Points>(null)
 

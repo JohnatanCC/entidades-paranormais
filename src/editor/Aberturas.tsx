@@ -82,7 +82,7 @@ function Abertura({ o, viva, assa }: { o: Opening; viva?: PortaViva; assa: Assad
       {o.kind === 'porta' && o.estado === 'trancada' && !viva && Array.from({ length: nFolhas }, (_, i) => [-1, 1].map((z) => (
         <mesh key={`${i}${z}`} position={[i === 0 ? 0.01 + lw - 0.09 : W - 0.01 - lw + 0.09, 0.92, z * 0.05]} material={cadeado}><boxGeometry args={[0.07, 0.09, 0.03]} /></mesh>
       )))}
-      {o.kind === 'janela' && o.light2d !== false && <Luar W={W} h0={h0} h1={h1} zIn={(o.lado ?? 'b') === 'b' ? sb : -sb} verticais={verticais} />}
+      {o.kind === 'janela' && o.light2d !== false && <Luar W={W} h0={h0} h1={h1} zIn={(o.lado ?? 'b') === 'b' ? sb : -sb} verticais={verticais} andares={o.luarAndares ?? 1} />}
     </group>
   )
 }

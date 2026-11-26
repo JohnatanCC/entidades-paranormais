@@ -31,6 +31,14 @@ export function PainelAbertura({ o, onMudar, onApagar }: Props) {
           <button aria-pressed={o.light2d !== false} onClick={() => onMudar({ light2d: true })}>Ligado</button>
           <button aria-pressed={o.light2d === false} onClick={() => onMudar({ light2d: false })}>Desligado</button>
         </div>
+        {o.light2d !== false && <>
+          <span className="rotulo">O feixe desce até</span>
+          <div className="opcoes">
+            <button aria-pressed={(o.luarAndares ?? 1) === 1} onClick={() => onMudar({ luarAndares: undefined })}>Este andar</button>
+            <button aria-pressed={o.luarAndares === 2} onClick={() => onMudar({ luarAndares: 2 })}>O andar de baixo</button>
+          </div>
+          <div className="nota">Para a janela alta de um salão sem piso no meio: o feixe atravessa os dois andares.</div>
+        </>}
         <button onClick={() => onMudar({ lado: outro })}>Trocar o lado de dentro</button>
       </>}
       <button className="perigo" onClick={onApagar}>Apagar <kbd>Del</kbd></button>

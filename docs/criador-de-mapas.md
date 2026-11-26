@@ -79,10 +79,12 @@ Unidades: metros e graus; y para cima; andar 0 = térreo.
   `axis: "z"` corre de (x, z) a (x, z+1). O lado `a` olha para −z (eixo x) ou −x (eixo z); o `b` para o outro lado.
   Cada lado: `{ tex, base?: { tex, h } }` (h = altura do lambri).
 - **Piso** `{ level, x, z, top, bottom }`: o quadrado de (x, z) a (x+1, z+1).
-- **Abertura** `{ id, level, x, z, axis, width, kind: "porta"|"janela", door?, window?, tex?, light2d?, lado?, estado?, motivo?, chave? }`:
+- **Abertura** `{ id, level, x, z, axis, width, kind: "porta"|"janela", door?, window?, tex?, light2d?, luarAndares?, lado?, estado?, motivo?, chave? }`:
   cobre `width` pedaços de parede a partir de (x, z). Porta comum/dupla: vão até 2,1 m; grande: até 2,8 m; janela: de 0,9 a 2,1 m.
   Larguras: comum 1, dupla 2, grande 2, vão 1 a 3, janela 1, janela grande 2.
   `lado` (`"a"`|`"b"`, padrão `"b"`): na porta, para que lado a folha abre; na janela, o lado de dentro (onde cai o luar).
+  `luarAndares` (janela, padrão 1): até quantos andares o feixe do luar desce; 2 = até o chão do andar de baixo (a janela
+  alta de um salão sem piso no meio, como a arena da Demo · Inimigos, 26/nov). No painel da janela: "O feixe desce até".
   `estado` (porta): `"fechada"` (padrão), `"aberta"` ou `"trancada"`; a trancada tem `motivo` (a linha ao tentar abrir) e
   `chave` (o nome da chave que abre; sem chave, só um script abre). Os scripts abrem e fecham pela `id`.
   Esses quatro campos entraram na etapa 4 e são opcionais: mapa antigo sem eles continua valendo (por isso o `formato` não subiu).
