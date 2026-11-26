@@ -42,6 +42,7 @@ import { PARTES_ASSOMBRADO } from '../game/enemies/assombrado/sons'
 import { PARTES_ASA_SOMBRIA } from '../game/enemies/asa-sombria/sons'
 import { PARTES_DEVORA_ALMAS } from '../game/enemies/devora-almas/sons'
 import { PARTES_DEVORA_ESPECTROS } from '../game/enemies/devora-espectros/sons'
+import { PARTES_MANTO_ESPECTRAL } from '../game/enemies/manto-espectral/sons'
 import { PARTES_GRALHA } from '../game/enemies/gralha/sons'
 import { PARTES_MESTRE } from '../game/enemies/mestre/sons'
 import { PARTES_ARMAS } from '../game/weapons/sons'
@@ -309,7 +310,7 @@ async function sonsDemonios() {
   const linhas: string[] = []
   const medir = (quem: string, partes: Parte[]) => medirPartes(linhas, quem, partes)
   await medir('Assombrado', PARTES_ASSOMBRADO); await medir('Asa sombria', PARTES_ASA_SOMBRIA); await medir('Devora almas', PARTES_DEVORA_ALMAS)
-  await medir('Gralha', PARTES_GRALHA); await medir('Mestre', PARTES_MESTRE); await medir('Devora espectros', PARTES_DEVORA_ESPECTROS)
+  await medir('Gralha', PARTES_GRALHA); await medir('Mestre', PARTES_MESTRE); await medir('Devora espectros', PARTES_DEVORA_ESPECTROS); await medir('Manto espectral', PARTES_MANTO_ESPECTRAL)
   return linhas.join('\n')
 }
 /** Os sons das armas e do agente (weapons/sons.ts, player/sons.ts): o volume de cada parte, do mesmo jeito. */

@@ -73,6 +73,28 @@ Os modelos antigos ficam como estão; os novos são cópias repintadas, em `mode
   pulsando devagar (`enemies/aura.ts`: um sprite por aprimorado, todos com o mesmo material). Na caixa (o painel do
   editor), "Aprimorado": **sorte** (os 5%), **sempre** ou **nunca**. No Ver modelos, a Sombra e a Asa espectral têm a
   opção "Aprimorado".
+- **O Manto espectral** (26/nov; `modelos/espectrais/manto-espectral.bbmodel`, `src/game/enemies/manto-espectral/`): o
+  segundo fantasma capturável, a variante mais forte da Sombra espectral, a partir das imagens do desenvolvedor. Em
+  **blocos** (26/nov: uma versão em malha poligonal foi feita e ficou ruim; os blocos ficam mais bonitos). Nasceu de um
+  gerador que **junta peças que já existem**: da Sombra espectral, o corpo (afinado e esticado), **os braços curtos**,
+  os três olhos vermelhos e os cubos pendurados; do Mestre, **o capuz** (1,6 vez maior: os três andares, a viseira, as
+  penas arrepiadas e a ponta caída, sem o bico; combina com o manto), **o pescoço** e **a gola** (o colarinho em
+  volta do pescoço, menor e sem as pontas das penas: fecha a nuca), as duas pernas de ave, **os braços longos de
+  garra** e **o manto** em três camadas de tiras com a ombreira (repintados: o pano branco, o rosto escuro, os braços e
+  as pernas no azul espectral). ~2,2 m; dá para retocar no Blockbench. Os ataques e as animações
+  (26/nov, `animacao.ts`; os números em AGARRAR, SOCOS, GIRO, ATORDOADO), no Ver modelos contra o Matheus na marca:
+  **agarrar** (perto: inclina para trás e abre os braços longos com o aviso âmbar, dá o bote, fecha os braços em volta e
+  segura 2 s; 30 de dano no agarrão), o **combo de socos** (meia distância: puxa os braços e dá 4 socos alternados, o
+  braço inteiro esticando 2,7 vezes até ~3 m; 10 cada), o **golpe giratório** (com 30% da vida, no jogo: ergue os
+  braços de lado e gira 3 s, o manto abrindo, indo devagar até o agente; 20 por volta que pega; em volta dele, **o
+  tornado de luz** como o giro do Crash: 5 anéis em funil, cada vez mais largos para cima, girando mais rápido que ele, a
+  ponta clara na frente e o rastro sumindo, no azul espectral e somando luz: `tornado.ts`, uma malha só) e depois **atordoado**
+  2 s (cai, deita, a cabeça tonta). Também o tranco do tiro e **fraco** (agacha e amolece: a captura). O instante de
+  cada golpe conta pelo tempo do golpe. **Os sons** (`sons.ts`): o gemido com ar e o vidro (a família dos espectrais), o
+  pano farfalhando, as garras dos pés, o chiado do aviso, o golpe de pano e o estalo do agarrão, o aperto, o assobio e o
+  impacto de cada soco, a lufada a cada volta do giro, o gemido tonto e o guincho do tiro. Falta: a inteligência, o mapa
+  e a captura. **A vida: 450** (26/nov; numeros.ts,
+  LUTA: 150 tiros de pistola ou 9 de escopeta cheios, mais a captura).
 - **Em aberto:** como o jogador distingue o fantasma capturável dos monstros (o desenho ou um sinal na tela).
 
 ## A família (o que os três têm em comum)

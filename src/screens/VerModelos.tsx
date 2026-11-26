@@ -57,6 +57,11 @@ import { animarAsaSombria, cuspir, desviar, estourarAsa, ferir as ferirAsa, refa
 import { disparar, novosProjeteis, passoProjeteis } from '../game/enemies/asa-sombria/projetil'
 import { montarDevoraAlmas } from '../game/enemies/devora-almas/modelo'
 import { montarDevoraEspectros } from '../game/enemies/devora-espectros/modelo'
+import { montarMantoEspectral } from '../game/enemies/manto-espectral/modelo'
+import { animarMantoEspectral, ferir as ferirManto, golpear as golpearManto } from '../game/enemies/manto-espectral/animacao'
+import { AGARRAR as AGARRAR_MANTO, GIRO as GIRO_MANTO, SOCOS as SOCOS_MANTO } from '../game/enemies/manto-espectral/numeros'
+import { ouvirMantoEspectral } from '../game/enemies/manto-espectral/sons'
+import { descartarTornado } from '../game/enemies/manto-espectral/tornado'
 import { animarDevoraEspectros, ferir as ferirEspectros, golpe as golpeEspectros } from '../game/enemies/devora-espectros/animacao'
 import { BOTE as BOTE_ESP, CUSPE as CUSPE_ESP, MORDIDA as MORDIDA_ESP } from '../game/enemies/devora-espectros/numeros'
 import { ouvirDevoraEspectros } from '../game/enemies/devora-espectros/sons'
@@ -89,8 +94,8 @@ const ANIMS_GRALHA: [Anim, string][] = [['parado', 'Voando no lugar'], ['andando
 const ANIMS_MAE: [Anim, string][] = [['parado', 'Parada'], ['andando', 'Andando (em roda)'], ['porta', 'Passando pela porta']]
 // os demônios (docs/demonios.md): o id é o nome do arquivo em modelos/demonios/
 const ASSOMBRADO = 'demonio:assombrado', ASA = 'demonio:asa-sombria', DEVORA = 'demonio:devora-almas'
-type AcaoDemonio = 'atacar' | 'engolir' | 'investida' | 'chuva' | 'ninhada' | 'arrancar' | 'atordoar' | 'rastejar' | 'surgir' | 'cuspir' | 'desviar' | 'dano' | 'estourar' | 'bote' | 'morder' | 'cuspirAsa'
-const DEMONIOS: Record<string, { nome: string; arquivo: string; anims: [Anim, string][]; acoes: [AcaoDemonio, string][]; ajuda: string }> = {
+type AcaoDemonio = 'atacar' | 'engolir' | 'investida' | 'chuva' | 'ninhada' | 'arrancar' | 'atordoar' | 'rastejar' | 'surgir' | 'cuspir' | 'desviar' | 'dano' | 'estourar' | 'bote' | 'morder' | 'cuspirAsa' | 'agarrar' | 'socos' | 'girar' | 'fraco'
+const DEMONIOS: Record<string, { nome: string; arquivo: string; anims: [Anim, string][]; acoes: [AcaoDemonio, string][]; ajuda: string; semSom?: boolean }> = {
   [ASSOMBRADO]: {
     nome: 'O Assombrado', arquivo: 'demonios/assombrado', anims: [['parado', 'Parado'], ['andando', 'Andando (em roda)']],
     acoes: [['atacar', 'Atacar'], ['surgir', 'Surgir do chão'], ['dano', 'Tomar dano'], ['estourar', 'Estourar']],
@@ -109,10 +114,15 @@ const DEMONIOS: Record<string, { nome: string; arquivo: string; anims: [Anim, st
 }
 // os espectrais (o jogo novo): os Sombrios repintados (modelos/espectrais/). A Sombra e a Asa usam o esqueleto e as
 // animações do Assombrado e da Asa sombria; o Devora espectros, por enquanto, só flutua (a inteligência vem depois)
-const SOMBRA_ESP = 'espectral:sombra-espectral', ASA_ESP = 'espectral:asa-espectral', DEVORA_ESP = 'espectral:devora-espectros'
+const SOMBRA_ESP = 'espectral:sombra-espectral', ASA_ESP = 'espectral:asa-espectral', DEVORA_ESP = 'espectral:devora-espectros', MANTO_ESP = 'espectral:manto-espectral'
 const ESPECTRAIS: typeof DEMONIOS = {
   [SOMBRA_ESP]: { ...DEMONIOS[ASSOMBRADO], nome: 'A Sombra espectral', arquivo: 'espectrais/sombra-espectral' },
   [ASA_ESP]: { ...DEMONIOS[ASA], nome: 'A Asa espectral', arquivo: 'espectrais/asa-espectral' },
+  [MANTO_ESP]: {
+    nome: 'O Manto espectral', arquivo: 'espectrais/manto-espectral', anims: [['parado', 'Parado'], ['andando', 'Andando (em roda)']],
+    acoes: [['agarrar', 'Agarrar (perto)'], ['socos', 'Combo de socos'], ['girar', 'Golpe giratório'], ['atordoar', 'Atordoado'], ['dano', 'Tomar dano'], ['fraco', 'Fraco (liga e desliga)']],
+    ajuda: 'O fantasma capturável mais forte da família da Sombra: o corpo da Sombra espectral, esticado, com o capuz, as pernas, os braços longos e o manto do Mestre. Agarrar: abre os braços longos (o aviso âmbar), dá o bote, fecha em volta do Matheus e segura 2 s. Combo de socos: puxa os braços e dá 4 socos alternados, o antebraço esticando. Golpe giratório (com 30% da vida, no jogo): ergue os braços de lado, gira 3 s indo devagar até o Matheus e cai atordoado 2 s. Fraco: agacha e amolece (a hora da captura).',
+  },
   [DEVORA_ESP]: {
     nome: 'O Devora espectros', arquivo: 'espectrais/devora-espectros', anims: [['parado', 'Flutuando no lugar'], ['andando', 'Flutuando (em roda)']],
     acoes: [['bote', 'Bote (de longe)'], ['morder', 'Morder (de perto)'], ['cuspir', 'Cuspir uma Sombra'], ['cuspirAsa', 'Cuspir uma Asa'], ['dano', 'Tomar dano']],
@@ -172,7 +182,7 @@ export function VerModelos({ go }: { go: Go }) {
         <Canvas camera={{ position: [1.4, 1.4, 3.6], fov: 35, near: 0.02, far: 100 }}>
           <Luzes luz={e.luz} />
           <Golpes />
-          {agente ? <CenaAgente key={e.qual} modelo={e.qual as ModeloAgente} e={e} onInfo={setInfo} onMunicao={setMunicao} /> : mae ? <CenaMae e={e} onInfo={setInfo} /> : e.qual === ASSOMBRADO || e.qual === SOMBRA_ESP ? <CenaAssombrado key={e.qual} arquivo={demonio.arquivo} e={e} onInfo={setInfo} /> : e.qual === ASA || e.qual === ASA_ESP ? <CenaAsaSombria key={e.qual} arquivo={demonio.arquivo} e={e} onInfo={setInfo} /> : e.qual === DEVORA ? <CenaDevora e={e} onInfo={setInfo} /> : e.qual === DEVORA_ESP ? <CenaDevoraEspectros e={e} onInfo={setInfo} /> : e.qual === MESTRE ? <CenaMestre e={e} onInfo={setInfo} /> : e.qual === GRALHA ? <CenaGralha e={e} onInfo={setInfo} /> : <CenaObjeto key={e.qual} qual={e.qual} girar={e.girar} onInfo={setInfo} />}
+          {agente ? <CenaAgente key={e.qual} modelo={e.qual as ModeloAgente} e={e} onInfo={setInfo} onMunicao={setMunicao} /> : mae ? <CenaMae e={e} onInfo={setInfo} /> : e.qual === ASSOMBRADO || e.qual === SOMBRA_ESP ? <CenaAssombrado key={e.qual} arquivo={demonio.arquivo} e={e} onInfo={setInfo} /> : e.qual === ASA || e.qual === ASA_ESP ? <CenaAsaSombria key={e.qual} arquivo={demonio.arquivo} e={e} onInfo={setInfo} /> : e.qual === DEVORA ? <CenaDevora e={e} onInfo={setInfo} /> : e.qual === DEVORA_ESP ? <CenaDevoraEspectros e={e} onInfo={setInfo} /> : e.qual === MANTO_ESP ? <CenaManto e={e} onInfo={setInfo} /> : e.qual === MESTRE ? <CenaMestre e={e} onInfo={setInfo} /> : e.qual === GRALHA ? <CenaGralha e={e} onInfo={setInfo} /> : <CenaObjeto key={e.qual} qual={e.qual} girar={e.girar} onInfo={setInfo} />}
           {e.grade && <Grid args={[8, 8]} cellSize={0.5} cellThickness={0.6} cellColor="#6a5a40" sectionSize={1} sectionThickness={1.2} sectionColor="#c89b4a" fadeDistance={14} infiniteGrid />}
           <OrbitControls makeDefault target={[0, 0.95, 0]} minDistance={0.2} maxDistance={e.qual === DEVORA ? 12 * ESCALA_DEVORA : 9} />
         </Canvas>
@@ -245,7 +255,7 @@ export function VerModelos({ go }: { go: Go }) {
         {demonio && <section>
           <b>Ações</b>
           <div className="opcoes">{demonio.acoes.map(([acao, nome]) => <button key={acao} onClick={() => muda({ ...(acao === 'atacar' || acao === 'cuspir' ? { anim: 'parado', girar: false } : {}), demonio: { acao, n: (e.demonio?.n ?? 0) + 1 } })}>{nome}</button>)}</div>
-          <small>{demonio.ajuda} Os sons tocam com a animação (o ouvido é a câmera: perto, mais alto); sem som, clique uma vez na página antes.</small>
+          <small>{demonio.ajuda}{!demonio.semSom && ' Os sons tocam com a animação (o ouvido é a câmera: perto, mais alto); sem som, clique uma vez na página antes.'}</small>
         </section>}
 
         {agente && <>
@@ -611,6 +621,69 @@ function CenaAsaSombria({ arquivo, e, onInfo }: { arquivo: string; e: Escolhas; 
     <primitive object={E.grupo} />
     <primitive object={P.grupo} />
     {e.demonio?.acao === 'cuspir' && <primitive object={anel} />}
+  </>
+}
+
+function CenaManto({ e, onInfo }: { e: Escolhas; onInfo: (i: Info) => void }) {
+  // montarMantoEspectral na lista: salvar o .bbmodel recarrega o módulo e ele é montado de novo
+  const m = useMemo(() => montarMantoEspectral(), [montarMantoEspectral])
+  // o agente (o alvo dos golpes), parado na marca, de frente para ele
+  const ag = useMemo(() => { const a = montarAgente('agente'); a.root.visible = false; a.root.rotation.y = Math.PI; return a }, [montarAgente])
+  const { pronto, voar } = useVoo()
+  // em roda: o ângulo; golpe: saiu do lugar (no fim volta para o meio); fraco: o botão liga e desliga
+  const ida = useRef({ ang: 0, golpe: false, fraco: false })
+  const R = 2.6, VEL = 1.6 // em roda: o raio (m) e a velocidade (m/s)
+  // onde fica o agente em cada golpe (à frente dele, +z)
+  const MARCA: Record<string, number> = { agarrar: AGARRAR_MANTO.alcance + 0.3, socos: SOCOS_MANTO.alcance - 0.4, girar: 4.5 }
+  const camera = useThree((st) => st.camera)
+  useEffect(() => () => { calar(m); descartarTornado(m.tornado) }, [m])
+  useEffect(() => {
+    const c = contas(m.root)
+    m.root.updateMatrixWorld(true)
+    const b = new THREE.Box3().setFromObject(m.root)
+    onInfo({ linhas: [`Altura: ${(b.max.y - b.min.y).toFixed(2)} m`, `${c.blocos} blocos em ${c.juntas} juntas`, `${c.desenhos} chamadas de desenho`] })
+  }, [m, onInfo])
+  useEffect(() => {
+    if (pronto) voar(new THREE.Vector3(0, 1.2, 1.6), e.anim === 'andando' ? new THREE.Vector3(5.5, 3.5, 6.5) : new THREE.Vector3(7.5, 2.6, 3.5))
+  }, [pronto, e.anim])
+  useEffect(() => {
+    const p = e.demonio, I = ida.current
+    if (!p) return
+    if (p.acao === 'dano') { ferirManto(m, Math.random() * Math.PI * 2 - Math.PI); return }
+    if (p.acao === 'fraco') { I.fraco = !I.fraco; return }
+    // os golpes: no meio, de frente para +z (o agente na marca)
+    m.root.position.set(0, 0, 0); m.root.rotation.y = 0; m.molas.pos = null; m.manto.pos = null; I.golpe = true
+    ag.root.visible = p.acao !== 'atordoar'
+    ag.root.position.set(0, 0, MARCA[p.acao] ?? 2)
+    golpearManto(m, p.acao === 'atordoar' ? 'atordoado' : (p.acao as 'agarrar' | 'socos' | 'girar'))
+  }, [e.demonio])
+  useFrame((_, dtBruto) => {
+    const dt = Math.min(dtBruto, 0.05), I = ida.current, r = m.root, roda = e.anim === 'andando' && !I.golpe
+    const s = animarMantoEspectral(m, roda ? VEL : 0, dt, I.fraco ? 1 : 0)
+    if (roda) { I.ang += (s.avanca * dt) / R; r.position.set(Math.cos(I.ang) * R, 0, Math.sin(I.ang) * R); r.rotation.y = -I.ang }
+    else {
+      // o giro: o corpo roda e anda reto para o agente (a frente de antes do giro)
+      const rumo = m.anim.modo === 'girar' ? 0 : r.rotation.y
+      r.rotation.y += s.giro * dt
+      r.position.x += Math.sin(rumo) * s.avanca * dt; r.position.z += Math.cos(rumo) * s.avanca * dt
+      const dz = ag.root.position.z - r.position.z
+      if (ag.root.visible && dz < 1.3) r.position.z = ag.root.position.z - 1.3 // não entra no agente
+      if (I.golpe && m.anim.modo === 'pairar') { // acabou o golpe: volta devagar para o meio, de frente para +z
+        const k = 1 - Math.exp(-2.5 * dt)
+        r.position.x -= r.position.x * k; r.position.z -= r.position.z * k
+        r.rotation.y = Math.atan2(Math.sin(r.rotation.y), Math.cos(r.rotation.y)) * (1 - k)
+        if (Math.hypot(r.position.x, r.position.z) < 0.02) I.golpe = false
+      } else if (!I.golpe && e.girar) r.rotation.y += dt * 0.5
+    }
+    // os acertos no agente da marca (aqui, só o tranco)
+    const perto = Math.hypot(ag.root.position.x - r.position.x, ag.root.position.z - r.position.z)
+    if (ag.root.visible && (s.agarrou || s.soco !== null || (s.volta && perto < GIRO_MANTO.raio + 0.6))) tranco(ag, 0)
+    ouvinte(camera); ouvirMantoEspectral(m, s, dt)
+    if (ag.root.visible) animarAgente(ag, { velocidade: 0, corrida: 0, esquiva: -1 }, dt)
+  })
+  return <>
+    <primitive object={m.root} />
+    <primitive object={ag.root} />
   </>
 }
 

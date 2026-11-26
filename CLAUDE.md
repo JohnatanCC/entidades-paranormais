@@ -162,7 +162,7 @@ modelos/                   os modelos do Blockbench (.bbmodel), lidos direto pel
                            nicolas.bbmodel, victor.bbmodel e leonardo.bbmodel (o mesmo esqueleto do agente), objetos/<tipo>.bbmodel,
                            aberturas/<tipo>.bbmodel (as portas e janelas; a porta da instalação, a de contenção, a do elevador e a janela da instalação, do capítulo 0), armas/<nome>.bbmodel (pistola, escopeta, lamparina; e o cartucho da recarga),
                            fantasmas/<nome>.bbmodel (a Mãe; a Gralha e o Mestre, do capítulo 2, ainda fora do jogo), demonios/<nome>.bbmodel (os Sombrios: o Assombrado, a Asa sombria, o Devora almas),
-                           espectrais/<nome>.bbmodel (o jogo novo: os Sombrios repintados, a Sombra espectral, a Asa espectral e o Devora espectros; docs/demonios.md)
+                           espectrais/<nome>.bbmodel (o jogo novo: os Sombrios repintados, a Sombra espectral, a Asa espectral e o Devora espectros; o Manto espectral; docs/demonios.md)
 public/musica/             as músicas do jogo (menu.mp3: o menu e o criador de mapas; batalha.mp3: as hordas e devorador.mp3:
                            o chefe, na Demo · Intro; perseguicao-gralhas.mp3 e perseguicao-mae.mp3: as perseguições; tensao.mp3 e
                            capitulo-0 a 2.mp3: o ambiente e os menus dos capítulos, ainda sem tocar)
@@ -238,6 +238,10 @@ src/game/                  (já existem: Testar.tsx, player/, input/, world/, we
   enemies/devora-espectros/ o Devora espectros (o jogo novo, docs/demonios.md): modelo.ts, animacao.ts (flutuar, o bote, a
                            mordida, cuspir uma Sombra ou uma Asa espectral, o tranco do tiro, fraco), ia.ts (caçar e escolher o golpe),
                            sons.ts (o fantasma: gemidos com ar, o brilho de vidro, o chiado, o estalo) e numeros.ts
+  enemies/manto-espectral/ o Manto espectral (o jogo novo, docs/demonios.md: a Sombra esticada com o capuz, o manto e os braços do Mestre), só no Ver
+                           modelos: modelo.ts, animacao.ts (parado, andar, agarrar, o combo de socos, o golpe giratório, atordoado,
+                           o tiro, fraco), tornado.ts (os anéis de luz do
+                           golpe giratório, como o giro do Crash; uma malha só), sons.ts e numeros.ts
   enemies/mestre/          o Mestre, do capítulo 2 (docs/cap2-sombra.md), só no Ver modelos por enquanto: modelo.ts (o manto e as
                            partes soltas nas molas), animacao.ts (levita: as pernas pendem, deita com a velocidade; a cabeça vira
                            de uma vez; a brisa e o arrasto no manto; o grito: o manto abre e a tela treme; a corrida, a mordida com o bico, cobrir-se
