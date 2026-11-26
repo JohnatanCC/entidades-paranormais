@@ -58,6 +58,11 @@ import { disparar, novosProjeteis, passoProjeteis } from '../game/enemies/asa-so
 import { montarDevoraAlmas } from '../game/enemies/devora-almas/modelo'
 import { montarDevoraEspectros } from '../game/enemies/devora-espectros/modelo'
 import { montarMantoEspectral } from '../game/enemies/manto-espectral/modelo'
+import { montarAsaTerror } from '../game/enemies/asa-terror/modelo'
+import { animarAsaTerror, bocaNoMundo, ferir as ferirAsaTerror, golpear as golpearAsaTerror } from '../game/enemies/asa-terror/animacao'
+import { anel, descartarEfeitos, desfazer, dispararBomba, novosEfeitos, orbe, passoEfeitos } from '../game/enemies/asa-terror/efeitos'
+import { BOMBA as BOMBA_ASA, TELE as TELE_ASA } from '../game/enemies/asa-terror/numeros'
+import { ouvirAsaTerror, ouvirEfeitos } from '../game/enemies/asa-terror/sons'
 import { animarMantoEspectral, ferir as ferirManto, golpear as golpearManto } from '../game/enemies/manto-espectral/animacao'
 import { AGARRAR as AGARRAR_MANTO, GIRO as GIRO_MANTO, SOCOS as SOCOS_MANTO } from '../game/enemies/manto-espectral/numeros'
 import { ouvirMantoEspectral } from '../game/enemies/manto-espectral/sons'
@@ -94,8 +99,8 @@ const ANIMS_GRALHA: [Anim, string][] = [['parado', 'Voando no lugar'], ['andando
 const ANIMS_MAE: [Anim, string][] = [['parado', 'Parada'], ['andando', 'Andando (em roda)'], ['porta', 'Passando pela porta']]
 // os demônios (docs/demonios.md): o id é o nome do arquivo em modelos/demonios/
 const ASSOMBRADO = 'demonio:assombrado', ASA = 'demonio:asa-sombria', DEVORA = 'demonio:devora-almas'
-type AcaoDemonio = 'atacar' | 'engolir' | 'investida' | 'chuva' | 'ninhada' | 'arrancar' | 'atordoar' | 'rastejar' | 'surgir' | 'cuspir' | 'desviar' | 'dano' | 'estourar' | 'bote' | 'morder' | 'cuspirAsa' | 'agarrar' | 'socos' | 'girar' | 'fraco'
-const DEMONIOS: Record<string, { nome: string; arquivo: string; anims: [Anim, string][]; acoes: [AcaoDemonio, string][]; ajuda: string; semSom?: boolean }> = {
+type AcaoDemonio = 'atacar' | 'engolir' | 'investida' | 'chuva' | 'ninhada' | 'arrancar' | 'atordoar' | 'rastejar' | 'surgir' | 'cuspir' | 'desviar' | 'dano' | 'estourar' | 'bote' | 'morder' | 'cuspirAsa' | 'agarrar' | 'socos' | 'girar' | 'fraco' | 'tiro' | 'rajada' | 'teleporte'
+const DEMONIOS: Record<string, { nome: string; arquivo: string; anims: [Anim, string][]; acoes: [AcaoDemonio, string][]; ajuda: string }> = {
   [ASSOMBRADO]: {
     nome: 'O Assombrado', arquivo: 'demonios/assombrado', anims: [['parado', 'Parado'], ['andando', 'Andando (em roda)']],
     acoes: [['atacar', 'Atacar'], ['surgir', 'Surgir do chão'], ['dano', 'Tomar dano'], ['estourar', 'Estourar']],
@@ -114,7 +119,7 @@ const DEMONIOS: Record<string, { nome: string; arquivo: string; anims: [Anim, st
 }
 // os espectrais (o jogo novo): os Sombrios repintados (modelos/espectrais/). A Sombra e a Asa usam o esqueleto e as
 // animações do Assombrado e da Asa sombria; o Devora espectros, por enquanto, só flutua (a inteligência vem depois)
-const SOMBRA_ESP = 'espectral:sombra-espectral', ASA_ESP = 'espectral:asa-espectral', DEVORA_ESP = 'espectral:devora-espectros', MANTO_ESP = 'espectral:manto-espectral'
+const SOMBRA_ESP = 'espectral:sombra-espectral', ASA_ESP = 'espectral:asa-espectral', DEVORA_ESP = 'espectral:devora-espectros', MANTO_ESP = 'espectral:manto-espectral', ASA_TERROR = 'espectral:asa-terror'
 const ESPECTRAIS: typeof DEMONIOS = {
   [SOMBRA_ESP]: { ...DEMONIOS[ASSOMBRADO], nome: 'A Sombra espectral', arquivo: 'espectrais/sombra-espectral' },
   [ASA_ESP]: { ...DEMONIOS[ASA], nome: 'A Asa espectral', arquivo: 'espectrais/asa-espectral' },
@@ -122,6 +127,11 @@ const ESPECTRAIS: typeof DEMONIOS = {
     nome: 'O Manto espectral', arquivo: 'espectrais/manto-espectral', anims: [['parado', 'Parado'], ['andando', 'Andando (em roda)']],
     acoes: [['agarrar', 'Agarrar (perto)'], ['socos', 'Combo de socos'], ['girar', 'Golpe giratório'], ['atordoar', 'Atordoado'], ['dano', 'Tomar dano'], ['fraco', 'Fraco (liga e desliga)']],
     ajuda: 'O fantasma capturável mais forte da família da Sombra: o corpo da Sombra espectral, esticado, com o capuz, as pernas, os braços longos e o manto do Mestre. Agarrar: abre os braços longos (o aviso âmbar), dá o bote, fecha em volta do Matheus e segura 2 s. Combo de socos: puxa os braços e dá 4 socos alternados, o antebraço esticando. Golpe giratório (com 30% da vida, no jogo): ergue os braços de lado, gira 3 s indo devagar até o Matheus e cai atordoado 2 s. Fraco: agacha e amolece (a hora da captura).',
+  },
+  [ASA_TERROR]: {
+    nome: 'O Asa do terror', arquivo: 'espectrais/asa-terror', anims: [['parado', 'Voando no lugar'], ['andando', 'Voando (em roda)']],
+    acoes: [['tiro', 'Tiro carregado (a bomba)'], ['rajada', '3 tiros em sequência'], ['teleporte', 'Teletransporte'], ['dano', 'Tomar dano'], ['fraco', 'Fraco (liga e desliga)']],
+    ajuda: 'O fantasma capturável da família da Asa. Tiro carregado: abre as asas e as mandíbulas, a bola de luz cresce entre elas (o aviso âmbar) e dispara; a bomba gruda no chão, pisca cada vez mais rápido com o círculo de onde pega, e explode em 2,5 s. 3 tiros em sequência (com 30% da vida, no jogo): a mesma carga e três bombas. Teletransporte: se desfaz em cubos e surge em outro lugar (o anel no chão avisa onde). Fraco: desce, as asas caem (a hora da captura).',
   },
   [DEVORA_ESP]: {
     nome: 'O Devora espectros', arquivo: 'espectrais/devora-espectros', anims: [['parado', 'Flutuando no lugar'], ['andando', 'Flutuando (em roda)']],
@@ -182,7 +192,7 @@ export function VerModelos({ go }: { go: Go }) {
         <Canvas camera={{ position: [1.4, 1.4, 3.6], fov: 35, near: 0.02, far: 100 }}>
           <Luzes luz={e.luz} />
           <Golpes />
-          {agente ? <CenaAgente key={e.qual} modelo={e.qual as ModeloAgente} e={e} onInfo={setInfo} onMunicao={setMunicao} /> : mae ? <CenaMae e={e} onInfo={setInfo} /> : e.qual === ASSOMBRADO || e.qual === SOMBRA_ESP ? <CenaAssombrado key={e.qual} arquivo={demonio.arquivo} e={e} onInfo={setInfo} /> : e.qual === ASA || e.qual === ASA_ESP ? <CenaAsaSombria key={e.qual} arquivo={demonio.arquivo} e={e} onInfo={setInfo} /> : e.qual === DEVORA ? <CenaDevora e={e} onInfo={setInfo} /> : e.qual === DEVORA_ESP ? <CenaDevoraEspectros e={e} onInfo={setInfo} /> : e.qual === MANTO_ESP ? <CenaManto e={e} onInfo={setInfo} /> : e.qual === MESTRE ? <CenaMestre e={e} onInfo={setInfo} /> : e.qual === GRALHA ? <CenaGralha e={e} onInfo={setInfo} /> : <CenaObjeto key={e.qual} qual={e.qual} girar={e.girar} onInfo={setInfo} />}
+          {agente ? <CenaAgente key={e.qual} modelo={e.qual as ModeloAgente} e={e} onInfo={setInfo} onMunicao={setMunicao} /> : mae ? <CenaMae e={e} onInfo={setInfo} /> : e.qual === ASSOMBRADO || e.qual === SOMBRA_ESP ? <CenaAssombrado key={e.qual} arquivo={demonio.arquivo} e={e} onInfo={setInfo} /> : e.qual === ASA || e.qual === ASA_ESP ? <CenaAsaSombria key={e.qual} arquivo={demonio.arquivo} e={e} onInfo={setInfo} /> : e.qual === DEVORA ? <CenaDevora e={e} onInfo={setInfo} /> : e.qual === DEVORA_ESP ? <CenaDevoraEspectros e={e} onInfo={setInfo} /> : e.qual === MANTO_ESP ? <CenaManto e={e} onInfo={setInfo} /> : e.qual === ASA_TERROR ? <CenaAsaTerror e={e} onInfo={setInfo} /> : e.qual === MESTRE ? <CenaMestre e={e} onInfo={setInfo} /> : e.qual === GRALHA ? <CenaGralha e={e} onInfo={setInfo} /> : <CenaObjeto key={e.qual} qual={e.qual} girar={e.girar} onInfo={setInfo} />}
           {e.grade && <Grid args={[8, 8]} cellSize={0.5} cellThickness={0.6} cellColor="#6a5a40" sectionSize={1} sectionThickness={1.2} sectionColor="#c89b4a" fadeDistance={14} infiniteGrid />}
           <OrbitControls makeDefault target={[0, 0.95, 0]} minDistance={0.2} maxDistance={e.qual === DEVORA ? 12 * ESCALA_DEVORA : 9} />
         </Canvas>
@@ -255,7 +265,7 @@ export function VerModelos({ go }: { go: Go }) {
         {demonio && <section>
           <b>Ações</b>
           <div className="opcoes">{demonio.acoes.map(([acao, nome]) => <button key={acao} onClick={() => muda({ ...(acao === 'atacar' || acao === 'cuspir' ? { anim: 'parado', girar: false } : {}), demonio: { acao, n: (e.demonio?.n ?? 0) + 1 } })}>{nome}</button>)}</div>
-          <small>{demonio.ajuda}{!demonio.semSom && ' Os sons tocam com a animação (o ouvido é a câmera: perto, mais alto); sem som, clique uma vez na página antes.'}</small>
+          <small>{demonio.ajuda}{' Os sons tocam com a animação (o ouvido é a câmera: perto, mais alto); sem som, clique uma vez na página antes.'}</small>
         </section>}
 
         {agente && <>
@@ -621,6 +631,82 @@ function CenaAsaSombria({ arquivo, e, onInfo }: { arquivo: string; e: Escolhas; 
     <primitive object={E.grupo} />
     <primitive object={P.grupo} />
     {e.demonio?.acao === 'cuspir' && <primitive object={anel} />}
+  </>
+}
+
+function CenaAsaTerror({ e, onInfo }: { e: Escolhas; onInfo: (i: Info) => void }) {
+  // montarAsaTerror na lista: salvar o .bbmodel recarrega o módulo e ele é montado de novo
+  const a = useMemo(() => montarAsaTerror(), [montarAsaTerror])
+  const E = useMemo(() => novosEfeitos(), [])
+  const ALTURA = 2.4, R = 3.2, VEL = 2.4 // o voo: a altura (m); em roda: o raio (m) e a velocidade (m/s)
+  // o agente (o alvo dos tiros), parado na marca; os pontos do chão onde as bombas grudam (em volta dele) e os lugares
+  // do teletransporte
+  const cena = useMemo(() => ({
+    alvos: [new THREE.Vector3(0, 0.05, 3.9), new THREE.Vector3(-1.6, 0.05, 4.7), new THREE.Vector3(1.6, 0.05, 4.4)],
+    lugares: [new THREE.Vector3(0, 0, 0), new THREE.Vector3(-3.2, 0, 0.8), new THREE.Vector3(3, 0, -0.6)],
+  }), [])
+  const ag = useMemo(() => { const g = montarAgente('agente'); g.root.visible = false; g.root.rotation.y = Math.PI; g.root.position.set(0, 0, 4.6); return g }, [montarAgente])
+  const { pronto, voar } = useVoo()
+  // em roda: o ângulo; golpe: parou num lugar (casa) para o golpe; fraco: o botão liga e desliga; lugar: para onde o
+  // teletransporte leva; tiros: quantos já saíram neste golpe
+  const ida = useRef({ ang: 0, golpe: false, fraco: false, casa: new THREE.Vector3(), lugar: 0, tiros: 0 })
+  const camera = useThree((st) => st.camera)
+  const _v = useMemo(() => new THREE.Vector3(), [])
+  useEffect(() => () => { calar(a); descartarEfeitos(E) }, [a, E])
+  useEffect(() => {
+    const c = contas(a.root)
+    a.root.updateMatrixWorld(true)
+    const b = new THREE.Box3().setFromObject(a.root)
+    onInfo({ linhas: [`Largura, com as asas: ${(b.max.x - b.min.x).toFixed(2)} m`, `Altura, com os tentáculos: ${(b.max.y - b.min.y).toFixed(2)} m`, `${c.blocos} blocos em ${c.juntas} juntas`, `${c.desenhos} chamadas de desenho`] })
+  }, [a, onInfo])
+  useEffect(() => {
+    if (pronto) voar(new THREE.Vector3(0, 1.5, 1.6), e.anim === 'andando' ? new THREE.Vector3(11, 6, 8) : new THREE.Vector3(11.5, 3.8, 4.5))
+  }, [pronto, e.anim])
+  useEffect(() => {
+    const p = e.demonio, I = ida.current
+    if (!p) return
+    if (p.acao === 'dano') { ferirAsaTerror(a, Math.random() * Math.PI * 2 - Math.PI); return }
+    if (p.acao === 'fraco') { I.fraco = !I.fraco; return }
+    // os golpes: parado num lugar, de frente para o agente da marca
+    if (!I.golpe) { I.golpe = true; I.casa.copy(cena.lugares[I.lugar]); a.molas.pos = null }
+    I.tiros = 0; ag.root.visible = true
+    if (p.acao === 'teleporte') {
+      // some daqui (os cubos sobem, o anel fecha) e o anel do destino já abre: o aviso de onde ele vai surgir
+      I.lugar = (I.lugar + 1) % cena.lugares.length
+      golpearAsaTerror(a, 'sumir')
+      desfazer(E, _v.set(I.casa.x, ALTURA, I.casa.z), 0.9)
+      anel(E, _v.set(I.casa.x, 0.04, I.casa.z), 1.2, 0.15, TELE_ASA.some)
+      anel(E, _v.copy(cena.lugares[I.lugar]).setY(0.04), 0.15, 1.2, TELE_ASA.some + TELE_ASA.surge)
+    } else golpearAsaTerror(a, p.acao as 'tiro' | 'rajada')
+  }, [e.demonio])
+  useFrame((_, dtBruto) => {
+    const dt = Math.min(dtBruto, 0.05), I = ida.current, r = a.root
+    if (I.golpe && a.anim.modo === 'voar' && e.anim === 'andando') I.golpe = false // acabou o golpe: volta a voar em roda
+    const roda = e.anim === 'andando' && !I.golpe
+    const s = animarAsaTerror(a, roda ? VEL : 0, dt, I.fraco ? 1 : 0)
+    if (s.sumiu) { // o instante do teletransporte: troca de lugar e surge em cubos
+      I.casa.copy(cena.lugares[I.lugar]); a.molas.pos = null
+      desfazer(E, _v.set(I.casa.x, ALTURA, I.casa.z), 0.9)
+    }
+    if (roda) { I.ang += (VEL * dt) / R; r.position.set(Math.cos(I.ang) * R, ALTURA + s.sobe, Math.sin(I.ang) * R); r.rotation.y = -I.ang }
+    else {
+      r.position.set(I.casa.x, ALTURA + s.sobe, I.casa.z)
+      if (I.golpe) r.rotation.y = Math.atan2(ag.root.position.x - I.casa.x, ag.root.position.z - I.casa.z)
+      else if (e.girar) r.rotation.y += dt * 0.5
+    }
+    r.updateMatrixWorld(true)
+    // a bola de luz entre as mandíbulas e a bomba: voa até o chão perto do agente, gruda, pisca e explode
+    orbe(E, bocaNoMundo(a, _v), s.carga)
+    if (s.dispara) dispararBomba(E, bocaNoMundo(a, _v), cena.alvos[I.tiros++ % cena.alvos.length])
+    passoEfeitos(E, dt, 0)
+    for (const p of E.explodiu) if (ag.root.visible && Math.hypot(p.x - ag.root.position.x, p.z - ag.root.position.z) < BOMBA_ASA.raio) tranco(ag, 0)
+    ouvinte(camera); ouvirAsaTerror(a, s, dt); ouvirEfeitos(E)
+    if (ag.root.visible) animarAgente(ag, { velocidade: 0, corrida: 0, esquiva: -1 }, dt)
+  })
+  return <>
+    <primitive object={a.root} />
+    <primitive object={E.grupo} />
+    <primitive object={ag.root} />
   </>
 }
 

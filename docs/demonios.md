@@ -95,6 +95,32 @@ Os modelos antigos ficam como estão; os novos são cópias repintadas, em `mode
   impacto de cada soco, a lufada a cada volta do giro, o gemido tonto e o guincho do tiro. Falta: a inteligência, o mapa
   e a captura. **A vida: 450** (26/nov; numeros.ts,
   LUTA: 150 tiros de pistola ou 9 de escopeta cheios, mais a captura).
+- **O Asa do terror** (26/nov; `modelos/espectrais/asa-terror.bbmodel`, `src/game/enemies/asa-terror/`): o terceiro
+  fantasma capturável, a variante maior da Asa espectral, a partir das imagens do desenvolvedor. Refeito no mesmo dia pela
+  referência dele (blocos, com partes poligonais para refinar), de um gerador próprio: **o capuz** largo, em degraus, com
+  o pano caído em tiras em volta (nas molas) e a frente em V; **o X costurado**, grande e aceso; **o corpo em bola**
+  embaixo do capuz; **o bico** e **as duas mandíbulas de inseto** grandes, poligonais, em osso branco-gelo; **dois pares
+  de asas** de morcego (a membrana em tiras com as veias pintadas, os ossos e a garra no pulso); **três tentáculos**
+  curvos, em 4 partes nas molas, com a ponta acesa; e os cubos acesos que flutuam em volta. 222 blocos e 7 malhas
+  poligonais, 2 chamadas de desenho, ~3,8 m de asa a asa. O voo: as asas descem rápido e sobem com a ponta dobrada, o
+  corpo balança e olha em volta, deita para a frente quando anda; as mandíbulas estalam; o pano e os tentáculos
+  balançam com a brisa.
+  **A vida: 400.**
+  **As animações e os efeitos** (26/nov, no Ver modelos; `animacao.ts`, `efeitos.ts`, `sons.ts`):
+  - **O tiro carregado:** 1,1 s de carga (as asas abrem para cima e tremem, as mandíbulas escancaram, o corpo vai para
+    trás, o aviso âmbar; a bola de luz cresce entre as mandíbulas) e o disparo, com o coice. **A bomba** voa reto (9 m/s)
+    até o ponto, gruda (o núcleo com seis espinhos), pisca vermelho cada vez mais rápido, com **o círculo no chão
+    mostrando até onde pega** (2,2 m), e explode em 2,5 s: 30 de dano.
+  - **3 tiros em sequência** (com 30% da vida): a mesma carga e três disparos, um a cada 0,45 s.
+  - **O teletransporte:** 0,5 s se desfazendo (encolhe, torce, os cubos sobem) e 0,4 s surgindo; **o anel no chão do
+    destino abre desde o começo** (o aviso de onde ele vai surgir).
+  - **O tiro que leva** (o tranco e o brilho) e **fraco** (desce, as asas caem e batem devagar, as mandíbulas pendem).
+  - **Os sons:** as asas, os estalos das mandíbulas, o gemido, a carga, o disparo, sumir e surgir, o dano; a bomba
+    grudando, o bipe de cada piscada e a explosão, no lugar dela.
+  Os efeitos são duas malhas (os cubos e os anéis), em estoque fixo. Os números (`numeros.ts`: TIRO, BOMBA, TELE) são
+  pontos de partida meus: a carga, o raio, a pausa de 1 s depois do tiro e o aviso do teletransporte ainda esperam a
+  palavra do desenvolvedor. **Falta:** a inteligência (ficar longe do agente, um tiro a cada 6 s, teletransportar
+  durante os ataques), a entidade no mapa, o dano de verdade e a captura.
 - **Em aberto:** como o jogador distingue o fantasma capturável dos monstros (o desenho ou um sinal na tela).
 
 ## A família (o que os três têm em comum)
