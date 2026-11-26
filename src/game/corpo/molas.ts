@@ -20,7 +20,8 @@ export interface ConfigMolas {
   passa?: number
 }
 
-export interface Mola { g: THREE.Object3D; base: THREE.Euler; ax: number; az: number; vx: number; vz: number; lim: [number, number, number, number] }
+/** fora = para que lado, em volta da âncora, a pasta está (x, z): para onde ela abre quando gira. */
+export interface Mola { g: THREE.Object3D; base: THREE.Euler; ax: number; az: number; vx: number; vz: number; lim: [number, number, number, number]; fora: [number, number] }
 /** Um conjunto de molas e quem as segura (ref: o osso cujo tranco as empurra). */
 export interface Molas { cfg: ConfigMolas; ref: THREE.Object3D; molas: Mola[]; pos: THREE.Vector3 | null; vel: THREE.Vector3 }
 
@@ -33,7 +34,8 @@ export function prepararMolas(grupos: THREE.Object3D[], ancora: THREE.Object3D, 
     // girar em x para o positivo leva a ponta para trás (−z); em z para o positivo, para fora do lado +x
     const lx: [number, number] = p.z < Z.tras ? [-P, S] : p.z > Z.frente ? [-S, P] : [-0.6 * S / 0.9, 0.6 * S / 0.9]
     const lz: [number, number] = p.x > Z.lado ? [-P, S] : p.x < -Z.lado ? [-S, P] : [-0.4 * S / 0.9, 0.4 * S / 0.9]
-    return { g, base: g.rotation.clone(), ax: 0, az: 0, vx: 0, vz: 0, lim: [lx[0], lx[1], lz[0], lz[1]] }
+    const d = Math.hypot(p.x, p.z) || 1
+    return { g, base: g.rotation.clone(), ax: 0, az: 0, vx: 0, vz: 0, lim: [lx[0], lx[1], lz[0], lz[1]], fora: [p.x / d, p.z / d] }
   })
   return { cfg, ref, molas, pos: null, vel: new THREE.Vector3() }
 }
@@ -42,8 +44,9 @@ const _p = new THREE.Vector3(), _v = new THREE.Vector3(), _a = new THREE.Vector3
 const cl = (x: number, a: number, b: number) => Math.max(a, Math.min(b, x))
 
 /** Um quadro das molas, depois de toda a pose posta no lugar. raiz = o personagem (para atualizar as matrizes).
- *  vento = um empurrão a mais em tudo (m/s², no mundo): a brisa, o ar que fica para trás de quem anda. */
-export function animarMolas(m: Molas, raiz: THREE.Object3D, dt: number, vento?: THREE.Vector3) {
+ *  vento = um empurrão a mais em tudo (m/s², no mundo): a brisa, o ar que fica para trás de quem anda.
+ *  abre = o quanto cada pasta abre para fora da âncora (rad): quem gira no lugar joga o pano para longe. */
+export function animarMolas(m: Molas, raiz: THREE.Object3D, dt: number, vento?: THREE.Vector3, abre = 0) {
   if (dt <= 0 || !m.molas.length) return
   raiz.updateMatrixWorld(true)
   m.ref.getWorldPosition(_p)
@@ -69,7 +72,7 @@ export function animarMolas(m: Molas, raiz: THREE.Object3D, dt: number, vento?: 
     }
     // o giro para a frente/trás leva a ponta para a força; o de lado, o que sobra dela (medido contra o resto da força,
     // não só contra o "para baixo": com a pasta já bem girada, um empurrão de lado pequeno não vira um giro enorme)
-    const alvoX = cl(-Math.atan2(_l.z, baixo), x0, x1), alvoZ = cl(Math.atan2(_l.x, Math.hypot(_l.y, _l.z)), z0, z1)
+    const alvoX = cl(-Math.atan2(_l.z, baixo) - abre * s.fora[1], x0, x1), alvoZ = cl(Math.atan2(_l.x, Math.hypot(_l.y, _l.z)) + abre * s.fora[0], z0, z1)
     s.vx += (C.mola * (alvoX - s.ax) - C.amortece * s.vx) * dt; s.ax = cl(s.ax + s.vx * dt, x0, x1)
     s.vz += (C.mola * (alvoZ - s.az) - C.amortece * s.vz) * dt; s.az = cl(s.az + s.vz * dt, z0, z1)
     s.g.rotation.set(s.base.x + s.ax, s.base.y, s.base.z + s.az)

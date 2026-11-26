@@ -1,10 +1,10 @@
 // O Asa do terror (o jogo novo, docs/demonios.md): o fantasma capturável da família da Asa espectral, maior e mais
 // robusto: modelos/espectrais/asa-terror.bbmodel (26/nov, refeito pela referência do desenvolvedor, de um gerador
-// próprio: em blocos, com o bico, as mandíbulas e as garras das asas poligonais; dá para retocar no Blockbench).
+// próprio: facetado desde 26/nov, como o Manto: o capuz, a bola, as asas, o bico e as mandíbulas poligonais; o X e os cubos em blocos; dá para retocar no Blockbench).
 // ~3,8 m de asa a asa.
-// As pastas: raiz › corpo (a bola, o capuz, o rosto com o X aceso) › asa_e/d › asa_ponta_e/d (as de cima); asa_baixo_e/d
+// As pastas: raiz › corpo (a bola, o capuz, o rosto; rosto_x: o X aceso) › asa_e/d › asa_ponta_e/d (as de cima); asa_baixo_e/d
 // › asa_baixo_ponta_e/d (as de baixo); bico; mandibula_e/d; nucleo (o meio do X, de onde sai o tiro); nas molas:
-// mecha_pano_eN/dN/tN › _b (as tiras do pano do capuz), mecha_tentaculo_e/d/m › _2 › _3 › _4 (os tentáculos) e
+// mecha_pano_N › _b (as línguas do pano do capuz), mecha_tentaculo_e/d/m › _2 › _3 › _4 (os tentáculos) e
 // mecha_pingo_eN/dN (os cubos acesos). A origem é o meio do corpo (ele voa). Translúcido como os espectrais.
 import * as THREE from 'three'
 import { copiaDoMolde } from '../../../render/bbmodel'

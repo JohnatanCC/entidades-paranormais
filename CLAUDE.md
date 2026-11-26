@@ -189,7 +189,7 @@ src/game/                  (já existem: Testar.tsx, player/, input/, world/, we
                            onde olha, se fala, a postura e o gesto; as portas da cena), gestos.ts (a postura ler e os gestos virar, fechar e
                            bater, por IK), Elenco.tsx (dentro do Canvas: os atores andando, os gestos, a cabeça, a boca, a luz)
                            e catalogo.ts (todas as cenas)
-  corpo/                   o que serve a todo personagem: molas.ts (o que pendura e balança: cabelo, saia, manto; com vento), sombraDeChao.ts
+  corpo/                   o que serve a todo personagem: molas.ts (o que pendura e balança: cabelo, saia, manto; com vento e abrindo no giro), sombraDeChao.ts
                            (o círculo escuro embaixo dele)
   entidades/               as entidades do mapa ganhando vida no Testar (a aba Entidades): Entidades.tsx (as Gralhas pousadas que
                            veem o agente e caçam; o Mestre: grita, solta o corvo, persegue e morde; a Mãe: grita, caça, a carga e
@@ -238,11 +238,11 @@ src/game/                  (já existem: Testar.tsx, player/, input/, world/, we
   enemies/devora-espectros/ o Devora espectros (o jogo novo, docs/demonios.md): modelo.ts, animacao.ts (flutuar, o bote, a
                            mordida, cuspir uma Sombra ou uma Asa espectral, o tranco do tiro, fraco), ia.ts (caçar e escolher o golpe),
                            sons.ts (o fantasma: gemidos com ar, o brilho de vidro, o chiado, o estalo) e numeros.ts
-  enemies/manto-espectral/ o Manto espectral (o jogo novo, docs/demonios.md: a Sombra esticada com o capuz, o manto e os braços do Mestre), só no Ver
+  enemies/manto-espectral/ o Manto espectral (o jogo novo, docs/demonios.md: o chapéu em espiral, a capa, o manto em tiras, o corpo em gota, os braços longos de garra), só no Ver
                            modelos: modelo.ts, animacao.ts (parado, andar, agarrar, o combo de socos, o golpe giratório, atordoado,
                            o tiro, fraco), tornado.ts (os anéis de luz do
                            golpe giratório, como o giro do Crash; uma malha só), sons.ts e numeros.ts
-  enemies/asa-terror/      o Asa do terror (o jogo novo, docs/demonios.md: a Asa espectral maior: o capuz com o pano em tiras, o corpo em bola, o bico e as
+  enemies/asa-terror/      o Asa do terror (o jogo novo, docs/demonios.md: a Asa espectral maior: o capuz facetado com o pano em tiras, o corpo em bola, o bico e as
                            mandíbulas poligonais, dois pares de asas e três tentáculos), só no Ver modelos: modelo.ts, animacao.ts (voar, o tiro carregado,
                            a rajada, o teletransporte, o tiro que leva, fraco), efeitos.ts (a bola de luz da carga, a bomba que gruda,
                            pisca e explode, os cubos e os anéis do teletransporte; duas malhas), sons.ts e numeros.ts

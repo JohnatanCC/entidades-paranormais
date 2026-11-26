@@ -3,14 +3,15 @@
 // ajustar vendo no Ver modelos.
 import type { ConfigMolas } from '../../corpo/molas'
 
-/** As tiras do manto (as do Mestre: presas no ombro, a barra solta). */
+/** As tiras do manto (presas debaixo da capa, a barra solta). */
 export const MANTO: ConfigMolas = { mola: 22, amortece: 3.4, tranco: 0.7, trancoMax: 25, solto: 0.8, preso: 0.04, zona: { tras: -0.05, frente: 0.05, lado: 0.05 } }
 
 /** A ponta do capuz e os cubos pendurados (as molas). */
 export const MOLAS: ConfigMolas = { mola: 18, amortece: 3, tranco: 0.7, trancoMax: 30, solto: 0.9, preso: 0.15, zona: { tras: -0.2, frente: 0.2, lado: 0.1 } }
 
-/** Parado: a respiração (o quanto o corpo estica, em s), os braços longos balançando (rad, s) e os curtos mexendo os dedos. */
-export const PARADO = { respira: 0.025, volta: 3.2, bracos: 0.06, balanco: 2.6, curtos: 0.12 }
+/** Parado: a respiração (o quanto o corpo estica, em s), os braços longos balançando (rad, s), os curtos mexendo os dedos
+ *  e a cabeça olhando em volta (rad). */
+export const PARADO = { respira: 0.025, volta: 3.2, bracos: 0.06, balanco: 2.6, curtos: 0.12, olha: 0.22 }
 
 /** Andando: o passo (s por passo), o quanto a coxa vai (rad), o joelho dobra (rad), o corpo sobe (m) e deita (rad), os
  *  braços longos vão contra as pernas (rad). */
@@ -38,3 +39,7 @@ export const ATORDOADO = { dura: 2, cai: 0.18, deita: 0.35, cabeca: 0.25 }
 /** O tiro: o tranco (rad) e quanto dura (s). Fraco (a vida zerada: a captura): o quanto agacha (m) e deita (rad). */
 export const DANO = { tranco: 0.2, dura: 0.35 }
 export const FRACO = { cai: 0.35, deita: 0.45 }
+
+/** O pano: a brisa de sempre e o ar que fica para trás de quem anda (m/s², por m/s); no giro, o quanto cada parte do
+ *  manto abre para fora (rad). */
+export const PANO = { brisa: 1.3, arrasto: 2.5, abre: 0.5 }

@@ -74,14 +74,17 @@ Os modelos antigos ficam como estão; os novos são cópias repintadas, em `mode
   editor), "Aprimorado": **sorte** (os 5%), **sempre** ou **nunca**. No Ver modelos, a Sombra e a Asa espectral têm a
   opção "Aprimorado".
 - **O Manto espectral** (26/nov; `modelos/espectrais/manto-espectral.bbmodel`, `src/game/enemies/manto-espectral/`): o
-  segundo fantasma capturável, a variante mais forte da Sombra espectral, a partir das imagens do desenvolvedor. Em
-  **blocos** (26/nov: uma versão em malha poligonal foi feita e ficou ruim; os blocos ficam mais bonitos). Nasceu de um
-  gerador que **junta peças que já existem**: da Sombra espectral, o corpo (afinado e esticado), **os braços curtos**,
-  os três olhos vermelhos e os cubos pendurados; do Mestre, **o capuz** (1,6 vez maior: os três andares, a viseira, as
-  penas arrepiadas e a ponta caída, sem o bico; combina com o manto), **o pescoço** e **a gola** (o colarinho em
-  volta do pescoço, menor e sem as pontas das penas: fecha a nuca), as duas pernas de ave, **os braços longos de
-  garra** e **o manto** em três camadas de tiras com a ombreira (repintados: o pano branco, o rosto escuro, os braços e
-  as pernas no azul espectral). ~2,2 m; dá para retocar no Blockbench. Os ataques e as animações
+  segundo fantasma capturável, a variante mais forte da Sombra espectral, a partir das imagens do desenvolvedor. A primeira
+  versão juntava peças da Sombra espectral e do Mestre, em blocos. **Refeito no mesmo dia pelo conceito dele** (a pedido:
+  a mesma qualidade do Asa do terror), de um gerador próprio, em blocos com partes poligonais: **o chapéu em espiral**
+  com a ponta caída de lado e um cubo aceso pendurado (nas molas); o rosto escuro com **os três olhos vermelhos**, numa **abertura com fundo** (a moldura de pano salta para a frente, a testa mais que o queixo, como a do Asa do terror); **a
+  capa curta** dos ombros com a barra rasgada; **o manto comprido** em 11 tiras de 3 partes (nas molas), aberto na
+  frente, com as pontas rasgadas e cubos acesos pendurados; **o corpo em gota**, azul e facetado; **os braços curtos**
+  no peito; **os braços longos** com a mão de garras (os dedos dobram em duas juntas); **as pernas de ave**. O chapéu, a
+  capa e o manto têm três tons de pano, para as camadas lerem. 59 blocos e 58 peças poligonais, ~2,4 m; dá para retocar
+  no Blockbench. **As animações ganharam** (26/nov): os dedos (relaxados, abertos em garra no aviso do agarrão e no
+  giro, fechando no agarrão, **punhos nos socos**), a cabeça olhando em volta parado, a brisa no pano e o ar que fica
+  para trás de quem anda, e **o manto abrindo para fora no giro** (as molas ganharam `abre`: `corpo/molas.ts`). Os ataques e as animações
   (26/nov, `animacao.ts`; os números em AGARRAR, SOCOS, GIRO, ATORDOADO), no Ver modelos contra o Matheus na marca:
   **agarrar** (perto: inclina para trás e abre os braços longos com o aviso âmbar, dá o bote, fecha os braços em volta e
   segura 2 s; 30 de dano no agarrão), o **combo de socos** (meia distância: puxa os braços e dá 4 socos alternados, o
@@ -101,7 +104,7 @@ Os modelos antigos ficam como estão; os novos são cópias repintadas, em `mode
   o pano caído em tiras em volta (nas molas) e a frente em V; **o X costurado**, grande e aceso; **o corpo em bola**
   embaixo do capuz; **o bico** e **as duas mandíbulas de inseto** grandes, poligonais, em osso branco-gelo; **dois pares
   de asas** de morcego (a membrana em tiras com as veias pintadas, os ossos e a garra no pulso); **três tentáculos**
-  curvos, em 4 partes nas molas, com a ponta acesa; e os cubos acesos que flutuam em volta. 222 blocos e 7 malhas
+  curvos, em 4 partes nas molas, com a ponta acesa; e os cubos acesos que flutuam em volta. **Facetado em 26/nov** (a pedido, como o Manto: menos quadrado, sem detalhe a mais): o capuz virou um cone largo de 8 lados com a barra rasgada e **a abertura do rosto com fundo** (a moldura de pano salta para a frente, a testa mais que o queixo, e o rosto escuro com o X fica lá dentro), a bola e os tentáculos são peças facetadas, a membrana de cada asa são dois panos e o pano caído são 10 línguas pontudas; só o X, os cubos e as luzes continuam blocos. 20 blocos e 67 malhas
   poligonais, 2 chamadas de desenho, ~3,8 m de asa a asa. O voo: as asas descem rápido e sobem com a ponta dobrada, o
   corpo balança e olha em volta, deita para a frente quando anda; as mandíbulas estalam; o pano e os tentáculos
   balançam com a brisa.

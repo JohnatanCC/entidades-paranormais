@@ -16,12 +16,12 @@ import { avisar, piscar } from '../../../render/golpe'
 import { animarMolas } from '../../corpo/molas'
 import type { MantoEspectral } from './modelo'
 import { passoTornado } from './tornado'
-import { AGARRAR, ANDAR, ATORDOADO, DANO, FRACO, GIRO, PARADO, SOCOS } from './numeros'
+import { AGARRAR, ANDAR, ATORDOADO, DANO, FRACO, GIRO, PANO, PARADO, SOCOS } from './numeros'
 
 export type ModoManto = 'pairar' | 'agarrar' | 'socos' | 'girar' | 'atordoado'
 export interface SaidaManto { avanca: number; giro: number; agarrou: boolean; segurando: boolean; soco: number | null; volta: boolean }
 
-const _q = new THREE.Quaternion(), _e = new THREE.Euler()
+const _q = new THREE.Quaternion(), _e = new THREE.Euler(), _vento = new THREE.Vector3(), _frente = new THREE.Vector3()
 const onda = (t: number, s: number) => Math.sin((t / s) * Math.PI * 2)
 const cl = (x: number) => Math.max(0, Math.min(1, x))
 const suave = (k: number) => { const x = cl(k); return x * x * (3 - 2 * x) }
@@ -118,7 +118,16 @@ export function animarMantoEspectral(m: MantoEspectral, andar: number, dt: numbe
   m.corpo.scale.set(1 - resp * 0.5 + aperta, 1 + resp - aperta, 1 - resp * 0.5 + aperta)
   girar(m, m.quadril, ANDAR.deita * k + deita + tranco, 0.05 * k * Math.sin(passo), lado)
   m.quadril.position.y = A.quadrilY + ANDAR.sobe * k * Math.abs(Math.sin(passo)) - cai
-  girar(m, m.cabeca, 0, 0, cabecaZ)
+  // a cabeça: parado, olha em volta devagar (o chapéu acompanha nas molas)
+  const calmo = A.modo === 'pairar' ? (1 - k) * (1 - A.fraco) : 0
+  girar(m, m.cabeca, 0.05 * onda(A.t, 4.1) * calmo, PARADO.olha * onda(A.t, 7.3) * calmo, cabecaZ + 0.04 * onda(A.t, 5.2) * calmo)
+  // os dedos das mãos longas: relaxados; abertos no aviso do agarrão e no giro; as garras fecham no agarrão; punhos nos socos
+  let dedos = 0.22 + 0.06 * onda(A.t, 2.1)
+  if (A.modo === 'agarrar') dedos = A.tm < AGARRAR.aviso ? -0.25 : A.tm < AGARRAR.aviso + AGARRAR.bote + AGARRAR.segura ? 0.85 : 0.3
+  else if (A.modo === 'socos') dedos = 1.25
+  else if (A.modo === 'girar') dedos = -0.2
+  else if (A.modo === 'atordoado' || A.fraco > 0.3) dedos = 0.45
+  A.dedos += (dedos - A.dedos) * (1 - Math.exp(-14 * dt))
   // as pernas: uma vai, a outra volta; o joelho dobra quando a perna vem para a frente; caindo, os dois dobram
   for (const [l, s] of [['e', 1], ['d', -1]] as const) {
     const p = m.perna[l], c = Math.sin(passo) * s
@@ -136,13 +145,19 @@ export function animarMantoEspectral(m: MantoEspectral, andar: number, dt: numbe
     const r = Math.sqrt(pose[3])
     L.ombro.scale.set(1, r, 1); L.antebraco.scale.set(1, r, 1); L.mao.scale.set(1, 1 / pose[3], 1)
     girar(m, L.mao, 0.15 * onda(A.t + 0.3, PARADO.balanco) * livre)
+    girar(m, L.dedos, A.dedos * 1.1); girar(m, L.pontas, A.dedos * 1.2); girar(m, L.polegar, A.dedos * 0.7)
     const C = m.curto[l]
     girar(m, C.braco, PARADO.curtos * onda(A.t * 1.3 + (s > 0 ? 0 : 1.1), 1.7) + (out.segurando ? -0.6 : 0))
     girar(m, C.antebraco, -PARADO.curtos * onda(A.t * 1.3 + 0.4, 1.7))
   }
   avisar(m.root, aviso) // o aviso do golpe acende âmbar (render/golpe.ts)
   passoTornado(m.tornado, out.giro / GIRO.vel, dt) // o tornado de luz, com a força do giro
-  animarMolas(m.manto, m.root, dt); animarMolas(m.molas, m.root, dt)
+  // o pano: a brisa de sempre, o ar que fica para trás de quem anda e, no giro, o manto abrindo para fora
+  m.root.getWorldDirection(_frente)
+  _vento.set(Math.sin(A.t * 1.3) + 0.5 * Math.sin(A.t * 3.1), 0, Math.cos(A.t * 0.9) + 0.5 * Math.sin(A.t * 2.3)).multiplyScalar(PANO.brisa)
+  _vento.addScaledVector(_frente, -PANO.arrasto * (out.avanca + andar * k))
+  const abre = (PANO.abre * out.giro) / GIRO.vel
+  animarMolas(m.manto, m.root, dt, _vento, abre); animarMolas(m.molas, m.root, dt, _vento, abre * 0.6)
   out.avanca += A.modo === 'pairar' ? andar : 0
   return out
 }

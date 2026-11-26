@@ -126,7 +126,7 @@ const ESPECTRAIS: typeof DEMONIOS = {
   [MANTO_ESP]: {
     nome: 'O Manto espectral', arquivo: 'espectrais/manto-espectral', anims: [['parado', 'Parado'], ['andando', 'Andando (em roda)']],
     acoes: [['agarrar', 'Agarrar (perto)'], ['socos', 'Combo de socos'], ['girar', 'Golpe giratório'], ['atordoar', 'Atordoado'], ['dano', 'Tomar dano'], ['fraco', 'Fraco (liga e desliga)']],
-    ajuda: 'O fantasma capturável mais forte da família da Sombra: o corpo da Sombra espectral, esticado, com o capuz, as pernas, os braços longos e o manto do Mestre. Agarrar: abre os braços longos (o aviso âmbar), dá o bote, fecha em volta do Matheus e segura 2 s. Combo de socos: puxa os braços e dá 4 socos alternados, o antebraço esticando. Golpe giratório (com 30% da vida, no jogo): ergue os braços de lado, gira 3 s indo devagar até o Matheus e cai atordoado 2 s. Fraco: agacha e amolece (a hora da captura).',
+    ajuda: 'O fantasma capturável mais forte da família da Sombra: o chapéu em espiral, a capa rasgada, o manto em tiras, o corpo em gota e os braços longos de garra. Parado, olha em volta e o pano balança na brisa. Agarrar: abre os braços longos (o aviso âmbar), dá o bote, fecha em volta do Matheus e segura 2 s. Combo de socos: puxa os braços e dá 4 socos alternados, o antebraço esticando. Golpe giratório (com 30% da vida, no jogo): ergue os braços de lado, gira 3 s indo devagar até o Matheus e cai atordoado 2 s. Fraco: agacha e amolece (a hora da captura).',
   },
   [ASA_TERROR]: {
     nome: 'O Asa do terror', arquivo: 'espectrais/asa-terror', anims: [['parado', 'Voando no lugar'], ['andando', 'Voando (em roda)']],
@@ -660,7 +660,7 @@ function CenaAsaTerror({ e, onInfo }: { e: Escolhas; onInfo: (i: Info) => void }
     onInfo({ linhas: [`Largura, com as asas: ${(b.max.x - b.min.x).toFixed(2)} m`, `Altura, com os tentáculos: ${(b.max.y - b.min.y).toFixed(2)} m`, `${c.blocos} blocos em ${c.juntas} juntas`, `${c.desenhos} chamadas de desenho`] })
   }, [a, onInfo])
   useEffect(() => {
-    if (pronto) voar(new THREE.Vector3(0, 1.5, 1.6), e.anim === 'andando' ? new THREE.Vector3(11, 6, 8) : new THREE.Vector3(11.5, 3.8, 4.5))
+    if (pronto) voar(new THREE.Vector3(0, 1.5, 1.6), e.anim === 'andando' ? new THREE.Vector3(11, 6, 8) : new THREE.Vector3(6.5, 3.2, 8.5))
   }, [pronto, e.anim])
   useEffect(() => {
     const p = e.demonio, I = ida.current
@@ -730,7 +730,7 @@ function CenaManto({ e, onInfo }: { e: Escolhas; onInfo: (i: Info) => void }) {
     onInfo({ linhas: [`Altura: ${(b.max.y - b.min.y).toFixed(2)} m`, `${c.blocos} blocos em ${c.juntas} juntas`, `${c.desenhos} chamadas de desenho`] })
   }, [m, onInfo])
   useEffect(() => {
-    if (pronto) voar(new THREE.Vector3(0, 1.2, 1.6), e.anim === 'andando' ? new THREE.Vector3(5.5, 3.5, 6.5) : new THREE.Vector3(7.5, 2.6, 3.5))
+    if (pronto) voar(new THREE.Vector3(0, 1.35, 1.2), e.anim === 'andando' ? new THREE.Vector3(5.5, 3.5, 6.5) : new THREE.Vector3(3.6, 2.1, 6.2))
   }, [pronto, e.anim])
   useEffect(() => {
     const p = e.demonio, I = ida.current
