@@ -43,9 +43,10 @@ export const FRACO = { altura: 0.45, nariz: 0.3, dura: 8 }
  *  mais perto que isso (m, do meio do corpo: a boca fica ~1 m à frente); minimo = nem nos golpes ele entra mais que isso
  *  no agente (m); frente = de frente até isso (rad) para atacar; o bote entre `de` e `ate` m, com o dano e a
  *  espera entre um e outro (s); a mordida (o alcance é o de MORDIDA) e a espera; o cuspe: a espera (s) e quantas crias
- *  vivas dele no máximo; folga = o golpe pega até um tico além do alcance (m). */
+ *  vivas dele no máximo; folga = o golpe pega até um tico além do alcance (m); rompe = a vida (da cheia) com que ele
+ *  volta quando se solta da captura sozinho. */
 export const LUTA = {
-  vida: 300, vel: 2.2, vira: 3, raio: 0.7, encosta: 1.9, minimo: 1.3, frente: 0.45, folga: 0.5,
+  vida: 300, rompe: 0.3, vel: 2.2, vira: 3, raio: 0.7, encosta: 1.9, minimo: 1.3, frente: 0.45, folga: 0.5,
   bote: { de: 3.5, ate: 6, dano: 25, espera: [2.5, 4] as const },
   mordida: { dano: 20, espera: [1.2, 2] as const },
   cuspe: { espera: [7, 11] as const, crias: 3 },

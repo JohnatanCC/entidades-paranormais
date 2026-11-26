@@ -4,8 +4,9 @@
 //     chão e sobe voando. Quando um morre, a carga dele volta depois da recarga; invocou o máximo, ela para de vez.
 //   O Devora espectros (tipo 'devora-espectros'): o fantasma capturável. Flutua no lugar dele até ver o agente; caça com
 //     o bote, a mordida e o cuspe (as crias dele são espectrais como os das caixas, e patrulham em volta do lugar dele).
-//     Com a vida zerada fica fraco (afunda e amolece: a janela da captura, que ainda vai existir) e, passado um tempo,
-//     volta com a vida cheia. Longe demais, ou sem ver o agente, volta para o lugar dele.
+//     Com a vida zerada fica fraco (afunda e amolece) e aparece o ícone da lamparina: é a hora da captura (game/capture:
+//     a lamparina erguida nele começa, cada tiro baixa a força dele, em 20% ele é absorvido e o agente ganha vida). Sem
+//     captura, passado um tempo, volta com a vida cheia. Longe demais, ou sem ver o agente, volta para o lugar dele.
 // Os espectrais caçam o agente com a luta dos Sombrios (assombrado/ia.ts e asa-sombria/ia.ts). Se o agente ficar longe
 // (ESPECTRAIS.perde) por um tempo, eles perdem o foco e patrulham em volta da caixa deles, de ponto em ponto, desviando
 // das paredes; também desistem se ficarem um tempo sem ver o agente (atrás da parede, em outro andar). Vendo o agente
@@ -33,7 +34,7 @@ import { animarDevoraEspectros, ferir as ferirDevora, type CriaEspectros } from 
 import { acalmarDevoraEspectros, golpeAcerta, pensarDevoraEspectros } from '../enemies/devora-espectros/ia'
 import { montarDevoraEspectros, type DevoraEspectros } from '../enemies/devora-espectros/modelo'
 import { CUSPE, FRACO, LUTA as LUTA_DEVORA } from '../enemies/devora-espectros/numeros'
-import { ouvirDevoraEspectros } from '../enemies/devora-espectros/sons'
+import { absorvido, ouvirDevoraEspectros } from '../enemies/devora-espectros/sons'
 import { estourar, novoEstouro, passoEstouro } from '../enemies/estouro'
 import { andarNoMundo, girarPara, rumoLivre, separar, sorteado, type Alvo } from '../enemies/luta'
 import { calar, somEm } from '../enemies/sons'
@@ -41,6 +42,9 @@ import type { AgenteNaFase } from '../Testar'
 import type { Alvejavel } from '../weapons/bala'
 import { alcanceCamera, empurrar, temChao } from '../world/colisao'
 import { ganchos } from '../../dev/ganchos'
+import { CAPTURA, novaCaptura, passoCaptura, tiroNaCaptura, type Captura } from '../capture/captura'
+import { descartarSinal, mostrarSinal, novoSinal, type Sinal } from '../capture/sinal'
+import { naLuz } from './luz'
 import { ESPECTRAIS } from './numeros'
 
 // as caixas onde a bala acerta (meias medidas, m: as da Sombra e da Asa são as dos Sombrios na Demo · Intro; o Devora,
@@ -65,6 +69,9 @@ interface DevoraVivo {
   d: DevoraEspectros; casa: THREE.Vector3; vira: number; vida: number; fraco: number
   estado: 'espera' | 'caca' | 'volta'; longe: number; escondido: number; olhar: number; visto: boolean
   ninho: CaixaViva; alvos: Alvejavel[]; alvo: Alvo
+  /** a captura: em andamento (a força), absorvendo (s desde que começou a sumir, −1 não; de onde saiu e para onde vai:
+   *  a lamparina de quem capturou), capturado (saiu do jogo) e o sinal em cima dele (o ícone, a barra) */
+  captura: Captura | null; absorve: number; de: THREE.Vector3; lampada: THREE.Vector3 | null; capturado: boolean; sinal: Sinal
 }
 
 const _ir = { x: 0, z: 0 }, _v = new THREE.Vector3(), _f = new THREE.Vector3(), _peito = new THREE.Vector3(), _olho = new THREE.Vector3()
@@ -83,6 +90,7 @@ export function Espectrais({ chunks, fase }: { chunks: Chunk[]; fase: AgenteNaFa
     d.root.position.copy(casa); d.root.rotation.y = vira
     const D: DevoraVivo = {
       d, casa, vira, vida: LUTA_DEVORA.vida, fraco: 0, estado: 'espera', longe: 0, escondido: 0, olhar: 0, visto: false,
+      captura: null, absorve: -1, de: new THREE.Vector3(), lampada: null, capturado: false, sinal: novoSinal(),
       ninho: { p: casa, c: { ...CAIXA, maximo: 0 }, recarga: [], usadas: 0, vivos: 0, nasce: 0 },
       alvos: [caixaDeTiro(CAIXA_TIRO.boca), caixaDeTiro(CAIXA_TIRO.corpo), caixaDeTiro(CAIXA_TIRO.cauda)],
       alvo: { ...alvo, pode: () => fase.pode() && Math.abs(alvo.p.y - casa.y) < ESPECTRAIS.andar },
@@ -107,10 +115,10 @@ export function Espectrais({ chunks, fase }: { chunks: Chunk[]; fase: AgenteNaFa
   useEffect(() => () => { for (const v of vivos.current) tirar(v); vivos.current = [] }, [caixas])
   // os Devoras: entram na cena e na lista do tiro; saindo, calam
   useEffect(() => {
-    for (const D of devoras) { grupo.add(D.d.root); fase.alvos.push(...D.alvos) }
+    for (const D of devoras) { grupo.add(D.d.root, D.sinal.grupo); fase.alvos.push(...D.alvos) }
     return () => {
       for (const D of devoras) {
-        grupo.remove(D.d.root); calar(D.d); soltarGolpe(D.d.root)
+        grupo.remove(D.d.root, D.sinal.grupo); calar(D.d); soltarGolpe(D.d.root); descartarSinal(D.sinal)
         for (const a of D.alvos) { const i = fase.alvos.indexOf(a); if (i >= 0) fase.alvos.splice(i, 1) }
       }
     }
@@ -121,7 +129,7 @@ export function Espectrais({ chunks, fase }: { chunks: Chunk[]; fase: AgenteNaFa
     const dele = (cx: CaixaViva) => vivos.current.filter((v) => v.dono === cx && v.morto < 0).map((v) => ({ tipo: v.tipo, estado: v.estado, vida: v.vida, dist: Math.round(Math.hypot(v.a.root.position.x - cx.p.x, v.a.root.position.z - cx.p.z) * 10) / 10 }))
     ganchos.caixas = () => [
       ...caixas.map((cx) => ({ caixa: `${cx.c.monstro} em ${cx.p.x}, ${cx.p.z}`, usadas: cx.usadas, vivos: cx.vivos, recarga: cx.recarga.map((t) => Math.round(t)), espectrais: dele(cx) })),
-      ...devoras.map((D) => ({ caixa: `Devora em ${D.casa.x}, ${D.casa.z}: ${D.fraco > 0 ? 'fraco' : D.estado}, vida ${D.vida}, ${D.d.anim.modo}`, usadas: 0, vivos: D.ninho.vivos, recarga: [], espectrais: dele(D.ninho) })),
+      ...devoras.map((D) => ({ caixa: `Devora em ${D.casa.x}, ${D.casa.z}: ${D.capturado ? 'capturado' : D.absorve >= 0 ? 'absorvendo' : D.captura ? `capturando, força ${Math.round(D.captura.forca)}%` : D.fraco > 0 ? 'fraco' : D.estado}, vida ${D.vida}, ${D.d.anim.modo}`, usadas: 0, vivos: D.ninho.vivos, recarga: [], espectrais: dele(D.ninho) })),
     ]
     return () => { delete ganchos.caixas }
   }, [caixas, devoras])
@@ -181,11 +189,34 @@ export function Espectrais({ chunks, fase }: { chunks: Chunk[]; fase: AgenteNaFa
 
   /** Uma bala acertou o Devora: o tranco, e ele acorda; zerou, fica fraco (o maior não estoura: é capturado). */
   function tiroNoDevora(D: DevoraVivo, dano: number, dir: THREE.Vector3) {
-    if (D.fraco > 0) return // fraco, o tiro não tira mais nada (a captura vem depois)
+    if (D.capturado || D.absorve >= 0) return
+    if (D.fraco > 0) { // fraco, o tiro só vale na captura: baixa a força dele; em 20%, ele é absorvido
+      if (!D.captura) return
+      ferirDevora(D.d, deOnde(D.d.root, dir))
+      if (tiroNaCaptura(D.captura, dano)) absorver(D)
+      return
+    }
     ferirDevora(D.d, deOnde(D.d.root, dir))
     if (D.estado !== 'caca') { D.estado = 'caca'; D.longe = 0; D.escondido = 0 }
     if ((D.vida -= dano) > 0) return
     D.vida = 0; D.fraco = FRACO.dura; D.d.anim.modo = 'pairar'; acalmarDevoraEspectros(D.d)
+  }
+
+  /** A força chegou nos 20%: ele começa a sumir na lamparina e sai da lista do tiro. */
+  function absorver(D: DevoraVivo) {
+    D.absorve = 0; D.de.copy(D.d.root.position); D.captura = null; D.d.anim.modo = 'pairar'
+    for (const a of D.alvos) { const i = fase.alvos.indexOf(a); if (i >= 0) fase.alvos.splice(i, 1) }
+    if (D.lampada) somEm(D.lampada, absorvido, 3)
+  }
+  /** Sumindo na lamparina: voa até ela girando e encolhendo; no fim, sai do jogo e o agente ganha vida. */
+  function passoAbsorve(D: DevoraVivo, dt: number) {
+    const r = D.d.root, k = Math.min(1, (D.absorve += dt) / CAPTURA.absorve), e = k * k * (3 - 2 * k)
+    if (D.lampada) r.position.lerpVectors(D.de, D.lampada, e)
+    r.scale.setScalar(Math.max(0.02, 1 - e)); r.rotation.y += dt * (2 + 10 * e)
+    animarDevoraEspectros(D.d, 0, dt, 1)
+    if (k < 1) return
+    D.capturado = true; r.visible = false; calar(D.d); soltarGolpe(r)
+    fase.curar(CAPTURA.cura)
   }
 
   /** De (x, z), no chão `chao`, dá para ver o agente: no mesmo andar e sem nada tapando (as paredes, as portas fechadas). */
@@ -231,11 +262,27 @@ export function Espectrais({ chunks, fase }: { chunks: Chunk[]; fase: AgenteNaFa
 
   /** Um quadro do Devora: fraco, esperando, caçando ou voltando para casa; anima, anda, fere e cospe. */
   function passoDevora(D: DevoraVivo, dt: number) {
+    if (D.capturado) return
+    if (D.absorve >= 0) { mostrarSinal(D.sinal, null, null, 0); passoAbsorve(D, dt); return }
     const d = D.d, r = d.root, ag = alvo.p, chao = D.casa.y, dist = Math.hypot(ag.x - r.position.x, ag.z - r.position.z)
     if ((D.olhar -= dt) <= 0) { D.olhar = ESPECTRAIS.olhar; D.visto = enxerga(r.position.x, chao, r.position.z) }
     let andar = 0
-    if (D.fraco > 0) { // fraco: fica onde está; passado o tempo, volta com a vida cheia e caçando
-      if ((D.fraco -= dt) <= 0) { D.fraco = 0; D.vida = LUTA_DEVORA.vida; D.estado = 'caca'; D.longe = 0; D.escondido = 0 }
+    if (D.fraco > 0) { // fraco: a lamparina nele captura; sem captura, passado o tempo, volta com a vida cheia e caçando
+      const quem = naLuz(fase.jogadores, fase.mundo, d.corpo.getWorldPosition(_v))
+      if (quem?.lamparina) D.lampada = quem.lamparina.pos
+      if (!D.captura && quem) D.captura = novaCaptura() // a lamparina nele: começa a ser absorvido
+      if (D.captura) {
+        const fim = passoCaptura(D.captura, !!quem, dt)
+        if (fim === 'solta') D.captura = null // baixou a lamparina (ou tirou ele do feixe): o tempo de fraco volta a correr
+        else if (fim === 'rompe') { // sem tiro, a força encheu: ele se solta e volta a caçar, com pouca vida
+          D.captura = null; D.fraco = 0; D.vida = Math.round(LUTA_DEVORA.vida * LUTA_DEVORA.rompe); D.estado = 'caca'; D.longe = 0; D.escondido = 0
+          ferirDevora(d, Math.PI)
+        } else if (D.lampada) { // sendo capturado: vem devagar para a lamparina (sem passar do mínimo)
+          const dx = D.lampada.x - r.position.x, dz = D.lampada.z - r.position.z, l = Math.hypot(dx, dz)
+          if (l > LUTA_DEVORA.minimo + 0.5) { r.position.x += (dx / l) * CAPTURA.puxa * dt; r.position.z += (dz / l) * CAPTURA.puxa * dt }
+          girarPara(r, D.lampada.x, D.lampada.z, 1.5, dt)
+        }
+      } else if ((D.fraco -= dt) <= 0) { D.fraco = 0; D.vida = LUTA_DEVORA.vida; D.estado = 'caca'; D.longe = 0; D.escondido = 0 }
     } else if (D.estado === 'espera') {
       if (fase.pode() && D.visto && dist < ESPECTRAIS.ve) { D.estado = 'caca'; D.longe = 0; D.escondido = 0 }
     } else if (D.estado === 'caca') {
@@ -258,6 +305,8 @@ export function Espectrais({ chunks, fase }: { chunks: Chunk[]; fase: AgenteNaFa
     golpeAcerta(d, s, D.alvo, r.position)
     if (s.cria) cria(D, s.cria.tipo, s.cria.de, s.cria.frente)
     ouvirDevoraEspectros(d, s, dt)
+    // o sinal da captura em cima dele: o ícone (fraco) e a barra da força (capturando)
+    mostrarSinal(D.sinal, D.fraco > 0 ? d.corpo.getWorldPosition(_v).setY(r.position.y + 1.4) : null, D.captura?.forca ?? null, d.anim.t, camera)
     // as caixas do tiro andam com ele: a boca (à frente da mandíbula), o corpo e a cauda (atrás)
     _f.set(Math.sin(r.rotation.y), 0, Math.cos(r.rotation.y))
     d.mandibula.getWorldPosition(D.alvos[0].c).addScaledVector(_f, 0.3)

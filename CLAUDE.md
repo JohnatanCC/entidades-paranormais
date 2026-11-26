@@ -196,7 +196,8 @@ src/game/                  (já existem: Testar.tsx, player/, input/, world/, we
                            a sequência de garradas; as músicas das perseguições), foco.ts (com dois jogadores, quem cada uma
                            ataca: a distância e o dano que levou de cada um; docs/teste-online.md), Boneco.tsx (a Lara parada no
                            Testar, tecla L, para testar o foco), Espectrais.tsx (as caixas de espectrais: invocam, caçam, perdem o
-                           foco e patrulham em volta da caixa; o Devora espectros: caça, cospe crias, fica fraco) e numeros.ts
+                           foco e patrulham em volta da caixa; o Devora espectros: caça, cospe crias, fica fraco e é capturado), luz.ts
+                           (quem está no feixe da lamparina: o Mestre recua, a captura começa) e numeros.ts
   Testar.tsx               o Testar do editor: o agente andando no mapa aberto (câmera, colisão, luz do jogo), em tela cheia;
                            numa fase, dá ao roteiro o controle do agente (AgenteNaFase: ferir, engolir, cuspir, a gosma, o ponto de volta)
   Desempenho.tsx           o medidor de uma cena de jogo: os quadros por segundo e, com F3, o detalhe (desenhos, triângulos,
@@ -205,7 +206,7 @@ src/game/                  (já existem: Testar.tsx, player/, input/, world/, we
                            arma.ts (a arma na mão; a escopeta com as duas mãos ou no ombro; o frasco
                            da pistola com o calor; Q troca no Testar), lamparina.ts (na cintura, acesa; C ergue: a mão esquerda, o feixe), mira.ts (mirar: a pose, o coice, a bomba depois do tiro),
                            recarga.ts (a recarga da escopeta: a bolsa, o cartucho, as balas puxadas pela arma), queda.ts (cair sem violência), dano.ts (o tranco de um golpe,
-                           machucado), vida.ts (a vida, a invulnerabilidade, os kits), parado.ts (a respiração, o
+                           machucado), vida.ts (a vida, a invulnerabilidade, os kits, curar ao capturar), parado.ts (a respiração, o
                            peso e os gestos de parado), alcancar.ts (o braço alcança um ponto: IK de dois ossos; a mão esquerda na maçaneta ao abrir a porta),
                            rosto.ts (as expressões; as das cenas: preocupado, desconfiado, fechado, vencido), passada.ts (as curvas de uma passada de verdade: andar e correr),
                            pes.ts (o pé de apoio preso no chão, em qualquer direção: IK da perna), controle.ts
@@ -257,7 +258,8 @@ src/game/                  (já existem: Testar.tsx, player/, input/, world/, we
                            e o respingo; os sons de cada um no sons.ts da pasta dele (o Lamento do Assombrado, o Morcego da
                            Asa sombria, o Abismo do Devora almas: ouvirX, depois de animarX, toca cada som no momento da animação)
   enemies/pastas.ts        achar as pastas de uma cópia de modelo pelo nome (avisa se faltar) e as mecha_ que balançam
-  capture/                 a poça e a captura
+  capture/                 (já existe) a captura pela lamparina (o jogo novo, docs/demonios.md): captura.ts (a força, o tiro, soltar,
+                           romper; os números em CAPTURA) e sinal.ts (o ícone da lamparina e a barra de força em cima do fantasma)
   allies/                  Lara e Nicolas
   rede/                    o teste online (docs/teste-online.md): conexao.ts (o PeerJS: criar e entrar com o código, o ping, a
                            queda), numeros.ts (o ritmo das mensagens, a queda, o deslizar), mensagens.ts (o que vai e volta: a pose, o tiro, a porta, o acerto, a ferida, o retrato do

@@ -40,7 +40,7 @@ import { montarAgente, type Agente, type ModeloAgente } from './player/modelo'
 import type { Expressao } from './player/rosto'
 import { AGENTE, CAMERA, ENGOLIDO, QUEDA } from './player/numeros'
 import { tranco } from './player/dano'
-import { ganharKit, machucado, novaVida, passoVida, tomarDano, usarKit, voltarVida } from './player/vida'
+import { curar, ganharKit, machucado, novaVida, passoVida, tomarDano, usarKit, voltarVida } from './player/vida'
 import { novoEstadoHud, type EstadoHud } from './hud/Hud'
 import { ouvirAgente, somDoKit } from './player/sons'
 import { ouvinte } from '../audio/espaco'
@@ -97,6 +97,8 @@ export interface AgenteNaFase {
   lentidao: (quanto: number, dura: number) => void
   /** ganhou kits médicos (a onda limpa) */
   darKit: (n: number) => void
+  /** ganhou vida (capturou um fantasma), até a cheia */
+  curar: (n: number) => void
   /** onde ele volta depois de cair (o começo da arena) */
   pontoDeVolta: (x: number, z: number, yaw: number) => void
   /** chamado quando ele volta depois de cair (o roteiro recomeça a onda) */
@@ -184,6 +186,7 @@ export function Testar({ chunks, levels, ambiente, semChao, areas, inicio, yaw, 
         preso(false); tranco(agente, Math.PI)
       },
       darKit: (n) => ganharKit(vida, n),
+      curar: (n) => curar(vida, n),
       lentidao: (quanto, dura) => { const L = est.current.lento; if (quanto >= L.quanto * (L.t / L.dura)) Object.assign(L, { quanto, t: dura, dura }) },
       pontoDeVolta: (x, z, yaw) => { est.current.volta = { x, y: chaoEm(mundo, x, z, 0.3) ?? 0, z, yaw } },
     }

@@ -33,8 +33,18 @@ Os modelos antigos ficam como estão; os novos são cópias repintadas, em `mode
   (afunda, o nariz cai, amolece: a janela da captura) e volta com a vida cheia. Longe ou sem ver o agente, volta para o
   lugar dele. **Os sons** (`sons.ts`, 26/nov): um fantasma, mais etéreo que o Abismo: gemidos com tremor e ar, às vezes
   um sussurro, o brilho de vidro; o chiado que sobe no aviso, o sopro da investida, o estalo dos dentes de gelo, a
-  garganta borbulhando e o cuspe, o guincho do tiro (volume na faixa do Assombrado: `provas.sonsDemonios()`). Falta: a
-  captura e o desenvolvedor ouvir os sons.
+  garganta borbulhando e o cuspe, o guincho do tiro (volume na faixa do Assombrado: `provas.sonsDemonios()`). Falta: o
+  desenvolvedor ouvir os sons.
+- **A captura** (26/nov; `src/game/capture/`: `captura.ts` com os números em CAPTURA, `sinal.ts` com o ícone e a barra):
+  o fantasma fraco (a vida zerada) mostra **o ícone da lamparina** em cima dele. Erguer a lamparina (C) com ele no feixe
+  começa a captura: aparece **a barra de força** dele (com a marca dos 20%) e ele vem devagar para a lamparina. **Cada
+  tiro baixa a força** (1% por ponto de dano: a pistola tira 5 por tiro, ~16 tiros); sem tiro, ela volta a subir (8%/s).
+  Com a força em **20% ou menos**, ele é **absorvido**: voa girando e encolhendo para dentro da lamparina (1,2 s, com o
+  som do gemido sumindo num fio de vidro) e o agente **ganha 50 de vida** (de 200). Baixar a lamparina (ou tirar ele do
+  feixe) por 0,6 s solta a captura (o tempo de fraco volta a correr); com a força cheia por 4 s (sem tiro desde o começo,
+  ou deixando subir), ele **se solta sozinho** e volta a caçar com 30% da vida. Enquanto é capturado, o tempo de fraco
+  para. A escopeta usa as duas mãos e abaixa a lamparina: capturar é com a pistola. Por enquanto só o Devora espectros
+  é capturável; as crias dele e os espectrais das caixas só morrem.
 - **A matéria azul é translúcida** (25/nov, a pedido): o alfa da textura (~55%) só no corpo azul, e o material desses
   modelos é transparente (`copiaDoMolde(nome, { translucido: true })`); o pano, o rosto e as garras ficam opacos. O que
   brilha é desenhado antes e aparece através do corpo: **a Sombra espectral tem um núcleo** (`luz_nucleo`, um cristal

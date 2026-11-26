@@ -6,7 +6,8 @@
 //   o bote: no aviso, puxa o ar num chiado que sobe e rosna; na investida, o sopro passando; a boca fecha num estalo;
 //   a mordida: o chiado curto e o estalo;
 //   o cuspe: a garganta enche (bolhas e o gemido crescendo) e cospe (o sopro e o respingo);
-//   o tiro: um guincho que cai, com o vidro rachando.
+//   o tiro: um guincho que cai, com o vidro rachando;
+//   capturado: o gemido sobe e some num fio de vidro, para dentro da lamparina.
 import * as THREE from 'three'
 import { estalos, pancada, ruido, sussurro, tom, voz, type Som } from '../../../audio/sintese'
 import type { SaidaEspectros } from './animacao'
@@ -69,10 +70,18 @@ const dano: Tocar = (s, t, d) => { // o guincho que cai, o vidro rachando
   return 0.5
 }
 
+/** Capturado: o gemido sobe e some num fio de vidro, puxado para dentro da lamparina (toca no lugar dela). */
+export const absorvido: Tocar = (s, t, d) => {
+  voz(s, { t, dur: 1.1, a: 0.05, r: 0.3, f: 160, f2: 420, f3: 900, glide: 0.8, vogal: 'u', vogal2: 'i', sc: 0.75, grit: 1.6, vib: [7, 50], ar: 0.9, gain: 0.07, dest: d })
+  ruido(s, { t, dur: 1.1, a: 0.6, r: 0.1, f: 500, f2: 4000, q: 2, gain: 0.12, dest: d })
+  for (const f of [1760, 2640, 3520]) tom(s, { t: t + 0.7, f, f2: f * 1.5, dur: 0.5, a: 0.05, r: 0.4, gain: 0.03, dest: d })
+  return 1.6
+}
+
 /** As partes, para as provas medirem. */
 export const PARTES_DEVORA_ESPECTROS: Parte[] = [
   ['flutuando', flutuando], ['gemido', (s, t, d) => { gemer(s, t, d, 2); return 2.3 }], ['aviso do bote', aviso(BOTE.aviso)], ['investida', investida],
-  ['aviso da mordida', aviso(MORDIDA.aviso)], ['fecha', fecha], ['garganta', garganta], ['cospe', cospe], ['dano', dano],
+  ['aviso da mordida', aviso(MORDIDA.aviso)], ['fecha', fecha], ['garganta', garganta], ['cospe', cospe], ['dano', dano], ['absorvido', absorvido],
 ]
 
 interface Antes { modo: string; fase: string; dano: object | null; repete: number }

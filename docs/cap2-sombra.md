@@ -237,7 +237,8 @@ mesma lanterna). Na cintura, do lado esquerdo, balançando pela alça; segurando
 peito, a luz fica mais forte e sai o feixe (um cone macio, como o luar). A luz não é uma luz do three: entra na conta da
 luz assada de cada material (`src/render/assada.ts`, LAMPARINA), a única luz que anda; sem sombra (a face de trás da
 parede fica escura). No feixe (sem parede no meio) o Mestre se cobre e recua (`src/game/entidades`). O jogar a
-armadilha saiu do código. Os números em `src/game/player/numeros.ts` (LAMPARINA). **Falta:** a captura (absorver).
+armadilha saiu do código. Os números em `src/game/player/numeros.ts` (LAMPARINA). **A captura (absorver)** foi feita em 26/nov para o jogo novo (`docs/demonios.md`, "A captura": o
+fantasma fraco, a lamparina nele, o tiro baixando a força).
 
 
 A armadilha de captura **é a lamparina** (decidido em 17/nov). Ela já estava "para reformular" desde 12/nov (`docs/jogo.md`,

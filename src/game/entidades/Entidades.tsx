@@ -52,13 +52,13 @@ import { piscar, soltarGolpe } from '../../render/golpe'
 import type { AgenteNaFase } from '../Testar'
 import type { Alvejavel } from '../weapons/bala'
 import { alcanceCamera } from '../world/colisao'
-import { LAMPARINA } from '../player/numeros'
 import type { Conexao } from '../rede/conexao'
 import { RITMO, SEGUE } from '../rede/numeros'
 import { r2, type AcaoEntidade, type Msg, type QualEntidade } from '../rede/mensagens'
 import { ameaca, bateu, focar, novoFoco, type Foco, type Jogador } from './foco'
 import { ganchos } from '../../dev/ganchos'
-import { LUZ, MAE, MESTRE, MUSICA, VISTA } from './numeros'
+import { naLuz } from './luz'
+import { MAE, MESTRE, MUSICA, VISTA } from './numeros'
 
 /** Uma Gralha: onde ela pousa (as do corvo não pousam: se desfazem), o modelo, a caçada (null = parada), a caixa do tiro
  *  e o foco (quem ela caça). */
@@ -82,22 +82,8 @@ interface MaeViva {
 /** A sequência de perto (docs/jogo.md, a fase 1 sem o Luto: na casa não tem poça). */
 const SEQUENCIA: NomeGolpe[] = ['garra_d', 'garra_e', 'garra_ultima_d', 'exausta']
 
-const _luz = new THREE.Vector3(), _olho = new THREE.Vector3(), _peito = new THREE.Vector3(), _c = new THREE.Vector3(), _d = new THREE.Vector3()
+const _olho = new THREE.Vector3(), _peito = new THREE.Vector3(), _c = new THREE.Vector3(), _d = new THREE.Vector3()
 
-/** O ponto p está no feixe da lamparina erguida de algum jogador? Dentro do cone (com a folga do corpo dele), no alcance
- *  e sem parede no meio. */
-function naLuz(jogadores: Jogador[], mundo: AgenteNaFase['mundo'], p: THREE.Vector3) {
-  const F = LAMPARINA.feixe
-  for (const { lamparina: L } of jogadores) {
-    if (!L || L.ergue < LUZ.ergue) continue
-    _luz.subVectors(p, L.pos)
-    const d = _luz.length()
-    if (d > F.alcance || d < 0.01) continue
-    const angulo = Math.acos(Math.min(1, _luz.dot(L.dir) / d))
-    if (angulo < F.abre + Math.atan(LUZ.corpo / d) && alcanceCamera(mundo, L.pos, p, 0.02) > 0.98) return true
-  }
-  return false
-}
 
 /** Vê o jogador? Perto e sem parede (nem porta fechada, nem móvel alto) no meio. */
 function ve(j: Jogador, mundo: AgenteNaFase['mundo'], de: THREE.Vector3, alcance: number) {
@@ -304,7 +290,7 @@ export function Entidades({ chunks, fase, rede }: { chunks: Chunk[]; fase: Agent
       const alvo = focar(M.foco, jogadores, r.position, VISTA.larga, dt, (j) => ve(j, mundo, _olho, VISTA.larga)), agente = alvo.p
       const longe = Math.hypot(agente.x - r.position.x, agente.z - r.position.z)
       // a luz de uma lamparina erguida nele: cobre-se e recua (no grito, não: ele termina de gritar)
-      const luz = !A.grito && naLuz(jogadores, mundo, _peito.set(r.position.x, r.position.y + 1.3, r.position.z))
+      const luz = !A.grito && !!naLuz(jogadores, mundo, _peito.set(r.position.x, r.position.y + 1.3, r.position.z))
       if (luz !== A.coberto) cobrir(m, luz)
       if (M.estado === 'espera') {
         const viu = luz ? null : veAlguem(fase, _olho, VISTA.mestre)

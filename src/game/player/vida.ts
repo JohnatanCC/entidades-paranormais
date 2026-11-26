@@ -19,6 +19,8 @@ export function usarKit(v: Vida): boolean {
   if (v.kits === 0) v.novoKit = KITS.novo
   return true
 }
+/** Ganhou vida (capturou um fantasma: game/capture), até a cheia. */
+export const curar = (v: Vida, n: number) => { if (v.atual > 0) v.atual = Math.min(AGENTE.vida, v.atual + n) }
 /** Ganhou kits (o roteiro: a onda limpa), até o máximo. */
 export const ganharKit = (v: Vida, n = 1) => { v.kits = Math.min(KITS.max, v.kits + n) }
 export function passoVida(v: Vida, dt: number) {
