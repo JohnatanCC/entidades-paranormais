@@ -240,7 +240,7 @@ luta não é para ser lenta; os ataques dos inimigos são legíveis para o jogad
 | --- | --- | --- | --- | --- |
 | Pistola de plasma | Q | a cada 0,2 s, bala a 40 m/s | 5 | **sobrecarga**: +2,5% por tiro; cheia, trava por 5 s. Munição infinita |
 | Escopeta de Demantino (o ferro extraído dos objetos amaldiçoados) | Q | a cada 1 s, 5 bagos em leque 0,065, 46 m/s | 5 × 15 | **balas**: 4 no cano; **a recarga leva 1 s por bala que falta** (4 = 4 s), e cada bala vale ao entrar. Sem sobrecarga |
-| A lamparina (a armadilha reformulada) | C (segurar) | **feita em 18/nov:** na cintura, sempre acesa (a luz amarelada em volta); segurando C, erguida para a frente, com o feixe que afasta o Mestre; a captura absorvendo vem depois (`docs/cap2-sombra.md`, "A lamparina"). Não fica no Q | — | — |
+| A lamparina (a armadilha reformulada) | C (liga e desliga, 26/nov) | **feita em 18/nov:** na cintura, sempre acesa (a luz amarelada em volta); com o C, erguida para a frente, com o feixe que afasta o Mestre; a captura absorvendo feita em 26/nov (`docs/demonios.md`, "A captura"). Não fica no Q | — | — |
 | Kit médico | F | — | cura 60 | — |
 
 **A recarga da escopeta (decidida e feita em 12/nov; mudada no mesmo dia):** leva **1 s por bala que falta** (1 bala

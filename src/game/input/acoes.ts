@@ -1,11 +1,12 @@
 // As ações do jogador. O jogo lê AÇÕES (mover, correr, esquivar, olhar, mirar, atirar), nunca teclas: assim o controle e o toque
 // (celular) entram depois sem mexer no agente. Por enquanto, teclado e mouse:
 //   WASD / setas = mover · Shift = correr · Espaço = esquivar · E = interagir (portas) · Q = trocar de arma · R = recarregar
-//   F = kit médico · mouse (com o cursor travado) = olhar
+//   F = kit médico · C = erguer e baixar a lamparina · mouse (com o cursor travado) = olhar
 //   botão direito = mirar · botão esquerdo = atirar (só com o cursor travado: sem ele, o esquerdo arrasta para olhar)
 export class Acoes {
   private teclas = new Set<string>()
   private apertou = new Set<string>() // apertadas desde a última leitura (para ações de um toque só)
+  private lampada = false // a lamparina erguida (o C liga e desliga)
   private dx = 0
   private dy = 0
   private botoes = 0 // os botões do mouse apertados: 1 = esquerdo, 2 = direito
@@ -16,6 +17,7 @@ export class Acoes {
     const kd = (e: KeyboardEvent) => {
       if (['Space', 'ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight'].includes(e.code)) e.preventDefault()
       if (!e.repeat) this.apertou.add(e.code)
+      if (e.code === 'KeyC' && !e.repeat) this.lampada = !this.lampada // a lamparina troca na hora (não espera a leitura do quadro)
       this.teclas.add(e.code)
     }
     const ku = (e: KeyboardEvent) => this.teclas.delete(e.code)
@@ -49,7 +51,7 @@ export class Acoes {
       window.removeEventListener('mousedown', md); window.removeEventListener('mouseup', mu); alvo.removeEventListener('contextmenu', menu)
     })
   }
-  desligar() { this.fora.forEach((f) => f()); this.fora = []; this.teclas.clear(); this.botoes = 0; this.alvo = null }
+  desligar() { this.fora.forEach((f) => f()); this.fora = []; this.teclas.clear(); this.botoes = 0; this.alvo = null; this.lampada = false }
 
   private tem = (...c: string[]) => c.some((k) => this.teclas.has(k))
 
@@ -68,8 +70,8 @@ export class Acoes {
   recarregar() { const v = this.apertou.has('KeyR'); this.apertou.delete('KeyR'); return v }
   /** Usar um kit médico: true uma vez por aperto do F. */
   kit() { const v = this.apertou.has('KeyF'); this.apertou.delete('KeyF'); return v }
-  /** A lamparina: o C segurado (ergue para a frente; soltou, volta para a cintura). */
-  lamparina() { return this.teclas.has('KeyC') }
+  /** A lamparina: cada aperto do C ergue para a frente ou volta para a cintura (26/nov, a pedido: sem precisar segurar). */
+  lamparina() { return this.lampada }
   /** Mirar: o botão direito segurado. */
   mirar() { return (this.botoes & 2) !== 0 }
   /** Atirar: o botão esquerdo segurado, com o cursor travado. */

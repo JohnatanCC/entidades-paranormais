@@ -31,7 +31,7 @@ export interface EstadoAnim {
   mover?: [number, number] // a velocidade no espaço dele (m/s): x para a esquerda, z para a frente; sem = para a frente
   municao?: Municao // a munição (weapons/municao.ts): a recarga da escopeta e o calor da pistola aparecem no corpo e na arma
   alcanca?: { ponto: THREE.Vector3; t: number } // a mão esquerda vai a um ponto do mundo (a maçaneta da porta); t = s desde o começo do gesto
-  lamparina?: boolean // segurando C: a mão esquerda ergue a lamparina para a frente (lamparina.ts)
+  lamparina?: boolean // erguida (o C liga e desliga): a mão esquerda ergue a lamparina para a frente (lamparina.ts)
 }
 
 const STAND = 0.42 // a altura do quadril dentro do pivô da cambalhota, antes de acertar os pés no chão
@@ -211,7 +211,7 @@ export function animarAgente(a: Agente, e: EstadoAnim, dt: number): void {
   const gesto = gestoParado(a, parado && fk < 0.5, dt) // machucado, ele não fica fazendo gestos
   const maoRecarga = poseDaRecarga(a, recarga, solto, dt)
   maoNaBomba(a) // a mão esquerda na bomba, onde a escopeta estiver agora
-  // a lamparina erguida (segurando C): por cima da bomba e da pistola mirando (a mão esquerda larga a arma)
+  // a lamparina erguida (o C): por cima da bomba e da pistola mirando (a mão esquerda larga a arma)
   const lamp = erguerLamparina(a, !!e.lamparina && q < 0, solto, dt)
   // machucado: a mão esquerda segura o lado, quando está livre (não está na bomba, na pistola mirando nem na lamparina)
   const Ar = a.anim.arma, ocupada = Math.max(Ar.esquerda, a.arma === 'pistola' ? Ar.mira : 0, Ar.recarga, lamp)

@@ -100,7 +100,7 @@ export const PARADO = {
   sai: 9, // quão rápido o gesto some quando é cortado (andar, esquivar, trocar de arma)
 }
 
-// A lamparina (player/lamparina.ts): na cintura, sempre acesa; segurando C, erguida para a frente com o feixe.
+// A lamparina (player/lamparina.ts): na cintura, sempre acesa; o C ergue para a frente com o feixe (e baixa de novo).
 //   tamanho = a escala do modelo; cinto = onde a alça fica presa (m, no espaço do quadril: +x é a esquerda dele);
 //   erguida = onde a alça vai erguida (m, no espaço do peito); erguer = quão rápido sobe e desce (por s);
 //   pendulo = m da alça ao peso (antes da escala), quanto acalma (por s), o máximo que abre (rad);

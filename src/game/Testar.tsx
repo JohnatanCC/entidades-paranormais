@@ -4,7 +4,7 @@
 // a escopeta gasta as 4 balas e recarrega, a pistola esquenta e trava (weapons/municao.ts), a bala voa e acerta
 // (weapons/bala.ts); a vida, os kits e a arma vão para o HUD (game/hud: onHud, a cada quadro). Fica dentro do <Canvas>.
 //   clique trava o mouse · WASD anda · Shift corre · Espaço esquiva · E abre e fecha porta · Q troca a arma · R recarrega · mouse olha
-//   botão direito mira · botão esquerdo atira · C (segurando) ergue a lamparina · Esc volta ao editor (numa fase: o menu
+//   botão direito mira · botão esquerdo atira · C ergue e baixa a lamparina · Esc volta ao editor (numa fase: o menu
 //   de pausa, screens/Jogo)
 //   (a lamparina fica acesa na cintura, sempre: player/lamparina.ts)
 //   para ver o modelo (só no Testar, não é controle do jogo): 1–6 expressões, 7–9 poses da mão, 0 volta ao automático,

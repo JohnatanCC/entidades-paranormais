@@ -1,5 +1,5 @@
 // A lamparina do agente (18/nov; docs/cap2-sombra.md, "A lamparina"): a armadilha reformulada. Fica pendurada na
-// cintura, do lado esquerdo, sempre acesa, iluminando em volta (uma luz amarelada, de alcance médio). Segurando C, a mão
+// cintura, do lado esquerdo, sempre acesa, iluminando em volta (uma luz amarelada, de alcance médio). Com o C (liga e desliga), a mão
 // esquerda pega e ergue a lamparina para a frente, na altura do ombro: a luz fica mais forte e sai um feixe (2D, macio
 // como o luar das janelas) para a frente; o feixe afasta o Mestre (game/entidades). Solta o C, ela volta para a cintura.
 // O modelo é modelos/armas/lamparina.bbmodel (a pasta "empunhadura" é a alça). Ela balança pela alça (um pêndulo) na
@@ -84,7 +84,7 @@ export function descartarLamparina(a: Agente) {
   a.lamparina = null
 }
 
-/** O braço esquerdo ergue a lamparina (depois da pose do corpo e das armas, antes das mãos). quer = segurando C;
+/** O braço esquerdo ergue a lamparina (depois da pose do corpo e das armas, antes das mãos). quer = erguida (o C liga e desliga);
  *  solto = 1 − o quanto está na cambalhota. Devolve o quanto ela está erguida (a mão esquerda fecha na alça). */
 export function erguerLamparina(a: Agente, quer: boolean, solto: number, dt: number): number {
   const L = a.lamparina

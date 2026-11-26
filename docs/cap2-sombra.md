@@ -233,7 +233,7 @@ agora de passagem. **Os detalhes do mapa vão ser pensados de novo.**
 ## A lamparina (vale para o jogo todo; feita em 18/nov, menos a captura)
 
 **Feito (18/nov):** `src/game/player/lamparina.ts` e o modelo `modelos/armas/lamparina.bbmodel` (era a armadilha: a
-mesma lanterna). Na cintura, do lado esquerdo, balançando pela alça; segurando C, a mão esquerda ergue na altura do
+mesma lanterna). Na cintura, do lado esquerdo, balançando pela alça; com o C (26/nov: liga e desliga, sem segurar), a mão esquerda ergue na altura do
 peito, a luz fica mais forte e sai o feixe (um cone macio, como o luar). A luz não é uma luz do three: entra na conta da
 luz assada de cada material (`src/render/assada.ts`, LAMPARINA), a única luz que anda; sem sombra (a face de trás da
 parede fica escura). No feixe (sem parede no meio) o Mestre se cobre e recua (`src/game/entidades`). O jogar a
@@ -245,7 +245,7 @@ A armadilha de captura **é a lamparina** (decidido em 17/nov). Ela já estava "
 "As armas"); a reforma é esta:
 - fica **na cintura** do agente, **acesa, iluminando** em volta (decidido em 18/nov: a uma distância média, uma luz
   **amarelada**);
-- **segurar C** (18/nov: o F continua sendo o kit) ergue a lamparina para a frente e sai um **feixe de luz** (2D, como
+- **o C** (18/nov: o F continua sendo o kit; 26/nov: liga e desliga, sem segurar) ergue a lamparina para a frente e sai um **feixe de luz** (2D, como
   o luar das janelas) à frente; o feixe **afasta o Mestre** (ele se cobre e recua). Não fica na troca de armas (o Q);
 - **erguer a lamparina** ilumina a frente com mais força: abre a Angústia e afasta a sombra;
 - **capturar:** erguida, ela **absorve** o fantasma (no lugar de jogar a armadilha na poça);

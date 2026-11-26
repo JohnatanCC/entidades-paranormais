@@ -204,7 +204,7 @@ src/game/                  (já existem: Testar.tsx, player/, input/, world/, we
                            memória da placa, nível, lâmpadas)
   player/                  o agente: modelo.ts (liga modelos/agente.bbmodel no esqueleto), animacao.ts, maos.ts (os dedos),
                            arma.ts (a arma na mão; a escopeta com as duas mãos ou no ombro; o frasco
-                           da pistola com o calor; Q troca no Testar), lamparina.ts (na cintura, acesa; C ergue: a mão esquerda, o feixe), mira.ts (mirar: a pose, o coice, a bomba depois do tiro),
+                           da pistola com o calor; Q troca no Testar), lamparina.ts (na cintura, acesa; o C ergue e baixa: a mão esquerda, o feixe), mira.ts (mirar: a pose, o coice, a bomba depois do tiro),
                            recarga.ts (a recarga da escopeta: a bolsa, o cartucho, as balas puxadas pela arma), queda.ts (cair sem violência), dano.ts (o tranco de um golpe,
                            machucado), vida.ts (a vida, a invulnerabilidade, os kits, curar ao capturar), parado.ts (a respiração, o
                            peso e os gestos de parado), alcancar.ts (o braço alcança um ponto: IK de dois ossos; a mão esquerda na maçaneta ao abrir a porta),
